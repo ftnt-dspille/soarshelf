@@ -174,7 +174,7 @@ def _inert(text: str, limit: int = 300) -> str:
     issue references and anything GitHub would autolink (scheme://, www.,
     bare domains, emails)."""
     text = re.sub(r"[\x00-\x1f\x7f]+", " ", str(text)[:limit])
-    text = re.sub(r"[`*_\[\]<>|#~()!\\]", "", text)
+    text = re.sub(r"[`*_\[\]<>|#~()!\\&;]", "", text)  # & ; : no HTML entities
     text = re.sub(r"[:.]", lambda m: _ZW + m.group(0) + _ZW, text).replace("@", "@" + _ZW)
     return text
 

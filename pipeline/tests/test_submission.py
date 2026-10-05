@@ -122,7 +122,7 @@ def test_duplicate_check_covers_pack_uploads(tmp_path, doc, hub, write_json):
 def test_inert_breaks_links():
     from soarshelf.submission import _inert
     for raw in ["see https://evil.example/x", "www.evil.example", "evil.example", "mail bob@evil.example",
-                "![x](javascript:alert(1))", "fixes #12"]:
+                "![x](javascript:alert(1))", "fixes #12", "&#64;everyone", "evil&#46;example"]:
         out = _inert(raw)
         for bad in ["://", "www.", "evil.example", "@evil", "](", "#12"]:
             assert bad not in out, (raw, out)

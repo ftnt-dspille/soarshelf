@@ -51,11 +51,10 @@ def load_trust(content: Path) -> dict[str, tuple[str, int | None]]:
 
 def tier_for(table: dict[str, tuple[str, int | None]], login: str, uid: int | None = None) -> str:
     """A tier only counts for the account it was granted to. Logins can be
-    renamed and re-registered, so an entry without an id, or one whose id
-    doesn't match the caller's, is 'new'. With ``uid=None`` (display only)
-    an entry still needs an id to count."""
+    renamed and re-registered, so an entry without an id, a caller without
+    one, or a mismatch is 'new'. Items carry ``author_id`` for this."""
     tier, want = table.get(login.lower(), ("new", None))
-    if want is None or (uid is not None and uid != want):
+    if want is None or uid is None or uid != want:
         return "new"
     return tier
 

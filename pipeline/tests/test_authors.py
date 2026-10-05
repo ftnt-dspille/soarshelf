@@ -3,7 +3,7 @@ import yaml
 from soarshelf.authors import changed_items, file_reader, verify
 
 
-IDS = {"boss": 1, "alice": 2, "mallory": 666}
+IDS = {"boss": 1, "alice": 2, "bob": 3, "mallory": 666}
 
 
 def _tree(root, items: dict, maintainers=("boss",)):
@@ -13,7 +13,8 @@ def _tree(root, items: dict, maintainers=("boss",)):
     for slug, author in items.items():
         d = root / "content" / "playbooks" / slug
         d.mkdir(parents=True)
-        (d / "meta.yaml").write_text(yaml.safe_dump(author if isinstance(author, dict) else {"author": author}))
+        meta = author if isinstance(author, dict) else {"author": author, "author_id": IDS[author]}
+        (d / "meta.yaml").write_text(yaml.safe_dump(meta))
     return root
 
 
@@ -82,8 +83,16 @@ def test_item_bound_to_author_id(tmp_path):
     assert run(tmp_path / "1", {"a": item}, {"a": item}, "alice", A) == []
     errors = run(tmp_path / "2", {"a": item}, {"a": item}, "alice", A, uid=4242)
     assert errors and "belongs to" in errors[0]
-    # and a new item can't claim someone else's id
+    # and a new item can't claim someone else's id, or leave it out
     assert run(tmp_path / "3", {}, {"a": {"author": "mallory", "author_id": 2}}, "mallory", A)
+    assert run(tmp_path / "4", {}, {"a": {"author": "mallory"}}, "mallory", A)
+
+
+def test_item_without_author_id_needs_maintainer(tmp_path):
+    legacy = {"author": "alice"}
+    claimed = {"author": "alice", "author_id": 4242}
+    assert run(tmp_path / "1", {"a": legacy}, {"a": claimed}, "alice", A, uid=4242)
+    assert run(tmp_path / "2", {"a": legacy}, {"a": legacy}, "boss", A) == []
 
 
 def test_bot_may_change_anything(tmp_path):

@@ -39,6 +39,7 @@ description: |
 use_cases: [enrichment, triage]     # see pipeline/src/soarshelf/config.py USE_CASES
 tags: [ip, reputation]
 author: your-github-handle
+author_id: 12345678        # your numeric GitHub id: gh api users/<handle> --jq .id
 version: 1.0.0
 min_version: 7.4.0
 license: MIT

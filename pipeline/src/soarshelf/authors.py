@@ -68,9 +68,10 @@ def _author(meta: dict[str, Any]) -> str:
 
 
 def _same_account(meta: dict[str, Any], uid: int | None) -> bool:
-    """Items record the uploader's numeric id; a reclaimed login has a new one."""
+    """Items record the uploader's numeric id; a reclaimed login has a new one.
+    An item without one can only be changed by a maintainer."""
     want = meta.get("author_id")
-    return want is None or (uid is not None and want == uid)
+    return uid is not None and isinstance(want, int) and want == uid
 
 
 def verify(changed: list[str], pr_author: str, bots: set[str], trust_root: Path,
@@ -101,7 +102,7 @@ def verify(changed: list[str], pr_author: str, bots: set[str], trust_root: Path,
             errors.append(f"{item}: belongs to '{before.get('author')}'. You can only change your own items.")
             continue
         if not _same_account(after, pr_author_id):
-            errors.append(f"{item}: author_id doesn't match your GitHub account. Remove it or set it to yours.")
+            errors.append(f"{item}: author_id must be your numeric GitHub id ({pr_author_id}).")
             continue
         if _author(after) != who:
             errors.append(f"{item}: author is '{after.get('author')}', but this pull request is from "
