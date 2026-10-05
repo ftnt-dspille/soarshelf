@@ -101,17 +101,21 @@
       <blockquote>Pay particular attention to items marked <em>Contains code</em>. A maintainer reviewed them, but read code steps yourself before turning them on.</blockquote>
 
       <h2 id="contributing">Contributing</h2>
-      <p>You can share playbook collections, solution packs and connectors you wrote yourself. In-browser upload with GitHub sign-in is <strong>coming soon</strong>. For now:</p>
+      <p>You can share playbook collections, solution packs and connectors you wrote yourself. The easiest way is the <a href="/submit">upload page</a>:</p>
       <ol>
-        <li>Fork <a href={SITE.repo}>the repository</a>.</li>
-        <li>Add a folder <code>content/&lt;type&gt;s/&lt;slug&gt;/</code> (for example <code>content/playbooks/ip-enrichment/</code>) with a <code>meta.yaml</code> and your export file.</li>
-        <li>Run the checks locally (below), then open a pull request. The same checks run in CI.</li>
+        <li><a href="/submit">Sign in with GitHub</a>. Only your public profile is used, to credit you and to limit spam.</li>
+        <li>Drop in your export, give it a title, a one-line summary and a use case or two.</li>
+        <li>The checks run within about a minute and you see the full report on your <a href="/me">submissions page</a>. Your file sits in a private quarantine until then; nothing is public before it passes.</li>
+        <li>Clean submissions from established contributors publish automatically. Everything else gets a quick review by a maintainer.</li>
       </ol>
+      <h3>Prefer git?</h3>
+      <p>You can also open a pull request. Fork <a href={SITE.repo}>the repository</a>, add a folder <code>content/&lt;type&gt;s/&lt;slug&gt;/</code> (for example <code>content/playbooks/ip-enrichment/</code>) with a <code>meta.yaml</code> and the <em>cleaned</em> export from <code>soarshelf check --clean-out</code> (see <a href="#self-check">below</a>), then open the pull request. The <code>author</code> must be your GitHub handle and <code>author_id</code> your numeric GitHub id (<code>gh api users/&lt;handle&gt; --jq .id</code>); CI checks both.</p>
       <pre><code>title: Enrich source IPs with threat intel
 summary: Scores alerts by source IP reputation and skips private addresses.
-use_cases: [alert-triage, threat-intel]
+use_cases: [triage, enrichment]
 tags: [enrichment, ip]
 author: your-github-handle
+author_id: 12345678
 version: 1.0.0
 min_version: 7.4.0
 description: |

@@ -9,6 +9,9 @@ import Folder from '@lucide/svelte/icons/folder';
 import Download from '@lucide/svelte/icons/download';
 import Bell from '@lucide/svelte/icons/bell';
 import Wrench from '@lucide/svelte/icons/wrench';
+import Funnel from '@lucide/svelte/icons/funnel';
+import Search from '@lucide/svelte/icons/search';
+import ChartColumn from '@lucide/svelte/icons/chart-column';
 import Zap from '@lucide/svelte/icons/zap';
 import Plug from '@lucide/svelte/icons/plug';
 import GitBranch from '@lucide/svelte/icons/git-branch';
@@ -35,7 +38,12 @@ const USE_CASE_ICONS: Record<string, Component> = {
   folder: Folder,
   download: Download,
   bell: Bell,
-  wrench: Wrench
+  wrench: Wrench,
+  // Names used by the pipeline's use-case taxonomy (pipeline config.USE_CASES).
+  filter: Funnel,
+  search: Search,
+  user: User,
+  chart: ChartColumn
 };
 
 export function useCaseIcon(name: string): Component {

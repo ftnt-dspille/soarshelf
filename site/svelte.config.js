@@ -12,10 +12,13 @@ const config = {
       mode: 'hash',
       directives: {
         'default-src': ['self'],
-        'script-src': ['self'],
+        // Turnstile (bot check) on the upload page.
+        'script-src': ['self', 'https://challenges.cloudflare.com'],
+        'frame-src': ['https://challenges.cloudflare.com'],
         // Svelte transitions and the graph canvas set style attributes at runtime.
         'style-src': ['self', 'unsafe-inline'],
-        'img-src': ['self', 'data:'],
+        // GitHub avatars of signed-in users.
+        'img-src': ['self', 'data:', 'https://avatars.githubusercontent.com'],
         'font-src': ['self'],
         'connect-src': ['self'],
         'object-src': ['none'],
@@ -32,6 +35,8 @@ const config = {
       // Downloads are written by the pipeline; the dev fixture has none, so don't fail on them.
       handleHttpError: ({ path, message }) => {
         if (path.startsWith('/downloads/')) return console.warn(`prerender: ${message}`);
+        // /api/* is the upload Worker, which only exists at runtime.
+        if (path.startsWith('/api/')) return;
         throw new Error(message);
       }
     }

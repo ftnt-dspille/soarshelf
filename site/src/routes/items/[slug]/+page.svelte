@@ -2,28 +2,26 @@
   import { browser } from '$app/environment';
   import { SITE } from '$lib/config';
   import { connectorLabels } from '$lib/data';
-  import { SEVERITY_LABEL, TYPE_LABEL, formatBytes, formatDate, plural } from '$lib/format';
-  import type { CheckResult, Severity, SetupStep } from '$lib/types';
+  import { TYPE_LABEL, formatBytes, formatDate } from '$lib/format';
+  import type { SetupStep } from '$lib/types';
   import TypePill from '$lib/components/TypePill.svelte';
   import HubBadge from '$lib/components/HubBadge.svelte';
   import TrustBadge from '$lib/components/TrustBadge.svelte';
   import CopyButton from '$lib/components/CopyButton.svelte';
   import Markdown from '$lib/components/Markdown.svelte';
   import PlaybookViewer from '$lib/components/PlaybookViewer.svelte';
+  import CheckList from '$lib/components/CheckList.svelte';
+  import ReportDialog from '$lib/components/ReportDialog.svelte';
   import Download from '@lucide/svelte/icons/download';
   import Code from '@lucide/svelte/icons/code';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
-  import CircleCheck from '@lucide/svelte/icons/circle-check';
   import Info from '@lucide/svelte/icons/info';
-  import X from '@lucide/svelte/icons/x';
   import Plug from '@lucide/svelte/icons/plug';
   import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
   import Package from '@lucide/svelte/icons/package';
   import Database from '@lucide/svelte/icons/database';
   import Upload from '@lucide/svelte/icons/upload';
   import Zap from '@lucide/svelte/icons/zap';
-  import BookOpen from '@lucide/svelte/icons/book-open';
-  import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import type { Component } from 'svelte';
 
   let { data } = $props();
@@ -88,17 +86,6 @@
     note: Info
   };
 
-  const ORDER: Severity[] = ['block', 'warn', 'info', 'pass'];
-  const grouped = $derived(
-    ORDER.map((s) => ({ s, list: item.checks.filter((c) => c.severity === s) })).filter((g) => g.list.length)
-  );
-  const SEV_TONE: Record<Severity, string> = {
-    block: 'text-block bg-block-soft',
-    warn: 'text-warn bg-warn-soft',
-    info: 'text-info bg-info-soft',
-    pass: 'text-ok bg-ok-soft'
-  };
-  const SEV_ICON: Record<Severity, Component> = { block: X, warn: TriangleAlert, info: Info, pass: CircleCheck };
   const HUB_DEP: Record<string, { label: string; tone: string }> = {
     available: { label: 'On Content Hub', tone: 'text-ok bg-ok-soft' },
     'version-mismatch': { label: 'Version differs', tone: 'text-info bg-info-soft' },
@@ -113,17 +100,6 @@
   <meta property="og:description" content={item.summary} />
 </svelte:head>
 
-{#snippet checkRow(c: CheckResult)}
-  {@const Icon = SEV_ICON[c.severity]}
-  <li class="flex gap-3 px-4 py-3.5">
-    <span class="mt-0.5 grid size-6 shrink-0 place-items-center rounded-md {SEV_TONE[c.severity]}"><Icon size={14} aria-hidden="true" /></span>
-    <div class="min-w-0">
-      <p class="text-sm font-medium">{c.title}</p>
-      <div class="mt-0.5 text-sm text-muted [&_.prose]:text-sm [&_.prose]:text-muted"><Markdown source={c.detail} /></div>
-      {#if c.location}<p class="mt-1 truncate font-mono text-xs text-faint" title={c.location}>{c.location}</p>{/if}
-    </div>
-  </li>
-{/snippet}
 
 <div class="border-b border-line">
   <div class="mx-auto max-w-7xl px-4 pt-8 pb-8 sm:px-6">
@@ -359,40 +335,7 @@
       </div>
     </div>
   {:else if tab === 'checks'}
-    <div class="max-w-3xl">
-      <div class="flex flex-wrap gap-2">
-        {#each grouped as g (g.s)}
-          <span class="rounded-md px-2.5 py-1 text-xs font-medium {SEV_TONE[g.s]}">{g.list.length} {SEVERITY_LABEL[g.s].toLowerCase()}</span>
-        {/each}
-      </div>
-      <p class="mt-3 text-sm text-muted">
-        Results from the automated pipeline at publish time. <a href="/guide#checks" class="font-medium text-accent-text hover:underline">What each check does</a>.
-      </p>
-      <div class="mt-6 space-y-6">
-        {#each grouped.filter((g) => g.s !== 'pass') as g (g.s)}
-          <section>
-            <h2 class="text-xs font-semibold uppercase tracking-wider text-faint">{SEVERITY_LABEL[g.s]}</h2>
-            <ul class="mt-2 divide-y divide-line rounded-xl border border-line bg-surface">
-              {#each g.list as c (c.id + (c.location ?? ''))}{@render checkRow(c)}{/each}
-            </ul>
-          </section>
-        {/each}
-        {#each grouped.filter((g) => g.s === 'pass') as g (g.s)}
-          <details class="group rounded-xl border border-line bg-surface">
-            <summary class="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium">
-              <span class="inline-flex items-center gap-2"><CircleCheck size={15} class="text-ok" aria-hidden="true" />{plural(g.list.length, 'check')} passed</span>
-              <ChevronDown size={15} class="text-faint transition group-open:rotate-180" aria-hidden="true" />
-            </summary>
-            <ul class="divide-y divide-line border-t border-line">
-              {#each g.list as c (c.id + (c.location ?? ''))}{@render checkRow(c)}{/each}
-            </ul>
-          </details>
-        {/each}
-      </div>
-    </div>
+    <div class="max-w-3xl"><CheckList checks={item.checks} /></div>
   {/if}
-  <p class="mt-12 flex items-center gap-2 text-xs text-faint">
-    <BookOpen size={13} aria-hidden="true" />Something wrong with this item?
-    <a href="{SITE.issues}/new?title={encodeURIComponent(`Report: ${item.slug}`)}" class="text-accent-text hover:underline" rel="noopener noreferrer">Report it</a>
-  </p>
+  <div class="mt-12"><ReportDialog slug={item.slug} /></div>
 </div>
