@@ -8,7 +8,10 @@
 | maintainer  | runs the site                          | no blocking findings                                 |
 
 Whatever the tier: blocking findings reject; connectors and anything that
-runs code always go to a human (maintainers excepted).
+runs code always go to a human.
+
+``trust`` must come from an authenticated identity (the uploader's GitHub
+login, or the pull request author), never from the item's own meta.yaml.
 """
 from __future__ import annotations
 
@@ -23,16 +26,16 @@ def decide(results: list[CheckResult], *, trust: str, kind: str, has_code: bool)
         return "reject", blocks
     if trust not in TIERS:
         trust = "new"
-    if trust == "maintainer":
-        return "publish", []
 
     reasons = []
-    if trust == "new":
-        reasons.append("First submissions from new contributors are reviewed")
     if kind == "connector":
         reasons.append("Connectors are always reviewed")
     if has_code:
         reasons.append("Contains steps that run code")
+    if trust == "maintainer":
+        return ("review", reasons) if reasons else ("publish", [])
+    if trust == "new":
+        reasons.append("First submissions from new contributors are reviewed")
     warns = [r for r in results if r.severity is Severity.WARN]
     if trust == "contributor" and warns:
         reasons += [r.title for r in warns]

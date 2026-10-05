@@ -42,6 +42,19 @@ def _build(args: argparse.Namespace) -> int:
     return build(args.content, args.out)
 
 
+def _verify_authors(args: argparse.Namespace) -> int:
+    from .authors import verify
+
+    changed = [line.strip() for line in sys.stdin if line.strip()]
+    bots = {b for b in (args.bot or []) if b}
+    errors = verify(args.repo, changed, args.pr_author, bots, args.trust_from)
+    for e in errors:
+        print(f"✗ {e}")
+    if not errors:
+        print(f"✓ all changed items are credited to {args.pr_author}")
+    return 1 if errors else 0
+
+
 def _hub_index(args: argparse.Namespace) -> int:
     from .hubindex import DATA_DIR, FINGERPRINTS, HUB_INDEX, build_fingerprints, build_hub_index, fetch_catalog
 
@@ -73,6 +86,13 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--content", type=Path, default=Path("content"))
     b.add_argument("--out", type=Path, default=Path("site/static"))
     b.set_defaults(fn=_build)
+
+    v = sub.add_parser("verify-authors", help="PR gate: changed items must be credited to the PR author")
+    v.add_argument("--pr-author", required=True)
+    v.add_argument("--repo", type=Path, default=Path("."))
+    v.add_argument("--bot", action="append", help="login allowed to change any item (repeatable)")
+    v.add_argument("--trust-from", type=Path, help="base-branch checkout to read contributors.yaml from")
+    v.set_defaults(fn=_verify_authors)
 
     h = sub.add_parser("hub-index", help="regenerate the Content Hub snapshot (maintainers)")
     h.add_argument("--catalog", default=None, help="content-hub.json URL or file (default: the public catalog)")

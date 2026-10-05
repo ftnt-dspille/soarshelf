@@ -111,5 +111,7 @@ def test_policy_tiers():
     assert policy.decide(other, trust="trusted", kind="playbook", has_code=False)[0] == "publish"
     assert policy.decide(warn, trust="trusted", kind="playbook", has_code=False)[0] == "review"
     assert policy.decide([], trust="trusted", kind="connector", has_code=False)[0] == "review"
-    assert policy.decide(warn, trust="maintainer", kind="connector", has_code=True)[0] == "publish"
+    assert policy.decide(warn, trust="maintainer", kind="playbook", has_code=False)[0] == "publish"
+    assert policy.decide([], trust="maintainer", kind="connector", has_code=False)[0] == "review"
+    assert policy.decide([], trust="maintainer", kind="playbook", has_code=True)[0] == "review"
     assert policy.decide([], trust="bogus", kind="playbook", has_code=False)[0] == "review"

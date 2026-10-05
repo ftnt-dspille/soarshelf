@@ -35,6 +35,7 @@ _SECRET_KEY = re.compile(
     r"access[_-]?token|refresh[_-]?token|auth[_-]?token|token|private[_-]?key|secret[_-]?key)$",
     re.I,
 )
+_TEMPLATE = re.compile(r"\{\{.*?\}\}|\{%.*?%\}", re.S)
 _PLACEHOLDER = re.compile(r"^\s*(<[^>]+>|\$\{[^}]+\}|x{3,}|\*{3,}|changeme|your[_ -].*|example.*)\s*$", re.I)
 
 _IPV4 = re.compile(r"(?<![\d.])((?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3})(/\d{1,2})?(?![\d.])")
@@ -52,22 +53,27 @@ _SKIP_KEYS = {"uuid", "@type", "@id", "stepType", "triggerStep", "sourceStep", "
               "step_iri", "workflowReference", "priority"}
 
 
-def _walk(node: Any, path: tuple[str, ...]) -> Iterator[tuple[tuple[str, ...], str | None, str]]:
-    """Yield (path, key, string) for every string value."""
+def _walk(node: Any, path: tuple[str, ...], free: bool = False
+          ) -> Iterator[tuple[tuple[str, ...], str | None, str, bool]]:
+    """Yield (path, key, string, structural) for every string value.
+
+    ``structural`` marks identifier fields (uuid, stepType, ...) of the export
+    format itself. Inside ``arguments`` everything is author content, so the
+    same key names there are never treated as structural.
+    """
     if isinstance(node, dict):
         for k, v in node.items():
-            if k in _SKIP_KEYS:
-                continue
+            inner = free or k == "arguments"
             if isinstance(v, str):
-                yield path + (str(k),), str(k), v
+                yield path + (str(k),), str(k), v, (k in _SKIP_KEYS and not free)
             else:
-                yield from _walk(v, path + (str(k),))
+                yield from _walk(v, path + (str(k),), inner)
     elif isinstance(node, list):
         for i, v in enumerate(node):
             if isinstance(v, str):
-                yield path + (f"[{i}]",), None, v
+                yield path + (f"[{i}]",), None, v, False
             else:
-                yield from _walk(v, path + (f"[{i}]",))
+                yield from _walk(v, path + (f"[{i}]",), free)
 
 
 def _entropy(s: str) -> float:
@@ -98,14 +104,20 @@ def scan(doc: Any, where: str = "") -> list[CheckResult]:
         loc = " › ".join(p for p in (where, ".".join(path)) if p)
         found.setdefault((id_, detail), CheckResult(f"secrets.{id_}", sev, title, detail, loc))
 
-    for path, key, value in _walk(doc, ()):
+    for path, key, value, structural in _walk(doc, ()):
+        # Token formats are checked everywhere, identifier fields included.
         for id_, label, rx in _TOKENS:
             m = rx.search(value)
             if m:
                 hit(id_, Severity.BLOCK, f"{label} found", _mask(m.group(0)), path)
+        if structural:
+            continue                     # heuristics below would flag UUIDs and IRIs
 
-        if key and _SECRET_KEY.match(key) and value.strip() and "{{" not in value \
-                and "{%" not in value and not _PLACEHOLDER.match(value) and len(value.strip()) >= 6:
+        # Template expressions are references, not secrets; whatever literal
+        # text surrounds them still counts ("hunter2{{ vars.x }}").
+        literal = _TEMPLATE.sub("", value).strip()
+        if key and _SECRET_KEY.match(key) and literal and not _PLACEHOLDER.match(literal) \
+                and len(literal) >= 6:
             hit("literal-secret", Severity.BLOCK, f"Literal value in '{key}'",
                 f"{_mask(value)} - reference a connector configuration or a variable instead.", path)
 

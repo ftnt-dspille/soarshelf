@@ -62,8 +62,23 @@ def test_high_entropy_warns():
     assert ids({"blob": "Zx9Qm2Lp7Rt4Vw8Ks1Nd6Hf3Jb5Gc0Ya2Ue7Io9Pq4Tr"})["secrets.high-entropy"] == "warn"
 
 
-def test_structural_keys_skipped():
-    assert ids({"uuid": "AKIAIOSFODNN7EXAMPLE"}) == {}
+def test_structural_keys_skip_heuristics_only():
+    # A real step uuid is not flagged as a random-looking secret...
+    assert ids({"uuid": "Zx9Qm2Lp7Rt4Vw8Ks1Nd6Hf3Jb5Gc0Ya2Ue7Io9Pq4Tr"}) == {}
+    # ...but token formats are still found there,
+    assert ids({"uuid": "AKIAIOSFODNN7EXAMPLE"})["secrets.aws-key"] == "block"
+
+
+def test_structural_names_inside_arguments_are_content():
+    step = {"uuid": "x", "arguments": {"priority": "Zx9Qm2Lp7Rt4Vw8Ks1Nd6Hf3Jb5Gc0Ya2Ue7Io9Pq4Tr",
+                                       "params": {"uuid": FAKE_PW * 3}}}
+    found = ids(step)
+    assert found["secrets.high-entropy"] == "warn"
+
+
+def test_literal_secret_around_template_still_blocks():
+    assert ids({"params": {"password": FAKE_PW + "{{ vars.suffix }}"}})["secrets.literal-secret"] == "block"
+    assert "secrets.literal-secret" not in ids({"params": {"password": " {{ vars.creds.password }} "}})
 
 
 def test_location_reported():
