@@ -1,0 +1,105 @@
+{
+  "slug": "shodan-lite-connector",
+  "type": "connector",
+  "title": "Shodan Lite connector",
+  "summary": "Minimal host lookup connector with three read-only operations.",
+  "useCases": [
+    "threat-intel",
+    "utilities"
+  ],
+  "tags": [
+    "connector",
+    "host-lookup"
+  ],
+  "connectors": [
+    "shodan-lite"
+  ],
+  "triggers": [],
+  "playbookCount": 0,
+  "stepCount": 0,
+  "hubStatus": "needs-custom",
+  "hasCode": true,
+  "author": {
+    "github": "intel-ivan",
+    "trust": "contributor"
+  },
+  "version": "0.3.0",
+  "minVersion": "7.6.0",
+  "published": "2026-09-05",
+  "updated": "2026-09-18",
+  "description": "Not on the Content Hub. Operations: `host_lookup`, `search_hosts`, `get_api_info`.\n\nSource is linked from the author's repository. Connectors always get a human review.",
+  "setup": [
+    {
+      "kind": "install-connector",
+      "title": "Install from file",
+      "detail": "In **Content Hub \u2192 Manage \u2192 Upload**, upload the connector archive."
+    },
+    {
+      "kind": "configure-connector",
+      "title": "Add your API key",
+      "detail": "Create a configuration with your own key."
+    }
+  ],
+  "dependencies": {
+    "connectors": [],
+    "solutionPacks": [],
+    "modules": []
+  },
+  "checks": [
+    {
+      "id": "format.valid",
+      "severity": "pass",
+      "title": "Valid export format",
+      "detail": "Parsed as a workflow_collections export."
+    },
+    {
+      "id": "size.limit",
+      "severity": "pass",
+      "title": "Within size limit",
+      "detail": "Well under the 2 MB playbook limit."
+    },
+    {
+      "id": "secrets.none",
+      "severity": "pass",
+      "title": "No secrets found",
+      "detail": "No API keys, tokens, passwords or private keys detected."
+    },
+    {
+      "id": "network.private-ip",
+      "severity": "pass",
+      "title": "No private addresses",
+      "detail": "No RFC 1918 addresses or internal hostnames."
+    },
+    {
+      "id": "provenance.original",
+      "severity": "pass",
+      "title": "Not official content",
+      "detail": "Doesn't match any published solution pack content."
+    },
+    {
+      "id": "sanitize.owners",
+      "severity": "info",
+      "title": "Owner references removed",
+      "detail": "Removed 2 user/team references and the connector configuration ID."
+    },
+    {
+      "id": "sanitize.inactive",
+      "severity": "info",
+      "title": "Shipped inactive",
+      "detail": "Playbooks are set to inactive so nothing fires on import."
+    },
+    {
+      "id": "code.connector",
+      "severity": "warn",
+      "title": "Connector code",
+      "detail": "Python code that runs on your appliance. Human-reviewed by a maintainer."
+    }
+  ],
+  "collections": [],
+  "download": {
+    "path": "/downloads/shodan-lite-connector/shodan-lite-0.3.0.tgz",
+    "filename": "shodan-lite-0.3.0.tgz",
+    "sha256": "89c4ec9f6b3f1086b158d8ef03dfe8155e6f79d9e66434b8f9b3432fe8720e50",
+    "bytes": 24576
+  }
+}

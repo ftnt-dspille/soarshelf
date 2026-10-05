@@ -1,0 +1,169 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Compiler Examples",
+      "description": "Decision branching with high/low severity routing.",
+      "visible": true,
+      "image": null,
+      "uuid": "3b28bf29-8f8a-59cb-a97c-54a1737e8284",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "Route By Severity",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Demonstrate decision branches.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/d9a9558e-e9b9-5daa-84ef-c3e7bb101b4a",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "d9a9558e-e9b9-5daa-84ef-c3e7bb101b4a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Read severity",
+              "description": null,
+              "arguments": {
+                "severity": "{{ vars.input.records[0].severity }}"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "5ffb82ff-bdd2-5221-aa56-344ac091ee87"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Branch on severity",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "high",
+                    "condition": "{{ vars.severity in ['critical', 'high'] }}",
+                    "step_iri": "/api/3/workflow_steps/ae807e29-6952-51ad-9713-704e73586ab5",
+                    "step_name": "Escalate to Tier 2"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/888583d9-ce3c-55dd-8b07-4f2204a40280",
+                    "step_name": "Log low severity"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "21fff46c-1864-59a8-b833-0371330e34f1"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Escalate to Tier 2",
+              "description": null,
+              "arguments": {
+                "tier": "tier2"
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "ae807e29-6952-51ad-9713-704e73586ab5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Log low severity",
+              "description": null,
+              "arguments": {
+                "tier": "tier1"
+              },
+              "status": null,
+              "top": "510",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "888583d9-ce3c-55dd-8b07-4f2204a40280"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "start -> Read severity",
+              "targetStep": "/api/3/workflow_steps/5ffb82ff-bdd2-5221-aa56-344ac091ee87",
+              "sourceStep": "/api/3/workflow_steps/d9a9558e-e9b9-5daa-84ef-c3e7bb101b4a",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1b0fdbde-6e44-5dbe-a9dd-bf3fa9fe480d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Read severity -> Branch on severity",
+              "targetStep": "/api/3/workflow_steps/21fff46c-1864-59a8-b833-0371330e34f1",
+              "sourceStep": "/api/3/workflow_steps/5ffb82ff-bdd2-5221-aa56-344ac091ee87",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6e12f87f-4540-5b2f-b201-11780b6fd8d5"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Branch on severity -> Escalate to Tier 2",
+              "targetStep": "/api/3/workflow_steps/ae807e29-6952-51ad-9713-704e73586ab5",
+              "sourceStep": "/api/3/workflow_steps/21fff46c-1864-59a8-b833-0371330e34f1",
+              "label": "high",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0a84eb6e-a18b-52b0-bd90-2a78e2533955"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Branch on severity -> Log low severity",
+              "targetStep": "/api/3/workflow_steps/888583d9-ce3c-55dd-8b07-4f2204a40280",
+              "sourceStep": "/api/3/workflow_steps/21fff46c-1864-59a8-b833-0371330e34f1",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "d90442a7-fabc-5877-93b3-769cd5e19179"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "38de49b1-9777-580b-a596-b639585c2e1a",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,267 @@
+{
+  "slug": "vt-ip-enrichment",
+  "type": "playbook",
+  "title": "Enrich source IPs with VirusTotal",
+  "summary": "Scores alerts by the source IP's reputation and skips private addresses.",
+  "useCases": [
+    "alert-triage",
+    "threat-intel"
+  ],
+  "tags": [
+    "enrichment",
+    "ip",
+    "severity"
+  ],
+  "connectors": [
+    "virustotal"
+  ],
+  "triggers": [
+    "On Create"
+  ],
+  "playbookCount": 1,
+  "stepCount": 6,
+  "hubStatus": "complete",
+  "hasCode": false,
+  "author": {
+    "github": "secops-sam",
+    "trust": "trusted"
+  },
+  "version": "1.2.0",
+  "minVersion": "7.4.0",
+  "published": "2026-09-12",
+  "updated": "2026-09-28",
+  "description": "When an alert is created with a source IP, this playbook checks whether the address is public and, if it is, asks **VirusTotal** for its reputation.\n\nThe alert's severity is then set to *High* when more than three engines flag the IP, otherwise *Low*.\n\n### Why\n- Cuts manual lookups for the most common enrichment.\n- Private ranges are skipped so you don't burn API quota.\n\n```jinja\n{{ vars.source_ip | ipaddr('public') }}\n```",
+  "setup": [
+    {
+      "kind": "install-connector",
+      "title": "Install VirusTotal 3.0.1",
+      "detail": "Open **Content Hub**, search for *VirusTotal* and install it."
+    },
+    {
+      "kind": "configure-connector",
+      "title": "Configure VirusTotal",
+      "detail": "Add a configuration and mark it as **default** so the playbook steps pick it up."
+    },
+    {
+      "kind": "import",
+      "title": "Import the file",
+      "detail": "Go to **Settings \u2192 Import Wizard**, upload the download and review the collections being added."
+    },
+    {
+      "kind": "activate",
+      "title": "Review and activate",
+      "detail": "Downloads ship **inactive**. Open each playbook, check the trigger conditions, then activate it."
+    }
+  ],
+  "dependencies": {
+    "connectors": [
+      {
+        "name": "virustotal",
+        "label": "VirusTotal",
+        "version": "3.0.1",
+        "operations": [
+          "get_ip_reputation"
+        ],
+        "hub": "available",
+        "hubVersion": "3.0.1"
+      }
+    ],
+    "solutionPacks": [],
+    "modules": [
+      {
+        "name": "alerts",
+        "stock": true
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "format.valid",
+      "severity": "pass",
+      "title": "Valid export format",
+      "detail": "Parsed as a workflow_collections export."
+    },
+    {
+      "id": "size.limit",
+      "severity": "pass",
+      "title": "Within size limit",
+      "detail": "Well under the 2 MB playbook limit."
+    },
+    {
+      "id": "secrets.none",
+      "severity": "pass",
+      "title": "No secrets found",
+      "detail": "No API keys, tokens, passwords or private keys detected."
+    },
+    {
+      "id": "network.private-ip",
+      "severity": "pass",
+      "title": "No private addresses",
+      "detail": "No RFC 1918 addresses or internal hostnames."
+    },
+    {
+      "id": "provenance.original",
+      "severity": "pass",
+      "title": "Not official content",
+      "detail": "Doesn't match any published solution pack content."
+    },
+    {
+      "id": "sanitize.owners",
+      "severity": "info",
+      "title": "Owner references removed",
+      "detail": "Removed 2 user/team references and the connector configuration ID."
+    },
+    {
+      "id": "sanitize.inactive",
+      "severity": "info",
+      "title": "Shipped inactive",
+      "detail": "Playbooks are set to inactive so nothing fires on import."
+    }
+  ],
+  "collections": [
+    {
+      "name": "IP Enrichment",
+      "description": "Source IP reputation.",
+      "playbooks": [
+        {
+          "name": "Enrich source IP with VirusTotal",
+          "description": "Looks up the alert's source IP and sets severity from the detection count.",
+          "trigger": "On Create",
+          "nodes": [
+            {
+              "id": "0af487f2-eeaf-5eaa-8b77-fb64ccb92e01",
+              "name": "Start",
+              "label": "On Create",
+              "family": "trigger",
+              "x": 30,
+              "y": 30,
+              "args": {
+                "resource": "alerts",
+                "fieldbasedtrigger": {
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "field": "sourceIp",
+                      "operator": "isnull",
+                      "value": "false"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "c952d3b9-5a93-5f17-a538-26b2ef346567",
+              "name": "Extract source IP",
+              "label": "Set Variable",
+              "family": "utility",
+              "x": 30,
+              "y": 170,
+              "args": {
+                "source_ip": "{{ vars.input.records[0].sourceIp }}"
+              }
+            },
+            {
+              "id": "8689e737-c788-5e70-8594-3e06f3de7450",
+              "name": "Is IP public?",
+              "label": "Decision",
+              "family": "decision",
+              "x": 30,
+              "y": 310,
+              "args": {
+                "conditions": [
+                  {
+                    "option": "Public",
+                    "condition": "{{ vars.source_ip | ipaddr('public') }}"
+                  },
+                  {
+                    "option": "Private",
+                    "default": true
+                  }
+                ]
+              }
+            },
+            {
+              "id": "dcebd18b-e968-55b6-a8ef-11a7e6577d86",
+              "name": "Get IP reputation",
+              "label": "Connector",
+              "family": "connector",
+              "x": -160,
+              "y": 460,
+              "args": {
+                "connector": "virustotal",
+                "operation": "get_ip_reputation",
+                "params": {
+                  "ip": "{{ vars.source_ip }}"
+                },
+                "config": ""
+              },
+              "connector": "virustotal",
+              "operation": "get_ip_reputation"
+            },
+            {
+              "id": "f2d9fc6a-7304-57c2-a2c1-9c4fc14ae4db",
+              "name": "Update alert severity",
+              "label": "Update Record",
+              "family": "record",
+              "x": -160,
+              "y": 610,
+              "args": {
+                "resource": {
+                  "severity": "{{ 'High' if vars.steps.Get_IP_reputation.data.attributes.last_analysis_stats.malicious > 3 else 'Low' }}"
+                },
+                "collection": "{{ vars.input.records[0]['@id'] }}"
+              }
+            },
+            {
+              "id": "d870d65c-9f3d-522e-8bf6-b0c10c493e41",
+              "name": "Skip private IP",
+              "label": "No Operation",
+              "family": "utility",
+              "x": 220,
+              "y": 460,
+              "args": {}
+            }
+          ],
+          "edges": [
+            {
+              "id": "4365a625-d98c-5b65-bf01-97e725b410d0",
+              "source": "0af487f2-eeaf-5eaa-8b77-fb64ccb92e01",
+              "target": "c952d3b9-5a93-5f17-a538-26b2ef346567",
+              "label": null
+            },
+            {
+              "id": "d361a25e-a4ed-5bbb-a8b7-81057efad570",
+              "source": "c952d3b9-5a93-5f17-a538-26b2ef346567",
+              "target": "8689e737-c788-5e70-8594-3e06f3de7450",
+              "label": null
+            },
+            {
+              "id": "da78a7b3-8f10-5bc7-ab28-076a96b6193e",
+              "source": "8689e737-c788-5e70-8594-3e06f3de7450",
+              "target": "dcebd18b-e968-55b6-a8ef-11a7e6577d86",
+              "label": "Public"
+            },
+            {
+              "id": "be5120c0-871f-51ae-99ad-1f1ed448ae4b",
+              "source": "8689e737-c788-5e70-8594-3e06f3de7450",
+              "target": "d870d65c-9f3d-522e-8bf6-b0c10c493e41",
+              "label": "Private"
+            },
+            {
+              "id": "6c2b3998-e82f-53f0-b68c-0533d0ea2b19",
+              "source": "dcebd18b-e968-55b6-a8ef-11a7e6577d86",
+              "target": "f2d9fc6a-7304-57c2-a2c1-9c4fc14ae4db",
+              "label": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "download": {
+    "path": "/downloads/vt-ip-enrichment/vt-ip-enrichment.json",
+    "filename": "vt-ip-enrichment.json",
+    "sha256": "28d46654d81889701f7127d6690f4014f817ab52c44d2310d3cda3be2fd0a566",
+    "bytes": 18342
+  }
+}

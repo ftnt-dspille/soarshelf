@@ -1,0 +1,130 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Compiler Examples",
+      "description": "find + update pattern.",
+      "visible": true,
+      "image": null,
+      "uuid": "3b28bf29-8f8a-59cb-a97c-54a1737e8284",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "Tag Existing Indicator",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Look up an indicator by value and tag it.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "indicator_value",
+            "tag"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/c6c4dee6-003a-5c06-8787-5fc127654083",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "c6c4dee6-003a-5c06-8787-5fc127654083"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "find",
+              "description": null,
+              "arguments": {
+                "module": "indicators",
+                "partial": true,
+                "query": {
+                  "sort": [],
+                  "limit": 30,
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "type": "primitive",
+                      "field": "value",
+                      "value": "{{ vars.input.params.indicator_value }}",
+                      "operator": "eq",
+                      "_operator": "eq"
+                    }
+                  ]
+                },
+                "checkboxFields": false
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
+              "group": null,
+              "uuid": "79d0f4a3-2dcf-5c86-8047-eca3f40b6778"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Apply tag",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "tags": "{{ vars.steps.find['hydra:member'][0].tags + [vars.input.params.tag] }}"
+                },
+                "collectionType": "/api/3/indicators"
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928722",
+              "group": null,
+              "uuid": "88db2722-83af-53e3-9f42-edbf29f7b8b1"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "start -> find",
+              "targetStep": "/api/3/workflow_steps/79d0f4a3-2dcf-5c86-8047-eca3f40b6778",
+              "sourceStep": "/api/3/workflow_steps/c6c4dee6-003a-5c06-8787-5fc127654083",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "672357cd-4e1d-54a0-b9bc-1408ffb87faa"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "find -> Apply tag",
+              "targetStep": "/api/3/workflow_steps/88db2722-83af-53e3-9f42-edbf29f7b8b1",
+              "sourceStep": "/api/3/workflow_steps/79d0f4a3-2dcf-5c86-8047-eca3f40b6778",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0e1cea0d-db1c-5d24-9e7f-066b43f3ec94"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "03be4c2b-a985-5f54-83ee-dd24924cfa0c",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}

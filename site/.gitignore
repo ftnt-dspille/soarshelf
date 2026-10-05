@@ -1,0 +1,6 @@
+node_modules/
+.svelte-kit/
+build/
+# Written by the pipeline (`soarshelf build`); the dev fixture lives in src/lib/fixtures/.
+static/data/
+static/downloads/

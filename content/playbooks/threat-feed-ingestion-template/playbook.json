@@ -1,0 +1,357 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Recipe -- TODO Connector > Fetch and Create",
+      "description": "Threat intel feed ingestion recipe (IngestBulkFeed pattern).",
+      "visible": true,
+      "image": null,
+      "uuid": "38e6bf2d-10e8-53df-b930-a0309e20a51d",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "TODO Connector > Fetch and Create",
+          "aliasName": null,
+          "tag": "dataingestion, fetch, create, todo_connector_api_name",
+          "recordTags": [],
+          "description": "Fetch threat indicators from the source feed and bulk-ingest them.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "lastPullTime"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/068ab443-fb62-5f4b-8c68-3107d692785b",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "068ab443-fb62-5f4b-8c68-3107d692785b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Configuration",
+              "description": null,
+              "arguments": {
+                "feed_source_name": "TODO replace with your feed display name",
+                "tlp_map": {
+                  "white": "TODO /api/3/picklists/<uuid-for-White>",
+                  "green": "TODO /api/3/picklists/<uuid-for-Green>",
+                  "amber": "TODO /api/3/picklists/<uuid-for-Amber>",
+                  "red": "TODO /api/3/picklists/<uuid-for-Red>"
+                },
+                "typeOfFeed_map": {
+                  "ipv4-addr": "TODO /api/3/picklists/<uuid-for-IP>",
+                  "domain-name": "TODO /api/3/picklists/<uuid-for-Domain>",
+                  "url": "TODO /api/3/picklists/<uuid-for-URL>"
+                },
+                "confidence_default": 50
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "38438af1-38fe-50f3-ad36-fda986bbc057"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Fetch indicators",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "get_macro_list",
+                "config": "",
+                "params": {},
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "Get Global Variable List",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "c2afde81-0e0b-57d5-b8f0-93ced21f8028"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Map to ingestedData",
+              "description": null,
+              "arguments": {
+                "ingestedData": "{{ vars.steps.Fetch_indicators.indicators }}"
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "7751729e-50f2-57d8-a00b-53d63a61423d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Any data",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "yes",
+                    "condition": "{{ (vars.ingestedData | length) > 0 }}",
+                    "step_iri": "/api/3/workflow_steps/7c5f1219-4850-5030-b83e-86939a30abe8",
+                    "step_name": "Ingest indicators"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/3f63179e-9765-5b57-9bd7-522d79cd731e",
+                    "step_name": "Raise no data"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "0af19066-7990-5ef5-ae8a-f6e3a2925b31"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Raise no data",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "raise_exception",
+                "config": "",
+                "params": {
+                  "msg": "Feed fetch returned no indicators (lastPullTime={{ vars.input.params.lastPullTime }})"
+                },
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "Utils: Raise Exception",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "770",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "3f63179e-9765-5b57-9bd7-522d79cd731e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Ingest indicators",
+              "description": null,
+              "arguments": {
+                "collection": "/api/ingest-feeds/threat_intel_feeds",
+                "resource": {
+                  "__replace": "",
+                  "value": "{{ vars.item.value }}",
+                  "source": "{{ vars.feed_source_name }}",
+                  "sourceId": "{{ vars.item.id }}",
+                  "sourceData": "{{ vars.item | toJSON }}",
+                  "typeOfFeed": "{{ vars.item.type | resolveRange(vars.typeOfFeed_map) }}",
+                  "tLP": "{{ vars.item.tlp | default('white') | resolveRange(vars.tlp_map) }}",
+                  "confidence": "{{ vars.item.confidence | default(vars.confidence_default) }}",
+                  "description": "{{ vars.item.description | default('') }}",
+                  "patternType": "STIX",
+                  "patternVersion": "2.1",
+                  "recordTags": [],
+                  "threatTypes": [],
+                  "killChainPhases": []
+                },
+                "for_each": {
+                  "item": "{{ vars.ingestedData }}",
+                  "condition": "",
+                  "__bulk": true,
+                  "batch_size": 1000
+                }
+              },
+              "status": null,
+              "top": "770",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/7b221880-716b-4726-a2ca-5e568d330b3e",
+              "group": null,
+              "uuid": "7c5f1219-4850-5030-b83e-86939a30abe8"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Configuration",
+              "targetStep": "/api/3/workflow_steps/38438af1-38fe-50f3-ad36-fda986bbc057",
+              "sourceStep": "/api/3/workflow_steps/068ab443-fb62-5f4b-8c68-3107d692785b",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9c043817-7917-5cd4-a148-6e2314ab9cf3"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Configuration -> Fetch indicators",
+              "targetStep": "/api/3/workflow_steps/c2afde81-0e0b-57d5-b8f0-93ced21f8028",
+              "sourceStep": "/api/3/workflow_steps/38438af1-38fe-50f3-ad36-fda986bbc057",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "467c70d8-8878-54b2-8197-c6e5e05e38c4"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch indicators -> Map to ingestedData",
+              "targetStep": "/api/3/workflow_steps/7751729e-50f2-57d8-a00b-53d63a61423d",
+              "sourceStep": "/api/3/workflow_steps/c2afde81-0e0b-57d5-b8f0-93ced21f8028",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "5b5a50e9-e76a-5481-8ae5-8659a4fee468"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Map to ingestedData -> Any data",
+              "targetStep": "/api/3/workflow_steps/0af19066-7990-5ef5-ae8a-f6e3a2925b31",
+              "sourceStep": "/api/3/workflow_steps/7751729e-50f2-57d8-a00b-53d63a61423d",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "3f3471c5-b1a7-5257-91ca-aeaca65427bc"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Any data -> Ingest indicators",
+              "targetStep": "/api/3/workflow_steps/7c5f1219-4850-5030-b83e-86939a30abe8",
+              "sourceStep": "/api/3/workflow_steps/0af19066-7990-5ef5-ae8a-f6e3a2925b31",
+              "label": "yes",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "73ff562c-ec9d-5381-b7da-43c6a29f72bb"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Any data -> Raise no data",
+              "targetStep": "/api/3/workflow_steps/3f63179e-9765-5b57-9bd7-522d79cd731e",
+              "sourceStep": "/api/3/workflow_steps/0af19066-7990-5ef5-ae8a-f6e3a2925b31",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1bc0c96c-afa6-5f68-9293-4c71d392daa0"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "TODO: Configuration",
+              "description": "TODO replace picklist maps and feed-name. Picklist UUIDs MUST be\nresolved live against the configured FSR -- do not hand-paste\nUUIDs from another instance, they will not match.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "250",
+              "left": "540",
+              "height": "160",
+              "width": "440",
+              "uuid": "8dfa48fd-dcda-56e1-8226-adf7149b95e2",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "TODO: Fetch indicators",
+              "description": "TODO replace BOTH the connector and operation. This template\nuses `cyops_utilities.get_picklist` as a structurally-valid\nplaceholder so the recipe compiles and round-trips out of the\nbox; it does NOT fetch a feed. Recipe rule: target connector\nmust already be installed on the configured FSR -- verify with\n`fsrpb health <connector>` before running.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "430",
+              "left": "880",
+              "height": "292",
+              "width": "440",
+              "uuid": "da2bf3ab-1d2b-59bd-9cf3-1f3e1747c262",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "TODO: Map to ingestedData",
+              "description": "TODO adjust the per-indicator field mapping below. Each item\nin the source list becomes one entry; `vars.item` is bound to\nthe current source-feed record at IngestBulkFeed time, NOT\nhere. This step just unboxes the array into `ingestedData`.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "742",
+              "left": "880",
+              "height": "226",
+              "width": "440",
+              "uuid": "aae12bed-9c87-5cac-98f6-355f2a969312",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Any data",
+              "description": "Error gateway -- if the fetch produced nothing, raise so the\nrun is visibly red instead of silently no-op'ing.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "988",
+              "left": "540",
+              "height": "116",
+              "width": "440",
+              "uuid": "ea33db04-18a0-583a-aea2-edf374a4169c",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Ingest indicators",
+              "description": "IngestBulkFeed -- POSTs to /api/ingest-feeds/threat_intel_feeds.\n`__bulk: true` is intentional: per-indicator on-create playbooks\nmust NOT fire for feed volumes. Adjust batch_size to match your\nfeed's typical pull size (1000 is a safe default; up to ~8000\nobserved in the corpus).\nTODO replace each `vars.item.<field>` reference with the actual\nfield name on your source-feed record shape.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1124",
+              "left": "540",
+              "height": "314",
+              "width": "440",
+              "uuid": "01476480-d172-5c68-85c5-668e3c5e5970",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "c13d36d6-4eca-54c5-99b2-065fd86aff9f",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}

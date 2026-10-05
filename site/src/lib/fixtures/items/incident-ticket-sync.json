@@ -1,0 +1,244 @@
+{
+  "slug": "incident-ticket-sync",
+  "type": "playbook",
+  "title": "Sync incidents to an external ticketing tool",
+  "summary": "One-click button that opens a ticket and writes the ticket ID back to the incident.",
+  "useCases": [
+    "case-management",
+    "notifications"
+  ],
+  "tags": [
+    "ticketing",
+    "manual"
+  ],
+  "connectors": [
+    "acme-ticketing"
+  ],
+  "triggers": [
+    "Manual"
+  ],
+  "playbookCount": 1,
+  "stepCount": 5,
+  "hubStatus": "needs-custom",
+  "hasCode": false,
+  "author": {
+    "github": "noc-nadia",
+    "trust": "new"
+  },
+  "version": "1.0.0",
+  "minVersion": null,
+  "published": "2026-10-03",
+  "updated": "2026-10-03",
+  "description": "Adds a **Sync to ticketing** button on incidents.\n\nThis uses a custom connector the author built in-house, so you'll need your own equivalent.",
+  "setup": [
+    {
+      "kind": "note",
+      "title": "Obtain the Acme Ticketing connector",
+      "detail": "`acme-ticketing` isn't on the Content Hub. Ask the author where to get it, or build an equivalent, before importing."
+    },
+    {
+      "kind": "import",
+      "title": "Import the file",
+      "detail": "Go to **Settings \u2192 Import Wizard**, upload the download and review the collections being added."
+    },
+    {
+      "kind": "activate",
+      "title": "Review and activate",
+      "detail": "Downloads ship **inactive**. Open each playbook, check the trigger conditions, then activate it."
+    }
+  ],
+  "dependencies": {
+    "connectors": [
+      {
+        "name": "acme-ticketing",
+        "label": "Acme Ticketing",
+        "version": "1.0.0",
+        "operations": [
+          "create_ticket"
+        ],
+        "hub": "missing",
+        "hubVersion": null
+      }
+    ],
+    "solutionPacks": [],
+    "modules": [
+      {
+        "name": "incidents",
+        "stock": true
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "format.valid",
+      "severity": "pass",
+      "title": "Valid export format",
+      "detail": "Parsed as a workflow_collections export."
+    },
+    {
+      "id": "size.limit",
+      "severity": "pass",
+      "title": "Within size limit",
+      "detail": "Well under the 2 MB playbook limit."
+    },
+    {
+      "id": "secrets.none",
+      "severity": "pass",
+      "title": "No secrets found",
+      "detail": "No API keys, tokens, passwords or private keys detected."
+    },
+    {
+      "id": "network.private-ip",
+      "severity": "pass",
+      "title": "No private addresses",
+      "detail": "No RFC 1918 addresses or internal hostnames."
+    },
+    {
+      "id": "provenance.original",
+      "severity": "pass",
+      "title": "Not official content",
+      "detail": "Doesn't match any published solution pack content."
+    },
+    {
+      "id": "sanitize.owners",
+      "severity": "info",
+      "title": "Owner references removed",
+      "detail": "Removed 2 user/team references and the connector configuration ID."
+    },
+    {
+      "id": "sanitize.inactive",
+      "severity": "info",
+      "title": "Shipped inactive",
+      "detail": "Playbooks are set to inactive so nothing fires on import."
+    },
+    {
+      "id": "hub.missing",
+      "severity": "warn",
+      "title": "Custom connector required",
+      "detail": "`acme-ticketing` isn't on the Content Hub.",
+      "location": "Sync incident to ticketing \u203a Create ticket"
+    },
+    {
+      "id": "network.email",
+      "severity": "info",
+      "title": "Email template uses a record field",
+      "detail": "Recipient comes from the record, no hard-coded addresses."
+    }
+  ],
+  "collections": [
+    {
+      "name": "Ticketing",
+      "description": "",
+      "playbooks": [
+        {
+          "name": "Sync incident to ticketing",
+          "description": "Opens a ticket for the selected incident and stores the ticket ID.",
+          "trigger": "Manual",
+          "nodes": [
+            {
+              "id": "3b7b1ce3-3729-5eb3-98da-9210db99ad68",
+              "name": "Start",
+              "label": "Manual",
+              "family": "trigger",
+              "x": 0,
+              "y": 0,
+              "args": {
+                "resources": [
+                  "incidents"
+                ],
+                "title": "Sync to ticketing"
+              }
+            },
+            {
+              "id": "4da01451-25a7-516e-b287-49f3e580a006",
+              "name": "Build ticket body",
+              "label": "Set Variable",
+              "family": "utility",
+              "x": 0,
+              "y": 0,
+              "args": {
+                "summary": "{{ vars.input.records[0].name }}",
+                "priority": "{{ vars.input.records[0].severity.itemValue }}"
+              }
+            },
+            {
+              "id": "36dbe69a-5b47-5e9b-a971-cb2ca65cb318",
+              "name": "Create ticket",
+              "label": "Connector",
+              "family": "connector",
+              "x": 0,
+              "y": 0,
+              "args": {
+                "connector": "acme-ticketing",
+                "operation": "create_ticket",
+                "params": {
+                  "title": "{{ vars.summary }}",
+                  "priority": "{{ vars.priority }}"
+                }
+              },
+              "connector": "acme-ticketing",
+              "operation": "create_ticket"
+            },
+            {
+              "id": "ab3697db-1cca-5d2c-a616-f7eaa79e2fe1",
+              "name": "Store ticket ID",
+              "label": "Update Record",
+              "family": "record",
+              "x": 0,
+              "y": 0,
+              "args": {
+                "resource": {
+                  "externalTicketId": "{{ vars.steps.Create_ticket.data.id }}"
+                }
+              }
+            },
+            {
+              "id": "2acbe076-e8b6-5dc9-9daf-1273e428788c",
+              "name": "Notify owner",
+              "label": "Send Email",
+              "family": "human",
+              "x": 0,
+              "y": 0,
+              "args": {
+                "to": "{{ vars.input.records[0].assignedTo.email }}",
+                "subject": "Ticket created"
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "1f73d54d-4309-5048-9486-7d69f6a8fda1",
+              "source": "3b7b1ce3-3729-5eb3-98da-9210db99ad68",
+              "target": "4da01451-25a7-516e-b287-49f3e580a006",
+              "label": null
+            },
+            {
+              "id": "9d9d51cf-ff26-5dc5-a30c-a5f96fd74080",
+              "source": "4da01451-25a7-516e-b287-49f3e580a006",
+              "target": "36dbe69a-5b47-5e9b-a971-cb2ca65cb318",
+              "label": null
+            },
+            {
+              "id": "0935956b-1b7b-5647-aa23-5bfc99e7a8c2",
+              "source": "36dbe69a-5b47-5e9b-a971-cb2ca65cb318",
+              "target": "ab3697db-1cca-5d2c-a616-f7eaa79e2fe1",
+              "label": null
+            },
+            {
+              "id": "bee3978d-b8dd-5bda-b8e9-ea41ed1093f0",
+              "source": "ab3697db-1cca-5d2c-a616-f7eaa79e2fe1",
+              "target": "2acbe076-e8b6-5dc9-9daf-1273e428788c",
+              "label": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "download": {
+    "path": "/downloads/incident-ticket-sync/incident-ticket-sync.json",
+    "filename": "incident-ticket-sync.json",
+    "sha256": "1ec22d56dbbc91e849b00643bc4f10eb764441c93bde5c6090fe81db55cf6932",
+    "bytes": 9120
+  }
+}

@@ -1,0 +1,15 @@
+title: Parent and child playbook pattern
+summary: Calls a child playbook with inputs and reads its result back.
+description: Demonstrates passing parameters into a referenced playbook and reading the value it returns,
+  the foundation for modular, reusable playbooks.
+use_cases:
+- utility
+tags:
+- reference-playbook
+- modular
+- pattern
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.4.0
+license: MIT
+published: '2026-08-26'

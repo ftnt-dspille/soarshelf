@@ -1,0 +1,762 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "M365 Forwarding Rule Triage",
+      "description": "Loop forwarding-rule alerts; per-alert audit + messageRules + AD enrichment via a reference playbook.",
+      "visible": true,
+      "image": null,
+      "uuid": "64aabb6d-cfc7-5374-ac13-c89e11b333a6",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "Forwarding Rule Triage",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Detect forwarding/redirect-rule alerts in Defender for Office 365 and dispatch each one to the Per Alert Triage reference playbook.\n",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/b5724e89-c01e-572d-b17f-6129d04777bd",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "title": "Run Forwarding Triage",
+                "resources": [
+                  "alerts"
+                ],
+                "route": "0f2f3605-5c35-50ae-8fad-c60d1162ba71",
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false,
+                "noRecordExecution": false,
+                "singleRecordExecution": true,
+                "__triggerLimit": true,
+                "executeButtonText": "Execute",
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "b5724e89-c01e-572d-b17f-6129d04777bd"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Forwarding Alerts",
+              "description": null,
+              "arguments": {
+                "connector": "microsoft-graph",
+                "operation": "get_all_security_alerts",
+                "config": "",
+                "params": {
+                  "api_version": "V2",
+                  "serviceSource": "microsoftDefenderForOffice365",
+                  "top": 100
+                },
+                "version": "2.2.0",
+                "name": "Microsoft Graph API",
+                "operationTitle": "Get All Security Alerts",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "3e36c5ee-a76a-528f-b299-49eebcff2056"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Dispatch Each Alert",
+              "description": null,
+              "arguments": {
+                "arguments": {
+                  "alert": "{{ vars.item }}"
+                },
+                "workflowReference": "/api/3/workflows/50a31c08-9966-57bc-9cfa-a470306d44d4",
+                "for_each": {
+                  "item": "{{ vars.steps.Get_Forwarding_Alerts.data }}",
+                  "parallel": false,
+                  "condition": ""
+                }
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "d1e2a035-23d4-5397-bab7-f3c9b78c13c9"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Done",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "config": "",
+                "params": {},
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "25c905a7-3604-5df9-ac53-8562bfa0c708"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Forwarding Alerts",
+              "targetStep": "/api/3/workflow_steps/3e36c5ee-a76a-528f-b299-49eebcff2056",
+              "sourceStep": "/api/3/workflow_steps/b5724e89-c01e-572d-b17f-6129d04777bd",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9b397b2b-36a1-5438-badd-eb8c3d283fe4"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Forwarding Alerts -> Dispatch Each Alert",
+              "targetStep": "/api/3/workflow_steps/d1e2a035-23d4-5397-bab7-f3c9b78c13c9",
+              "sourceStep": "/api/3/workflow_steps/3e36c5ee-a76a-528f-b299-49eebcff2056",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "7a92996d-3224-5532-b348-4f76d8e5a8cb"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Dispatch Each Alert -> Done",
+              "targetStep": "/api/3/workflow_steps/25c905a7-3604-5df9-ac53-8562bfa0c708",
+              "sourceStep": "/api/3/workflow_steps/d1e2a035-23d4-5397-bab7-f3c9b78c13c9",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "47afdab6-8a2d-5964-be33-aab2cc355144"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "901e3012-4a82-5fde-9ba2-7d290c3bb0cf",
+          "isPrivate": false
+        },
+        {
+          "@type": "Workflow",
+          "name": "Per Alert Triage",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "For one forwarding-rule alert: create a tracking alert, extract the affected user, pull current inbox messageRules, pull Audit.Exchange history, normalize destinations, AD-classify each, and comment the verdict on the tracking alert.\n",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "alert"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/7375b18e-5e8b-5037-9b81-1347ab01ee69",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "7375b18e-5e8b-5037-9b81-1347ab01ee69"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Extract Affected User",
+              "description": null,
+              "arguments": {
+                "connector": "code-snippet",
+                "operation": "python_inline_code_editor",
+                "operationTitle": "Execute Python Code",
+                "version": "2.1.4",
+                "step_variables": [],
+                "params": {
+                  "python_function": "alert = {{ vars.input.params.alert | tojson }}\nupn = ''\nfor ev in (alert.get('evidence') or []):\n    ua = ev.get('userAccount') or {}\n    if ua.get('userPrincipalName'):\n        upn = ua['userPrincipalName']\n        break\nprint({'upn': upn, 'alert_id': alert.get('id'), 'title': alert.get('title'), 'alert_created': alert.get('createdDateTime')})\n"
+                },
+                "config": ""
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/1fdd14cc-d6b4-4335-a3af-ab49c8ed2fd8",
+              "group": null,
+              "uuid": "e635e09d-d8ee-5d44-a3a8-5f0d2dfefc96"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Tracking Alert",
+              "description": null,
+              "arguments": {
+                "operation": "Replace",
+                "resource": {
+                  "name": "Forwarding rule triage: {{ vars.steps.Extract_Affected_User.data.code_output.upn }}",
+                  "severity": "/api/3/picklists/b3c20a3a-ecfd-4adc-a225-0205968e6793",
+                  "description": "Tracking alert for M365 forwarding-rule triage. Source alert: {{ vars.steps.Extract_Affected_User.data.code_output.alert_id }} User: {{ vars.steps.Extract_Affected_User.data.code_output.upn }}\n"
+                },
+                "collection": "/api/3/alerts"
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/2597053c-e718-44b4-8394-4d40fe26d357",
+              "group": null,
+              "uuid": "d786f926-cd8e-5ade-9077-481c16ae4ab5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Ensure Audit Subscription",
+              "description": null,
+              "arguments": {
+                "connector": "microsoft-management-activity-api",
+                "operation": "start_subscription",
+                "config": "",
+                "params": {
+                  "content_type": "Audit.Exchange"
+                },
+                "version": "1.0.1",
+                "name": "Microsoft Management Activity API",
+                "operationTitle": "MS Management Activity Start Subscription",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "29f1cec9-2a2d-5857-9c93-9007a50097d8"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Pull Audit History",
+              "description": null,
+              "arguments": {
+                "connector": "microsoft-management-activity-api",
+                "operation": "list_content",
+                "config": "",
+                "params": {
+                  "content_type": "Audit.Exchange",
+                  "start_time": "{{ vars.steps.Extract_Affected_User.data.code_output.alert_created | default('', true) }}",
+                  "end_time": "{{ get_current_datetime() }}"
+                },
+                "version": "1.0.1",
+                "name": "Microsoft Management Activity API",
+                "operationTitle": "MS Management Activity List Content",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "3a57f02b-17c5-570c-99fc-c281b0cb043e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Fetch Current Message Rules",
+              "description": null,
+              "arguments": {
+                "connector": "microsoft-graph-mail",
+                "operation": "execute_api_request",
+                "config": "",
+                "params": {
+                  "method": "GET",
+                  "endpoint": "/v1.0/users/{{ vars.steps.Extract_Affected_User.data.code_output.upn }}/mailFolders/inbox/messageRules"
+                },
+                "ignore_errors": true,
+                "version": "1.4.0",
+                "name": "Microsoft Graph Mail",
+                "operationTitle": "Execute an API Request",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "770",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e39a1b1e-c55b-50ed-ba85-514b3366911a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Normalize Audit Records",
+              "description": null,
+              "arguments": {
+                "connector": "code-snippet",
+                "operation": "python_inline_code_editor",
+                "operationTitle": "Execute Python Code",
+                "version": "2.1.4",
+                "step_variables": [],
+                "params": {
+                  "python_function": "audit = {{ vars.steps.Pull_Audit_History.data | tojson }}\nupn = {{ vars.steps.Extract_Affected_User.data.code_output.upn | tojson }}\nrows = []\nfor rec in audit:\n    op = rec.get('Operation') or ''\n    if op not in ('New-InboxRule', 'Set-InboxRule'):\n        continue\n    if rec.get('UserId') and upn and upn.lower() not in str(rec.get('UserId')).lower():\n        continue\n    params = {}\n    for p in (rec.get('Parameters') or []):\n        params[p.get('Name')] = p.get('Value')\n    rows.append({\n        'operation': op,\n        'user': rec.get('UserId'),\n        'created': rec.get('CreationTime'),\n        'rule_name': params.get('Name'),\n        'params': params,\n    })\nprint({'rows': rows, 'count': len(rows)})\n"
+                },
+                "config": ""
+              },
+              "status": null,
+              "top": "900",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/1fdd14cc-d6b4-4335-a3af-ab49c8ed2fd8",
+              "group": null,
+              "uuid": "afd73043-e482-5ce7-a611-0802b687b0bc"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Extract Destinations",
+              "description": null,
+              "arguments": {
+                "connector": "code-snippet",
+                "operation": "python_inline_code_editor",
+                "operationTitle": "Execute Python Code",
+                "version": "2.1.4",
+                "step_variables": [],
+                "params": {
+                  "python_function": "dests = []\n# From audit Parameters (historical)\nrows = {{ vars.steps.Normalize_Audit_Records.data.code_output.rows | tojson }}\nfor row in rows:\n    p = row['params']\n    for key in ('ForwardTo', 'RedirectTo', 'ForwardAsAttachmentTo'):\n        v = p.get(key)\n        if v:\n            dests.append({'type': key.lower(), 'address': v, 'source': 'audit', 'rule': row['rule_name']})\n# From current messageRules (present state) -- merge, dedupe\nrules = {{ vars.steps.Fetch_Current_Message_Rules.data.value | default([]) | tojson }}\nfor rule in rules:\n    acts = rule.get('actions') or {}\n    for key in ('forwardTo', 'redirectTo', 'forwardAsAttachmentTo'):\n        for r in (acts.get(key) or []):\n            addr = (r.get('emailAddress') or {}).get('address') if r else None\n            if addr:\n                dests.append({'type': key, 'address': addr, 'source': 'messageRules', 'rule': rule.get('displayName')})\nseen = {}\nuniq = []\nfor d in dests:\n    k = (d['type'], d['address'])\n    if k not in seen:\n        seen[k] = True\n        uniq.append(d)\nprint({'destinations': uniq, 'count': len(uniq)})\n"
+                },
+                "config": ""
+              },
+              "status": null,
+              "top": "1030",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/1fdd14cc-d6b4-4335-a3af-ab49c8ed2fd8",
+              "group": null,
+              "uuid": "9ca9ab7a-2932-5117-9ca0-820828263cdf"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Classify Destinations",
+              "description": null,
+              "arguments": {
+                "arguments": {
+                  "address": "{{ vars.item.address }}",
+                  "source_user_upn": "{{ vars.steps.Extract_Affected_User.data.code_output.upn }}"
+                },
+                "workflowReference": "/api/3/workflows/b306b28d-50bd-5b0e-a954-1fcfd846fac8",
+                "for_each": {
+                  "item": "{{ vars.steps.Extract_Destinations.data.code_output.destinations }}",
+                  "parallel": false,
+                  "condition": ""
+                }
+              },
+              "status": null,
+              "top": "1160",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "d7124319-8dac-579f-ab94-845a86ea73b1"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Apply Priority",
+              "description": null,
+              "arguments": {
+                "connector": "code-snippet",
+                "operation": "python_inline_code_editor",
+                "operationTitle": "Execute Python Code",
+                "version": "2.1.4",
+                "step_variables": [],
+                "params": {
+                  "python_function": "addrs = {{ vars.steps.Classify_Destinations | map(attribute='address') | list | tojson }}\nprios = {{ vars.steps.Classify_Destinations | map(attribute='priority') | list | tojson }}\nclasses = {{ vars.steps.Classify_Destinations | map(attribute='classification') | list | tojson }}\ncls = []\ni = 0\nwhile i < len(addrs):\n    cls.append({'address': addrs[i], 'priority': prios[i], 'classification': classes[i]})\n    i += 1\norder = {'Low': 0, 'Medium': 1, 'Critical': 2}\ntop = 'Low'\nfor c in cls:\n    if order.get(c.get('priority'), 0) > order.get(top, 0):\n        top = c['priority']\nprint({'final_priority': top, 'destinations': cls, 'count': len(cls)})\n"
+                },
+                "config": ""
+              },
+              "status": null,
+              "top": "1290",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/1fdd14cc-d6b4-4335-a3af-ab49c8ed2fd8",
+              "group": null,
+              "uuid": "69230dff-856b-5400-8a76-1f1c689ba69c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Comment Verdict",
+              "description": null,
+              "arguments": {
+                "message": {
+                  "tags": [],
+                  "type": "/api/3/picklists/ff599189-3eeb-4c86-acb0-a7915e85ac3b",
+                  "thread": false,
+                  "content": "<p>Forwarding-rule alert <strong>{{ vars.steps.Extract_Affected_User.data.code_output.alert_id }}</strong> for <strong>{{ vars.steps.Extract_Affected_User.data.code_output.upn }}</strong>: {{ vars.steps.Apply_Priority.data.code_output.count }} destination(s), final priority <strong>{{ vars.steps.Apply_Priority.data.code_output.final_priority }}</strong>.</p>\n",
+                  "records": "{{ vars.steps.Create_Tracking_Alert['@id'] }}"
+                }
+              },
+              "status": null,
+              "top": "1420",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "423fd783-2502-5325-9fb3-84574331c2b4"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Done",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "config": "",
+                "params": {},
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "1550",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "4e279fd9-fd1a-5903-8794-ffabfd8503a2"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Extract Affected User",
+              "targetStep": "/api/3/workflow_steps/e635e09d-d8ee-5d44-a3a8-5f0d2dfefc96",
+              "sourceStep": "/api/3/workflow_steps/7375b18e-5e8b-5037-9b81-1347ab01ee69",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0d418a1d-b6a5-5dac-9263-62b3e547ad10"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Extract Affected User -> Create Tracking Alert",
+              "targetStep": "/api/3/workflow_steps/d786f926-cd8e-5ade-9077-481c16ae4ab5",
+              "sourceStep": "/api/3/workflow_steps/e635e09d-d8ee-5d44-a3a8-5f0d2dfefc96",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "513c5534-cebd-5494-891c-c51e08536b6f"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create Tracking Alert -> Ensure Audit Subscription",
+              "targetStep": "/api/3/workflow_steps/29f1cec9-2a2d-5857-9c93-9007a50097d8",
+              "sourceStep": "/api/3/workflow_steps/d786f926-cd8e-5ade-9077-481c16ae4ab5",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4bc8c038-ba65-5215-99ff-bbe83ca7a11e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Ensure Audit Subscription -> Pull Audit History",
+              "targetStep": "/api/3/workflow_steps/3a57f02b-17c5-570c-99fc-c281b0cb043e",
+              "sourceStep": "/api/3/workflow_steps/29f1cec9-2a2d-5857-9c93-9007a50097d8",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "454500d3-6d7f-5aee-aab0-22351a90f57d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Pull Audit History -> Fetch Current Message Rules",
+              "targetStep": "/api/3/workflow_steps/e39a1b1e-c55b-50ed-ba85-514b3366911a",
+              "sourceStep": "/api/3/workflow_steps/3a57f02b-17c5-570c-99fc-c281b0cb043e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "234b8a11-2b94-55cf-9a73-9b7efcc24d39"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch Current Message Rules -> Normalize Audit Records",
+              "targetStep": "/api/3/workflow_steps/afd73043-e482-5ce7-a611-0802b687b0bc",
+              "sourceStep": "/api/3/workflow_steps/e39a1b1e-c55b-50ed-ba85-514b3366911a",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "414e9591-6901-5b0f-8497-0b381f8251c4"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Normalize Audit Records -> Extract Destinations",
+              "targetStep": "/api/3/workflow_steps/9ca9ab7a-2932-5117-9ca0-820828263cdf",
+              "sourceStep": "/api/3/workflow_steps/afd73043-e482-5ce7-a611-0802b687b0bc",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ed27b34e-d51a-5a56-8c4a-45abce22283a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Extract Destinations -> Classify Destinations",
+              "targetStep": "/api/3/workflow_steps/d7124319-8dac-579f-ab94-845a86ea73b1",
+              "sourceStep": "/api/3/workflow_steps/9ca9ab7a-2932-5117-9ca0-820828263cdf",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9bfa528c-912d-5188-b99b-ad36a313222f"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Classify Destinations -> Apply Priority",
+              "targetStep": "/api/3/workflow_steps/69230dff-856b-5400-8a76-1f1c689ba69c",
+              "sourceStep": "/api/3/workflow_steps/d7124319-8dac-579f-ab94-845a86ea73b1",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6a2666f5-bcd8-5f35-ae7e-9893d44a5ef3"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Apply Priority -> Comment Verdict",
+              "targetStep": "/api/3/workflow_steps/423fd783-2502-5325-9fb3-84574331c2b4",
+              "sourceStep": "/api/3/workflow_steps/69230dff-856b-5400-8a76-1f1c689ba69c",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "5fad7a46-1d7f-589a-98be-20238bba4057"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Comment Verdict -> Done",
+              "targetStep": "/api/3/workflow_steps/4e279fd9-fd1a-5903-8794-ffabfd8503a2",
+              "sourceStep": "/api/3/workflow_steps/423fd783-2502-5325-9fb3-84574331c2b4",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f7ee8424-d0d2-5aa9-8fd2-7da7a70315ea"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "50a31c08-9966-57bc-9cfa-a470306d44d4",
+          "isPrivate": false
+        },
+        {
+          "@type": "Workflow",
+          "name": "Classify Destination",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Resolve one forwarding destination in Active Directory and return its classification + priority: external/unresolved -> Critical, other internal employee -> Medium, the source user's own manager -> Low.\n",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "address",
+            "source_user_upn"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/d6ab5212-a9a2-565c-94ed-fc2ee608c6a0",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "d6ab5212-a9a2-565c-94ed-fc2ee608c6a0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Resolve Source",
+              "description": null,
+              "arguments": {
+                "connector": "activedirectory",
+                "operation": "advanced_search",
+                "config": "",
+                "params": {
+                  "query": "(objectCategory=person)(|(mail={{ vars.input.params.source_user_upn }})(userPrincipalName={{ vars.input.params.source_user_upn }}))"
+                },
+                "ignore_errors": true,
+                "step_variables": {
+                  "source_manager_dn": "{{ vars.steps.Resolve_Source.data.entries[0].attributes.manager | default('', true) }}"
+                },
+                "version": "2.4.0",
+                "name": "Active Directory",
+                "operationTitle": "Advanced Search",
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "d1e1df25-1300-5240-b27d-e0713ed82afb"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Resolve Destination",
+              "description": null,
+              "arguments": {
+                "connector": "activedirectory",
+                "operation": "advanced_search",
+                "config": "",
+                "params": {
+                  "query": "(|(mail={{ vars.input.params.address }})(userPrincipalName={{ vars.input.params.address }})(proxyAddresses=SMTP:{{ vars.input.params.address }}))"
+                },
+                "version": "2.4.0",
+                "name": "Active Directory",
+                "operationTitle": "Advanced Search",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "fe408020-e31f-527f-b991-5140e4c08032"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Classify",
+              "description": null,
+              "arguments": {
+                "connector": "code-snippet",
+                "operation": "python_inline_code_editor",
+                "operationTitle": "Execute Python Code",
+                "version": "2.1.4",
+                "step_variables": [],
+                "params": {
+                  "python_function": "entries = {{ vars.steps.Resolve_Destination.data.entries | default([]) | tojson }}\nif not entries:\n    print({'priority': 'Critical', 'classification': 'external'})\nelse:\n    dn = entries[0].get('attributes', {}).get('distinguishedName', '')\n    manager = {{ vars.source_manager_dn | default('') | tojson }}\n    if manager and dn and dn.lower() == manager.lower():\n        print({'priority': 'Low', 'classification': 'manager'})\n    else:\n        print({'priority': 'Medium', 'classification': 'employee'})\n"
+                },
+                "config": ""
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/1fdd14cc-d6b4-4335-a3af-ab49c8ed2fd8",
+              "group": null,
+              "uuid": "1c1fb214-7ed5-539a-8dfe-c565a64ae867"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Export Result",
+              "description": null,
+              "arguments": {
+                "address": "{{ vars.input.params.address }}",
+                "priority": "{{ vars.steps.Classify.data.code_output.priority }}",
+                "classification": "{{ vars.steps.Classify.data.code_output.classification }}"
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "28fa76bc-9b1a-5ec2-a47c-304c699b8513"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Resolve Source",
+              "targetStep": "/api/3/workflow_steps/d1e1df25-1300-5240-b27d-e0713ed82afb",
+              "sourceStep": "/api/3/workflow_steps/d6ab5212-a9a2-565c-94ed-fc2ee608c6a0",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "efb9a308-07bf-5cd5-a284-91ccc25ada78"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Resolve Source -> Resolve Destination",
+              "targetStep": "/api/3/workflow_steps/fe408020-e31f-527f-b991-5140e4c08032",
+              "sourceStep": "/api/3/workflow_steps/d1e1df25-1300-5240-b27d-e0713ed82afb",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "a1cd6da6-2cc8-5509-b408-f167c976e9ea"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Resolve Destination -> Classify",
+              "targetStep": "/api/3/workflow_steps/1c1fb214-7ed5-539a-8dfe-c565a64ae867",
+              "sourceStep": "/api/3/workflow_steps/fe408020-e31f-527f-b991-5140e4c08032",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "fd49f3e9-ce8d-5d15-9cd2-1485dbe686f7"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Classify -> Export Result",
+              "targetStep": "/api/3/workflow_steps/28fa76bc-9b1a-5ec2-a47c-304c699b8513",
+              "sourceStep": "/api/3/workflow_steps/1c1fb214-7ed5-539a-8dfe-c565a64ae867",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "fc221113-363c-5322-8be0-3027cb09e38a"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "b306b28d-50bd-5b0e-a954-1fcfd846fac8",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}

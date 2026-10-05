@@ -1,0 +1,7 @@
+# A change to the checks, the publish policy, CI or trust tiers could let
+# unsafe content through, so it always needs a maintainer's review.
+/pipeline/          @ftnt-dspille
+/.github/           @ftnt-dspille
+/content/contributors.yaml  @ftnt-dspille
+/site/static/_headers       @ftnt-dspille
+/site/svelte.config.js      @ftnt-dspille

@@ -1,0 +1,20 @@
+title: IP reputation verdict with VirusTotal
+summary: Looks up an IP on VirusTotal and branches on the malicious-engine count.
+description: 'Takes an IP as a manual-trigger input, queries VirusTotal and records a `malicious` or `clean`
+  verdict based on how many engines flagged it.
+
+
+  A compact starting point for any reputation lookup: swap the connector step for your preferred intel
+  source and keep the decision logic.'
+use_cases:
+- enrichment
+- triage
+tags:
+- ip
+- reputation
+- virustotal
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.4.0
+license: MIT
+published: '2026-09-02'

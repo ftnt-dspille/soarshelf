@@ -1,0 +1,19 @@
+title: Data ingestion template
+summary: Fetch / Create / Ingest skeleton for building a connector-based alert ingestion.
+description: 'The three-playbook layout the Data Ingestion Wizard expects: **Fetch** pulls raw records,
+  **Create** maps one record to an alert, **Ingest** orchestrates the two.
+
+
+  Replace the placeholder steps (they raise an exception on purpose) with your connector''s fetch operation
+  and field mapping.'
+use_cases:
+- ingestion
+tags:
+- template
+- data-ingestion
+- alerts
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.4.0
+license: MIT
+published: '2026-09-20'

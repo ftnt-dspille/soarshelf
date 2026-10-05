@@ -1,0 +1,248 @@
+"""Run every check on one item and produce its published form.
+
+``process(meta, payload_path, trust, hub)`` is the single entry point used by
+both the CLI self-check and the site build. It returns the item detail
+(docs/data-contract.md ``ItemDetail``, minus build-time fields) and the bytes
+of the sanitized download.
+"""
+from __future__ import annotations
+
+import hashlib
+import io
+import json
+import posixpath
+import tempfile
+import zipfile
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+from pyfsr.exports import Export, ExportError
+from pyfsr.exports import Severity as PackSeverity
+
+from . import config, deps as deps_mod, graph, policy, setup_guide
+from .checks import brand, secrets, structure
+from .hubindex import HubIndex
+from .intake import Upload, load_json, read_upload
+from .model import CheckResult, ParsedCollection, RejectedUpload, Severity, worst
+from .parse import parse_collections, parse_workflow
+from .sanitize import sanitize_collections, sanitize_workflow
+
+
+@dataclass
+class Processed:
+    detail: dict[str, Any]
+    download: bytes | None
+    filename: str | None
+    decision: str                  # "publish" | "review" | "reject"
+    reasons: list[str]
+
+    @property
+    def checks(self) -> list[CheckResult]:
+        return self.detail["_results"]
+
+
+def _meta_checks(meta: dict[str, Any], kind: str) -> list[CheckResult]:
+    out = []
+    for key in ("title", "summary", "use_cases"):
+        if not meta.get(key):
+            out.append(CheckResult("meta.required", Severity.BLOCK, f"meta.yaml is missing '{key}'"))
+    bad = [u for u in meta.get("use_cases") or [] if u not in config.USE_CASE_IDS]
+    if bad:
+        out.append(CheckResult("meta.use-case", Severity.BLOCK, "Unknown use case",
+                               f"{', '.join(bad)}. Valid: {', '.join(sorted(config.USE_CASE_IDS))}"))
+    if len(str(meta.get("summary") or "")) > 160:
+        out.append(CheckResult("meta.summary", Severity.WARN, "Summary is longer than 160 characters"))
+    if (meta.get("license") or "MIT") != "MIT":
+        out.append(CheckResult("meta.license", Severity.BLOCK, "Content must be shared under the MIT licence"))
+    if kind == "connector" and not str(meta.get("source") or "").startswith("https://"):
+        out.append(CheckResult("meta.source", Severity.BLOCK, "Connectors need a public source URL",
+                               "Set 'source' to the https URL of the connector's repository."))
+    return out + brand.listing(meta)
+
+
+def _uuids_of(doc_collections: list[dict[str, Any]]) -> dict[str, str]:
+    out = {}
+    for c in doc_collections:
+        if c.get("uuid"):
+            out[str(c["uuid"])] = str(c.get("name") or "")
+        for w in c.get("workflows") or []:
+            if isinstance(w, dict) and w.get("uuid"):
+                out[str(w["uuid"])] = f"{c.get('name')} › {w.get('name')}"
+    return out
+
+
+# --- per-type handlers ---------------------------------------------------------
+
+def _playbook(up: Upload) -> tuple[list[ParsedCollection], dict[str, str], list[CheckResult], bytes, Any]:
+    clean, results = sanitize_collections(up.data)
+    results += secrets.scan(clean)
+    results += brand.content(clean)
+    body = json.dumps(clean, indent=2, ensure_ascii=False).encode() + b"\n"
+    return parse_collections(clean), _uuids_of(up.data.get("data") or []), results, body, clean.get("macros")
+
+
+def _pack(up: Upload) -> tuple[list[ParsedCollection], dict[str, str], list[CheckResult], bytes, Any]:
+    members = up.members or {}
+    root = next(m for m in members if posixpath.basename(m) == "info.json" and m.count("/") <= 1)[:-len("info.json")]
+    results: list[CheckResult] = []
+
+    extra = sorted(m for m in members if not m.endswith(config.PACK_MEMBER_SUFFIXES))
+    if extra:
+        results.append(CheckResult("pack.installers", Severity.BLOCK,
+                                   "Bundled installers or binary files are not accepted",
+                                   "List connectors and widgets as their own items. Found: " + ", ".join(extra[:5])))
+
+    with tempfile.NamedTemporaryFile(suffix=".zip") as tmp:
+        tmp.write(up.raw)
+        tmp.flush()
+        try:
+            with Export.open(tmp.name) as exp:
+                for f in exp.problems():
+                    sev = Severity.BLOCK if f.severity is PackSeverity.ERROR else Severity.INFO
+                    results.append(CheckResult(f"pack.{f.code}", sev, f.message, "", f.path))
+        except ExportError as exc:
+            results.append(CheckResult("pack.format", Severity.BLOCK, "Not a valid solution pack", str(exc)))
+
+    collections: dict[str, ParsedCollection] = {}
+    uuids: dict[str, str] = {}
+    rebuilt: dict[str, bytes] = {}
+    for name in sorted(members):
+        if not name.endswith(".json"):
+            continue
+        rel = name[len(root):]
+        doc = load_json(members[name], rel)
+        if rel.startswith("playbooks/") and isinstance(doc, dict) and doc.get("@type") == "Workflow":
+            coll_name = rel.split("/")[1]
+            clean, res = sanitize_workflow(doc)
+            results += res
+            if doc.get("uuid"):
+                uuids[str(doc["uuid"])] = f"{coll_name} › {doc.get('name')}"
+            collections.setdefault(coll_name, ParsedCollection(coll_name, "")).playbooks.append(parse_workflow(clean))
+            doc = clean
+        elif rel.endswith("collection.metadata.json") and isinstance(doc, dict) and doc.get("uuid"):
+            uuids[str(doc["uuid"])] = str(doc.get("name") or "")
+        results += secrets.scan(doc, rel)
+        results += brand.content(doc)
+        rebuilt[name] = json.dumps(doc, indent=2, ensure_ascii=False).encode() + b"\n"
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        for name, data in rebuilt.items():
+            zi = zipfile.ZipInfo(name, date_time=(2020, 1, 1, 0, 0, 0))
+            zi.external_attr = 0o644 << 16
+            zf.writestr(zi, data, zipfile.ZIP_DEFLATED)
+    return list(collections.values()), uuids, results, buf.getvalue(), None
+
+
+def _connector(up: Upload, hub: HubIndex) -> tuple[list[CheckResult], bytes, list[dict[str, Any]]]:
+    m = up.data
+    results = secrets.scan(m, "info.json")
+    name = str(m.get("name") or "")
+    if not name:
+        results.append(CheckResult("connector.name", Severity.BLOCK, "Manifest has no 'name'"))
+    if name in hub.connectors:
+        results.append(CheckResult("connector.on-hub", Severity.WARN,
+                                   "A connector with this name is on the Content Hub",
+                                   "Rename it if it is a fork, so it can't be confused with the hub version."))
+    ops = [{"operation": o.get("operation"), "title": o.get("title")}
+           for o in m.get("operations") or [] if isinstance(o, dict)]
+    keep = {k: m.get(k) for k in ("name", "label", "version", "description", "category", "publisher")}
+    keep["operations"] = ops
+    results.append(CheckResult("connector.review", Severity.INFO, "Connector code is reviewed by a maintainer",
+                               "Only the manifest is published here; the code stays in the linked repository."))
+    return results, json.dumps(keep, indent=2, ensure_ascii=False).encode() + b"\n", ops
+
+
+# --- entry point ---------------------------------------------------------------
+
+def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> Processed:
+    try:
+        up = read_upload(payload)
+    except RejectedUpload as exc:
+        results = [exc.result]
+        return Processed({"_results": results, "checks": [exc.result.to_dict()]}, None, None,
+                         "reject", [exc.result.title])
+
+    kind = up.kind
+    results = _meta_checks(meta, kind)
+    collections: list[ParsedCollection] = []
+    uuids: dict[str, str] = {}
+    macros = None
+    connector_ops: list[dict[str, Any]] = []
+
+    if kind == "playbook":
+        collections, uuids, res, body, macros = _playbook(up)
+    elif kind == "solution-pack":
+        collections, uuids, res, body, macros = _pack(up)
+    else:
+        res, body, connector_ops = _connector(up, hub)
+    results += res
+
+    rows: list[dict[str, Any]] = []
+    pack_rows: list[dict[str, Any]] = []
+    deps = deps_mod.Dependencies()
+    if kind != "connector":
+        results += structure.run(collections)
+        results += brand.provenance(collections, uuids, hub)
+        known = {pb_id for pb_id in uuids}
+        deps = deps_mod.collect(collections, known)
+        rows = deps_mod.connector_rows(deps, hub)
+        results += deps_mod.checks(deps, rows)
+        if kind == "solution-pack":
+            for d in up.data.get("dependencies") or []:
+                if isinstance(d, dict) and d.get("type") == "solutionpack" and d.get("name"):
+                    pack_rows.append({"name": d["name"], "version": d.get("version"),
+                                      "hub": "available" if d["name"] in hub.packs else "missing"})
+
+    if worst(results) is not Severity.BLOCK:
+        results.append(CheckResult("secrets.clean", Severity.PASS, "No credentials found"))
+
+    code = structure.code_steps(collections)
+    playbooks = [pb for c in collections for pb in c.playbooks]
+    slug = str(meta.get("slug") or "")
+    ext = ".zip" if kind == "solution-pack" else ".json"
+    filename = f"{slug or 'download'}{ext}"
+
+    detail: dict[str, Any] = {
+        "slug": slug,
+        "type": kind,
+        "title": meta.get("title", ""),
+        "summary": meta.get("summary", ""),
+        "description": meta.get("description", ""),
+        "useCases": list(meta.get("use_cases") or []),
+        "tags": [str(t).lower() for t in meta.get("tags") or []],
+        "connectors": [r["name"] for r in rows] or ([up.data.get("name")] if kind == "connector" else []),
+        "triggers": sorted({graph.trigger_label(pb) for pb in playbooks}),
+        "playbookCount": len(playbooks),
+        "stepCount": sum(len(pb.steps) for pb in playbooks),
+        "hubStatus": deps_mod.hub_status(rows),
+        "hasCode": bool(code),
+        "author": {"github": meta.get("author", ""), "trust": trust},
+        "version": str(meta.get("version") or (up.data.get("version") if kind != "playbook" else "") or "1.0.0"),
+        "minVersion": meta.get("min_version") or (up.data.get("fsrMinCompatibility") if kind == "solution-pack" else None),
+        "published": str(meta.get("published") or ""),
+        "updated": str(meta.get("updated") or meta.get("published") or ""),
+        "source": meta.get("source"),
+        "setup": setup_guide.steps(kind, rows, pack_rows, deps, macros, playbooks, bool(code), meta),
+        "dependencies": {
+            "connectors": rows,
+            "solutionPacks": pack_rows,
+            "modules": [{"name": m, "stock": m in config.CORE_MODULES} for m in sorted(deps.modules)],
+        },
+        "operations": connector_ops,
+        "checks": [r.to_dict() for r in sorted(results, key=_order)],
+        "collections": graph.collections_graph(collections),
+        "download": {"path": f"/downloads/{slug}/{filename}", "filename": filename,
+                     "sha256": hashlib.sha256(body).hexdigest(), "bytes": len(body)},
+        "_results": results,
+    }
+    decision, reasons = policy.decide(results, trust=trust, kind=kind, has_code=bool(code))
+    return Processed(detail, body, filename, decision, reasons)
+
+
+_SEV_ORDER = {"block": 0, "warn": 1, "info": 2, "pass": 3}
+
+
+def _order(r: CheckResult) -> tuple[int, str]:
+    return _SEV_ORDER[r.severity.value], r.id

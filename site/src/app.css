@@ -1,0 +1,195 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Design tokens. One accent (teal), neutral everything else. */
+:root {
+  --bg: #fbfbfa;
+  --surface: #ffffff;
+  --surface-2: #f4f4f2;
+  --surface-3: #ececea;
+  --border: #e5e5e2;
+  --border-strong: #d4d4cf;
+  --fg: #18181b;
+  --muted: #5f5f66;
+  --faint: #8b8b93;
+  --accent: #0f766e;
+  --accent-hover: #115e59;
+  --accent-fg: #ffffff;
+  --accent-soft: #e6f4f1;
+  --accent-text: #0f766e;
+  --ring: #14b8a6;
+  --ok: #15803d;
+  --ok-soft: #e8f5ec;
+  --warn: #a16207;
+  --warn-soft: #fdf4dc;
+  --info: #1d4ed8;
+  --info-soft: #e8effd;
+  --block: #b42318;
+  --block-soft: #fdecea;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px -4px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 2px 4px rgb(0 0 0 / 0.04), 0 16px 40px -12px rgb(0 0 0 / 0.14);
+  --grid: rgb(0 0 0 / 0.06);
+
+  /* Node families (playbook viewer). */
+  --fam-trigger: #7c3aed;
+  --fam-connector: #0f766e;
+  --fam-decision: #b45309;
+  --fam-record: #2563eb;
+  --fam-code: #c026d3;
+  --fam-human: #ea580c;
+  --fam-reference: #4f46e5;
+  --fam-utility: #64748b;
+  --fam-end: #15803d;
+  --fam-other: #71717a;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #0b0b0d;
+  --surface: #121215;
+  --surface-2: #18181c;
+  --surface-3: #222227;
+  --border: #26262c;
+  --border-strong: #34343b;
+  --fg: #ededef;
+  --muted: #a1a1aa;
+  --faint: #71717a;
+  --accent: #2dd4bf;
+  --accent-hover: #5eead4;
+  --accent-fg: #042f2c;
+  --accent-soft: rgb(45 212 191 / 0.12);
+  --accent-text: #5eead4;
+  --ring: #2dd4bf;
+  --ok: #4ade80;
+  --ok-soft: rgb(74 222 128 / 0.12);
+  --warn: #fbbf24;
+  --warn-soft: rgb(251 191 36 / 0.12);
+  --info: #93b4fd;
+  --info-soft: rgb(147 180 253 / 0.12);
+  --block: #f87171;
+  --block-soft: rgb(248 113 113 / 0.12);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 16px 40px -12px rgb(0 0 0 / 0.6);
+  --grid: rgb(255 255 255 / 0.05);
+
+  --fam-trigger: #a78bfa;
+  --fam-connector: #2dd4bf;
+  --fam-decision: #fbbf24;
+  --fam-record: #60a5fa;
+  --fam-code: #e879f9;
+  --fam-human: #fb923c;
+  --fam-reference: #818cf8;
+  --fam-utility: #94a3b8;
+  --fam-end: #4ade80;
+  --fam-other: #a1a1aa;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-block: var(--block);
+  --color-block-soft: var(--block-soft);
+  --shadow-card: var(--shadow);
+  --shadow-pop: var(--shadow-lg);
+}
+
+html {
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+/* Prose for rendered markdown. */
+.prose {
+  color: var(--fg);
+  line-height: 1.7;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+.prose > * + * { margin-top: 0.9em; }
+.prose h1, .prose h2, .prose h3, .prose h4 { font-weight: 600; letter-spacing: -0.01em; margin-top: 1.6em; }
+.prose h2 { font-size: 1.2rem; }
+.prose h3 { font-size: 1.05rem; }
+.prose a { color: var(--accent-text); text-decoration: underline; text-underline-offset: 2px; text-decoration-color: color-mix(in srgb, var(--accent-text) 40%, transparent); }
+.prose a:hover { text-decoration-color: currentColor; }
+.prose ul { list-style: disc; padding-left: 1.3em; }
+.prose ol { list-style: decimal; padding-left: 1.3em; }
+.prose li + li { margin-top: 0.3em; }
+.prose strong { font-weight: 600; }
+.prose code { font-family: var(--font-mono); font-size: 0.85em; background: var(--surface-2); border: 1px solid var(--border); padding: 0.1em 0.35em; border-radius: 5px; }
+.prose pre { font-family: var(--font-mono); font-size: 0.82rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1rem; overflow-x: auto; }
+.prose pre code { background: none; border: 0; padding: 0; }
+.prose blockquote { border-left: 3px solid var(--accent); padding: 0.2em 0 0.2em 1em; color: var(--muted); }
+.prose table { width: 100%; border-collapse: collapse; font-size: 0.9rem; display: block; overflow-x: auto; }
+.prose th, .prose td { border-bottom: 1px solid var(--border); padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+.prose th { font-weight: 600; color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* xyflow theme hooks. */
+.svelte-flow {
+  --xy-background-color: transparent;
+  --xy-edge-stroke: var(--border-strong);
+  --xy-edge-stroke-selected: var(--accent);
+  --xy-edge-label-background-color: var(--surface);
+  --xy-edge-label-color: var(--muted);
+  --xy-minimap-background-color: var(--surface);
+  --xy-minimap-mask-background-color: color-mix(in srgb, var(--bg) 70%, transparent);
+  --xy-minimap-node-background-color: var(--surface-3);
+  --xy-controls-button-background-color: var(--surface);
+  --xy-controls-button-background-color-hover: var(--surface-2);
+  --xy-controls-button-color: var(--fg);
+  --xy-controls-button-border-color: var(--border);
+  --xy-background-pattern-dots-color: var(--grid);
+  --xy-attribution-background-color: transparent;
+}
+.svelte-flow .svelte-flow__edge-textbg { fill: var(--surface); }
+.svelte-flow .svelte-flow__edge-text { fill: var(--muted); font-size: 11px; font-weight: 500; }
+.svelte-flow .svelte-flow__controls { box-shadow: var(--shadow); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+.svelte-flow .svelte-flow__minimap { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+
+/* Quiet scrollbars for inner scroll areas (facet rail, code blocks). */
+.scroll-quiet {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}

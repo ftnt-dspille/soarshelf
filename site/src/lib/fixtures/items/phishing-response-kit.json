@@ -1,0 +1,432 @@
+{
+  "slug": "phishing-response-kit",
+  "type": "solution-pack",
+  "title": "Phishing response kit",
+  "summary": "Investigate reported emails, scan links, get an analyst verdict and contain the sender.",
+  "useCases": [
+    "phishing",
+    "containment"
+  ],
+  "tags": [
+    "email",
+    "urls",
+    "analyst-in-the-loop"
+  ],
+  "connectors": [
+    "urlscan-io",
+    "smtp",
+    "active-directory",
+    "cyops_utilities"
+  ],
+  "triggers": [
+    "Manual",
+    "Referenced"
+  ],
+  "playbookCount": 2,
+  "stepCount": 11,
+  "hubStatus": "version-mismatch",
+  "hasCode": true,
+  "author": {
+    "github": "blue-team-bea",
+    "trust": "contributor"
+  },
+  "version": "0.9.0",
+  "minVersion": "7.6.0",
+  "published": "2026-09-30",
+  "updated": "2026-10-02",
+  "description": "A small pack with an investigation playbook and a reusable containment action.\n\n1. Parse the reported message.\n2. Submit any URLs to urlscan.\n3. Ask an analyst for a verdict.\n4. Contain or close.\n\n> Contains a **code snippet** step for header parsing. Review it before activating.",
+  "setup": [
+    {
+      "kind": "install-connector",
+      "title": "Install urlscan.io 2.1.0",
+      "detail": "Open **Content Hub**, search for *urlscan.io* and install it."
+    },
+    {
+      "kind": "configure-connector",
+      "title": "Configure urlscan.io",
+      "detail": "Add a configuration and mark it as **default** so the playbook steps pick it up."
+    },
+    {
+      "kind": "install-connector",
+      "title": "Install SMTP 3.0.0",
+      "detail": "Open **Content Hub**, search for *SMTP* and install it. The playbook was built against 2.4.0; check the operations still exist."
+    },
+    {
+      "kind": "configure-connector",
+      "title": "Configure SMTP",
+      "detail": "Add a configuration and mark it as **default** so the playbook steps pick it up."
+    },
+    {
+      "kind": "install-connector",
+      "title": "Install Active Directory 2.0.0",
+      "detail": "Open **Content Hub**, search for *Active Directory* and install it."
+    },
+    {
+      "kind": "configure-connector",
+      "title": "Configure Active Directory",
+      "detail": "Add a configuration and mark it as **default** so the playbook steps pick it up."
+    },
+    {
+      "kind": "import",
+      "title": "Import the file",
+      "detail": "Go to **Settings \u2192 Import Wizard**, upload the download and review the collections being added."
+    },
+    {
+      "kind": "activate",
+      "title": "Review and activate",
+      "detail": "Downloads ship **inactive**. Open each playbook, check the trigger conditions, then activate it."
+    }
+  ],
+  "dependencies": {
+    "connectors": [
+      {
+        "name": "urlscan-io",
+        "label": "urlscan.io",
+        "version": "2.1.0",
+        "operations": [
+          "submit_url"
+        ],
+        "hub": "available",
+        "hubVersion": "2.1.0"
+      },
+      {
+        "name": "smtp",
+        "label": "SMTP",
+        "version": "2.4.0",
+        "operations": [
+          "send_email"
+        ],
+        "hub": "version-mismatch",
+        "hubVersion": "3.0.0"
+      },
+      {
+        "name": "active-directory",
+        "label": "Active Directory",
+        "version": "2.0.0",
+        "operations": [
+          "disable_account"
+        ],
+        "hub": "available",
+        "hubVersion": "2.0.0"
+      }
+    ],
+    "solutionPacks": [
+      {
+        "name": "sOARFramework",
+        "version": "1.0.0",
+        "hub": "available"
+      }
+    ],
+    "modules": [
+      {
+        "name": "alerts",
+        "stock": true
+      },
+      {
+        "name": "phishing_reports",
+        "stock": false
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "format.valid",
+      "severity": "pass",
+      "title": "Valid export format",
+      "detail": "Parsed as a workflow_collections export."
+    },
+    {
+      "id": "size.limit",
+      "severity": "pass",
+      "title": "Within size limit",
+      "detail": "Well under the 2 MB playbook limit."
+    },
+    {
+      "id": "secrets.none",
+      "severity": "pass",
+      "title": "No secrets found",
+      "detail": "No API keys, tokens, passwords or private keys detected."
+    },
+    {
+      "id": "network.private-ip",
+      "severity": "pass",
+      "title": "No private addresses",
+      "detail": "No RFC 1918 addresses or internal hostnames."
+    },
+    {
+      "id": "provenance.original",
+      "severity": "pass",
+      "title": "Not official content",
+      "detail": "Doesn't match any published solution pack content."
+    },
+    {
+      "id": "sanitize.owners",
+      "severity": "info",
+      "title": "Owner references removed",
+      "detail": "Removed 2 user/team references and the connector configuration ID."
+    },
+    {
+      "id": "sanitize.inactive",
+      "severity": "info",
+      "title": "Shipped inactive",
+      "detail": "Playbooks are set to inactive so nothing fires on import."
+    },
+    {
+      "id": "code.snippet",
+      "severity": "warn",
+      "title": "Contains a code step",
+      "detail": "The step runs Python on your SOAR appliance. A maintainer reviewed it before publishing, but read it yourself before activating.",
+      "location": "Investigate reported email \u203a Parse email headers"
+    },
+    {
+      "id": "modules.custom",
+      "severity": "warn",
+      "title": "Uses a custom module",
+      "detail": "`phishing_reports` isn't a stock module. The pack creates it on install."
+    },
+    {
+      "id": "hub.version",
+      "severity": "info",
+      "title": "Connector version differs",
+      "detail": "Built with SMTP 2.4.0; the Content Hub currently has 3.0.0."
+    }
+  ],
+  "collections": [
+    {
+      "name": "Phishing - Investigate",
+      "description": "Investigation playbooks.",
+      "playbooks": [
+        {
+          "name": "Investigate reported email",
+          "description": "Parses a reported email, scans URLs and asks an analyst.",
+          "trigger": "Manual",
+          "nodes": [
+            {
+              "id": "a749674a-a8e7-5406-93c8-97dca587255c",
+              "name": "Start",
+              "label": "Manual",
+              "family": "trigger",
+              "x": 30,
+              "y": 30,
+              "args": {
+                "resources": [
+                  "alerts"
+                ]
+              }
+            },
+            {
+              "id": "b89f39fc-83ba-5bcb-bd78-0e87d42ba8dd",
+              "name": "Parse email headers",
+              "label": "Code Snippet",
+              "family": "code",
+              "x": 30,
+              "y": 170,
+              "args": {
+                "python_function": "import email\nmsg = email.message_from_string(vars['raw'])\nprint({'from': msg['From'], 'urls': []})"
+              },
+              "connector": "cyops_utilities",
+              "operation": "code_snippet"
+            },
+            {
+              "id": "bdc75cb7-e850-53da-b360-d7c286a15e10",
+              "name": "Scan URLs",
+              "label": "Connector",
+              "family": "connector",
+              "x": 30,
+              "y": 310,
+              "args": {
+                "connector": "urlscan-io",
+                "operation": "submit_url",
+                "params": {
+                  "url": "{{ vars.steps.Parse_email_headers.data.urls[0] }}"
+                }
+              },
+              "connector": "urlscan-io",
+              "operation": "submit_url"
+            },
+            {
+              "id": "749e0ea3-84fc-5147-bea8-f7d7f09f2914",
+              "name": "Analyst verdict",
+              "label": "Manual Input",
+              "family": "human",
+              "x": 30,
+              "y": 450,
+              "args": {
+                "title": "Is this phishing?",
+                "options": [
+                  "Malicious",
+                  "Benign"
+                ]
+              }
+            },
+            {
+              "id": "8b5fbd90-aabd-5c82-b4e1-7f30d049df1d",
+              "name": "Malicious?",
+              "label": "Decision",
+              "family": "decision",
+              "x": 30,
+              "y": 590,
+              "args": {}
+            },
+            {
+              "id": "194f64a1-13eb-5d40-af92-e480e539f894",
+              "name": "Run containment",
+              "label": "Reference a Playbook",
+              "family": "reference",
+              "x": -170,
+              "y": 730,
+              "args": {
+                "workflowReference": "Contain sender"
+              }
+            },
+            {
+              "id": "d996c27c-4979-5104-acf1-6e3923489a83",
+              "name": "Close as benign",
+              "label": "Update Record",
+              "family": "record",
+              "x": 230,
+              "y": 730,
+              "args": {
+                "resource": {
+                  "status": "Closed"
+                }
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "5154bfa8-e8af-576f-b9d9-37cdb432c3fa",
+              "source": "a749674a-a8e7-5406-93c8-97dca587255c",
+              "target": "b89f39fc-83ba-5bcb-bd78-0e87d42ba8dd",
+              "label": null
+            },
+            {
+              "id": "a2f9f48b-79ab-59e7-a8d7-e6738715306c",
+              "source": "b89f39fc-83ba-5bcb-bd78-0e87d42ba8dd",
+              "target": "bdc75cb7-e850-53da-b360-d7c286a15e10",
+              "label": null
+            },
+            {
+              "id": "25448f28-1f01-52d0-80b6-ffcd0ddb1bdd",
+              "source": "bdc75cb7-e850-53da-b360-d7c286a15e10",
+              "target": "749e0ea3-84fc-5147-bea8-f7d7f09f2914",
+              "label": null
+            },
+            {
+              "id": "dcb76e88-a13e-534a-bb2e-8fe44f399249",
+              "source": "749e0ea3-84fc-5147-bea8-f7d7f09f2914",
+              "target": "8b5fbd90-aabd-5c82-b4e1-7f30d049df1d",
+              "label": null
+            },
+            {
+              "id": "d72d9a00-72d1-553c-9d9d-d63da573b84f",
+              "source": "8b5fbd90-aabd-5c82-b4e1-7f30d049df1d",
+              "target": "194f64a1-13eb-5d40-af92-e480e539f894",
+              "label": "Malicious"
+            },
+            {
+              "id": "924bef89-dc59-5202-b2d4-5fec2d3bf5d6",
+              "source": "8b5fbd90-aabd-5c82-b4e1-7f30d049df1d",
+              "target": "d996c27c-4979-5104-acf1-6e3923489a83",
+              "label": "Benign"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Phishing - Actions",
+      "description": "Reusable response actions.",
+      "playbooks": [
+        {
+          "name": "Contain sender",
+          "description": "Blocks the sender and disables the compromised account.",
+          "trigger": "Referenced",
+          "nodes": [
+            {
+              "id": "d97c5fd8-37ae-51bc-bd88-652699926f9b",
+              "name": "Start",
+              "label": "Referenced",
+              "family": "trigger",
+              "x": 30,
+              "y": 30,
+              "args": {}
+            },
+            {
+              "id": "ad63f0ed-c8a2-5f90-9973-af156fced60f",
+              "name": "Block sender",
+              "label": "Connector",
+              "family": "connector",
+              "x": 30,
+              "y": 170,
+              "args": {
+                "connector": "smtp",
+                "operation": "send_email",
+                "params": {
+                  "to": "{{ vars.mail_admins }}",
+                  "subject": "Block sender {{ vars.sender }}"
+                }
+              },
+              "connector": "smtp",
+              "operation": "send_email"
+            },
+            {
+              "id": "1b1b7748-4922-5082-bb21-1f4a1fde735a",
+              "name": "Disable account",
+              "label": "Connector",
+              "family": "connector",
+              "x": 30,
+              "y": 310,
+              "args": {
+                "connector": "active-directory",
+                "operation": "disable_account",
+                "params": {
+                  "username": "{{ vars.username }}"
+                }
+              },
+              "connector": "active-directory",
+              "operation": "disable_account"
+            },
+            {
+              "id": "4ed53ba7-4973-5532-9439-86b2e92eaa0c",
+              "name": "Set result",
+              "label": "Set Playbook Result",
+              "family": "end",
+              "x": 30,
+              "y": 450,
+              "args": {
+                "result": "contained"
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "d561f10b-fc7d-554a-a043-12efffd3625d",
+              "source": "d97c5fd8-37ae-51bc-bd88-652699926f9b",
+              "target": "ad63f0ed-c8a2-5f90-9973-af156fced60f",
+              "label": null
+            },
+            {
+              "id": "dec97526-ad0f-54ef-b0b1-432ec73cb53f",
+              "source": "ad63f0ed-c8a2-5f90-9973-af156fced60f",
+              "target": "1b1b7748-4922-5082-bb21-1f4a1fde735a",
+              "label": null
+            },
+            {
+              "id": "c21053b5-6e4f-52ed-bbd7-318a0b267d9b",
+              "source": "1b1b7748-4922-5082-bb21-1f4a1fde735a",
+              "target": "4ed53ba7-4973-5532-9439-86b2e92eaa0c",
+              "label": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "download": {
+    "path": "/downloads/phishing-response-kit/phishing-response-kit-0.9.0.zip",
+    "filename": "phishing-response-kit-0.9.0.zip",
+    "sha256": "88b3e13a98900e3dfa4b36074ae14aededf166e6f21f2ba668ba5fbec88922a2",
+    "bytes": 412880
+  }
+}

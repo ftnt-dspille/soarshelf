@@ -1,0 +1,205 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "FSRPB Demo VirusTotal",
+      "description": "Look up an IP on VirusTotal and stamp a verdict by malicious count.",
+      "visible": true,
+      "image": null,
+      "uuid": "614e2f61-d742-5e0f-998f-da37eb0ee098",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "VT IP Reputation",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Real VT lookup → branch on last_analysis_stats.malicious.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "ip"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/51943775-b57c-5a21-ab76-ebefcbb9abe3",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "51943775-b57c-5a21-ab76-ebefcbb9abe3"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Query VirusTotal",
+              "description": null,
+              "arguments": {
+                "connector": "virustotal",
+                "operation": "query_ip",
+                "config": "",
+                "params": {
+                  "ip": "{{ vars.input.params.ip }}"
+                },
+                "version": "3.2.1",
+                "name": "VirusTotal",
+                "operationTitle": "Get IP Reputation",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e8488b4d-0a1d-5bb5-8680-a2c26efd07c6"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Extract malicious count",
+              "description": null,
+              "arguments": {
+                "malicious_count": "{{ vars.steps.Query_VirusTotal.data.attributes.last_analysis_stats.malicious }}"
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "de3088e9-e316-51af-8a5b-535a34e39b20"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Branch on verdict",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "malicious",
+                    "condition": "{{ (vars.malicious_count | int) > 0 }}",
+                    "step_iri": "/api/3/workflow_steps/39f11a22-a4e1-5895-872b-eb40bf06c0ef",
+                    "step_name": "Stamp malicious"
+                  },
+                  {
+                    "option": "clean",
+                    "condition": "{{ (vars.malicious_count | int) == 0 }}",
+                    "step_iri": "/api/3/workflow_steps/09d49326-ff4e-51e1-9fd3-c2565f706604",
+                    "step_name": "Stamp clean"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "4dc22f0e-8d71-573d-adc6-c4184abcbe86"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Stamp malicious",
+              "description": null,
+              "arguments": {
+                "verdict": "malicious"
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "39f11a22-a4e1-5895-872b-eb40bf06c0ef"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Stamp clean",
+              "description": null,
+              "arguments": {
+                "verdict": "clean"
+              },
+              "status": null,
+              "top": "640",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "09d49326-ff4e-51e1-9fd3-c2565f706604"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "start -> Query VirusTotal",
+              "targetStep": "/api/3/workflow_steps/e8488b4d-0a1d-5bb5-8680-a2c26efd07c6",
+              "sourceStep": "/api/3/workflow_steps/51943775-b57c-5a21-ab76-ebefcbb9abe3",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "939b304c-2f70-533d-8e75-3d0d2a93d4cd"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Query VirusTotal -> Extract malicious count",
+              "targetStep": "/api/3/workflow_steps/de3088e9-e316-51af-8a5b-535a34e39b20",
+              "sourceStep": "/api/3/workflow_steps/e8488b4d-0a1d-5bb5-8680-a2c26efd07c6",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b82478c0-e58e-5dc3-b0c3-cad3ee70df3b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Extract malicious count -> Branch on verdict",
+              "targetStep": "/api/3/workflow_steps/4dc22f0e-8d71-573d-adc6-c4184abcbe86",
+              "sourceStep": "/api/3/workflow_steps/de3088e9-e316-51af-8a5b-535a34e39b20",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "5a5f68ad-61dc-5ef1-9e77-86f7b6ee1168"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Branch on verdict -> Stamp malicious",
+              "targetStep": "/api/3/workflow_steps/39f11a22-a4e1-5895-872b-eb40bf06c0ef",
+              "sourceStep": "/api/3/workflow_steps/4dc22f0e-8d71-573d-adc6-c4184abcbe86",
+              "label": "malicious",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "df2cc181-9a29-5736-bd97-26f4266c9d9b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Branch on verdict -> Stamp clean",
+              "targetStep": "/api/3/workflow_steps/09d49326-ff4e-51e1-9fd3-c2565f706604",
+              "sourceStep": "/api/3/workflow_steps/4dc22f0e-8d71-573d-adc6-c4184abcbe86",
+              "label": "clean",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "3c16cc91-04c6-5aa7-a198-4e3a6b0f07e8"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "b4f32824-6a31-5a84-8108-42341895e751",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}

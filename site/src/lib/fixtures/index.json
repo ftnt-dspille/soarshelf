@@ -1,0 +1,296 @@
+{
+  "generated": "2026-10-05T12:00:00Z",
+  "hubSnapshot": "2026-10-05",
+  "counts": {
+    "playbook": 3,
+    "solution-pack": 1,
+    "connector": 1
+  },
+  "useCases": [
+    {
+      "id": "alert-triage",
+      "label": "Alert triage & enrichment",
+      "description": "Enrich, score and route incoming alerts.",
+      "icon": "radar"
+    },
+    {
+      "id": "threat-intel",
+      "label": "Threat intelligence",
+      "description": "Look up IOCs and keep indicators fresh.",
+      "icon": "globe"
+    },
+    {
+      "id": "phishing",
+      "label": "Phishing response",
+      "description": "Analyse reported emails and clean up.",
+      "icon": "mail"
+    },
+    {
+      "id": "containment",
+      "label": "Containment & response",
+      "description": "Block, isolate and disable at speed.",
+      "icon": "shield"
+    },
+    {
+      "id": "vulnerability",
+      "label": "Vulnerability management",
+      "description": "Prioritise and track remediation.",
+      "icon": "bug"
+    },
+    {
+      "id": "identity",
+      "label": "Identity & access",
+      "description": "Account lockouts, resets and reviews.",
+      "icon": "key"
+    },
+    {
+      "id": "case-management",
+      "label": "Case management",
+      "description": "Create, link and close incidents cleanly.",
+      "icon": "folder"
+    },
+    {
+      "id": "ingestion",
+      "label": "Data ingestion",
+      "description": "Pull alerts and feeds into the platform.",
+      "icon": "download"
+    },
+    {
+      "id": "notifications",
+      "label": "Notifications & ticketing",
+      "description": "Email, chat and ticket hand-offs.",
+      "icon": "bell"
+    },
+    {
+      "id": "utilities",
+      "label": "Utilities",
+      "description": "Reusable building blocks for other playbooks.",
+      "icon": "wrench"
+    }
+  ],
+  "connectors": [
+    {
+      "name": "virustotal",
+      "label": "VirusTotal",
+      "category": "Threat Intelligence",
+      "onHub": true,
+      "count": 1
+    },
+    {
+      "name": "urlscan-io",
+      "label": "urlscan.io",
+      "category": "Threat Intelligence",
+      "onHub": true,
+      "count": 1
+    },
+    {
+      "name": "smtp",
+      "label": "SMTP",
+      "category": "Utilities",
+      "onHub": true,
+      "count": 1
+    },
+    {
+      "name": "active-directory",
+      "label": "Active Directory",
+      "category": "Identity and Access Management",
+      "onHub": true,
+      "count": 1
+    },
+    {
+      "name": "cyops_utilities",
+      "label": "Utilities",
+      "category": "Utilities",
+      "onHub": true,
+      "count": 1
+    },
+    {
+      "name": "acme-ticketing",
+      "label": "Acme Ticketing",
+      "category": "IT Services",
+      "onHub": false,
+      "count": 1
+    },
+    {
+      "name": "abuseipdb",
+      "label": "AbuseIPDB",
+      "category": "Threat Intelligence",
+      "onHub": true,
+      "count": 1
+    },
+    {
+      "name": "shodan-lite",
+      "label": "Shodan Lite",
+      "category": "Threat Intelligence",
+      "onHub": false,
+      "count": 1
+    }
+  ],
+  "items": [
+    {
+      "slug": "vt-ip-enrichment",
+      "type": "playbook",
+      "title": "Enrich source IPs with VirusTotal",
+      "summary": "Scores alerts by the source IP's reputation and skips private addresses.",
+      "useCases": [
+        "alert-triage",
+        "threat-intel"
+      ],
+      "tags": [
+        "enrichment",
+        "ip",
+        "severity"
+      ],
+      "connectors": [
+        "virustotal"
+      ],
+      "triggers": [
+        "On Create"
+      ],
+      "playbookCount": 1,
+      "stepCount": 6,
+      "hubStatus": "complete",
+      "hasCode": false,
+      "author": {
+        "github": "secops-sam",
+        "trust": "trusted"
+      },
+      "version": "1.2.0",
+      "minVersion": "7.4.0",
+      "published": "2026-09-12",
+      "updated": "2026-09-28"
+    },
+    {
+      "slug": "phishing-response-kit",
+      "type": "solution-pack",
+      "title": "Phishing response kit",
+      "summary": "Investigate reported emails, scan links, get an analyst verdict and contain the sender.",
+      "useCases": [
+        "phishing",
+        "containment"
+      ],
+      "tags": [
+        "email",
+        "urls",
+        "analyst-in-the-loop"
+      ],
+      "connectors": [
+        "urlscan-io",
+        "smtp",
+        "active-directory",
+        "cyops_utilities"
+      ],
+      "triggers": [
+        "Manual",
+        "Referenced"
+      ],
+      "playbookCount": 2,
+      "stepCount": 11,
+      "hubStatus": "version-mismatch",
+      "hasCode": true,
+      "author": {
+        "github": "blue-team-bea",
+        "trust": "contributor"
+      },
+      "version": "0.9.0",
+      "minVersion": "7.6.0",
+      "published": "2026-09-30",
+      "updated": "2026-10-02"
+    },
+    {
+      "slug": "incident-ticket-sync",
+      "type": "playbook",
+      "title": "Sync incidents to an external ticketing tool",
+      "summary": "One-click button that opens a ticket and writes the ticket ID back to the incident.",
+      "useCases": [
+        "case-management",
+        "notifications"
+      ],
+      "tags": [
+        "ticketing",
+        "manual"
+      ],
+      "connectors": [
+        "acme-ticketing"
+      ],
+      "triggers": [
+        "Manual"
+      ],
+      "playbookCount": 1,
+      "stepCount": 5,
+      "hubStatus": "needs-custom",
+      "hasCode": false,
+      "author": {
+        "github": "noc-nadia",
+        "trust": "new"
+      },
+      "version": "1.0.0",
+      "minVersion": null,
+      "published": "2026-10-03",
+      "updated": "2026-10-03"
+    },
+    {
+      "slug": "abuseipdb-feed-ingest",
+      "type": "playbook",
+      "title": "Ingest the AbuseIPDB blacklist as a threat feed",
+      "summary": "Pulls high-confidence malicious IPs into the threat feed module.",
+      "useCases": [
+        "ingestion",
+        "threat-intel"
+      ],
+      "tags": [
+        "feed",
+        "indicators",
+        "schedule"
+      ],
+      "connectors": [
+        "abuseipdb"
+      ],
+      "triggers": [
+        "Referenced"
+      ],
+      "playbookCount": 1,
+      "stepCount": 3,
+      "hubStatus": "complete",
+      "hasCode": false,
+      "author": {
+        "github": "secops-sam",
+        "trust": "trusted"
+      },
+      "version": "1.0.1",
+      "minVersion": "7.4.0",
+      "published": "2026-08-20",
+      "updated": "2026-08-20"
+    },
+    {
+      "slug": "shodan-lite-connector",
+      "type": "connector",
+      "title": "Shodan Lite connector",
+      "summary": "Minimal host lookup connector with three read-only operations.",
+      "useCases": [
+        "threat-intel",
+        "utilities"
+      ],
+      "tags": [
+        "connector",
+        "host-lookup"
+      ],
+      "connectors": [
+        "shodan-lite"
+      ],
+      "triggers": [],
+      "playbookCount": 0,
+      "stepCount": 0,
+      "hubStatus": "needs-custom",
+      "hasCode": true,
+      "author": {
+        "github": "intel-ivan",
+        "trust": "contributor"
+      },
+      "version": "0.3.0",
+      "minVersion": "7.6.0",
+      "published": "2026-09-05",
+      "updated": "2026-09-18"
+    }
+  ]
+}

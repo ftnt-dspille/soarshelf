@@ -1,0 +1,401 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "IP Reputation Enrichment with AbuseIPDB",
+      "description": "Check IP reputation against AbuseIPDB and set alert severity accordingly.",
+      "visible": true,
+      "image": null,
+      "uuid": "b097187a-8524-5ff9-a176-76dc41bf3808",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "IP Reputation Check with AbuseIPDB",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Enriches alerts by checking source IP against AbuseIPDB.\nIf abuse confidence score >= 50, sets severity to Critical; otherwise Low.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/81960cc5-ba45-5b91-9cb4-8461a9e3243f",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "81960cc5-ba45-5b91-9cb4-8461a9e3243f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Extract source IP",
+              "description": null,
+              "arguments": {
+                "source_ip": "{{ vars.input.records[0].sourceIp }}"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "68ce3902-f44a-58fc-8d41-5e23a1eb6234"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Check IP on AbuseIPDB",
+              "description": null,
+              "arguments": {
+                "connector": "abuseipdb",
+                "operation": "ip_lookup",
+                "config": "",
+                "params": {
+                  "ip": "{{ vars.source_ip }}"
+                },
+                "version": "2.0.0",
+                "name": "AbuseIPDB",
+                "operationTitle": "IP Lookup",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "0c2f79ee-4770-562a-88ac-6c3213794e62"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Extract abuse confidence score",
+              "description": null,
+              "arguments": {
+                "abuse_confidence_score": "{{ vars.steps.Check_IP_on_AbuseIPDB.data.abuseConfidenceScore | int }}"
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "c32e20a0-8104-570c-b7db-257100fbe58a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Decide severity level",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Critical",
+                    "condition": "{{ vars.abuse_confidence_score >= 50 }}",
+                    "step_iri": "/api/3/workflow_steps/8c5d0cf2-8505-580c-9f81-501419742e9c",
+                    "step_name": "Set Critical severity"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/68816fdd-f604-5f31-8e40-4ba5dce6219b",
+                    "step_name": "Set Low severity"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "b5142e5c-bb79-5f40-9718-7f2bf829f0aa"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set Critical severity",
+              "description": null,
+              "arguments": {
+                "new_severity": "Critical"
+              },
+              "status": null,
+              "top": "770",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "8c5d0cf2-8505-580c-9f81-501419742e9c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set Low severity",
+              "description": null,
+              "arguments": {
+                "new_severity": "Low"
+              },
+              "status": null,
+              "top": "770",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "68816fdd-f604-5f31-8e40-4ba5dce6219b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update alert severity",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "severity": "{{ vars.new_severity | picklist('severity') }}"
+                },
+                "collectionType": "/api/3/alerts"
+              },
+              "status": null,
+              "top": "900",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928722",
+              "group": null,
+              "uuid": "8d156515-675f-527f-876b-f20597a8a425"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Extract source IP",
+              "targetStep": "/api/3/workflow_steps/68ce3902-f44a-58fc-8d41-5e23a1eb6234",
+              "sourceStep": "/api/3/workflow_steps/81960cc5-ba45-5b91-9cb4-8461a9e3243f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ef80623e-37c0-59e6-a344-4550fcd42bc2"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Extract source IP -> Check IP on AbuseIPDB",
+              "targetStep": "/api/3/workflow_steps/0c2f79ee-4770-562a-88ac-6c3213794e62",
+              "sourceStep": "/api/3/workflow_steps/68ce3902-f44a-58fc-8d41-5e23a1eb6234",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "81a644c8-967b-5f37-9a0c-0d9c24296d5e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check IP on AbuseIPDB -> Extract abuse confidence score",
+              "targetStep": "/api/3/workflow_steps/c32e20a0-8104-570c-b7db-257100fbe58a",
+              "sourceStep": "/api/3/workflow_steps/0c2f79ee-4770-562a-88ac-6c3213794e62",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "34252ffe-2a05-52a1-aeaf-92d717339fcd"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Extract abuse confidence score -> Decide severity level",
+              "targetStep": "/api/3/workflow_steps/b5142e5c-bb79-5f40-9718-7f2bf829f0aa",
+              "sourceStep": "/api/3/workflow_steps/c32e20a0-8104-570c-b7db-257100fbe58a",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "d2a5a13f-8c78-5076-93e4-83e0f7f178d0"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Decide severity level -> Set Critical severity",
+              "targetStep": "/api/3/workflow_steps/8c5d0cf2-8505-580c-9f81-501419742e9c",
+              "sourceStep": "/api/3/workflow_steps/b5142e5c-bb79-5f40-9718-7f2bf829f0aa",
+              "label": "Critical",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "111db365-c9e9-5d4d-a577-8c05e1ed0f85"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Decide severity level -> Set Low severity",
+              "targetStep": "/api/3/workflow_steps/68816fdd-f604-5f31-8e40-4ba5dce6219b",
+              "sourceStep": "/api/3/workflow_steps/b5142e5c-bb79-5f40-9718-7f2bf829f0aa",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "14587fc4-c874-5b86-8c7e-663a74ba84e6"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set Critical severity -> Update alert severity",
+              "targetStep": "/api/3/workflow_steps/8d156515-675f-527f-876b-f20597a8a425",
+              "sourceStep": "/api/3/workflow_steps/8c5d0cf2-8505-580c-9f81-501419742e9c",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "c4ec445d-12da-5179-a2f2-b403273b04c7"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set Low severity -> Update alert severity",
+              "targetStep": "/api/3/workflow_steps/8d156515-675f-527f-876b-f20597a8a425",
+              "sourceStep": "/api/3/workflow_steps/68816fdd-f604-5f31-8e40-4ba5dce6219b",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "81038329-d93e-58f3-bd04-b77ad114d841"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Start",
+              "description": "Trigger on Alert records. Extract the source IP for reputation lookup.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "120",
+              "left": "540",
+              "height": "94",
+              "width": "440",
+              "uuid": "093162e0-24fa-502f-b3eb-2786140a2c23",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Extract source IP",
+              "description": "Read the sourceIp field from the alert record and store it for use\nin the connector call.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "250",
+              "left": "540",
+              "height": "116",
+              "width": "440",
+              "uuid": "43feac37-d9b1-5c1e-b26c-381cb4b050c1",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Check IP on AbuseIPDB",
+              "description": "Call the AbuseIPDB connector. Step output is keyed by step name:\nvars.steps.Check_IP_on_AbuseIPDB.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "386",
+              "left": "540",
+              "height": "116",
+              "width": "440",
+              "uuid": "d2b35ed5-7bd4-50d6-908f-1e993254203d",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Extract abuse confidence score",
+              "description": "Extract the abuseConfidenceScore from the connector response.\nConvert to integer for reliable comparison.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "522",
+              "left": "540",
+              "height": "116",
+              "width": "440",
+              "uuid": "9708be3d-7ed1-5ab9-85ff-8474d12e74d0",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Decide severity level",
+              "description": "Branch on the abuse confidence score.\nIf >= 50, route to Critical; otherwise fall through (next:) to Low.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "658",
+              "left": "880",
+              "height": "116",
+              "width": "440",
+              "uuid": "feb8822d-08b5-559c-99c6-4f65b0cfe3b2",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Set Critical severity",
+              "description": "Prepare to update the alert with Critical severity.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "794",
+              "left": "880",
+              "height": "72",
+              "width": "440",
+              "uuid": "0fdf85ff-b9f7-5ba6-a07f-62923d91bdc4",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Set Low severity",
+              "description": "Prepare to update the alert with Low severity.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "886",
+              "left": "880",
+              "height": "72",
+              "width": "440",
+              "uuid": "5f9be84b-9fd0-5083-993d-6e07ee8324ef",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Update alert severity",
+              "description": "Update the alert record with the new severity level.\nThe picklist filter converts the string to the proper picklist reference.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "978",
+              "left": "540",
+              "height": "116",
+              "width": "440",
+              "uuid": "340cc184-7c79-5796-9097-c438cd35c643",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "1c146eb0-4468-5d35-99c9-323f554f1179",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}

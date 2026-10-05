@@ -1,0 +1,184 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "FSRPB Demo Parent Child",
+      "description": "Parent calls a child via workflow_reference; reads result from vars.",
+      "visible": true,
+      "image": null,
+      "uuid": "0e252c55-86a2-57f9-8e20-c20ccecd8d18",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "FSRPB Score Multiplier",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Child -- multiplies an input by 10. Returns via vars.product.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "base"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/d2d57449-d2b9-5f44-b9c3-c8ca711dc649",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "d2d57449-d2b9-5f44-b9c3-c8ca711dc649"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Compute product",
+              "description": null,
+              "arguments": {
+                "product": "{{ (vars.input.params.base | int) * 10 }}"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "3bd0193d-40bc-5a77-9587-d8259491a146"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "start -> Compute product",
+              "targetStep": "/api/3/workflow_steps/3bd0193d-40bc-5a77-9587-d8259491a146",
+              "sourceStep": "/api/3/workflow_steps/d2d57449-d2b9-5f44-b9c3-c8ca711dc649",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b3a690cc-fce4-5436-9ce2-72090b575d61"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "57c4d8a0-f2b1-5eba-a8d4-0c7a01087e2a",
+          "isPrivate": false
+        },
+        {
+          "@type": "Workflow",
+          "name": "FSRPB Parent Caller",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Parent -- calls Score Multiplier with base=7, expects product=70.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "base"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/c5edd97b-119a-56c0-a39f-7fc66cf1d46c",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "c5edd97b-119a-56c0-a39f-7fc66cf1d46c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Call multiplier",
+              "description": null,
+              "arguments": {
+                "apply_async": false,
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "arguments": {
+                  "base": "{{ vars.input.params.base }}"
+                },
+                "workflowReference": "/api/3/workflows/57c4d8a0-f2b1-5eba-a8d4-0c7a01087e2a"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "de052f95-fbf5-5da0-afbf-ee20374670a0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Stamp result",
+              "description": null,
+              "arguments": {
+                "final_product": "{{ vars.steps.Call_multiplier.product }}"
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "afe7c830-95c3-513a-ab16-dc94efe6a7cb"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "start -> Call multiplier",
+              "targetStep": "/api/3/workflow_steps/de052f95-fbf5-5da0-afbf-ee20374670a0",
+              "sourceStep": "/api/3/workflow_steps/c5edd97b-119a-56c0-a39f-7fc66cf1d46c",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "58277957-874e-5075-9e34-c5f4408363af"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Call multiplier -> Stamp result",
+              "targetStep": "/api/3/workflow_steps/afe7c830-95c3-513a-ab16-dc94efe6a7cb",
+              "sourceStep": "/api/3/workflow_steps/de052f95-fbf5-5da0-afbf-ee20374670a0",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "656c479d-132d-5165-8ae1-02fbdfc706dc"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "8b33fea4-90eb-5557-a1ee-8586afda33ae",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}

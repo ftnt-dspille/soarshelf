@@ -1,0 +1,16 @@
+title: Find and tag an existing indicator
+summary: Looks up an indicator by value and adds a tag to it.
+description: 'Shows the find-then-update pattern: query the Indicators module by value and update the
+  match. Handy as a building block inside larger enrichment flows.'
+use_cases:
+- utility
+- enrichment
+tags:
+- indicators
+- find-records
+- tagging
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.4.0
+license: MIT
+published: '2026-08-30'

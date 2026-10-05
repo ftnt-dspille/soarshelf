@@ -1,0 +1,40 @@
+name: hub-refresh
+
+# Weekly: rebuild the Content Hub snapshot from the public catalog and open a
+# PR when it changed, so item hub statuses stay current.
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - working-directory: pipeline
+        run: |
+          uv venv
+          uv pip install -e .
+          .venv/bin/soarshelf hub-index
+      - name: Open PR if changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The snapshot date alone always changes; only open a PR for real changes.
+          if git diff --quiet -I '"snapshot"' -- pipeline/data/hub-index.json; then
+            echo "No catalog changes"; exit 0
+          fi
+          branch="hub-refresh/$(date +%Y-%m-%d)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add pipeline/data/hub-index.json
+          git commit -m "hub: refresh Content Hub snapshot"
+          git push -u origin "$branch"
+          gh pr create --fill --label hub-refresh

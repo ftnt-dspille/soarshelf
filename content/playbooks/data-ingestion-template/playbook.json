@@ -1,0 +1,618 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Recipe -- TODO Connector Data Ingestion",
+      "description": "Data Ingestion Wizard recipe (Fetch / Create / Ingest, Alerts module).",
+      "visible": true,
+      "image": null,
+      "uuid": "86efce21-5e6d-5597-be94-c1d51ac7ff38",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "TODO Connector > Fetch",
+          "aliasName": null,
+          "tag": "dataingestion, fetch, todo_connector_api_name",
+          "recordTags": [],
+          "description": "Fetch raw records from the source system.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "lastPullTime"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/aa551344-a513-5b99-a65a-40cc52865237",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "aa551344-a513-5b99-a65a-40cc52865237"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Fetch records",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "get_macro_list",
+                "config": "",
+                "params": {},
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "Get Global Variable List",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "fe73644f-05a4-5046-b42f-4a77e1e1fafe"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Capture data",
+              "description": null,
+              "arguments": {
+                "data": "{{ vars.steps.Fetch_records }}"
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "aab87967-10ea-5681-9d85-4764e2ab0824"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Fetch records",
+              "targetStep": "/api/3/workflow_steps/fe73644f-05a4-5046-b42f-4a77e1e1fafe",
+              "sourceStep": "/api/3/workflow_steps/aa551344-a513-5b99-a65a-40cc52865237",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "5cdda9b5-024d-55fd-96f1-9a93ce3d1f9b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch records -> Capture data",
+              "targetStep": "/api/3/workflow_steps/aab87967-10ea-5681-9d85-4764e2ab0824",
+              "sourceStep": "/api/3/workflow_steps/fe73644f-05a4-5046-b42f-4a77e1e1fafe",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "759f845a-3efc-5aa5-9277-2ae70cdea85e"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "TODO: Fetch records",
+              "description": "TODO replace BOTH connector and operation. Placeholder\n(cyops_utilities.get_macro_list) keeps this recipe compilable\nout of the box; it does NOT fetch anything useful. The target\nconnector must already be installed on the configured FSR.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "250",
+              "left": "540",
+              "height": "204",
+              "width": "440",
+              "uuid": "0b915b40-438e-5f16-9764-39b5c0222855",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "TODO: Capture data",
+              "description": "TODO point `data` at the array path inside the fetch result\n(e.g. `vars.steps.Fetch_records.data.records`).\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "474",
+              "left": "540",
+              "height": "116",
+              "width": "440",
+              "uuid": "7e0515d8-c917-5437-bad1-68ad6c878182",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "0f032b43-56ec-5997-85d8-9e031a46e990",
+          "isPrivate": false
+        },
+        {
+          "@type": "Workflow",
+          "name": "TODO Connector > Create",
+          "aliasName": null,
+          "tag": "dataingestion, create, todo_connector_api_name",
+          "recordTags": [],
+          "description": "Create one Alert record per ingested item.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "ingestedData"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/e828f30c-2526-521b-b38b-8f0956341966",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "e828f30c-2526-521b-b38b-8f0956341966"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Any records",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "yes",
+                    "condition": "{{ (vars.input.params.ingestedData | length) > 0 }}",
+                    "step_iri": "/api/3/workflow_steps/0a5888ce-bdf0-56d0-82fe-f392072596ab",
+                    "step_name": "Create alert per item"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/bb9a6b0e-174a-55b8-9e0f-03d70e373735",
+                    "step_name": "Raise empty input"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "774859fe-79e0-59d4-acb4-c794ed15c97d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Raise empty input",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "raise_exception",
+                "config": "",
+                "params": {
+                  "msg": "Create called with empty ingestedData -- Fetch returned no records."
+                },
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "Utils: Raise Exception",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "380",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "bb9a6b0e-174a-55b8-9e0f-03d70e373735"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create alert per item",
+              "description": null,
+              "arguments": {
+                "operation": "Replace",
+                "resource": {
+                  "severity": "{{ vars.item.severity | default('Medium') }}",
+                  "status": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+                  "type": "TODO source-event type label",
+                  "description": "{{ vars.item.description | default('') }}",
+                  "sourceId": "{{ vars.item.id }}",
+                  "sourceData": "{{ vars.item | toJSON }}"
+                },
+                "collection": "/api/3/alerts",
+                "for_each": {
+                  "item": "{{ vars.input.params.ingestedData }}",
+                  "parallel": false,
+                  "condition": ""
+                }
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/2597053c-e718-44b4-8394-4d40fe26d357",
+              "group": null,
+              "uuid": "0a5888ce-bdf0-56d0-82fe-f392072596ab"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Any records",
+              "targetStep": "/api/3/workflow_steps/774859fe-79e0-59d4-acb4-c794ed15c97d",
+              "sourceStep": "/api/3/workflow_steps/e828f30c-2526-521b-b38b-8f0956341966",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "34ef072c-5766-5dfd-bae1-c061d580c00e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Any records -> Create alert per item",
+              "targetStep": "/api/3/workflow_steps/0a5888ce-bdf0-56d0-82fe-f392072596ab",
+              "sourceStep": "/api/3/workflow_steps/774859fe-79e0-59d4-acb4-c794ed15c97d",
+              "label": "yes",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1d21ebc3-d194-5143-822f-c20bdb42a4ad"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Any records -> Raise empty input",
+              "targetStep": "/api/3/workflow_steps/bb9a6b0e-174a-55b8-9e0f-03d70e373735",
+              "sourceStep": "/api/3/workflow_steps/774859fe-79e0-59d4-acb4-c794ed15c97d",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "3f396418-efef-5810-9821-c314ffa8de84"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Any records",
+              "description": "Error gateway -- if the parent passed an empty array, fail loud\nrather than silently looping zero times.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "250",
+              "left": "880",
+              "height": "116",
+              "width": "440",
+              "uuid": "bee702ea-321c-5aa1-9832-2532376d4742",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Create alert per item",
+              "description": "NON-bulk on purpose -- on-create alert playbooks must fire.\nTODO adjust the resource field mapping below to match your\nsource-record shape. Picklist values (severity, status,\nsource) are friendly strings; the compiler resolves them\nagainst the live FSR's picklist tables.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "386",
+              "left": "880",
+              "height": "204",
+              "width": "440",
+              "uuid": "96f7cd02-9d1f-5a5b-a3a6-02cf9eeaca54",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "57756545-9f23-5222-8451-48346eb346f7",
+          "isPrivate": false
+        },
+        {
+          "@type": "Workflow",
+          "name": "TODO Connector > Ingest",
+          "aliasName": null,
+          "tag": "dataingestion, ingest, todo_connector_api_name",
+          "recordTags": [],
+          "description": "Orchestrator -- pulls Fetch, hands records to Create.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "env_setup",
+            "lastPullTime"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/c7446ba1-d756-5557-b28f-cfb8a0f730cf",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "c7446ba1-d756-5557-b28f-cfb8a0f730cf"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Mapping preview",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "preview",
+                    "condition": "{{ vars.input.params.env_setup | default(false) | bool }}",
+                    "step_iri": "/api/3/workflow_steps/1bd4e59b-f525-57ae-9a44-13c0d974bec3",
+                    "step_name": "Return sample shape"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/f0c594d5-23d4-592a-be80-5a14ca0f84ef",
+                    "step_name": "Call Fetch"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "4fc03b0f-b9ac-5fb0-9a35-661381b8d868"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Return sample shape",
+              "description": null,
+              "arguments": {
+                "sample": {
+                  "id": "TODO-1",
+                  "severity": "Medium",
+                  "description": "TODO sample description"
+                }
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "1bd4e59b-f525-57ae-9a44-13c0d974bec3"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Call Fetch",
+              "description": null,
+              "arguments": {
+                "apply_async": false,
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "arguments": {
+                  "lastPullTime": "{{ vars.input.params.lastPullTime }}"
+                },
+                "workflowReference": "/api/3/workflows/0f032b43-56ec-5997-85d8-9e031a46e990"
+              },
+              "status": null,
+              "top": "380",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "f0c594d5-23d4-592a-be80-5a14ca0f84ef"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Fetch returned data",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "yes",
+                    "condition": "{{ (vars.steps.Call_Fetch.data | default([]) | length) > 0 }}",
+                    "step_iri": "/api/3/workflow_steps/7ea12576-c011-5c47-81d3-c2cf636db521",
+                    "step_name": "Call Create"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/fbc42b85-2344-5a32-9a44-e773d9258c5e",
+                    "step_name": "Raise no data"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "510",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "30ecf3a3-a2f7-5585-b80a-5a061de25cba"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Raise no data",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "raise_exception",
+                "config": "",
+                "params": {
+                  "msg": "Ingest: Fetch returned no records (lastPullTime={{ vars.input.params.lastPullTime }})"
+                },
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "Utils: Raise Exception",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "640",
+              "left": "880",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "fbc42b85-2344-5a32-9a44-e773d9258c5e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Call Create",
+              "description": null,
+              "arguments": {
+                "apply_async": false,
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "step_variables": [],
+                "arguments": {
+                  "ingestedData": "{{ vars.steps.Call_Fetch.data }}"
+                },
+                "workflowReference": "/api/3/workflows/57756545-9f23-5222-8451-48346eb346f7"
+              },
+              "status": null,
+              "top": "640",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "7ea12576-c011-5c47-81d3-c2cf636db521"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Mapping preview",
+              "targetStep": "/api/3/workflow_steps/4fc03b0f-b9ac-5fb0-9a35-661381b8d868",
+              "sourceStep": "/api/3/workflow_steps/c7446ba1-d756-5557-b28f-cfb8a0f730cf",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e4484ba0-c6b6-5108-ac7f-f4b8719430a1"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Mapping preview -> Return sample shape",
+              "targetStep": "/api/3/workflow_steps/1bd4e59b-f525-57ae-9a44-13c0d974bec3",
+              "sourceStep": "/api/3/workflow_steps/4fc03b0f-b9ac-5fb0-9a35-661381b8d868",
+              "label": "preview",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "3ca063fd-f52b-54b3-bf79-303668b7e3b6"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Mapping preview -> Call Fetch",
+              "targetStep": "/api/3/workflow_steps/f0c594d5-23d4-592a-be80-5a14ca0f84ef",
+              "sourceStep": "/api/3/workflow_steps/4fc03b0f-b9ac-5fb0-9a35-661381b8d868",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "57bd876c-1662-5b67-a04a-ee77262c699f"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Call Fetch -> Fetch returned data",
+              "targetStep": "/api/3/workflow_steps/30ecf3a3-a2f7-5585-b80a-5a061de25cba",
+              "sourceStep": "/api/3/workflow_steps/f0c594d5-23d4-592a-be80-5a14ca0f84ef",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b14ba7ce-07d5-5678-a2cc-ac84b27a917a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch returned data -> Call Create",
+              "targetStep": "/api/3/workflow_steps/7ea12576-c011-5c47-81d3-c2cf636db521",
+              "sourceStep": "/api/3/workflow_steps/30ecf3a3-a2f7-5585-b80a-5a061de25cba",
+              "label": "yes",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "2a34a744-69a9-5f76-a55b-d2a5919c98ad"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch returned data -> Raise no data",
+              "targetStep": "/api/3/workflow_steps/fbc42b85-2344-5a32-9a44-e773d9258c5e",
+              "sourceStep": "/api/3/workflow_steps/30ecf3a3-a2f7-5585-b80a-5a061de25cba",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9bc1bda4-6515-5294-a7f9-5a1a0589a858"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Mapping preview",
+              "description": "The Wizard sets `env_setup=true` while users design the field\nmapping in the UI; in that mode we return a sample record\nshape instead of writing to Alerts. `false` (or missing) is\nthe real ingestion path.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "250",
+              "left": "880",
+              "height": "182",
+              "width": "440",
+              "uuid": "f0868631-ff6d-5785-9ed9-cb5111472134",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "TODO: Return sample shape",
+              "description": "TODO replace this stub with a representative single-record\nsample so the Wizard's mapping preview shows real fields.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "452",
+              "left": "1220",
+              "height": "116",
+              "width": "440",
+              "uuid": "47adfd41-850b-5ca3-bd89-55e89c62891a",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "194afe9d-9e1c-5a29-aa18-d1b0315d2db0",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}

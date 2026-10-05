@@ -1,0 +1,3 @@
+# GitHub handle -> trust tier (new | contributor | trusted | maintainer).
+# Anyone not listed is 'new'. See pipeline/src/soarshelf/policy.py.
+ftnt-dspille: maintainer

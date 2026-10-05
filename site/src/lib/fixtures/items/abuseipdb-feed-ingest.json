@@ -1,0 +1,200 @@
+{
+  "slug": "abuseipdb-feed-ingest",
+  "type": "playbook",
+  "title": "Ingest the AbuseIPDB blacklist as a threat feed",
+  "summary": "Pulls high-confidence malicious IPs into the threat feed module.",
+  "useCases": [
+    "ingestion",
+    "threat-intel"
+  ],
+  "tags": [
+    "feed",
+    "indicators",
+    "schedule"
+  ],
+  "connectors": [
+    "abuseipdb"
+  ],
+  "triggers": [
+    "Referenced"
+  ],
+  "playbookCount": 1,
+  "stepCount": 3,
+  "hubStatus": "complete",
+  "hasCode": false,
+  "author": {
+    "github": "secops-sam",
+    "trust": "trusted"
+  },
+  "version": "1.0.1",
+  "minVersion": "7.4.0",
+  "published": "2026-08-20",
+  "updated": "2026-08-20",
+  "description": "Run it from a schedule. Confidence and limit are parameters on the connector step.",
+  "setup": [
+    {
+      "kind": "install-connector",
+      "title": "Install AbuseIPDB 2.0.0",
+      "detail": "Open **Content Hub**, search for *AbuseIPDB* and install it."
+    },
+    {
+      "kind": "configure-connector",
+      "title": "Configure AbuseIPDB",
+      "detail": "Add a configuration and mark it as **default** so the playbook steps pick it up."
+    },
+    {
+      "kind": "import",
+      "title": "Import the file",
+      "detail": "Go to **Settings \u2192 Import Wizard**, upload the download and review the collections being added."
+    },
+    {
+      "kind": "activate",
+      "title": "Review and activate",
+      "detail": "Downloads ship **inactive**. Open each playbook, check the trigger conditions, then activate it."
+    },
+    {
+      "kind": "note",
+      "title": "Add a schedule",
+      "detail": "Create a schedule (e.g. every 6 hours) that runs this playbook."
+    }
+  ],
+  "dependencies": {
+    "connectors": [
+      {
+        "name": "abuseipdb",
+        "label": "AbuseIPDB",
+        "version": "2.0.0",
+        "operations": [
+          "get_blacklist"
+        ],
+        "hub": "available",
+        "hubVersion": "2.0.0"
+      }
+    ],
+    "solutionPacks": [],
+    "modules": [
+      {
+        "name": "threat_intel_feeds",
+        "stock": true
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "format.valid",
+      "severity": "pass",
+      "title": "Valid export format",
+      "detail": "Parsed as a workflow_collections export."
+    },
+    {
+      "id": "size.limit",
+      "severity": "pass",
+      "title": "Within size limit",
+      "detail": "Well under the 2 MB playbook limit."
+    },
+    {
+      "id": "secrets.none",
+      "severity": "pass",
+      "title": "No secrets found",
+      "detail": "No API keys, tokens, passwords or private keys detected."
+    },
+    {
+      "id": "network.private-ip",
+      "severity": "pass",
+      "title": "No private addresses",
+      "detail": "No RFC 1918 addresses or internal hostnames."
+    },
+    {
+      "id": "provenance.original",
+      "severity": "pass",
+      "title": "Not official content",
+      "detail": "Doesn't match any published solution pack content."
+    },
+    {
+      "id": "sanitize.owners",
+      "severity": "info",
+      "title": "Owner references removed",
+      "detail": "Removed 2 user/team references and the connector configuration ID."
+    },
+    {
+      "id": "sanitize.inactive",
+      "severity": "info",
+      "title": "Shipped inactive",
+      "detail": "Playbooks are set to inactive so nothing fires on import."
+    }
+  ],
+  "collections": [
+    {
+      "name": "Threat Feeds",
+      "description": "",
+      "playbooks": [
+        {
+          "name": "Ingest AbuseIPDB blacklist",
+          "description": "Pulls high-confidence IPs into the threat feed module on a schedule.",
+          "trigger": "Referenced",
+          "nodes": [
+            {
+              "id": "07938107-aa5e-55f5-b263-9c6e87b2908d",
+              "name": "Start",
+              "label": "Referenced",
+              "family": "trigger",
+              "x": 30,
+              "y": 30,
+              "args": {}
+            },
+            {
+              "id": "744499dd-f940-5d0c-adb6-dbf16d6eb545",
+              "name": "Fetch blacklist",
+              "label": "Connector",
+              "family": "connector",
+              "x": 30,
+              "y": 170,
+              "args": {
+                "connector": "abuseipdb",
+                "operation": "get_blacklist",
+                "params": {
+                  "confidenceMinimum": 90,
+                  "limit": 1000
+                }
+              },
+              "connector": "abuseipdb",
+              "operation": "get_blacklist"
+            },
+            {
+              "id": "70d8b4b4-d80e-5ada-b1f8-7bd18946c2c8",
+              "name": "Ingest indicators",
+              "label": "Ingest Bulk Feed",
+              "family": "record",
+              "x": 30,
+              "y": 310,
+              "args": {
+                "collection": "/api/3/threat_intel_feeds",
+                "records": "{{ vars.steps.Fetch_blacklist.data }}"
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "57fa67d5-c548-5112-845b-13a50ca56864",
+              "source": "07938107-aa5e-55f5-b263-9c6e87b2908d",
+              "target": "744499dd-f940-5d0c-adb6-dbf16d6eb545",
+              "label": null
+            },
+            {
+              "id": "94fa27e3-613b-506b-abf1-6bf4e7b40dde",
+              "source": "744499dd-f940-5d0c-adb6-dbf16d6eb545",
+              "target": "70d8b4b4-d80e-5ada-b1f8-7bd18946c2c8",
+              "label": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "download": {
+    "path": "/downloads/abuseipdb-feed-ingest/abuseipdb-feed-ingest.json",
+    "filename": "abuseipdb-feed-ingest.json",
+    "sha256": "8bd574fdb05c2dc5017188a2f4c32d5b81963e0a33eccba92404e968c665006d",
+    "bytes": 6012
+  }
+}

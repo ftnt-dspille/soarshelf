@@ -1,0 +1,168 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Compiler Examples",
+      "description": "Approval loop -- ask a human, then act based on their response.",
+      "visible": true,
+      "image": null,
+      "uuid": "3b28bf29-8f8a-59cb-a97c-54a1737e8284",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "Confirm Before Block",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Ask SOC analyst to approve a block, then act.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/875c235d-0dfe-5ee2-b24b-9ba727e91495",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "875c235d-0dfe-5ee2-b24b-9ba727e91495"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Approve block",
+              "description": "Click **block** to proceed, **skip** to abort.",
+              "arguments": {
+                "type": "DecisionBased",
+                "input": {
+                  "schema": {
+                    "title": "Block this IP?",
+                    "description": "Click **block** to proceed, **skip** to abort.",
+                    "inputVariables": []
+                  }
+                },
+                "record": "",
+                "is_approval": false,
+                "isRecordLinked": false,
+                "owner_detail": {
+                  "isAssigned": false
+                },
+                "step_variables": [],
+                "response_mapping": {
+                  "options": [
+                    {
+                      "option": "block",
+                      "primary": true,
+                      "step_iri": "/api/3/workflow_steps/01bb8256-f5b0-56dd-b4ae-4b6a36ca0b81"
+                    },
+                    {
+                      "option": "skip",
+                      "step_iri": "/api/3/workflow_steps/d9e1a5ad-40b6-5f85-9fc5-2bafa745afe7"
+                    }
+                  ],
+                  "duplicateOption": false,
+                  "customSuccessMessage": "Awaiting Playbook resumed successfully."
+                },
+                "email_notification": {
+                  "enabled": false,
+                  "smtpParameters": []
+                },
+                "inline_channel_list": [],
+                "external_channel_list": [],
+                "unauthenticated_input": false
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/fc04082a-d7dc-4299-96fb-6837b1baa0fe",
+              "group": null,
+              "uuid": "de22edec-0ebb-5c10-97b7-e3f55a3c0036"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Pretend we blocked",
+              "description": null,
+              "arguments": {
+                "outcome": "blocked"
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "01bb8256-f5b0-56dd-b4ae-4b6a36ca0b81"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Skip",
+              "description": null,
+              "arguments": {
+                "outcome": "skipped"
+              },
+              "status": null,
+              "top": "380",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "d9e1a5ad-40b6-5f85-9fc5-2bafa745afe7"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "start -> Approve block",
+              "targetStep": "/api/3/workflow_steps/de22edec-0ebb-5c10-97b7-e3f55a3c0036",
+              "sourceStep": "/api/3/workflow_steps/875c235d-0dfe-5ee2-b24b-9ba727e91495",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6e6730b8-8c82-582f-be86-31b39a90f0e3"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Approve block -> Pretend we blocked",
+              "targetStep": "/api/3/workflow_steps/01bb8256-f5b0-56dd-b4ae-4b6a36ca0b81",
+              "sourceStep": "/api/3/workflow_steps/de22edec-0ebb-5c10-97b7-e3f55a3c0036",
+              "label": "block",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "8f34c5ff-c39c-5aff-adb2-8f70e2e9ede8"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Approve block -> Skip",
+              "targetStep": "/api/3/workflow_steps/d9e1a5ad-40b6-5f85-9fc5-2bafa745afe7",
+              "sourceStep": "/api/3/workflow_steps/de22edec-0ebb-5c10-97b7-e3f55a3c0036",
+              "label": "skip",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "c1cfb592-436d-5a0a-8eb8-1ed05555a8b5"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "6957c173-6f83-5252-8da3-46e7c470b139",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}
