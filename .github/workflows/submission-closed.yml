@@ -1,0 +1,35 @@
+name: submission-closed
+
+# When a submission PR is merged or closed, tell the Worker so the uploader's
+# status page updates. Only for PRs the submission App opened from this repo:
+# a fork can't name a branch `submission/<id>` and mark someone's upload.
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    if: >-
+      startsWith(github.event.pull_request.head.ref, 'submission/') &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login == vars.SUBMISSION_BOT
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          REF: ${{ github.event.pull_request.head.ref }}
+          MERGED: ${{ github.event.pull_request.merged }}
+          API: ${{ vars.SITE_ORIGIN }}/api/internal/submissions
+          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
+        run: |
+          id="${REF#submission/}"
+          [[ "$id" =~ ^[0-9a-f]{32}$ ]] || { echo "invalid id"; exit 1; }
+          if [ "$MERGED" = true ]; then
+            body='{"status":"published"}'
+          else
+            body='{"status":"rejected","reasons":["Closed by a maintainer"]}'
+          fi
+          curl -fsS -X POST -H "Authorization: Bearer $INTERNAL_TOKEN" -H "content-type: application/json" \
+            --data "$body" "$API/$id/result"

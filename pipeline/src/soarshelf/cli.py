@@ -52,6 +52,13 @@ def _intake_submission(args: argparse.Namespace) -> int:
     return 0          # the decision is in the report; a reject is not a pipeline failure
 
 
+def _pr_body(args: argparse.Namespace) -> int:
+    from .submission import pr_body
+
+    print(pr_body(json.loads(args.report.read_text()), args.login, args.id), end="")
+    return 0
+
+
 def _verify_authors(args: argparse.Namespace) -> int:
     from .authors import git_reader, verify
 
@@ -107,6 +114,12 @@ def main(argv: list[str] | None = None) -> int:
     i.add_argument("--content", type=Path, default=Path("content"))
     i.add_argument("--report", type=Path, required=True, help="where to write the JSON report")
     i.set_defaults(fn=_intake_submission)
+
+    b2 = sub.add_parser("pr-body", help="markdown body for a submission PR (submission Action)")
+    b2.add_argument("--report", type=Path, required=True)
+    b2.add_argument("--login", required=True)
+    b2.add_argument("--id", required=True)
+    b2.set_defaults(fn=_pr_body)
 
     v = sub.add_parser("verify-authors", help="PR gate: changed items must be credited to the PR author")
     v.add_argument("--pr-author", required=True)

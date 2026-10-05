@@ -1,0 +1,8 @@
+# Copy to .dev.vars for `pnpm dev` (wrangler dev). Never commit .dev.vars.
+SITE_ORIGIN=http://localhost:5173
+SESSION_SECRET=dev-only-session-secret-change-me-0123456789
+INTERNAL_TOKEN=dev-only-internal-token-0123456789abcdef
+# Cloudflare's documented always-pass Turnstile test secret.
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+# Sign in as `dev-user` without GitHub (localhost only).
+DEV_LOGIN=1

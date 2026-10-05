@@ -35,8 +35,13 @@ def test_intake_writes_cleaned_item(tmp_path, doc, hub, write_json):
     assert meta["author"] == "alice"
     stored = json.loads((item / "playbook.json").read_text())
     assert stored["data"][0]["workflows"][0]["isActive"] is False      # cleaned, not raw
-    # same title again gets a fresh slug
-    assert intake(write_json(doc), FORM, "alice", content, hub).slug == "enrich-alert-source-ips-2"
+    # a different playbook with the same title gets a fresh slug
+    other = json.loads(json.dumps(doc))
+    wf = other["data"][0]["workflows"][0]
+    wf["uuid"] = "77777777-7777-4777-8777-777777777777"
+    for st in wf["steps"]:
+        st["name"] += " v2"
+    assert intake(write_json(other), FORM, "alice", content, hub).slug == "enrich-alert-source-ips-2"
 
 
 def test_reject_writes_nothing_and_strikes(tmp_path, doc, hub, write_json):
@@ -50,3 +55,24 @@ def test_reject_writes_nothing_and_strikes(tmp_path, doc, hub, write_json):
 def test_rights_required(tmp_path, doc, hub, write_json):
     res = intake(write_json(doc), {**FORM, "rightsConfirmed": False}, "alice", _content(tmp_path), hub)
     assert res.decision == "reject"
+
+
+def test_pr_body_neutralises_user_text():
+    from soarshelf.submission import pr_body
+    body = pr_body({"decision": "review", "reasons": ["Contains steps that run code"],
+                    "checks": [{"severity": "warn", "title": "Email address", "location": "PB › @everyone [x](http://evil)"}]},
+                   "alice", "a" * 32)
+    assert "@\u200beveryone" in body and "](http" not in body and "Needs review" in body
+
+
+def test_reupload_of_published_item_is_rejected(tmp_path, doc, hub, write_json):
+    content = _content(tmp_path)
+    first = intake(write_json(doc), FORM, "alice", content, hub)
+    assert first.written
+    again = intake(write_json(doc), {**FORM, "title": "Totally new name"}, "mallory", content, hub)
+    assert again.decision == "reject" and not again.strike
+    assert any(c["id"] == "provenance.duplicate-item" and "another contributor" in c["detail"] for c in again.checks)
+    # renamed steps but same uuids still match; same structure with fresh uuids too
+    doc2 = json.loads(json.dumps(doc))
+    doc2["data"][0]["workflows"][0]["uuid"] = "99999999-9999-4999-8999-999999999999"
+    assert intake(write_json(doc2), {**FORM, "title": "Another"}, "mallory", content, hub).decision == "reject"

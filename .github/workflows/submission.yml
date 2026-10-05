@@ -1,0 +1,195 @@
+name: submission
+
+# Started by the upload Worker (repository_dispatch) with only a submission id.
+# Everything else is fetched from the Worker's internal API, so no
+# user-controlled text is ever interpolated into this workflow.
+#
+# Two jobs: `check` parses the untrusted upload and holds no write access;
+# `publish` holds the App token but never touches the upload, only the
+# cleaned item `check` produced, which it re-validates first.
+#
+# Needs:
+#   vars.SITE_ORIGIN            e.g. https://soarshelf.example
+#   vars.SUBMISSION_APP_ID      GitHub App (contents + pull requests: write)
+#   secrets.SUBMISSION_APP_KEY  that App's private key
+#   secrets.INTERNAL_TOKEN      shared with the Worker
+on:
+  repository_dispatch:
+    types: [submission]
+
+permissions:
+  contents: read
+
+# One at a time, so two uploads with the same title can't race for a slug.
+concurrency:
+  group: submissions
+  cancel-in-progress: false
+
+env:
+  API: ${{ vars.SITE_ORIGIN }}/api/internal/submissions
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      id: ${{ steps.id.outputs.id }}
+      decision: ${{ steps.intake.outputs.decision }}
+    env:
+      INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
+    steps:
+      - name: Validate submission id
+        id: id
+        env:
+          RAW_ID: ${{ github.event.client_payload.id }}
+        run: |
+          [[ "$RAW_ID" =~ ^[0-9a-f]{32}$ ]] || { echo "invalid id"; exit 1; }
+          echo "ID=$RAW_ID" >> "$GITHUB_ENV"
+          echo "id=$RAW_ID" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - name: Install pipeline
+        run: |
+          uv venv /tmp/p
+          uv pip install --python /tmp/p/bin/python -e pipeline
+
+      - name: Fetch the quarantined upload
+        run: |
+          mkdir -p /tmp/sub
+          curl -fsS -H "Authorization: Bearer $INTERNAL_TOKEN" "$API/$ID" -o /tmp/sub/info.json
+          login=$(jq -r .login /tmp/sub/info.json)
+          [[ "$login" =~ ^[A-Za-z0-9-]{1,39}$ ]] || { echo "invalid login"; exit 1; }
+          case "$(jq -r .filename /tmp/sub/info.json)" in
+            *.json|*.JSON) ext=json ;;
+            *.zip|*.ZIP)   ext=zip ;;
+            *) echo "unexpected file type"; exit 1 ;;
+          esac
+          jq .meta /tmp/sub/info.json > /tmp/sub/meta.json
+          curl -fsS -H "Authorization: Bearer $INTERNAL_TOKEN" "$API/$ID/file" -o "/tmp/sub/upload.$ext"
+          echo "LOGIN=$login" >> "$GITHUB_ENV"
+          echo "UPLOAD=/tmp/sub/upload.$ext" >> "$GITHUB_ENV"
+
+      - name: Run the checks
+        id: intake
+        run: |
+          # Against main's content/, so slugs can't collide and trust tiers come from main.
+          mkdir -p /tmp/out/content
+          /tmp/p/bin/soarshelf intake-submission --file "$UPLOAD" --meta /tmp/sub/meta.json \
+            --author "$LOGIN" --content content --report /tmp/out/report.json
+          echo "$LOGIN" > /tmp/out/login
+          decision=$(jq -r .decision /tmp/out/report.json)
+          if [ "$decision" != reject ]; then
+            # Hand only the new item folder to the publish job.
+            item=$(git status --porcelain --untracked-files=all content | awk '{print $2}' | cut -d/ -f1-3 | sort -u)
+            [ "$(echo "$item" | wc -l)" -eq 1 ] || { echo "expected one new item: $item"; exit 1; }
+            mkdir -p "/tmp/out/$(dirname "$item")"
+            cp -R "$item" "/tmp/out/$item"
+          fi
+          echo "decision=$decision" >> "$GITHUB_OUTPUT"
+
+      - name: Report a rejection
+        if: steps.intake.outputs.decision == 'reject'
+        run: |
+          jq '{status: "rejected", decision, reasons, checks, strike}' /tmp/out/report.json \
+            | curl -fsS -X POST -H "Authorization: Bearer $INTERNAL_TOKEN" -H "content-type: application/json" \
+                --data-binary @- "$API/$ID/result"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: steps.intake.outputs.decision != 'reject'
+        with:
+          name: item
+          path: /tmp/out
+          retention-days: 1
+
+      - name: Report a pipeline failure
+        if: failure() && env.ID != ''
+        run: |
+          curl -fsS -X POST -H "Authorization: Bearer $INTERNAL_TOKEN" -H "content-type: application/json" \
+            --data '{"status":"error"}' "$API/$ID/result" || true
+
+  publish:
+    needs: check
+    if: needs.check.outputs.decision == 'publish' || needs.check.outputs.decision == 'review'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ID: ${{ needs.check.outputs.id }}
+      DECISION: ${{ needs.check.outputs.decision }}
+      INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
+    steps:
+      # App token: commits and PRs made with it trigger CI, unlike GITHUB_TOKEN.
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app
+        with:
+          app-id: ${{ vars.SUBMISSION_APP_ID }}
+          private-key: ${{ secrets.SUBMISSION_APP_KEY }}
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          token: ${{ steps.app.outputs.token }}
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: item
+          path: /tmp/out
+
+      - name: Validate and place the item
+        run: |
+          [[ "$ID" =~ ^[0-9a-f]{32}$ ]] || { echo "invalid id"; exit 1; }
+          login=$(cat /tmp/out/login)
+          [[ "$login" =~ ^[A-Za-z0-9-]{1,39}$ ]] || { echo "invalid login"; exit 1; }
+          slug=$(jq -r .slug /tmp/out/report.json)
+          type=$(jq -r .type /tmp/out/report.json)
+          [[ "$slug" =~ ^[a-z0-9][a-z0-9-]{0,80}$ ]] || { echo "invalid slug"; exit 1; }
+          case "$type" in
+            playbook) dir=playbooks; payload=playbook.json ;;
+            solution-pack) dir=solution-packs; payload=pack.zip ;;
+            connector) dir=connectors; payload=info.json ;;
+            *) echo "invalid type"; exit 1 ;;
+          esac
+          # Exactly one item folder holding exactly meta.yaml + the payload, nothing else.
+          found=$(cd /tmp/out/content && find . -type f | sort | tr '\n' ' ')
+          [ "$found" = "./$dir/$slug/meta.yaml ./$dir/$slug/$payload " ] || { echo "unexpected files: $found"; exit 1; }
+          [ ! -e "content/$dir/$slug" ] || { echo "slug already exists"; exit 1; }
+          mkdir -p "content/$dir"
+          cp -R "/tmp/out/content/$dir/$slug" "content/$dir/$slug"
+          { echo "LOGIN=$login"; echo "SLUG=$slug"; } >> "$GITHUB_ENV"
+
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - name: Open the pull request
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          BOT: ${{ steps.app.outputs.app-slug }}[bot]
+        run: |
+          uv venv /tmp/p
+          uv pip install --python /tmp/p/bin/python -e pipeline
+          branch="submission/$ID"
+          git config user.name "$BOT"
+          git config user.email "$BOT@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add content
+          git commit -m "Add $SLUG (submitted by $LOGIN)"
+          git push origin "$branch"
+
+          /tmp/p/bin/soarshelf pr-body --report /tmp/out/report.json --login "$LOGIN" --id "$ID" > /tmp/body.md
+          label=$([ "$DECISION" = publish ] && echo auto-publish || echo needs-review)
+          pr=$(gh pr create --base main --head "$branch" --title "Add $SLUG" --body-file /tmp/body.md --label "$label")
+
+          status=in-review
+          if [ "$DECISION" = publish ] && gh pr merge --auto --squash "$pr"; then status=publishing; fi
+          jq --arg status "$status" --arg pr "$pr" \
+              '{status: $status, decision, reasons, checks, prUrl: $pr, slug}' /tmp/out/report.json \
+            | curl -fsS -X POST -H "Authorization: Bearer $INTERNAL_TOKEN" -H "content-type: application/json" \
+                --data-binary @- "$API/$ID/result"
+
+      - name: Report a pipeline failure
+        if: failure()
+        run: |
+          curl -fsS -X POST -H "Authorization: Bearer $INTERNAL_TOKEN" -H "content-type: application/json" \
+            --data '{"status":"error"}' "$API/$ID/result" || true

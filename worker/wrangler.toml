@@ -1,0 +1,32 @@
+name = "soarshelf-api"
+main = "src/index.ts"
+compatibility_date = "2026-08-15"
+
+# Served on the site's own origin, e.g. route = "soarshelf.example/api/*".
+# Set it per deployment in the dashboard or here:
+# routes = [{ pattern = "soarshelf.example/api/*", zone_name = "soarshelf.example" }]
+
+[vars]
+SITE_ORIGIN = "http://localhost:5173"
+REPO = "OWNER/soarshelf"
+GITHUB_CLIENT_ID = ""
+GITHUB_APP_ID = ""
+GITHUB_APP_INSTALLATION_ID = ""
+
+# Secrets (wrangler secret put ..., or .dev.vars locally):
+#   GITHUB_CLIENT_SECRET     OAuth app secret (sign-in)
+#   GITHUB_APP_PRIVATE_KEY   GitHub App key, PKCS#8 PEM (dispatch + issues)
+#   SESSION_SECRET           >= 32 random bytes, signs session cookies
+#   TURNSTILE_SECRET         Turnstile secret key
+#   INTERNAL_TOKEN           shared with the submission Action
+#   DEV_LOGIN                "1" only in .dev.vars: sign in without GitHub on localhost
+
+[[d1_databases]]
+binding = "DB"
+database_name = "soarshelf"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "QUARANTINE"
+bucket_name = "soarshelf-quarantine"
