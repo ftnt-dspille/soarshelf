@@ -97,12 +97,14 @@ structures from official solution packs. Built locally from unpacked packs
 - [ ] Create the GitHub repo and Cloudflare Pages project; deploy
 
 ### Phase 2 - in-browser uploads
-- [ ] Worker: GitHub OAuth, Turnstile, size cap, rate limit (D1), account-age gate
-- [ ] R2 quarantine bucket (private, 30-day lifecycle)
-- [ ] Worker triggers `repository_dispatch`; Action runs `soarshelf check` on the quarantined file
-- [ ] Publish = Action commits the **cleaned** file + meta to a branch and opens a PR; auto-merge when policy says publish, else label `needs-review`
-- [ ] Contributor page: status of my submissions and their check reports
-- [ ] Report button → GitHub issue + D1 counter
+- [x] Worker: GitHub sign-in, Turnstile, size caps, daily limits, account-age gate, strikes (`worker/`)
+- [x] Private R2 quarantine; the Action reads it through the internal API
+- [x] Submission Action: check job (no write access) and publish job (App token, auto-merge when policy allows)
+- [x] Re-uploads of items already on the site are rejected
+- [x] Status sync when a submission PR is merged or closed
+- [x] Upload page, my-submissions pages, report button (`site/`)
+- [ ] Deploy: GitHub App, OAuth app, D1, R2, Worker route, Pages ([deploy.md](deploy.md))
+- [ ] Updating your own item from the upload page (today: a PR)
 
 ### Phase 3 - community features
 - [ ] Versions per item and changelog

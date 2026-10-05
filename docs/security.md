@@ -13,11 +13,21 @@
 | Clickjacking / sniffing | `frame-ancestors 'none'`, `X-Frame-Options: DENY`, `nosniff`, HSTS, restrictive Permissions-Policy. | `site/static/_headers` |
 | Malicious PR weakening the checks | CODEOWNERS on pipeline, CI, policy and headers. CI token is read-only. Actions pinned to commit SHAs. | `.github/` |
 | Vulnerable dependencies | `pip-audit` and `pnpm audit --prod` in CI. | `ci.yml` |
-| Spam / abuse (phase 2) | GitHub login, account ≥ 30 days, Turnstile, per-tier rate limits, duplicate-hash rejection, strikes, report-to-unpublish. | `docs/plan.md` |
+| Spam / abuse | GitHub login, account ≥ 30 days, Turnstile on every upload, 3/day for new contributors (20 otherwise), sha256 duplicate rejection, re-uploads of items already on the site rejected, a strike for each secret/copyright rejection and suspension at 2, reports open an issue at 3. | `worker/src/trust.ts`, `submissions.ts`, `reports.ts`, `pipeline/.../submission.py` |
+| Raw uploads becoming public | Uploads go to a private R2 bucket (30-day expiry) and are only read by the Action through the token-protected internal API. Only the pipeline's cleaned output is committed. | `worker/src/submissions.ts`, `internal.ts`, `submission.yml` |
+| Session theft / CSRF | Stateless HMAC-signed session cookie (HttpOnly, Secure, SameSite=Lax, 7 days). Every state-changing route checks `Origin`. The GitHub access token is used once at sign-in and never stored. OAuth `state` in a signed cookie; post-login redirect limited to same-site paths. | `worker/src/session.ts`, `auth.ts`, `http.ts` |
+| Workflow injection | Only the submission id crosses into GitHub (validated `^[0-9a-f]{32}$`); all other data is fetched by the Action and handled as files. Event fields reach `run:` only through `env:`. PR bodies neutralise @mentions and markup. | `.github/workflows/submission*.yml`, `pipeline/.../submission.py` |
+| Untrusted upload on a runner with write access | The `check` job parses the upload with no write token; the `publish` job holds the App token but only receives the cleaned item, and re-validates its paths, slug and type before committing. | `submission.yml` |
+| Impersonation / item takeover | Uploads are credited to the authenticated GitHub login. For pull requests, the `author-gate` (pull_request_target, base-branch code, PR files read with `git show`) requires every changed item to be credited to the PR author on both base and head. | `.github/workflows/author-gate.yml`, `pipeline/.../authors.py` |
+| Spoofed status updates | `submission-closed` only acts on PRs opened by the submission App from this repository. The internal API checks a ≥32-character bearer token in constant time and bounds and validates every field it stores. | `submission-closed.yml`, `worker/src/internal.ts` |
+| Long-lived credentials | The Worker and Action use GitHub App installation tokens (1 hour, one repository) instead of personal access tokens. | `worker/src/github.ts` |
 
 Known limit: the secret scanner is pattern-based and can't recognise things
 like customer names in free text. That is why new contributors are always
 reviewed by a person.
+
+Dev-only sign-in (`DEV_LOGIN`) needs both the variable and a localhost
+request; it must never be set in production.
 
 ## Repository settings to enable
 
