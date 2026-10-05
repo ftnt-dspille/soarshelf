@@ -11,6 +11,7 @@ branch, fetches the PR head as data, and reads the PR's files with
 """
 from __future__ import annotations
 
+import re
 import subprocess
 from collections.abc import Callable
 from pathlib import Path
@@ -23,14 +24,24 @@ from .build import TYPE_DIRS, load_trust
 MetaReader = Callable[[str], "dict[str, Any] | None"]
 
 
-def changed_items(changed: list[str]) -> set[str]:
-    """``content/<type>/<slug>`` for every changed path inside an item."""
-    out = set()
+SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{0,80}$")
+# Paths under content/ that aren't items and need no author check.
+CONTENT_FILES = {"content/contributors.yaml"}
+
+
+def changed_items(changed: list[str]) -> tuple[set[str], list[str]]:
+    """``content/<type>/<slug>`` for every changed item path, plus errors for
+    content paths that can't be classified (unknown folder, odd slug)."""
+    out, errors = set(), []
     for p in changed:
-        parts = Path(p).parts
-        if len(parts) >= 4 and parts[0] == "content" and parts[1] in TYPE_DIRS:
+        if not p.startswith("content/") or p in CONTENT_FILES:
+            continue
+        parts = p.split("/")
+        if len(parts) >= 4 and parts[1] in TYPE_DIRS and SLUG.match(parts[2]):
             out.add("/".join(parts[:3]))
-    return out
+        else:
+            errors.append(f"{p!r}: not a valid item path (content/<type>/<slug>/..., slug [a-z0-9-])")
+    return out, errors
 
 
 def file_reader(root: Path) -> MetaReader:
@@ -70,8 +81,8 @@ def verify(changed: list[str], pr_author: str, bots: set[str], trust_root: Path,
     if load_trust(trust_root / "content").get(who) == "maintainer":
         return []
 
-    errors = []
-    for item in sorted(changed_items(changed)):
+    items, errors = changed_items(changed)
+    for item in sorted(items):
         before, after = base(item), head(item)
         if after is None:
             errors.append(f"{item}: removing an item needs a maintainer")

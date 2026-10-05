@@ -23,8 +23,14 @@ A = ["content/playbooks/a/meta.yaml"]
 
 
 def test_changed_items_only_counts_item_paths():
-    assert changed_items(A + ["content/playbooks/a/playbook.json", "content/contributors.yaml",
-                              "site/x.ts"]) == {"content/playbooks/a"}
+    items, errors = changed_items(A + ["content/playbooks/a/playbook.json", "content/contributors.yaml", "site/x.ts"])
+    assert items == {"content/playbooks/a"} and errors == []
+
+
+def test_unclassifiable_content_paths_fail():
+    for bad in ['content/playbooks/"weird slug"/meta.yaml', "content/playbooks/Caps/meta.yaml",
+                "content/other/x/meta.yaml", "content/playbooks/loose.json"]:
+        assert changed_items([bad])[1], bad
 
 
 def test_new_own_item_ok(tmp_path):
@@ -79,7 +85,9 @@ def test_cli_against_real_git(tmp_path):
     git("checkout", "-q", base)
 
     import io, sys
-    sys.stdin = io.StringIO("content/playbooks/a/meta.yaml\n")
+    class _In:
+        buffer = io.BytesIO(b"content/playbooks/a/meta.yaml\0")
+    sys.stdin = _In()
     try:
         rc = main(["verify-authors", "--repo", str(tmp_path), "--base", base, "--head", head, "--pr-author", "mallory"])
     finally:

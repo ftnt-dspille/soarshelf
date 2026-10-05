@@ -14,6 +14,7 @@ everything that has no blocking finding, and fails if anything does.
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
@@ -124,6 +125,10 @@ def build(content: Path, out: Path) -> int:
     published: list[tuple[dict[str, Any], dict[str, Any]]] = []
     failures = 0
     for kind, item in item_dirs(content):
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,80}", item.name):
+            failures += 1
+            print(f"✗ {item.relative_to(content)}: folder name must be a slug ([a-z0-9-])")
+            continue
         res = process_item(item, trust_map, hub)
         if res.decision == "reject":
             failures += 1

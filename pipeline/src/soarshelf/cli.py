@@ -55,7 +55,9 @@ def _intake_submission(args: argparse.Namespace) -> int:
 def _verify_authors(args: argparse.Namespace) -> int:
     from .authors import git_reader, verify
 
-    changed = [line.strip() for line in sys.stdin if line.strip()]
+    # NUL-separated (`git diff -z`): git would otherwise quote and escape
+    # unusual path names, and a mangled path could slip past the gate.
+    changed = [p for p in sys.stdin.buffer.read().decode("utf-8", "surrogateescape").split("\0") if p]
     bots = {b for b in (args.bot or []) if b}
     errors = verify(changed, args.pr_author, bots, args.repo,
                     base=git_reader(args.repo, args.base), head=git_reader(args.repo, args.head))

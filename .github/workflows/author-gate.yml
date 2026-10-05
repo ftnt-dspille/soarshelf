@@ -1,0 +1,43 @@
+name: author-gate
+
+# Changed items must be credited to the person who opened the pull request.
+#
+# pull_request_target, so this definition always comes from the base branch
+# and a PR can't rewrite its own gate. That trigger is only safe because this
+# job never executes anything from the PR: it checks out the base branch, runs
+# the base branch's pipeline and contributors.yaml, and reads the PR's files
+# as data with `git show`. It has read-only permissions and uses no secrets.
+# Make `author-gate / verify` a required status check on main.
+on:
+  pull_request_target:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Fetch the PR head as data
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: git fetch --no-tags origin "+refs/pull/${PR_NUMBER}/head:refs/remotes/pr/head"
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - name: Verify authors
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BOT: ${{ vars.SUBMISSION_BOT }}
+        run: |
+          uv venv /tmp/gate
+          uv pip install --python /tmp/gate/bin/python -e pipeline
+          from=$(git merge-base "$BASE_SHA" "$HEAD_SHA")
+          git diff -z --name-only --no-renames "$from" "$HEAD_SHA" \
+            | /tmp/gate/bin/soarshelf verify-authors --repo . --base "$BASE_SHA" --head "$HEAD_SHA" \
+                --pr-author "$PR_AUTHOR" --bot "$BOT"
