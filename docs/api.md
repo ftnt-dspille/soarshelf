@@ -107,7 +107,7 @@ from browsers (no CORS, token never leaves Worker secrets / Actions secrets).
 
 | Route | |
 |---|---|
-| `GET /api/internal/submissions/:id` | `{ id, login, filename, meta }` |
+| `GET /api/internal/submissions/:id` | `{ id, login, githubId, filename, meta }` |
 | `GET /api/internal/submissions/:id/file` | the quarantined bytes |
 | `POST /api/internal/submissions/:id/result` | `{ status, decision, reasons, checks, prUrl, slug, strike }` |
 

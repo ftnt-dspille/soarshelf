@@ -1,7 +1,7 @@
 import type { Env, Session } from './env';
 import { HttpError, json, nowIso, randomHex, requireSameOrigin, sha256Hex } from './http';
 import { requireSession } from './session';
-import { gate, trustOf } from './trust';
+import { dailyLimit, gate, trustOf } from './trust';
 import { MAX_ZIP, checkFile, cleanFilename, validateMeta } from './validate';
 import { dispatchSubmission } from './github';
 
@@ -87,18 +87,37 @@ export async function create(req: Request, env: Env): Promise<Response> {
 
   const id = randomHex();
   const filename = cleanFilename(file.name);
-  // Private bucket, never served. A lifecycle rule deletes objects after 30 days.
-  await env.QUARANTINE.put(`q/${id}`, bytes, {
-    httpMetadata: { contentType: 'application/octet-stream' },
-    customMetadata: { filename, login: s.login, sha256: sha }
-  });
   const now = nowIso();
-  await env.DB.prepare(
-    `INSERT INTO submissions (id, github_id, login, filename, size, sha256, meta_json, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'checking', ?, ?)`
-  )
-    .bind(id, s.id, s.login, filename, bytes.byteLength, sha, JSON.stringify(meta.value), now, now)
-    .run();
+  // Reserve the row first, in one statement that also counts today's uploads:
+  // D1 runs each statement atomically, so parallel requests can't all slip
+  // under the limit between gate() and here.
+  let ins: D1Result;
+  try {
+    ins = await env.DB.prepare(
+      `INSERT INTO submissions (id, github_id, login, filename, size, sha256, meta_json, status, created_at, updated_at)
+       SELECT ?1, ?2, ?3, ?4, ?5, ?6, ?7, 'checking', ?8, ?8
+       WHERE (SELECT COUNT(*) FROM submissions WHERE github_id = ?2 AND created_at >= ?9) < ?10`
+    )
+      .bind(id, s.id, s.login, filename, bytes.byteLength, sha, JSON.stringify(meta.value), now,
+            now.slice(0, 10), dailyLimit(g.trust))
+      .run();
+  } catch (e) {
+    // The same file uploaded twice at once: the UNIQUE(sha256) loser lands here.
+    if (/UNIQUE/i.test(String(e))) throw new HttpError(409, 'This exact file has already been submitted');
+    throw e;
+  }
+  if (!ins.meta.changes) throw new HttpError(429, `Daily limit reached (${dailyLimit(g.trust)} uploads). Try again tomorrow.`);
+
+  // Private bucket, never served. A lifecycle rule deletes objects after 30 days.
+  try {
+    await env.QUARANTINE.put(`q/${id}`, bytes, {
+      httpMetadata: { contentType: 'application/octet-stream' },
+      customMetadata: { filename, login: s.login, sha256: sha }
+    });
+  } catch (e) {
+    await env.DB.prepare('DELETE FROM submissions WHERE id = ?').bind(id).run();
+    throw e;
+  }
 
   try {
     if (env.GITHUB_APP_ID) await dispatchSubmission(env, id);
@@ -121,7 +140,7 @@ export async function list(req: Request, env: Env): Promise<Response> {
 }
 
 async function canSee(env: Env, s: Session, r: Row): Promise<boolean> {
-  return r.github_id === s.id || (await trustOf(env, s.login)) === 'maintainer';
+  return r.github_id === s.id || (await trustOf(env, s)) === 'maintainer';
 }
 
 export async function get(req: Request, env: Env, id: string): Promise<Response> {

@@ -15,7 +15,8 @@ account or organisation.
 4. **Settings › Actions › General:** "Require approval for all outside collaborators".
 5. **Settings › Code security:** Dependabot alerts + security updates, secret scanning with push protection, private vulnerability reporting.
 6. Labels: `auto-publish`, `needs-review`, `reported`, `hub-refresh`.
-7. Update `.github/CODEOWNERS` with your handle, and `content/contributors.yaml`.
+7. Update `.github/CODEOWNERS` with your handle, and `content/contributors.yaml`
+   (`login: {trust: maintainer, id: <gh api users/<login> --jq .id>}`; an entry without the id grants nothing).
 
 ## 2. GitHub App: the submission bot
 

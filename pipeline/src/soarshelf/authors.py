@@ -19,7 +19,7 @@ from typing import Any
 
 import yaml
 
-from .build import TYPE_DIRS, load_trust
+from .build import TYPE_DIRS, load_trust, tier_for
 
 MetaReader = Callable[[str], "dict[str, Any] | None"]
 
@@ -67,18 +67,28 @@ def _author(meta: dict[str, Any]) -> str:
     return str(meta.get("author") or "").lower()
 
 
+def _same_account(meta: dict[str, Any], uid: int | None) -> bool:
+    """Items record the uploader's numeric id; a reclaimed login has a new one."""
+    want = meta.get("author_id")
+    return want is None or (uid is not None and want == uid)
+
+
 def verify(changed: list[str], pr_author: str, bots: set[str], trust_root: Path,
-           base: MetaReader, head: MetaReader) -> list[str]:
+           base: MetaReader, head: MetaReader, pr_author_id: int | None = None) -> list[str]:
     """``trust_root``/``base`` come from the base branch, ``head`` from the PR.
 
     Tiers must not come from the pull request itself, or it could promote
     its own author; and an existing item's base author must match too, or a
     PR could take over someone else's item by rewriting ``author``.
+
+    Logins can be renamed and re-registered, so the maintainer bypass needs
+    ``pr_author_id`` to match contributors.yaml, and an item that records
+    ``author_id`` only accepts changes from that account.
     """
     who = pr_author.lower()
     if who in {b.lower() for b in bots}:
         return []
-    if load_trust(trust_root / "content").get(who) == "maintainer":
+    if pr_author_id is not None and tier_for(load_trust(trust_root / "content"), who, pr_author_id) == "maintainer":
         return []
 
     items, errors = changed_items(changed)
@@ -87,8 +97,11 @@ def verify(changed: list[str], pr_author: str, bots: set[str], trust_root: Path,
         if after is None:
             errors.append(f"{item}: removing an item needs a maintainer")
             continue
-        if before is not None and _author(before) != who:
+        if before is not None and (_author(before) != who or not _same_account(before, pr_author_id)):
             errors.append(f"{item}: belongs to '{before.get('author')}'. You can only change your own items.")
+            continue
+        if not _same_account(after, pr_author_id):
+            errors.append(f"{item}: author_id doesn't match your GitHub account. Remove it or set it to yours.")
             continue
         if _author(after) != who:
             errors.append(f"{item}: author is '{after.get('author')}', but this pull request is from "

@@ -46,7 +46,7 @@ def _intake_submission(args: argparse.Namespace) -> int:
     from .submission import intake
 
     form = json.loads(args.meta.read_text())
-    res = intake(args.file, form, args.author, args.content)
+    res = intake(args.file, form, args.author, args.content, author_id=args.author_id)
     args.report.write_text(json.dumps(res.to_dict(), indent=1, ensure_ascii=False))
     print(f"{res.decision}: {res.written or 'nothing written'}")
     return 0          # the decision is in the report; a reject is not a pipeline failure
@@ -67,7 +67,8 @@ def _verify_authors(args: argparse.Namespace) -> int:
     changed = [p for p in sys.stdin.buffer.read().decode("utf-8", "surrogateescape").split("\0") if p]
     bots = {b for b in (args.bot or []) if b}
     errors = verify(changed, args.pr_author, bots, args.repo,
-                    base=git_reader(args.repo, args.base), head=git_reader(args.repo, args.head))
+                    base=git_reader(args.repo, args.base), head=git_reader(args.repo, args.head),
+                    pr_author_id=args.pr_author_id)
     for e in errors:
         print(f"✗ {e}")
     if not errors:
@@ -111,6 +112,7 @@ def main(argv: list[str] | None = None) -> int:
     i.add_argument("--file", type=Path, required=True)
     i.add_argument("--meta", type=Path, required=True, help="SubmissionMeta JSON from the upload form")
     i.add_argument("--author", required=True, help="authenticated GitHub login of the uploader")
+    i.add_argument("--author-id", type=int, required=True, help="numeric GitHub id of the uploader")
     i.add_argument("--content", type=Path, default=Path("content"))
     i.add_argument("--report", type=Path, required=True, help="where to write the JSON report")
     i.set_defaults(fn=_intake_submission)
@@ -123,6 +125,7 @@ def main(argv: list[str] | None = None) -> int:
 
     v = sub.add_parser("verify-authors", help="PR gate: changed items must be credited to the PR author")
     v.add_argument("--pr-author", required=True)
+    v.add_argument("--pr-author-id", type=int, required=True, help="numeric GitHub id of the PR author")
     v.add_argument("--repo", type=Path, default=Path("."), help="checkout of the BASE branch")
     v.add_argument("--base", required=True, help="base commit")
     v.add_argument("--head", required=True, help="PR head commit (read with git show, never checked out)")

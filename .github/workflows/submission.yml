@@ -64,6 +64,8 @@ jobs:
           curl -fsS -H "Authorization: Bearer $INTERNAL_TOKEN" "$API/$ID" -o /tmp/sub/info.json
           login=$(jq -r .login /tmp/sub/info.json)
           [[ "$login" =~ ^[A-Za-z0-9-]{1,39}$ ]] || { echo "invalid login"; exit 1; }
+          uid=$(jq -r .githubId /tmp/sub/info.json)
+          [[ "$uid" =~ ^[0-9]{1,12}$ ]] || { echo "invalid github id"; exit 1; }
           case "$(jq -r .filename /tmp/sub/info.json)" in
             *.json|*.JSON) ext=json ;;
             *.zip|*.ZIP)   ext=zip ;;
@@ -72,6 +74,7 @@ jobs:
           jq .meta /tmp/sub/info.json > /tmp/sub/meta.json
           curl -fsS -H "Authorization: Bearer $INTERNAL_TOKEN" "$API/$ID/file" -o "/tmp/sub/upload.$ext"
           echo "LOGIN=$login" >> "$GITHUB_ENV"
+          echo "GITHUB_UID=$uid" >> "$GITHUB_ENV"
           echo "UPLOAD=/tmp/sub/upload.$ext" >> "$GITHUB_ENV"
 
       - name: Run the checks
@@ -80,7 +83,7 @@ jobs:
           # Against main's content/, so slugs can't collide and trust tiers come from main.
           mkdir -p /tmp/out/content
           /tmp/p/bin/soarshelf intake-submission --file "$UPLOAD" --meta /tmp/sub/meta.json \
-            --author "$LOGIN" --content content --report /tmp/out/report.json
+            --author "$LOGIN" --author-id "$GITHUB_UID" --content content --report /tmp/out/report.json
           echo "$LOGIN" > /tmp/out/login
           decision=$(jq -r .decision /tmp/out/report.json)
           if [ "$decision" != reject ]; then

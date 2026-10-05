@@ -3,20 +3,26 @@ import yaml
 from soarshelf.authors import changed_items, file_reader, verify
 
 
-def _tree(root, items: dict[str, str], maintainers=("boss",)):
+IDS = {"boss": 1, "alice": 2, "mallory": 666}
+
+
+def _tree(root, items: dict, maintainers=("boss",)):
     (root / "content").mkdir(parents=True)
-    (root / "content" / "contributors.yaml").write_text(yaml.safe_dump({m: "maintainer" for m in maintainers}))
+    (root / "content" / "contributors.yaml").write_text(
+        yaml.safe_dump({m: {"trust": "maintainer", "id": IDS[m]} for m in maintainers}))
     for slug, author in items.items():
         d = root / "content" / "playbooks" / slug
         d.mkdir(parents=True)
-        (d / "meta.yaml").write_text(yaml.safe_dump({"author": author}))
+        (d / "meta.yaml").write_text(yaml.safe_dump(author if isinstance(author, dict) else {"author": author}))
     return root
 
 
-def run(tmp_path, base_items, head_items, who, changed, base_maint=("boss",), head_maint=("boss",), bots=()):
+def run(tmp_path, base_items, head_items, who, changed, base_maint=("boss",), head_maint=("boss",), bots=(),
+        uid=None):
     base = _tree(tmp_path / "base", base_items, base_maint)
     head = _tree(tmp_path / "head", head_items, head_maint)
-    return verify(changed, who, set(bots), base, file_reader(base), file_reader(head))
+    return verify(changed, who, set(bots), base, file_reader(base), file_reader(head),
+                  pr_author_id=uid if uid is not None else IDS.get(who.lower()))
 
 
 A = ["content/playbooks/a/meta.yaml"]
@@ -60,6 +66,26 @@ def test_pr_cannot_promote_itself(tmp_path):
     assert run(tmp_path, {"a": "boss"}, {"a": "boss"}, "mallory", A, base_maint=("boss",), head_maint=("mallory",))
 
 
+def test_reclaimed_maintainer_login_is_not_a_maintainer(tmp_path):
+    # "boss" renamed their account; someone else registered the old login
+    assert run(tmp_path, {"a": "alice"}, {}, "boss", A, uid=4242)
+
+
+def test_tier_without_id_grants_nothing(tmp_path):
+    base = _tree(tmp_path / "b", {"a": "alice"}, ())
+    (base / "content" / "contributors.yaml").write_text("boss: maintainer\n")
+    assert verify(A, "boss", set(), base, file_reader(base), file_reader(_tree(tmp_path / "h", {}, ())), pr_author_id=1)
+
+
+def test_item_bound_to_author_id(tmp_path):
+    item = {"author": "alice", "author_id": 2}
+    assert run(tmp_path / "1", {"a": item}, {"a": item}, "alice", A) == []
+    errors = run(tmp_path / "2", {"a": item}, {"a": item}, "alice", A, uid=4242)
+    assert errors and "belongs to" in errors[0]
+    # and a new item can't claim someone else's id
+    assert run(tmp_path / "3", {}, {"a": {"author": "mallory", "author_id": 2}}, "mallory", A)
+
+
 def test_bot_may_change_anything(tmp_path):
     assert run(tmp_path, {"a": "alice"}, {"a": "bob"}, "soarshelf-bot[bot]", A, bots=("soarshelf-bot[bot]",)) == []
 
@@ -89,7 +115,8 @@ def test_cli_against_real_git(tmp_path):
         buffer = io.BytesIO(b"content/playbooks/a/meta.yaml\0")
     sys.stdin = _In()
     try:
-        rc = main(["verify-authors", "--repo", str(tmp_path), "--base", base, "--head", head, "--pr-author", "mallory"])
+        rc = main(["verify-authors", "--repo", str(tmp_path), "--base", base, "--head", head, "--pr-author", "mallory",
+                   "--pr-author-id", "666"])
     finally:
         sys.stdin = sys.__stdin__
     assert rc == 1

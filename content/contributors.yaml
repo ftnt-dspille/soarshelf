@@ -1,3 +1,6 @@
-# GitHub handle -> trust tier (new | contributor | trusted | maintainer).
-# Anyone not listed is 'new'. See pipeline/src/soarshelf/policy.py.
-ftnt-dspille: maintainer
+# GitHub login -> trust tier (new | contributor | trusted | maintainer) and the
+# account's numeric id (`gh api users/<login> --jq .id`). Logins can be renamed
+# and re-registered, so a tier only applies to the account whose id matches;
+# an entry without an id counts as 'new'. Anyone not listed is 'new'.
+# See pipeline/src/soarshelf/policy.py.
+ftnt-dspille: {trust: maintainer, id: 99558074}

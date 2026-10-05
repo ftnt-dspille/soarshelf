@@ -15,9 +15,9 @@ from typing import Any
 
 import yaml
 
-from .build import load_trust
+from .build import load_trust, tier_for
 from .hubindex import HubIndex
-from .model import CheckResult, Severity
+from .model import CheckResult, ParsedCollection, Severity
 from .process import process
 
 PAYLOAD_NAMES = {"playbook": "playbook.json", "solution-pack": "pack.zip", "connector": "info.json"}
@@ -41,28 +41,35 @@ def unique_slug(content: Path, base: str) -> str:
     return slug
 
 
-def published_playbooks(content: Path) -> dict[str, tuple[str, str]]:
-    """Workflow uuid and step-structure hash -> (slug, author) for every
-    playbook already on the site, so a re-upload can be recognised."""
+def fingerprints(collections: list[ParsedCollection]) -> set[str]:
+    """Workflow uuids and step-structure hashes: what makes two playbooks the same."""
     from .hubindex import structure_key
-    from .parse import parse_collections
+
+    out: set[str] = set()
+    for c in collections:
+        for pb in c.playbooks:
+            if pb.uuid:
+                out.add(pb.uuid)
+            if len(pb.steps) >= 3:
+                out.add(structure_key([(st.name, st.type_uuid) for st in pb.steps]))
+    return out
+
+
+def published_playbooks(content: Path) -> dict[str, tuple[str, str]]:
+    """Fingerprint -> (slug, author) for every playbook already on the site,
+    standalone or inside a solution pack, so a re-upload can be recognised."""
+    from .build import item_dirs, payload_of
+    from .process import collections_of
 
     out: dict[str, tuple[str, str]] = {}
-    for meta_file in content.glob("playbooks/*/meta.yaml"):
-        item = meta_file.parent
-        author = str((yaml.safe_load(meta_file.read_text()) or {}).get("author") or "")
+    for _kind, item in item_dirs(content):
+        author = str((yaml.safe_load((item / "meta.yaml").read_text()) or {}).get("author") or "")
         try:
-            doc = json.loads((item / "playbook.json").read_text())
-        except (OSError, json.JSONDecodeError):
+            colls = collections_of(payload_of(item))
+        except Exception:  # a broken published item is the build's problem, not this upload's
             continue
-        for coll in doc.get("data") or []:
-            for wf in coll.get("workflows") or []:
-                if isinstance(wf, dict) and wf.get("uuid"):
-                    out[str(wf["uuid"]).lower()] = (item.name, author)
-        for c in parse_collections(doc):
-            for pb in c.playbooks:
-                if len(pb.steps) >= 3:
-                    out[structure_key([(st.name, st.type_uuid) for st in pb.steps])] = (item.name, author)
+        for key in fingerprints(colls):
+            out.setdefault(key, (item.name, author))
     return out
 
 
@@ -105,7 +112,7 @@ class IntakeResult:
 
 
 def intake(file: Path, form: dict[str, Any], author: str, content: Path,
-           hub: HubIndex | None = None) -> IntakeResult:
+           hub: HubIndex | None = None, author_id: int | None = None) -> IntakeResult:
     if not form.get("rightsConfirmed"):
         return IntakeResult("reject", ["Rights confirmation is required"], [], None, None, False, None)
 
@@ -113,11 +120,13 @@ def intake(file: Path, form: dict[str, Any], author: str, content: Path,
     meta = to_meta(form, author)
     slug = unique_slug(content, slugify(meta["title"]))
     meta["slug"] = slug
-    trust = load_trust(content).get(author.lower(), "new")
+    if author_id is not None:
+        meta["author_id"] = author_id
+    trust = tier_for(load_trust(content), author, author_id) if author_id is not None else "new"
 
     res = process(meta, file, trust, hub)
     results = res.detail["_results"]
-    dupes = _already_published(file, content, author) if res.decision != "reject" else []
+    dupes = _already_published(res.detail.get("_collections") or [], content, author) if res.decision != "reject" else []
     if dupes:
         results.extend(dupes)
         res.decision, res.reasons = "reject", [r.title for r in dupes]
@@ -138,21 +147,12 @@ def intake(file: Path, form: dict[str, Any], author: str, content: Path,
                         kind, strike, written)
 
 
-def _already_published(file: Path, content: Path, author: str) -> list[CheckResult]:
-    """Playbooks that are already on the site, by uuid or step structure."""
-    if file.suffix.lower() != ".json":
+def _already_published(collections: list[ParsedCollection], content: Path, author: str) -> list[CheckResult]:
+    """Playbooks that are already on the site, whatever the upload's type."""
+    keys = fingerprints(collections)
+    if not keys:
         return []
-    from .hubindex import structure_key
-    from .parse import parse_collections
-
     known = published_playbooks(content)
-    if not known:
-        return []
-    doc = json.loads(file.read_text(encoding="utf-8-sig"))
-    keys = [str(wf.get("uuid")).lower() for c in doc.get("data") or [] for wf in c.get("workflows") or []
-            if isinstance(wf, dict) and wf.get("uuid")]
-    keys += [structure_key([(st.name, st.type_uuid) for st in pb.steps])
-             for c in parse_collections(doc) for pb in c.playbooks if len(pb.steps) >= 3]
     hits = {known[k] for k in keys if k in known}
     out = []
     for slug, owner in sorted(hits):
@@ -164,11 +164,19 @@ def _already_published(file: Path, content: Path, author: str) -> list[CheckResu
     return out
 
 
+_ZW = "\u200b"
+
+
 def _inert(text: str, limit: int = 300) -> str:
-    """User-influenced text in a PR body: no @mentions, links or markup."""
-    text = str(text)[:limit].replace("\n", " ")
-    text = re.sub(r"[`*_\[\]<>|#~]", "", text)
-    return text.replace("@", "@\u200b")
+    """User-influenced text in a PR body: no @mentions, links or markup.
+
+    Markup characters are dropped and a zero-width space breaks mentions,
+    issue references and anything GitHub would autolink (scheme://, www.,
+    bare domains, emails)."""
+    text = re.sub(r"[\x00-\x1f\x7f]+", " ", str(text)[:limit])
+    text = re.sub(r"[`*_\[\]<>|#~()!\\]", "", text)
+    text = re.sub(r"[:.]", lambda m: _ZW + m.group(0) + _ZW, text).replace("@", "@" + _ZW)
+    return text
 
 
 _ICON = {"block": "✗", "warn": "!", "info": "·", "pass": "✓"}

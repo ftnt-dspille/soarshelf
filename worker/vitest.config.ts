@@ -9,7 +9,7 @@ function outbound(req: Request): Response {
     return Response.json({ success: true });
   }
   if (url.hostname === 'raw.githubusercontent.com') {
-    return new Response('# test tiers\nboss: maintainer\npat: contributor\n');
+    return new Response('# test tiers\nboss: {trust: maintainer, id: 1}\npat: {trust: contributor, id: 2}\n');
   }
   if (url.hostname === 'api.github.com' || url.hostname === 'github.com') {
     return new Response(null, { status: 204 });

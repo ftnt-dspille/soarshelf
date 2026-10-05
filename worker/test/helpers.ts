@@ -8,12 +8,12 @@ export const INTERNAL = { authorization: `Bearer ${'i'.repeat(40)}` };
 
 let nextId = 1000;
 
-/** A signed-in user. `ageDays` is how old their GitHub account is. */
-export async function user(login: string, ageDays = 400) {
-  const id = nextId++;
+/** A signed-in user. `ageDays` is how old their GitHub account is; `id`
+ * defaults to a fresh one (boss is 1 and pat is 2 in the stub contributors.yaml). */
+export async function user(login: string, ageDays = 400, id = nextId++) {
   const created = new Date(Date.now() - ageDays * 86_400_000).toISOString();
   await E.DB.prepare(
-    `INSERT INTO users (github_id, login, avatar_url, account_created_at, first_seen) VALUES (?, ?, '', ?, ?)`
+    `INSERT OR IGNORE INTO users (github_id, login, avatar_url, account_created_at, first_seen) VALUES (?, ?, '', ?, ?)`
   )
     .bind(id, login, created, new Date().toISOString())
     .run();

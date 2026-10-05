@@ -4,6 +4,7 @@ import { safeNext } from '../src/auth';
 import { sign } from '../src/session';
 import { checkFile, validateMeta } from '../src/validate';
 import { parseContributors } from '../src/trust';
+import { fenced } from '../src/reports';
 
 describe('auth', () => {
   it('rejects missing and forged sessions', async () => {
@@ -15,7 +16,7 @@ describe('auth', () => {
   });
 
   it('reports trust and upload eligibility', async () => {
-    const boss = await user('boss');
+    const boss = await user('boss', 400, 1);
     const me = await (await api('/api/me', { cookie: boss.cookie })).json<Record<string, unknown>>();
     expect(me).toMatchObject({ login: 'boss', trust: 'maintainer', canUpload: true, dailyLimit: 20 });
 
@@ -74,6 +75,19 @@ describe('submissions', () => {
     expect((await again.json<{ id: string }>()).id).toBe(first.id);
   });
 
+  it('does not let parallel uploads slip past the daily limit', async () => {
+    const u = await user('dora');
+    const codes = (await Promise.all(Array.from({ length: 6 }, () => upload(u.cookie)))).map((r) => r.status);
+    expect(codes.filter((c) => c === 201).length).toBe(3);
+    expect(codes.filter((c) => c === 429).length).toBe(3);
+  });
+
+  it('gives a renamed-and-reclaimed login no trust', async () => {
+    const impostor = await user('boss', 400, 4242);
+    const me = await (await api('/api/me', { cookie: impostor.cookie })).json();
+    expect(me).toMatchObject({ login: 'boss', trust: 'new', dailyLimit: 3 });
+  });
+
   it('enforces the daily limit for new contributors', async () => {
     const u = await user('dave');
     for (let i = 0; i < 3; i++) expect((await upload(u.cookie)).status).toBe(201);
@@ -85,7 +99,7 @@ describe('submissions', () => {
     const { id } = await (await upload(owner.cookie)).json<{ id: string }>();
     const other = await user('frank');
     expect((await api(`/api/submissions/${id}`, { cookie: other.cookie })).status).toBe(404);
-    const boss = await user('boss');
+    const boss = await user('boss', 400, 1);
     expect((await api(`/api/submissions/${id}`, { cookie: boss.cookie })).status).toBe(200);
     const list = await (await api('/api/submissions', { cookie: other.cookie })).json<unknown[]>();
     expect(list).toHaveLength(0);
@@ -153,6 +167,13 @@ describe('reports', () => {
     const bad = await api('/api/reports', { method: 'POST', cookie: u.cookie, body: JSON.stringify({ slug: '../x', reason: 'long enough reason' }) });
     expect(bad.status).toBe(400);
   });
+
+  it('needs the same account age as uploading', async () => {
+    const fresh = await user('throwaway', 2);
+    const body = JSON.stringify({ slug: 'some-item', reason: 'Contains an internal hostname' });
+    const res = await api('/api/reports', { method: 'POST', body, cookie: fresh.cookie, headers: { 'content-type': 'application/json' } });
+    expect(res.status).toBe(403);
+  });
 });
 
 describe('pure helpers', () => {
@@ -169,8 +190,17 @@ describe('pure helpers', () => {
     expect(checkFile('a.svg', new ArrayBuffer(4)).ok).toBe(false);
   });
 
-  it('parses contributors.yaml lines and ignores junk', () => {
-    const m = parseContributors('# c\nboss: maintainer\nx: admin\nbot[bot]: trusted  # ok\n');
-    expect([...m]).toEqual([['boss', 'maintainer'], ['bot[bot]', 'trusted']]);
+  it('parses contributors.yaml entries and ignores junk and id-less tiers', () => {
+    const m = parseContributors(
+      '# c\nboss: {trust: maintainer, id: 1}\nold: maintainer\nx: {trust: admin, id: 3}\nbot[bot]: {trust: trusted, id: 9}  # ok\n'
+    );
+    expect([...m]).toEqual([['boss', { trust: 'maintainer', id: 1 }], ['bot[bot]', { trust: 'trusted', id: 9 }]]);
+  });
+
+  it('fences user text so GitHub renders it literally', () => {
+    const out = fenced('@everyone see [x](https://evil.example) ```` break out\u202e');
+    expect(out.startsWith('`````text\n')).toBe(true);
+    expect(out.trimEnd().endsWith('\n`````')).toBe(true);
+    expect(out).not.toContain('\u202e');
   });
 });

@@ -32,10 +32,32 @@ SUMMARY_KEYS = ("slug", "type", "title", "summary", "useCases", "tags", "connect
                 "minVersion", "published", "updated")
 
 
-def load_trust(content: Path) -> dict[str, str]:
+TIERS = ("new", "contributor", "trusted", "maintainer")
+
+
+def load_trust(content: Path) -> dict[str, tuple[str, int | None]]:
+    """login -> (tier, numeric GitHub id) from contributors.yaml."""
     f = content / "contributors.yaml"
     data = yaml.safe_load(f.read_text()) if f.exists() else {}
-    return {str(k).lower(): str(v) for k, v in (data or {}).items()}
+    out: dict[str, tuple[str, int | None]] = {}
+    for k, v in (data or {}).items():
+        if isinstance(v, dict) and v.get("trust") in TIERS:
+            uid = v.get("id")
+            out[str(k).lower()] = (str(v["trust"]), uid if isinstance(uid, int) and not isinstance(uid, bool) else None)
+        elif v in TIERS:
+            out[str(k).lower()] = (str(v), None)
+    return out
+
+
+def tier_for(table: dict[str, tuple[str, int | None]], login: str, uid: int | None = None) -> str:
+    """A tier only counts for the account it was granted to. Logins can be
+    renamed and re-registered, so an entry without an id, or one whose id
+    doesn't match the caller's, is 'new'. With ``uid=None`` (display only)
+    an entry still needs an id to count."""
+    tier, want = table.get(login.lower(), ("new", None))
+    if want is None or (uid is not None and uid != want):
+        return "new"
+    return tier
 
 
 def item_dirs(content: Path) -> list[tuple[str, Path]]:
@@ -53,10 +75,11 @@ def payload_of(item: Path) -> Path:
     return files[0]
 
 
-def process_item(item: Path, trust_map: dict[str, str], hub: HubIndex) -> Processed:
+def process_item(item: Path, trust_map: dict[str, tuple[str, int | None]], hub: HubIndex) -> Processed:
     meta = yaml.safe_load((item / "meta.yaml").read_text()) or {}
     meta["slug"] = item.name
-    trust = trust_map.get(str(meta.get("author", "")).lower(), "new")
+    uid = meta.get("author_id")
+    trust = tier_for(trust_map, str(meta.get("author", "")), uid if isinstance(uid, int) else None)
     return process(meta, payload_of(item), trust, hub)
 
 

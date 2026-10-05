@@ -21,7 +21,7 @@ async function row(env: Env, id: string) {
 export async function meta(req: Request, env: Env, id: string): Promise<Response> {
   requireInternal(req, env);
   const r = await row(env, id);
-  return json({ id: r.id, login: r.login, filename: r.filename, meta: JSON.parse(r.meta_json) });
+  return json({ id: r.id, login: r.login, githubId: r.github_id, filename: r.filename, meta: JSON.parse(r.meta_json) });
 }
 
 export async function file(req: Request, env: Env, id: string): Promise<Response> {

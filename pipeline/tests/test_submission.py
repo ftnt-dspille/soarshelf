@@ -12,8 +12,19 @@ FORM = {"title": "Enrich alert source IPs!", "summary": "Looks up the source IP.
 def _content(tmp_path, maintainers=()):
     c = tmp_path / "content"
     (c / "playbooks").mkdir(parents=True)
-    (c / "contributors.yaml").write_text(yaml.safe_dump({m: "maintainer" for m in maintainers}))
+    (c / "contributors.yaml").write_text(yaml.safe_dump({m: {"trust": "maintainer", "id": 1} for m in maintainers}))
     return c
+
+
+def _pack(path, doc):
+    """Minimal solution pack holding doc's first collection."""
+    import zipfile
+    coll = doc["data"][0]
+    with zipfile.ZipFile(path, "w") as zf:
+        zf.writestr("pk/info.json", json.dumps({"name": "pk", "version": "1.0.0"}))
+        for wf in coll["workflows"]:
+            zf.writestr(f"pk/playbooks/{coll['name']}/{wf['name']}.json", json.dumps({**wf, "@type": "Workflow"}))
+    return path
 
 
 def test_slugify():
@@ -76,3 +87,42 @@ def test_reupload_of_published_item_is_rejected(tmp_path, doc, hub, write_json):
     doc2 = json.loads(json.dumps(doc))
     doc2["data"][0]["workflows"][0]["uuid"] = "99999999-9999-4999-8999-999999999999"
     assert intake(write_json(doc2), {**FORM, "title": "Another"}, "mallory", content, hub).decision == "reject"
+
+
+def test_trust_needs_matching_github_id(tmp_path, doc, hub, write_json):
+    content = _content(tmp_path, maintainers=("boss",))
+    real = intake(write_json(doc), FORM, "boss", content, hub, author_id=1)
+    assert yaml.safe_load((real.written / "meta.yaml").read_text())["author_id"] == 1
+    # same login, different account (renamed and re-registered): treated as new
+    from soarshelf.build import load_trust, tier_for
+    table = load_trust(content)
+    assert tier_for(table, "boss", 1) == "maintainer" and tier_for(table, "boss", 999) == "new"
+
+
+def test_duplicate_found_inside_published_pack(tmp_path, doc, hub, write_json):
+    content = _content(tmp_path)
+    item = content / "solution-packs" / "some-pack"
+    item.mkdir(parents=True)
+    (item / "meta.yaml").write_text(yaml.safe_dump({"author": "alice"}))
+    _pack(item / "pack.zip", doc)
+    res = intake(write_json(doc), FORM, "mallory", content, hub, author_id=666)
+    assert res.decision == "reject"
+    assert any(c["id"] == "provenance.duplicate-item" and "some-pack" in c["detail"] for c in res.checks)
+
+
+def test_duplicate_check_covers_pack_uploads(tmp_path, doc, hub, write_json):
+    from soarshelf.process import collections_of
+    from soarshelf.submission import _already_published
+    content = _content(tmp_path)
+    assert intake(write_json(doc), FORM, "alice", content, hub, author_id=2).written
+    found = _already_published(collections_of(_pack(tmp_path / "up.zip", doc)), content, "mallory")
+    assert found and "another contributor" in found[0].detail
+
+
+def test_inert_breaks_links():
+    from soarshelf.submission import _inert
+    for raw in ["see https://evil.example/x", "www.evil.example", "evil.example", "mail bob@evil.example",
+                "![x](javascript:alert(1))", "fixes #12"]:
+        out = _inert(raw)
+        for bad in ["://", "www.", "evil.example", "@evil", "](", "#12"]:
+            assert bad not in out, (raw, out)

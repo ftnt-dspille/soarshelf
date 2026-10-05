@@ -154,6 +154,25 @@ def _connector(up: Upload, hub: HubIndex) -> tuple[list[CheckResult], bytes, lis
     return results, json.dumps(keep, indent=2, ensure_ascii=False).encode() + b"\n", ops
 
 
+def collections_of(payload: Path) -> list[ParsedCollection]:
+    """Parse a published payload's playbooks without re-running the checks."""
+    up = read_upload(payload)
+    if up.kind == "playbook":
+        return parse_collections(up.data)
+    if up.kind != "solution-pack":
+        return []
+    out: dict[str, ParsedCollection] = {}
+    for name, raw in sorted((up.members or {}).items()):
+        parts = name.split("/")
+        if "playbooks" not in parts[:-2] or not name.endswith(".json"):
+            continue
+        doc = load_json(raw, name)
+        if isinstance(doc, dict) and doc.get("@type") == "Workflow":
+            coll = parts[parts.index("playbooks") + 1]
+            out.setdefault(coll, ParsedCollection(coll, "")).playbooks.append(parse_workflow(doc))
+    return list(out.values())
+
+
 # --- entry point ---------------------------------------------------------------
 
 def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> Processed:
@@ -236,6 +255,7 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
         "download": {"path": f"/downloads/{slug}/{filename}", "filename": filename,
                      "sha256": hashlib.sha256(body).hexdigest(), "bytes": len(body)},
         "_results": results,
+        "_collections": collections,
     }
     decision, reasons = policy.decide(results, trust=trust, kind=kind, has_code=bool(code))
     return Processed(detail, body, filename, decision, reasons)

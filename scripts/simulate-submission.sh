@@ -15,13 +15,14 @@ trap 'rm -rf "$WORK"' EXIT
 
 curl -fsS -H "Authorization: Bearer $TOKEN" "$API/$ID" -o "$WORK/info.json"
 login=$(jq -r .login "$WORK/info.json")
+uid=$(jq -r .githubId "$WORK/info.json")
 case "$(jq -r .filename "$WORK/info.json")" in *.json) ext=json ;; *.zip) ext=zip ;; *) exit 1 ;; esac
 jq .meta "$WORK/info.json" > "$WORK/meta.json"
 curl -fsS -H "Authorization: Bearer $TOKEN" "$API/$ID/file" -o "$WORK/upload.$ext"
 
 cp -R "$ROOT/content" "$WORK/content"
 "$ROOT/pipeline/.venv/bin/soarshelf" intake-submission --file "$WORK/upload.$ext" --meta "$WORK/meta.json" \
-  --author "$login" --content "$WORK/content" --report "$WORK/report.json"
+  --author "$login" --author-id "$uid" --content "$WORK/content" --report "$WORK/report.json"
 
 decision=$(jq -r .decision "$WORK/report.json")
 status=$([ "$decision" = reject ] && echo rejected || echo in-review)

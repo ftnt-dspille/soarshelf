@@ -62,6 +62,7 @@ class ParsedPlaybook:
     trigger_step: str | None
     steps: list[Step]
     routes: list[dict[str, Any]]
+    uuid: str = ""
 
 
 @dataclass

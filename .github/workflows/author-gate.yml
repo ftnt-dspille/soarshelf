@@ -31,6 +31,7 @@ jobs:
       - name: Verify authors
         env:
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_AUTHOR_ID: ${{ github.event.pull_request.user.id }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           BOT: ${{ vars.SUBMISSION_BOT }}
@@ -40,4 +41,4 @@ jobs:
           from=$(git merge-base "$BASE_SHA" "$HEAD_SHA")
           git diff -z --name-only --no-renames "$from" "$HEAD_SHA" \
             | /tmp/gate/bin/soarshelf verify-authors --repo . --base "$BASE_SHA" --head "$HEAD_SHA" \
-                --pr-author "$PR_AUTHOR" --bot "$BOT"
+                --pr-author "$PR_AUTHOR" --pr-author-id "$PR_AUTHOR_ID" --bot "$BOT"

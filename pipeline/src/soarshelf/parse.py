@@ -37,6 +37,7 @@ def parse_workflow(wf: dict[str, Any]) -> ParsedPlaybook:
         trigger_step=_tail(wf.get("triggerStep")) or None,
         steps=steps,
         routes=[r for r in wf.get("routes") or [] if isinstance(r, dict)],
+        uuid=str(wf.get("uuid") or "").lower(),
     )
 
 
