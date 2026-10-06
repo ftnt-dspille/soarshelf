@@ -296,7 +296,7 @@
             <span class="max-w-full truncate text-sm font-medium">{file.name}</span>
             {#if detected}
               <span class="text-xs text-muted">
-                {TYPE_LABEL[detected.kind]}{#if detected.name}: <span class="font-medium text-fg">{detected.name}</span>{/if}{#if detected.version} v{detected.version}{/if}
+                {TYPE_LABEL[detected.kind]}{#if detected.name}: <span class="font-medium text-fg">{detected.name}</span>{/if}{#if detected.version}{' '}v{detected.version}{/if}
                 {#if detected.title}· details filled in below{/if}
               </span>
             {/if}
@@ -316,7 +316,9 @@
         <div>
           <label for="f-title" class="text-sm font-medium">Title</label>
           <input id="f-title" bind:value={draft.title} maxlength="80" class="{inputCls} {border('title')}" placeholder="Set alert severity from IP reputation" aria-describedby="h-title {shown.title ? 'e-title' : ''}" />
-          <p id="h-title" class="mt-1 text-xs text-faint">Say what it does. Don't lead with a product name.</p>
+          <p id="h-title" class="mt-1 text-xs text-faint">
+            {#if detected?.kind === 'connector' || detected?.kind === 'widget'}Its name is shown on the card already, so a title that says what it does helps people find it.{:else}Say what it does. Don't lead with a product name.{/if}
+          </p>
           {@render fieldError('title')}
         </div>
 
