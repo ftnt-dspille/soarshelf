@@ -88,6 +88,10 @@ jobs:
 
       - name: Run the checks
         id: intake
+        # This step reads untrusted uploads (and runs the widget linter over them):
+        # it gets no secrets, so nothing it starts can read one.
+        env:
+          INTERNAL_TOKEN: ""
         run: |
           # Against main's content/, so slugs can't collide and trust tiers come from main.
           mkdir -p /tmp/out/content
