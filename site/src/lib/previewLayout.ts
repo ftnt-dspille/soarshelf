@@ -1,4 +1,4 @@
-import { JUMP_GAP, NODE_H, NODE_W, autoLayout, jumpPoints, roundedPath } from './layout';
+import { JUMP_GAP, NODE_H, NODE_W, autoLayout, isRouted, jumpPoints, roundedPath } from './layout';
 import type { NodeFamily, PlaybookNode } from './types';
 
 /** Same geometry as the full viewer, so previews and the canvas match. */
@@ -45,7 +45,7 @@ export function previewLayout(nodes: PreviewNode[], edges: PreviewEdge[], aspect
   const order = [...l.positions.values()].map(keyOf).sort((a, b) => a - b);
   const rankOf = (id: string) => order.indexOf(keyOf(l.positions.get(id)!));
 
-  const pad = l.wrapped.size ? JUMP_PAD : 0;
+  const pad = l.wrapped.size || l.sideX?.size ? JUMP_PAD : 0;
   const placed = nodes.map((n) => {
     const p = l.positions.get(n.id)!;
     return { ...n, x: p.x, y: p.y + pad, rank: rankOf(n.id) };
@@ -59,9 +59,9 @@ export function previewLayout(nodes: PreviewNode[], edges: PreviewEdge[], aspect
       // Exit/enter on the sides that face the flow direction.
       const a = across ? { x: s.x + PV_W, y: s.y + PV_H / 2 } : { x: s.x + PV_W / 2, y: s.y + PV_H };
       const b = across ? { x: t.x, y: t.y + PV_H / 2 } : { x: t.x + PV_W / 2, y: t.y };
-      if (l.wrapped.has(e.id)) {
+      if (!across && isRouted(l, e.id)) {
         // Layout coordinates, shifted down by the padding added above the columns.
-        const pts = jumpPoints(l, e.source, e.target, { x: a.x, y: a.y - pad }, { x: b.x, y: b.y - pad }).map((q) => ({ x: q.x, y: q.y + pad }));
+        const pts = jumpPoints(l, e.source, e.target, { x: a.x, y: a.y - pad }, { x: b.x, y: b.y - pad }, e.id).map((q) => ({ x: q.x, y: q.y + pad }));
         return { ...e, d: roundedPath(pts), mid: { x: pts[2].x, y: (pts[2].y + pts[3].y) / 2 }, rank: s.rank };
       }
       const bend = across ? Math.max(40, (b.x - a.x) / 2) : Math.max(40, Math.abs(b.y - a.y) / 2);

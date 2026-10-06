@@ -4,7 +4,7 @@
   import { untrack } from 'svelte';
   import type { Collection, PlaybookNode } from '$lib/types';
   import { theme } from '$lib/theme.svelte';
-  import { NODE_H, NODE_W, autoLayout, fitZoom, jumpPoints, type Layout } from '$lib/layout';
+  import { NODE_H, NODE_W, autoLayout, fitZoom, isRouted, jumpPoints, type Layout } from '$lib/layout';
   import { FAMILY_ICON } from '$lib/icons';
   import { FAMILY_KEY } from '$lib/format';
   import StepNode from './StepNode.svelte';
@@ -67,13 +67,12 @@ import MinimapNav from './MinimapNav.svelte';
   function buildEdges(): Edge[] {
     if (!playbook) return [];
     const l = layout;
-    const wrapped = l?.wrapped ?? new Set<string>();
     const at = (id: string) => l?.positions.get(id) ?? { x: 0, y: 0 };
     return playbook.edges.map((e) => {
-      const jump = !!l && wrapped.has(e.id);
+      const jump = !!l && isRouted(l, e.id);
       // The line runs along the gap between the two columns.
       const gx = jump
-        ? jumpPoints(l!, e.source, e.target, { x: at(e.source).x + NODE_W / 2, y: at(e.source).y + NODE_H }, { x: at(e.target).x + NODE_W / 2, y: at(e.target).y })[2].x
+        ? jumpPoints(l!, e.source, e.target, { x: at(e.source).x + NODE_W / 2, y: at(e.source).y + NODE_H }, { x: at(e.target).x + NODE_W / 2, y: at(e.target).y }, e.id)[2].x
         : 0;
       return {
       id: e.id,
@@ -113,7 +112,7 @@ import MinimapNav from './MinimapNav.svelte';
   function initialViewport() {
     if (!layout || !boxW || !boxH) return { x: 0, y: 0, zoom: 1 };
     // Wrapped layouts need room above and below the columns for the lines between them.
-    const zoom = Math.max(Math.min(fitZoom(layout, boxW, boxH, layout.wrapped.size ? 56 : 32), 1), 0.2);
+    const zoom = Math.max(Math.min(fitZoom(layout, boxW, boxH, layout.wrapped.size || layout.sideX?.size ? 56 : 32), 1), 0.2);
     return {
       x: (boxW - layout.width * zoom) / 2,
       y: (boxH - layout.height * zoom) / 2,

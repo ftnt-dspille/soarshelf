@@ -63,4 +63,53 @@ describe('autoLayout', () => {
     const l = autoLayout(nodes, [e('t', 'd'), e('d', 'a'), e('d', 'b'), e('d', 'c'), e('a', 'end'), e('b', 'end')]);
     expect(overlaps(l.positions)).toBe(false);
   });
+
+  // Daily-recon shape: three optional actions in a row, then a long tail with a skip to the end.
+  const recon = () => {
+    const ids = ['start', 'cfg', 'find', 'd1', 'a1', 'd2', 'a2', 'd3', 'x1', 'x2', 'x3', 'x4', 'end'];
+    const nodes = ids.map(n);
+    const pairs: [string, string, string | null][] = [
+      ['start', 'cfg', null], ['cfg', 'find', null], ['find', 'd1', null],
+      ['d1', 'a1', 'Act'], ['d1', 'd2', 'Continue'], ['a1', 'd2', null],
+      ['d2', 'a2', 'Act'], ['d2', 'd3', 'Continue'], ['a2', 'd3', null],
+      ['d3', 'x1', 'Excel'], ['d3', 'end', 'End'], ['x1', 'x2', null], ['x2', 'x3', null], ['x3', 'x4', null], ['x4', 'end', null]
+    ];
+    const edges: PlaybookEdge[] = pairs.map(([s, t2, label], i) => ({ id: `e${i}`, source: s, target: t2, label }));
+    return { nodes, edges };
+  };
+
+  it('only breaks columns where the flow passes through one point', () => {
+    const { nodes, edges } = recon();
+    const l = autoLayout(nodes, edges, 960, 600);
+    if (l.colOf) {
+      // a decision's two branches never land in different columns from where they rejoin
+      for (const [d, a, j] of [['d1', 'a1', 'd2'], ['d2', 'a2', 'd3']]) {
+        expect(l.colOf.get(d)).toBe(l.colOf.get(a));
+        const jumps = edges.filter((e) => l.wrapped.has(e.id) && e.target === j);
+        expect(new Set(jumps.map((e) => e.target)).size).toBeLessThanOrEqual(1);
+      }
+    }
+  });
+
+  it('sends a skip past several steps down the side of its column, not through them', () => {
+    const { nodes, edges } = recon();
+    const l = autoLayout(nodes, edges, 960, 600);
+    const skip = edges.find((e) => e.label === 'End')!;
+    expect(l.sideX?.has(skip.id)).toBe(true);
+    const x = l.sideX!.get(skip.id)!;
+    for (const id of ['x1', 'x2', 'x3', 'x4']) expect(x).toBeGreaterThan(l.positions.get(id)!.x + NODE_W);
+    expect(l.width).toBeGreaterThan(x);
+  });
+
+  it('gives jumps sharing a gap their own lanes', () => {
+    const { nodes, edges } = recon();
+    const l = autoLayout(nodes, edges, 1600, 1000);
+    const gapOf = (e: PlaybookEdge) => Math.min(l.colOf!.get(e.source)!, l.colOf!.get(e.target)!);
+    const jumps = edges.filter((e) => l.wrapped.has(e.id));
+    expect(jumps.length).toBeGreaterThan(1);
+    for (const a of jumps)
+      for (const b of jumps)
+        if (a !== b && gapOf(a) === gapOf(b)) expect(l.laneOffset!.get(a.id)).not.toBe(l.laneOffset!.get(b.id));
+  });
 });
+
