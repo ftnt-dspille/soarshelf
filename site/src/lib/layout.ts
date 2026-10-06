@@ -20,6 +20,9 @@ export interface Layout {
   height: number;
   /** Edges that jump from the bottom of one column to the top of the next. */
   wrapped: Set<string>;
+  /** Wrapped layouts: each column's horizontal extent, and which column a node is in. */
+  columns?: { left: number; right: number }[];
+  colOf?: Map<string, number>;
 }
 
 const RANKSEP_TB = 56;
@@ -66,6 +69,7 @@ function wrap(tb: Layout, edges: PlaybookEdge[], cols: number): Layout {
 
   let offset = MARGIN;
   let height = 0;
+  const columns: { left: number; right: number }[] = [];
   for (let c = 0; c * perCol < ys.length; c++) {
     const ids = [...tb.positions].filter(([, p]) => Math.floor(rankIndex.get(p.y)! / perCol) === c);
     const minX = Math.min(...ids.map(([, p]) => p.x));
@@ -77,10 +81,45 @@ function wrap(tb: Layout, edges: PlaybookEdge[], cols: number): Layout {
     }
     const rows = Math.min(perCol, ys.length - c * perCol);
     height = Math.max(height, MARGIN * 2 + rows * NODE_H + (rows - 1) * RANKSEP_TB);
+    columns.push({ left: offset, right: offset + maxX - minX });
     offset += maxX - minX + COL_GAP;
   }
   const wrapped = new Set(edges.filter((e) => colOf.get(e.source) !== colOf.get(e.target)).map((e) => e.id));
-  return { dir: 'TB', positions, width: offset - COL_GAP + MARGIN, height, wrapped };
+  return { dir: 'TB', positions, width: offset - COL_GAP + MARGIN, height, wrapped, columns, colOf };
+}
+
+/** How far a column-jump line runs below its source and above its target. */
+export const JUMP_GAP = 22;
+
+/**
+ * Route for an edge between wrapped columns, from the source's bottom (`a`)
+ * to the target's top (`b`): down, across to the middle of the gap between
+ * the columns, along that gap, across, and down into the target. Every turn
+ * sits in empty space between rows or columns, never along the frame edge.
+ */
+export function jumpPoints(l: Layout, source: string, target: string, a: Point, b: Point): Point[] {
+  const cols = l.columns ?? [];
+  const cs = l.colOf?.get(source) ?? 0;
+  const ct = l.colOf?.get(target) ?? 0;
+  const between = (i: number) => (cols[i].right + cols[i + 1].left) / 2;
+  const gx =
+    ct > cs && cols[cs + 1] ? between(cs) : cs > 0 && cols[cs - 1] ? between(cs - 1) : (cols[cs]?.left ?? a.x) - COL_GAP / 2;
+  return [a, { x: a.x, y: a.y + JUMP_GAP }, { x: gx, y: a.y + JUMP_GAP }, { x: gx, y: b.y - JUMP_GAP }, { x: b.x, y: b.y - JUMP_GAP }, b];
+}
+
+/** SVG path through orthogonal points, with rounded corners. */
+export function roundedPath(pts: Point[], r = 10): string {
+  let d = `M${pts[0].x},${pts[0].y}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const [p, c, n] = [pts[i - 1], pts[i], pts[i + 1]];
+    const into = Math.min(r, Math.hypot(c.x - p.x, c.y - p.y) / 2);
+    const out = Math.min(r, Math.hypot(n.x - c.x, n.y - c.y) / 2);
+    const ux = Math.sign(c.x - p.x), uy = Math.sign(c.y - p.y);
+    const vx = Math.sign(n.x - c.x), vy = Math.sign(n.y - c.y);
+    d += ` L${c.x - ux * into},${c.y - uy * into} Q${c.x},${c.y} ${c.x + vx * out},${c.y + vy * out}`;
+  }
+  const last = pts[pts.length - 1];
+  return `${d} L${last.x},${last.y}`;
 }
 
 /** Zoom at which a layout fits a frame of the given size. */

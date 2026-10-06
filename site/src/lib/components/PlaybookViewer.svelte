@@ -4,7 +4,7 @@
   import { untrack } from 'svelte';
   import type { Collection, PlaybookNode } from '$lib/types';
   import { theme } from '$lib/theme.svelte';
-  import { NODE_H, NODE_W, autoLayout, fitZoom, type Layout } from '$lib/layout';
+  import { NODE_H, NODE_W, autoLayout, fitZoom, jumpPoints, type Layout } from '$lib/layout';
   import { FAMILY_ICON } from '$lib/icons';
   import { FAMILY_KEY } from '$lib/format';
   import StepNode from './StepNode.svelte';
@@ -66,27 +66,22 @@ import MinimapNav from './MinimapNav.svelte';
 
   function buildEdges(): Edge[] {
     if (!playbook) return [];
-    const wrapped = layout?.wrapped ?? new Set<string>();
-    // Column jumps get lettered badges; one letter per target step.
-    const tags = new Map<string, string>();
-    const plain = playbook.edges.filter((e) => !wrapped.has(e.id));
-    const aside = NODE_W * 0.3;
+    const l = layout;
+    const wrapped = l?.wrapped ?? new Set<string>();
+    const at = (id: string) => l?.positions.get(id) ?? { x: 0, y: 0 };
     return playbook.edges.map((e) => {
-      const jump = wrapped.has(e.id);
-      if (jump && !tags.has(e.target)) tags.set(e.target, String.fromCharCode(65 + (tags.size % 26)));
+      const jump = !!l && wrapped.has(e.id);
+      // The line runs along the gap between the two columns.
+      const gx = jump
+        ? jumpPoints(l!, e.source, e.target, { x: at(e.source).x + NODE_W / 2, y: at(e.source).y + NODE_H }, { x: at(e.target).x + NODE_W / 2, y: at(e.target).y })[2].x
+        : 0;
       return {
       id: e.id,
       source: e.source,
       target: e.target,
       type: jump ? 'jump' : 'smoothstep',
-      data: jump
-        ? {
-            tag: tags.get(e.target),
-            out: plain.some((x) => x.source === e.source) ? aside : 0,
-            in: plain.some((x) => x.target === e.target) ? -aside : 0
-          }
-        : undefined,
-      label: jump ? undefined : (e.label ?? undefined),
+      data: jump ? { gx } : undefined,
+      label: e.label ?? undefined,
       markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16 },
       deletable: false,
       selectable: false
@@ -117,8 +112,8 @@ import MinimapNav from './MinimapNav.svelte';
   // (capped so small playbooks don't look oversized).
   function initialViewport() {
     if (!layout || !boxW || !boxH) return { x: 0, y: 0, zoom: 1 };
-    // Wrapped layouts need room above and below the columns for the jump badges.
-    const zoom = Math.max(Math.min(fitZoom(layout, boxW, boxH, layout.wrapped.size ? 72 : 32), 1), 0.2);
+    // Wrapped layouts need room above and below the columns for the lines between them.
+    const zoom = Math.max(Math.min(fitZoom(layout, boxW, boxH, layout.wrapped.size ? 56 : 32), 1), 0.2);
     return {
       x: (boxW - layout.width * zoom) / 2,
       y: (boxH - layout.height * zoom) / 2,

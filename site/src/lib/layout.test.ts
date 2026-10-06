@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { NODE_H, NODE_W, autoLayout, fitZoom } from './layout';
+import { NODE_H, NODE_W, autoLayout, fitZoom, jumpPoints } from './layout';
 import type { PlaybookEdge, PlaybookNode } from './types';
 
 const n = (id: string): PlaybookNode => ({ id, name: id, label: 'Step', family: 'utility', x: 0, y: 0, args: {} });
@@ -41,6 +41,20 @@ describe('autoLayout', () => {
     const { nodes, edges } = chain(12);
     const l = autoLayout(nodes, edges, 1600, 1000);
     expect(new Set([...l.positions.values()].map((p) => p.x)).size).toBe(3);
+  });
+
+  it('routes a column jump through the gap between the columns', () => {
+    const { nodes, edges } = chain(12);
+    const l = autoLayout(nodes, edges, 1600, 1000);
+    const jump = edges.find((e) => l.wrapped.has(e.id))!;
+    const s = l.positions.get(jump.source)!;
+    const t = l.positions.get(jump.target)!;
+    const pts = jumpPoints(l, jump.source, jump.target, { x: s.x + NODE_W / 2, y: s.y + NODE_H }, { x: t.x + NODE_W / 2, y: t.y });
+    // the vertical run is right of the source column and left of the target column
+    expect(pts[2].x).toBeGreaterThan(s.x + NODE_W);
+    expect(pts[2].x).toBeLessThan(t.x);
+    // and it ends pointing down into the target's top
+    expect(pts.at(-1)).toEqual({ x: t.x + NODE_W / 2, y: t.y });
   });
 
   it('never overlaps steps, branches included', () => {

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { FAMILY_ICON } from '$lib/icons';
-  import { JUMP_R, PV_H, PV_W, previewLayout, type PreviewEdge, type PreviewNode } from '$lib/previewLayout';
+  import { PV_H, PV_W, previewLayout, type PreviewEdge, type PreviewNode } from '$lib/previewLayout';
   import { fitText, fitWidth } from '$lib/textfit';
 
   // Read-only SVG drawing of a playbook. No canvas library, so it is cheap
@@ -60,20 +60,6 @@
           <text text-anchor="middle" dy="4" class="pill-text">{fit(e.label, 18)}</text>
         </g>
       {/if}
-    </g>
-  {/each}
-
-  {#each g.jumps as j (j.id)}
-    <g class="edge jump" style="--d: {j.rank * 90}ms">
-      <path d={j.out.d} class="wire" />
-      <path d={j.in.d} class="wire" marker-end="url(#{uid}-arrow)" />
-      {#each [j.out.at, j.in.at] as c, i (i)}
-        <g transform="translate({c.x} {c.y})">
-          <title>{i === 0 ? `Continues at ${j.tag}` : `Continued from ${j.tag}`}</title>
-          <circle r={JUMP_R} class="badge" />
-          <text text-anchor="middle" dy="4" class="badge-text">{j.tag}</text>
-        </g>
-      {/each}
     </g>
   {/each}
 
@@ -146,16 +132,6 @@
   .pill {
     fill: var(--surface-2);
     stroke: var(--border);
-  }
-  .badge {
-    fill: var(--surface-2);
-    stroke: var(--accent);
-    stroke-width: 1.5;
-  }
-  .badge-text {
-    font-size: 11px;
-    font-weight: 700;
-    fill: var(--accent-text);
   }
   .link {
     cursor: pointer;
