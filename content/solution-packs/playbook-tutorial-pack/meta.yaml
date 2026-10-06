@@ -1,0 +1,52 @@
+title: Playbook tutorial pack
+summary: 'Thirty example playbooks for learning FortiSOAR: Jinja and data handling, playbook basics, and
+  integration patterns.'
+description: 'Thirty example playbooks for learning FortiSOAR, in three collections. Import the pack and
+  open each playbook in the designer to see how it is built.
+
+
+  **Playbook Tutorial - Jinja** (10 playbooks). Jinja filters and data handling: classifying IP addresses
+  as internal or external, splitting URLs, working with dates, lists and dictionaries, loops, permutations,
+  shuffling, and creating alerts and comments from Jinja data.
+
+
+  **Playbook Tutorial - Basics** (10 playbooks). Core playbook concepts: linking records, reference playbooks,
+  counting indicators by reputation, calling a REST API, calling FortiSOAR''s own API, starting playbooks
+  from outside with basic and token authentication, and a multi-source IP lookup with an approval step.
+
+
+  **Playbook Tutorial - Integrations** (10 playbooks). Integration patterns: closing and enriching FortiSIEM
+  incidents, FortiGate remediation, Active Directory search and employee onboarding, FortiRecon alert
+  ingestion, a webhook that creates alerts from an EDR, and a simple OpenAI query.
+
+
+  ## Before you run them
+
+
+  - Every playbook is imported inactive. Read it before you turn it on.
+
+  - Connectors used: Utilities, VirusTotal, IPStack, IPinfo, AbuseIPDB, FortiGate, FortiSIEM, Active Directory,
+  SMTP, SSH, File Content Extraction and OpenAI. Install and configure the ones you need from the Content
+  Hub.
+
+  - Placeholder values (`example.com` addresses, `192.0.2.x` IPs, `<username>`, `<password>`, `<api-token>`)
+  need replacing with your own.
+
+  - The two webhook playbooks need a new signing key pair: generate one on the start step.
+
+  - "Link CVE to Alert" writes to a CVEs module that comes from another solution pack.
+
+  - Two Integrations playbooks run commands over SSH. Point them at a lab host first.'
+use_cases:
+- utility
+- enrichment
+tags:
+- tutorial
+- jinja
+- training
+author: ftnt-dspille
+version: 1.0.0
+min_version: 8.0.0
+license: MIT
+published: '2026-10-06'
+author_id: 99558074
