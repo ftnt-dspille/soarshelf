@@ -115,3 +115,10 @@ def test_policy_tiers():
     assert policy.decide([], trust="maintainer", kind="connector", has_code=False)[0] == "review"
     assert policy.decide([], trust="maintainer", kind="playbook", has_code=True)[0] == "review"
     assert policy.decide([], trust="bogus", kind="playbook", has_code=False)[0] == "review"
+
+
+def test_reasons_are_not_repeated():
+    from soarshelf.model import CheckResult, Severity
+    from soarshelf.policy import decide
+    many = [CheckResult("provenance.official", Severity.BLOCK, "Official Content Hub content")] * 5
+    assert decide(many, trust="new", kind="playbook", has_code=False) == ("reject", ["Official Content Hub content"])

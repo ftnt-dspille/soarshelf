@@ -21,7 +21,8 @@ TIERS = ("new", "contributor", "trusted", "maintainer")
 
 
 def decide(results: list[CheckResult], *, trust: str, kind: str, has_code: bool) -> tuple[str, list[str]]:
-    blocks = [r.title for r in results if r.severity is Severity.BLOCK]
+    # One reason per kind of problem: a pack with 50 official playbooks says so once.
+    blocks = list(dict.fromkeys(r.title for r in results if r.severity is Severity.BLOCK))
     if blocks:
         return "reject", blocks
     if trust not in TIERS:
@@ -41,4 +42,5 @@ def decide(results: list[CheckResult], *, trust: str, kind: str, has_code: bool)
         reasons += [r.title for r in warns]
     if trust == "trusted":
         reasons += [r.title for r in warns if r.id.startswith(("secrets.", "provenance."))]
+    reasons = list(dict.fromkeys(reasons))
     return ("review", reasons) if reasons else ("publish", [])
