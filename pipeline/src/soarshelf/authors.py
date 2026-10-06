@@ -107,4 +107,8 @@ def verify(changed: list[str], pr_author: str, bots: set[str], trust_root: Path,
         if _author(after) != who:
             errors.append(f"{item}: author is '{after.get('author')}', but this pull request is from "
                           f"'{pr_author}'. Set author to your GitHub login.")
+            continue
+        # Verification records drive the Verified badge; only maintainers write them.
+        if (after.get("tested") or None) != ((before or {}).get("tested") or None):
+            errors.append(f"{item}: 'tested' records are added by maintainers after a live test. Leave it out.")
     return errors

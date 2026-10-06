@@ -142,3 +142,13 @@ def test_owns_needs_login_and_account_id(tmp_path):
     assert main(["owns", "--item", str(tmp_path / "missing"), "--login", "alice", "--id", "2"]) == 1
     (item / "meta.yaml").write_text("author: alice\n")          # added by a maintainer
     assert main(["owns", "--item", str(item), "--login", "alice", "--id", "2"]) == 1
+
+
+def test_only_maintainers_add_verification_records(tmp_path):
+    mine = {"author": "alice", "author_id": IDS["alice"]}
+    faked = {**mine, "tested": [{"platform": "8.0.0", "version": "1.0.0", "result": "ran"}]}
+    errors = run(tmp_path, {"a": mine}, {"a": faked}, "alice", A)
+    assert errors and "'tested'" in errors[0]
+    assert run(tmp_path / "new", {}, {"a": faked}, "alice", A)                     # not on a new item either
+    assert run(tmp_path / "keep", {"a": faked}, {"a": {**faked, "title": "x"}}, "alice", A) == []  # unchanged is fine
+    assert run(tmp_path / "boss", {"a": mine}, {"a": faked}, "boss", A) == []

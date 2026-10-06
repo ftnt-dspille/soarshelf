@@ -34,7 +34,7 @@ import yaml
 from . import config
 
 PREFIX = "soarshelf-verify · "
-UUID_RE = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+UUID_RE = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.I)
 # Triggers that never fire on their own: safe to switch on in a scratch copy.
 SAFE_TRIGGERS = {"Manual trigger", "Referenced"}
 
@@ -148,18 +148,23 @@ def harness(target: str, target_uuid: str, args: dict[str, Any], module: str | N
 
 
 def _remap(text: str, uuids: set[str]) -> str:
-    for old in uuids:
-        text = text.replace(old, str(uuidlib.uuid4()))
+    """Give each export-defined UUID a fresh one, wherever it appears and in any case."""
+    for old in {u.lower() for u in uuids}:
+        text = re.sub(re.escape(old), str(uuidlib.uuid4()), text, flags=re.I)
     return text
 
 
 def _trigger(w: dict[str, Any]) -> str:
-    trigger = str(w.get("triggerStep") or "").rsplit("/", 1)[-1]
-    for s in w.get("steps") or []:
-        t = str(s.get("stepType") or "").rsplit("/", 1)[-1]
-        if s.get("uuid") == trigger or t in config.TRIGGER_LABELS:
-            return config.TRIGGER_LABELS.get(t, "Unknown")
-    return "Unknown"
+    """The playbook's trigger, from the step ``triggerStep`` names. If that doesn't
+    resolve, or any other trigger-type step is unsafe, it's ``Unknown`` so the
+    playbook is never switched on: a step list could put a manual step first while
+    the real trigger fires on record creation."""
+    want = str(w.get("triggerStep") or "").rsplit("/", 1)[-1].lower()
+    types = {str(s.get("uuid") or "").lower(): str(s.get("stepType") or "").rsplit("/", 1)[-1].lower()
+             for s in w.get("steps") or []}
+    label = config.TRIGGER_LABELS.get(types.get(want, ""), "Unknown") if want else "Unknown"
+    others = {config.TRIGGER_LABELS[t] for u, t in types.items() if t in config.TRIGGER_LABELS and u != want}
+    return label if label in SAFE_TRIGGERS and others <= SAFE_TRIGGERS else "Unknown"
 
 
 def _button_answers(client: Any) -> None:
@@ -264,7 +269,9 @@ def run(item: Path, *, instance: str | None, playbooks: list[str], calls: list[s
             print(f"  kept on the box: {', '.join(c['name'] for c in copy)}")
         else:
             for u in created:
-                client.workflow_collections.delete(u, hard=True)
+                # Only ever delete what this run made: check the scratch name first.
+                if client.workflow_collections.get(u, relationships=False).name.startswith(PREFIX):
+                    client.workflow_collections.delete(u, hard=True)
             print(f"  removed {len(created)} scratch collection(s)")
     return {"platform": platform, "version": res.detail["version"],
             "result": "ran" if ran else "imported", "playbooks": ran}

@@ -87,7 +87,7 @@ def test_scratch_copy_never_switches_on_record_triggers(doc):
     doc["data"][0]["workflows"][0]["steps"][0]["stepType"] = f"/api/3/workflow_step_types/{on_create}"
     (copy,), _ = verify.scratch_copy(doc["data"], set())
     assert copy["workflows"][0]["isActive"] is False
-    with pytest.raises(verify.VerifyError, match="On create"):
+    with pytest.raises(verify.VerifyError, match="trigger"):
         verify.scratch_copy(doc["data"], {"Enrich IP"})
 
 
@@ -98,3 +98,30 @@ def test_record_replaces_same_version_and_never_downgrades(tmp_path):
     verify.record(tmp_path, {"platform": "8.0.0", "version": "1.0.0", "result": "imported", "playbooks": []})
     tested = yaml.safe_load((tmp_path / "meta.yaml").read_text())["tested"]
     assert tested == [{**V1, "notes": "Called with base 7."}]
+
+
+def test_a_decoy_manual_step_does_not_unlock_a_record_trigger(doc):
+    """triggerStep is what fires; a manual-looking step listed first must not count."""
+    from soarshelf import config
+
+    on_create = next(k for k, v in config.TRIGGER_LABELS.items() if v == "On create")
+    wf = doc["data"][0]["workflows"][0]
+    real = {"@type": "WorkflowStep", "name": "Real trigger", "uuid": "aaaaaaaa-0000-4000-8000-0000000000ff",
+            "stepType": f"/api/3/workflow_step_types/{on_create}", "arguments": {"resource": "alerts"}}
+    wf["steps"].append(real)
+    wf["triggerStep"] = "/api/3/workflow_steps/aaaaaaaa-0000-4000-8000-0000000000ff"
+    assert verify._trigger(wf) == "Unknown"
+    with pytest.raises(verify.VerifyError):
+        verify.scratch_copy(doc["data"], {"Enrich IP"})
+    wf["triggerStep"] = "/api/3/workflow_steps/aaaaaaaa-0000-4000-8000-000000000001"   # manual, but another step is unsafe
+    assert verify._trigger(wf) == "Unknown"
+    del wf["triggerStep"]
+    assert verify._trigger(wf) == "Unknown"
+
+
+def test_uppercase_uuids_are_regenerated_too(doc):
+    upper = "22222222-2222-4222-8222-22222222ABCD"
+    wf = doc["data"][0]["workflows"][0]
+    wf["uuid"] = upper
+    (copy,), _ = verify.scratch_copy(doc["data"], set())
+    assert upper.lower() not in json.dumps(copy).lower()
