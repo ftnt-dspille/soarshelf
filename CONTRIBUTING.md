@@ -48,6 +48,17 @@ published: 2026-10-05
 # source: https://github.com/you/your-connector
 ```
 
+Or let `soarshelf add` do steps 2 and 3. It runs the same checks as the
+upload page and writes the folder, crediting your `gh` login:
+
+```bash
+soarshelf add export.json --title "..." --summary "..." --use-case triage
+soarshelf add https://github.com/you/your-connector --use-case utility      # fetches info.json
+soarshelf add https://github.com/you/kit/tree/main/widgets/x --use-case reporting
+```
+
+Add `--dry-run` to see the report without writing anything.
+
 ## Rules
 
 - Share only what you have the rights to share. No re-uploads of official

@@ -52,6 +52,30 @@ def _intake_submission(args: argparse.Namespace) -> int:
     return 0          # the decision is in the report; a reject is not a pipeline failure
 
 
+def _add(args: argparse.Namespace) -> int:
+    from .add import add
+
+    form = {"title": args.title, "summary": args.summary, "useCases": args.use_case, "tags": args.tag or [],
+            "version": args.version, "minVersion": args.min_version,
+            "description": args.description.read_text() if args.description else ""}
+    if args.source:
+        form["source"] = args.source
+    form = {k: v for k, v in form.items() if v}
+    res, written = add(args.src, form, args.content, dry_run=args.dry_run)
+    for c in res.checks:
+        if c["severity"] != "pass":
+            loc = f"  [{c['location']}]" if c.get("location") else ""
+            print(f" {_ICON[c['severity']]} {c['title']}{loc}")
+            if c.get("detail"):
+                print(f"     {c['detail']}")
+    print(f"\n{res.decision.upper()}" + "".join(f"\n  - {r}" for r in res.reasons))
+    if written:
+        print(f"written: {written}  (commit it on a branch and open a pull request)")
+    elif args.dry_run and res.decision != "reject":
+        print("dry run: nothing written")
+    return 1 if res.decision == "reject" else 0
+
+
 def _pr_body(args: argparse.Namespace) -> int:
     from .submission import pr_body
 
@@ -76,6 +100,12 @@ def _verify_authors(args: argparse.Namespace) -> int:
     return 1 if errors else 0
 
 
+def _pack_base(dirname: str) -> str:
+    """'sOARFramework-3.4.0' -> 'sOARFramework'; a name without a version is returned as is."""
+    base, _, ver = dirname.rpartition("-")
+    return base if base and ver[:1].isdigit() else dirname
+
+
 def _hub_index(args: argparse.Namespace) -> int:
     from .hubindex import DATA_DIR, FINGERPRINTS, HUB_INDEX, build_fingerprints, build_hub_index, fetch_catalog
 
@@ -84,7 +114,13 @@ def _hub_index(args: argparse.Namespace) -> int:
     HUB_INDEX.write_text(json.dumps(hub, indent=1, ensure_ascii=False) + "\n")
     print(f"hub index: {len(hub['connectors'])} connectors, {len(hub['solutionPacks'])} packs, {len(hub['widgets'])} widgets → {HUB_INDEX}")
     if args.packs_dir:
-        packs = [p for p in args.packs_dir.iterdir() if p.is_dir() and not p.name.startswith("_")]
+        # Only packs the Content Hub catalog lists: a local packs folder also
+        # holds your own and modified packs, which must not count as official.
+        dirs = [p for p in args.packs_dir.iterdir() if p.is_dir() and not p.name.startswith("_")]
+        packs = [p for p in dirs if _pack_base(p.name) in hub["solutionPacks"]]
+        skipped = sorted(p.name for p in dirs if p not in packs)
+        if skipped:
+            print(f"skipped {len(skipped)} packs not in the catalog: {', '.join(skipped)}")
         fp = build_fingerprints(packs)
         FINGERPRINTS.write_text(json.dumps(fp, indent=1) + "\n")
         print(f"fingerprints: {len(fp['uuids'])} uuids, {len(fp['structures'])} structures from {len(packs)} packs")
@@ -116,6 +152,20 @@ def main(argv: list[str] | None = None) -> int:
     i.add_argument("--content", type=Path, default=Path("content"))
     i.add_argument("--report", type=Path, required=True, help="where to write the JSON report")
     i.set_defaults(fn=_intake_submission)
+
+    a = sub.add_parser("add", help="add your own item to content/ from a file or GitHub repo (maintainers)")
+    a.add_argument("src", help="playbook .json, pack .zip, info.json, or https://github.com/OWNER/REPO[/tree/BRANCH/PATH]")
+    a.add_argument("--title", help="defaults to the manifest's label/title")
+    a.add_argument("--summary", help="defaults to the manifest's description")
+    a.add_argument("--use-case", action="append", required=True, help="repeatable, 1 to 3")
+    a.add_argument("--tag", action="append")
+    a.add_argument("--description", type=Path, help="markdown file for the long description")
+    a.add_argument("--source", help="source repository URL (set automatically for a GitHub URL)")
+    a.add_argument("--version")
+    a.add_argument("--min-version")
+    a.add_argument("--content", type=Path, default=Path("content"))
+    a.add_argument("--dry-run", action="store_true", help="run every check, write nothing")
+    a.set_defaults(fn=_add)
 
     b2 = sub.add_parser("pr-body", help="markdown body for a submission PR (submission Action)")
     b2.add_argument("--report", type=Path, required=True)

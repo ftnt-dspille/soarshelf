@@ -6,6 +6,8 @@
 """
 from __future__ import annotations
 
+import base64
+import binascii
 import ipaddress
 import math
 import re
@@ -85,6 +87,20 @@ _CANDIDATE = re.compile(r"[A-Za-z0-9+/_=-]{40,}")
 _HEXISH = re.compile(r"^[0-9a-fA-F]+$")
 
 
+_IMAGE_MAGIC = (b"\x89PNG", b"\xff\xd8\xff", b"GIF8", b"<svg", b"<?xml", b"RIFF")
+
+
+def _is_image(s: str) -> bool:
+    """Base64 of an embedded image (logos, screenshots): long and random, not a secret."""
+    if len(s) < 200:
+        return False
+    try:
+        head = base64.b64decode(s[:64] + "=" * (-len(s[:64]) % 4), validate=False)
+    except (binascii.Error, ValueError):
+        return False
+    return head.startswith(_IMAGE_MAGIC)
+
+
 def _looks_random(s: str) -> bool:
     """A long token with mixed character classes and high entropy.
 
@@ -122,7 +138,7 @@ def scan(doc: Any, where: str = "") -> list[CheckResult]:
                 f"{_mask(value)} - reference a connector configuration or a variable instead.", path)
 
         for m in _CANDIDATE.finditer(value):
-            if "{{" not in value and _looks_random(m.group(0)):
+            if "{{" not in value and _looks_random(m.group(0)) and not _is_image(m.group(0)):
                 hit("high-entropy", Severity.WARN, "Possible secret (random-looking string)",
                     _mask(m.group(0)), path)
 

@@ -84,3 +84,16 @@ def test_literal_secret_around_template_still_blocks():
 def test_location_reported():
     r = scan({"steps": [{"arguments": {"password": FAKE_PW * 2}}]}, "Coll › PB")[0]
     assert r.location == "Coll › PB › steps.[0].arguments.password"
+
+
+def test_embedded_image_is_not_a_secret():
+    import base64, os
+    png = base64.b64encode(b"\x89PNG\r\n\x1a\n" + os.urandom(600)).decode()
+    jpg = base64.b64encode(b"\xff\xd8\xff\xe0" + os.urandom(600)).decode()
+    assert not scan({"logo": png, "prerequisite": f"<img src='data:image/jpeg;base64,{jpg}'>"})
+
+
+def test_random_blob_still_flagged():
+    import base64, os
+    blob = base64.b64encode(os.urandom(300)).decode()
+    assert any(r.id == "secrets.high-entropy" for r in scan({"note": blob}))
