@@ -31,6 +31,10 @@
 
   let { data } = $props();
   const item = $derived(data.item);
+  // Authors are GitHub accounts; only link a login GitHub could actually have.
+  const githubUrl = $derived(
+    /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/.test(item.author.github) ? `https://github.com/${item.author.github}` : null
+  );
 
   // Downloads always serve the current version, and only it: older files are not kept,
   // because an update may have replaced a version that had a problem. So before saving,
@@ -201,7 +205,7 @@
         {/if}
         <p class="mt-3 max-w-2xl text-base text-muted sm:text-lg">{item.summary}</p>
         <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted">
-          <span class="inline-flex items-center gap-2"><span class="font-medium text-fg">@{item.author.github}</span><TrustBadge trust={item.author.trust} /></span>
+          <span class="inline-flex items-center gap-2">{#if githubUrl}<a href={githubUrl} target="_blank" rel="noopener noreferrer nofollow" class="font-medium text-fg hover:text-accent-text hover:underline" title="{item.author.github} on GitHub">@{item.author.github}</a>{:else}<span class="font-medium text-fg">@{item.author.github}</span>{/if}<TrustBadge trust={item.author.trust} /></span>
           <span>v{item.version}</span>
           {#if item.minVersion}<span>Platform {item.minVersion}+</span>{/if}
           <span>Published {formatDate(item.published)}</span>
