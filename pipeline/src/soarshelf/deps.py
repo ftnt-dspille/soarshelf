@@ -47,7 +47,8 @@ def collect(collections: list[ParsedCollection], known_workflow_ids: set[str]) -
                     mod = _module_of(a.get(key))
                     if mod:
                         deps.modules.add(mod)
-                for r in a.get("resources") or []:
+                res = a.get("resources")
+                for r in [res] if isinstance(res, str) else res if isinstance(res, list) else []:
                     mod = _module_of(r)
                     if mod:
                         deps.modules.add(mod)
