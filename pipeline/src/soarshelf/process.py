@@ -207,14 +207,70 @@ def _connector(up: Upload, hub: HubIndex) -> tuple[list[CheckResult], bytes, lis
         results.append(CheckResult("connector.on-hub", Severity.WARN,
                                    "A connector with this name is on the Content Hub",
                                    "Rename it if it is a fork, so it can't be confused with the hub version."))
-    ops = [{"operation": o.get("operation"), "title": o.get("title")}
-           for o in m.get("operations") or [] if isinstance(o, dict)]
+    ops = [_operation(o) for o in (m.get("operations") or [])[:300] if isinstance(o, dict)]
     # "type" marks the trimmed manifest as a connector when the build re-reads it.
     keep = {"type": "connector", **{k: m.get(k) for k in ("name", "label", "version", "description", "category", "publisher")}}
     keep["operations"] = ops
+    keep["configuration"] = {"fields": _params((m.get("configuration") or {}).get("fields") if isinstance(m.get("configuration"), dict) else None)}
     results.append(CheckResult("connector.review", Severity.INFO, "Connector code is reviewed by a maintainer",
                                _REVIEW_NOTE[bool(up.package_top)]))
     return results, json.dumps(keep, indent=2, ensure_ascii=False).encode() + b"\n", ops
+
+
+def _text(v: Any, limit: int) -> str:
+    """Manifest text on one line, cut at a word with an ellipsis when it's too long."""
+    if not isinstance(v, (str, int, float)) or isinstance(v, bool):
+        return ""
+    s = " ".join(str(v).split())
+    return s if len(s) <= limit else s[:limit - 1].rsplit(" ", 1)[0].rstrip(",;:.") + "…"
+
+
+def _params(raw: Any, depth: int = 0) -> list[dict[str, Any]]:
+    """Operation or configuration parameters, trimmed to what a reader needs.
+
+    Keeps the manifest's own key names, so a trimmed manifest reads the same way
+    again at build time. Hidden fields are dropped; a password's default never
+    leaves the package. ``onchange`` maps an option to the fields it reveals.
+    """
+    out: list[dict[str, Any]] = []
+    for p in (raw if isinstance(raw, list) else [])[:80]:
+        if not isinstance(p, dict) or p.get("visible") is False or not p.get("name"):
+            continue
+        kind = _text(p.get("type"), 24) or "text"
+        q: dict[str, Any] = {"name": _text(p.get("name"), 80), "title": _text(p.get("title"), 120) or _text(p.get("name"), 80),
+                             "type": kind, "required": p.get("required") is True}
+        desc = _text(p.get("description"), 600) or _text(p.get("tooltip"), 600)
+        if desc:
+            q["description"] = desc
+        val = p.get("value")
+        if kind != "password" and val not in (None, "", [], {}):
+            q["value"] = val if isinstance(val, bool) else _text(val if isinstance(val, (str, int, float)) else json.dumps(val), 160)
+        opts = [_text(o, 80) for o in p.get("options") or [] if isinstance(o, (str, int, float))] if isinstance(p.get("options"), list) else []
+        if opts:
+            q["options"] = opts[:40]
+        if depth < 3 and isinstance(p.get("onchange"), dict):
+            reveal = {_text(k, 80): _params(v, depth + 1) for k, v in list(p["onchange"].items())[:40]}
+            reveal = {k: v for k, v in reveal.items() if k and v}
+            if reveal:
+                q["onchange"] = reveal
+        out.append(q)
+    return out
+
+
+def _operation(o: dict[str, Any]) -> dict[str, Any]:
+    op: dict[str, Any] = {"operation": o.get("operation"), "title": o.get("title")}
+    desc = _text(o.get("description"), 400)
+    if desc:
+        op["description"] = desc
+    params = _params(o.get("parameters"))
+    if params:
+        op["parameters"] = params
+    out = o.get("output_schema")
+    if isinstance(out, dict) and out:
+        op["output"] = [_text(k, 80) for k in list(out)[:30]]
+    elif isinstance(o.get("output"), list):    # a trimmed manifest, read again at build time
+        op["output"] = [_text(k, 80) for k in o["output"][:30]]
+    return op
 
 
 def _widget(up: Upload, hub: HubIndex) -> tuple[list[CheckResult], bytes, dict[str, Any]]:
@@ -374,6 +430,8 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
             "modules": [{"name": m, "stock": m in config.CORE_MODULES} for m in sorted(deps.modules)],
         },
         "operations": connector_ops,
+        "configuration": _params(up.data["configuration"].get("fields"))
+        if kind == "connector" and isinstance(up.data.get("configuration"), dict) else None,
         "widget": widget,
         "checks": [r.to_dict() for r in sorted(results, key=_order)],
         "collections": graph.collections_graph(collections),

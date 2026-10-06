@@ -184,3 +184,45 @@ def test_huge_image_refused_before_decoding(monkeypatch):
     monkeypatch.setattr(config, "MAX_IMAGE_PIXELS", 100)
     with pytest.raises(RejectedUpload):
         package.clean_images({"w/images/a.png": _png(50, 50)})
+
+
+def test_operation_parameters_are_published_trimmed(tmp_path):
+    conn = {**CONNECTOR,
+            "configuration": {"fields": [
+                {"name": "server", "title": "Server", "type": "text", "required": True, "visible": True},
+                {"name": "password", "title": "Password", "type": "password", "value": "hunter2", "visible": True},
+                {"name": "internal", "title": "Internal", "type": "text", "visible": False}]},
+            "operations": [{"operation": "send", "title": "Send", "description": "Sends  it.",
+                            "output_schema": {"status": "", "id": ""},
+                            "parameters": [
+                                {"name": "mode", "title": "Mode", "type": "select", "required": True, "visible": True,
+                                 "options": ["A", "B"], "value": "A", "tooltip": "Pick one",
+                                 "onchange": {"B": [{"name": "extra", "title": "Extra", "type": "json", "visible": True,
+                                                     "value": {"k": 1}}]}}]}]}
+    res = process(dict(META), _write(tmp_path, _conn_files(**{"my-conn/info.json": json.dumps(conn).encode()})),
+                  "maintainer", HUB)
+    op = res.detail["operations"][0]
+    assert op["description"] == "Sends it." and op["output"] == ["status", "id"]
+    mode = op["parameters"][0]
+    assert mode == {"name": "mode", "title": "Mode", "type": "select", "required": True, "description": "Pick one",
+                    "value": "A", "options": ["A", "B"],
+                    "onchange": {"B": [{"name": "extra", "title": "Extra", "type": "json", "required": False,
+                                        "value": '{"k": 1}'}]}}
+    cfg = res.detail["configuration"]
+    assert [f["name"] for f in cfg] == ["server", "password"] and "value" not in cfg[1]
+
+
+def test_trimmed_manifest_keeps_parameters_when_read_again(write_json):
+    from soarshelf.process import _connector
+    from soarshelf.intake import Upload
+    conn = {**CONNECTOR, "operations": [{"operation": "get", "title": "Get", "output_schema": {"a": 1},
+                                         "parameters": [{"name": "q", "title": "Q", "type": "text", "visible": True}]}]}
+    _, body, ops = _connector(Upload("connector", "info.json", b"", conn), HUB)
+    _, _, again = _connector(Upload("connector", "info.json", b"", json.loads(body)), HUB)
+    assert again == ops and ops[0]["parameters"][0]["name"] == "q" and ops[0]["output"] == ["a"]
+
+
+def test_long_parameter_text_is_cut_at_a_word():
+    from soarshelf.process import _text
+    out = _text("word " * 200, 50)
+    assert len(out) <= 50 and out.endswith("word…")

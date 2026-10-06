@@ -4,6 +4,8 @@
   import { connectorLabels } from '$lib/data';
   import { CODE_TYPES, TYPE_LABEL, formatBytes, formatDate } from '$lib/format';
   import type { ChangelogEntry, SetupStep } from '$lib/types';
+  import ParamList from '$lib/components/ParamList.svelte';
+  import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import TypePill from '$lib/components/TypePill.svelte';
   import HubBadge from '$lib/components/HubBadge.svelte';
   import TrustBadge from '$lib/components/TrustBadge.svelte';
@@ -107,6 +109,20 @@
     'version-mismatch': { label: 'Version differs', tone: 'text-info bg-info-soft' },
     missing: { label: 'Not on Content Hub', tone: 'text-warn bg-warn-soft' }
   };
+
+  let opFilter = $state('');
+  $effect(() => {
+    void item.slug;
+    opFilter = '';
+  });
+  const shownOps = $derived.by(() => {
+    const q = opFilter.trim().toLowerCase();
+    const ops = item.operations ?? [];
+    if (!q) return ops;
+    return ops.filter((o) =>
+      [o.title, o.operation, o.description, ...(o.parameters ?? []).map((p) => p.title)].some((s) => s?.toLowerCase().includes(q))
+    );
+  });
 </script>
 
 <svelte:head>
@@ -285,15 +301,59 @@
             </dl>
           </div>
         {/if}
+        {#if item.type === 'connector' && item.configuration?.length}
+          <details class="group overflow-hidden rounded-xl border border-line">
+            <summary class="flex cursor-pointer list-none items-center gap-2 px-5 py-3 hover:bg-surface-2 [&::-webkit-details-marker]:hidden">
+              <ChevronRight size={14} class="shrink-0 text-faint transition group-open:rotate-90" aria-hidden="true" />
+              <h2 class="text-sm font-semibold">Configuration <span class="font-normal text-faint">· {item.configuration.length} field{item.configuration.length === 1 ? '' : 's'}</span></h2>
+              <span class="ml-auto hidden truncate text-xs text-faint sm:block">{item.configuration.map((f) => f.title).join(', ')}</span>
+            </summary>
+            <div class="border-t border-line px-5 py-4 text-sm"><ParamList params={item.configuration} /></div>
+          </details>
+        {/if}
         {#if item.type === 'connector' && item.operations?.length}
-          <div class="rounded-xl border border-line">
-            <h2 class="border-b border-line px-5 py-3 text-sm font-semibold">Operations <span class="font-normal text-faint">· {item.operations.length}</span></h2>
+          <div class="overflow-hidden rounded-xl border border-line">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3">
+              <h2 class="text-sm font-semibold">Operations <span class="font-normal text-faint">· {item.operations.length}</span></h2>
+              {#if item.operations.length > 6}
+                <input
+                  type="search"
+                  bind:value={opFilter}
+                  placeholder="Filter operations"
+                  aria-label="Filter operations"
+                  class="h-8 w-full rounded-lg border border-line bg-surface px-2.5 text-sm placeholder:text-faint sm:w-56"
+                />
+              {/if}
+            </div>
             <ul class="divide-y divide-line">
-              {#each item.operations as op (op.operation)}
-                <li class="flex items-baseline justify-between gap-4 px-5 py-2.5 text-sm">
-                  <span class="min-w-0 truncate">{op.title ?? op.operation}</span>
-                  <code class="shrink-0 font-mono text-xs text-faint">{op.operation}</code>
+              {#each shownOps as op (op.operation)}
+                <li>
+                  <details class="group">
+                    <summary class="flex cursor-pointer list-none items-baseline gap-3 px-5 py-2.5 text-sm hover:bg-surface-2 [&::-webkit-details-marker]:hidden">
+                      <ChevronRight size={14} class="shrink-0 translate-y-0.5 text-faint transition group-open:rotate-90" aria-hidden="true" />
+                      <span class="min-w-0 flex-1 truncate">{op.title ?? op.operation}</span>
+                      {#if op.parameters?.length}<span class="shrink-0 text-xs text-faint">{op.parameters.length} param{op.parameters.length === 1 ? '' : 's'}</span>{/if}
+                      <code class="hidden shrink-0 font-mono text-xs text-faint sm:inline">{op.operation}</code>
+                    </summary>
+                    <div class="space-y-4 border-t border-line bg-surface-2/40 px-5 py-4 text-sm">
+                      <code class="font-mono text-xs text-faint sm:hidden">{op.operation}</code>
+                      {#if op.description}<p class="text-muted">{op.description}</p>{/if}
+                      {#if op.parameters?.length}
+                        <ParamList params={op.parameters} />
+                      {:else}
+                        <p class="text-faint">No parameters.</p>
+                      {/if}
+                      {#if op.output?.length}
+                        <div class="flex flex-wrap items-center gap-1 text-xs">
+                          <span class="text-faint">Returns</span>
+                          {#each op.output as k (k)}<code class="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-muted">{k}</code>{/each}
+                        </div>
+                      {/if}
+                    </div>
+                  </details>
                 </li>
+              {:else}
+                <li class="px-5 py-4 text-sm text-faint">No operation matches “{opFilter}”.</li>
               {/each}
             </ul>
           </div>

@@ -69,7 +69,8 @@ interface ItemDetail extends ItemSummary {
   collections: Collection[];       // graph for the viewer
   download: { path: string; filename: string; sha256: string; bytes: number };
   source: string | null;           // repository; required for connectors and widgets
-  operations: { operation: string; title: string | null }[];  // connectors only
+  operations: ConnectorOperation[];  // connectors only
+  configuration: ConnectorParam[] | null;  // connectors only: configuration fields
   widget: WidgetInfo | null;       // widgets only: name, title, subTitle, version,
                                    // description, publisher, pages[], compatibility[]
   changelog: { version: string; date: string; notes: string }[];  // newest first; from
@@ -127,6 +128,30 @@ interface Node {
 }
 
 interface Edge { id: string; source: string; target: string; label: string | null }
+```
+
+Connector operations and parameters are trimmed from the manifest: hidden
+fields are left out, text is cut to a few hundred characters, and a password
+field's default is never published.
+
+```ts
+interface ConnectorOperation {
+  operation: string;
+  title: string | null;
+  description?: string;
+  parameters?: ConnectorParam[];
+  output?: string[];               // top-level keys of the output schema
+}
+interface ConnectorParam {
+  name: string;
+  title: string;
+  type: string;                    // text, select, json, checkbox, ...
+  required: boolean;
+  description?: string;
+  value?: string | boolean;        // default
+  options?: string[];
+  onchange?: Record<string, ConnectorParam[]>;  // option -> fields it reveals
+}
 ```
 
 ## `data/featured.json`

@@ -67,7 +67,9 @@ export interface ItemDetail extends ItemSummary {
   /** Repository of a connector or widget; their code is never hosted here. */
   source?: string | null;
   /** Connector manifests: the operations it offers. */
-  operations?: { operation: string; title: string | null }[];
+  operations?: ConnectorOperation[];
+  /** Connector configuration fields (connectors only). */
+  configuration?: ConnectorParam[] | null;
   /** Widget manifests. */
   widget?: WidgetInfo | null;
   /** Newest first; empty until the item's first update. */
@@ -200,4 +202,27 @@ export interface FeaturedItem {
   key: string;
   collection: string;
   playbook: Omit<Playbook, 'nodes'> & { nodes: Omit<PlaybookNode, 'args'>[] };
+}
+
+export interface ConnectorOperation {
+  operation: string;
+  title: string | null;
+  description?: string;
+  parameters?: ConnectorParam[];
+  /** Top-level keys of the operation's output. */
+  output?: string[];
+}
+
+/** A manifest parameter, trimmed by the pipeline. Hidden fields are left out. */
+export interface ConnectorParam {
+  name: string;
+  title: string;
+  type: string;
+  required: boolean;
+  description?: string;
+  /** Default value; never published for passwords. */
+  value?: string | boolean;
+  options?: string[];
+  /** Option -> the fields that choosing it reveals. */
+  onchange?: Record<string, ConnectorParam[]>;
 }
