@@ -1,0 +1,89 @@
+<!-- Copyright start
+     MIT License
+     Copyright (c) 2026 Dylan Spille
+     Copyright end -->
+<form data-ng-submit="save()" name="editForm" novalidate>
+  <div class="modal-header">
+    <h3 class="modal-title">Configure Jinja Editor widget</h3>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label class="control-label" for="jinja-widget-title">Title</label>
+      <input id="jinja-widget-title"
+             type="text"
+             class="form-control"
+             name="title"
+             data-ng-model="config.title"
+             placeholder="Jinja Editor" />
+    </div>
+
+    <div class="form-group">
+      <label class="control-label" for="jinja-widget-default-template">
+        Default template
+      </label>
+      <div class="font-size-12 muted-65 margin-bottom-sm">
+        Optional. Pre-fills the template pane when the widget loads.
+      </div>
+      <textarea id="jinja-widget-default-template"
+                class="form-control jinja-code-area"
+                name="defaultTemplate"
+                data-ng-model="config.defaultTemplate"
+                rows="6"
+                spellcheck="false"></textarea>
+    </div>
+
+    <div class="form-group" data-ng-if="isViewPanel">
+      <label class="control-label" for="jinja-widget-json-source-field">
+        Input source field
+      </label>
+      <div class="font-size-12 muted-65 margin-bottom-sm">
+        When you click "Load current record", seed the input with the JSON value
+        of this field on the record (available as <code>vars.input</code>).
+        Leave blank to use the full record under <code>vars.input.records[0]</code>.
+      </div>
+      <select id="jinja-widget-json-source-field"
+              class="form-control"
+              name="jsonSourceField"
+              data-ng-model="config.jsonSourceField"
+              data-ng-disabled="fieldsLoading">
+        <option value="">Full record (vars.input.records[0])</option>
+        <option data-ng-repeat="field in fieldsArray"
+                data-ng-value="field.name">
+          {{ field.title || field.name }} <span data-ng-if="field.type">({{ field.type }})</span>
+        </option>
+      </select>
+      <div class="font-size-12 muted-65 margin-top-xs" data-ng-if="fieldsLoading">
+        Loading fields for <code>{{ currentModule }}</code>…
+      </div>
+      <div class="font-size-12 text-danger margin-top-xs" data-ng-if="fieldsError">
+        Could not load fields: {{ fieldsError }}
+      </div>
+    </div>
+
+    <div class="form-group" data-ng-if="isViewPanel">
+      <label class="control-label" for="jinja-widget-template-source-field">
+        Template source field
+      </label>
+      <div class="font-size-12 muted-65 margin-bottom-sm">
+        Optional. When you click "Load current record", seed the template pane
+        with the string value of this field on the record. Leave blank to keep
+        the current template.
+      </div>
+      <select id="jinja-widget-template-source-field"
+              class="form-control"
+              name="templateSourceField"
+              data-ng-model="config.templateSourceField"
+              data-ng-disabled="fieldsLoading">
+        <option value="">Don't overwrite the template</option>
+        <option data-ng-repeat="field in fieldsArray"
+                data-ng-value="field.name">
+          {{ field.title || field.name }} <span data-ng-if="field.type">({{ field.type }})</span>
+        </option>
+      </select>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" data-ng-click="cancel()">Cancel</button>
+    <button type="submit" class="btn btn-primary">Save</button>
+  </div>
+</form>

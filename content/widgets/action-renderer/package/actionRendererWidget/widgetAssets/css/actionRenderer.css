@@ -1,0 +1,424 @@
+/* Copyright start
+   MIT License
+   Copyright (c) 2026 Dylan Spille
+   Copyright end */
+
+/* ---- Edit modal ---------------------------------------------------- */
+.action-renderer-edit .action-renderer-stepper {
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  font-size: 12px;
+  color: #888;
+  border-bottom: 1px solid rgba(127,127,127,0.25);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.action-renderer-edit .action-renderer-nav {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(127,127,127,0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.action-renderer-edit .action-renderer-nav-hint {
+  font-size: 12px;
+}
+.action-renderer-edit .action-renderer-stepper > span {
+  margin-right: 14px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.action-renderer-edit .action-renderer-stepper > span.active {
+  color: #fff;
+  background: #337ab7;
+  font-weight: 500;
+}
+
+.action-renderer-body {
+  min-height: 320px;
+  /* SOAR's "Edit widget config" modal is a fixed flex column
+     (header + body + Cancel/Save footer). Because we ship our own
+     .modal-body wrapped in a <form>, the platform's flex height chain
+     doesn't reach it: on a tall step (Output) the body grows unbounded,
+     the whole modal exceeds the viewport, and the platform Save/Cancel
+     footer is pushed off the bottom edge (no visible Save button).
+     Cap the body so it scrolls internally and the footer stays in view.
+     (Output-step dropdowns are native <select>, so overflow can't clip a
+     ui-select popup here.) */
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+}
+
+/* cs-field inputs inside the cs-connector-field-renderer occasionally render
+   as zero-height bars when SOAR's form-control sizing rules don't reach the
+   harness DOM (theme stylesheet load order). Force a sane minimum so the
+   inputs are always usable. */
+.action-renderer-cs-fields input.form-control,
+.action-renderer-cs-fields select.form-control,
+.action-renderer-cs-fields textarea.form-control {
+  min-height: 32px;
+  padding: 6px 10px;
+  line-height: 1.4;
+}
+
+.action-renderer-param-input {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.action-renderer-preview,
+.action-renderer-sample {
+  background: rgba(127, 127, 127, 0.08);
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  padding: 8px;
+  border-radius: 3px;
+  max-width: 100%;
+  max-height: 260px;
+  overflow: auto;
+  font-size: 12px;
+  /* Wide connector responses (large/nested JSON) must wrap, not blow the
+     modal width out to the right. Without this a single long line forces the
+     <pre> wider than .modal-body and the content visually overflows off the
+     right edge ("data overflowing to bottom and right"). */
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.action-renderer-tree-wrap pre {
+  user-select: text;
+}
+
+.action-renderer-cols td input {
+  font-family: monospace;
+}
+
+/* ---- Inline Jinja pane (in edit step 4) ---------------------------- */
+.action-renderer-jinja-pane {
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  border-radius: 4px;
+  padding: 12px;
+  background: rgba(127, 127, 127, 0.03);
+}
+
+.action-renderer-jinja-input,
+.action-renderer-jinja-output {
+  background: rgba(127, 127, 127, 0.08);
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  padding: 8px;
+  border-radius: 3px;
+  height: 320px;
+  overflow: auto;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.action-renderer-jinja-output.has-error {
+  border-color: #c9302c;
+  color: #c9302c;
+}
+.action-renderer-jinja-template {
+  font-family: monospace;
+  font-size: 12px;
+  height: 320px;
+  resize: vertical;
+}
+.action-renderer-jinja-tabs {
+  margin: 0;
+}
+.action-renderer-jinja-tabs > li > a {
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.action-renderer-html-frame,
+.action-renderer-jinja-output-html .action-renderer-html-frame {
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  border-radius: 3px;
+  width: 100%;
+  height: 320px;
+  background: #fff;
+}
+
+/* ---- View panel ---------------------------------------------------- */
+.action-renderer-result-raw {
+  background: rgba(127, 127, 127, 0.06);
+  border: 1px solid rgba(127, 127, 127, 0.18);
+  padding: 10px;
+  border-radius: 3px;
+  font-size: 12px;
+  max-width: 100%;
+  max-height: 600px;
+  overflow: auto;
+  /* Same wrap discipline as the edit-modal sample: long JSON lines wrap to the
+     widget width instead of pushing the view-panel content off to the right. */
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.action-renderer-widget {
+  width: 100%;
+  max-width: 100%;
+  /* min-width:0 lets the widget shrink inside a flex/grid dashboard cell;
+     without it a wide inner table sets the widget's min-content width and the
+     whole widget overflows its parent track. overflow-x:hidden makes the inner
+     .action-renderer-table-wrap the ONLY horizontal scroller. */
+  min-width: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+.action-renderer-widget .action-renderer-body {
+  min-width: 0;
+  max-width: 100%;
+}
+/* Many connector responses produce tables wider than the SOAR view panel
+   (which is ~880px by default). Without this wrapper the <table> overflows
+   the widget's parent and visually pushes content off-center. Constrain to
+   the widget width and scroll horizontally. */
+.action-renderer-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  max-height: 600px;
+  overflow-x: auto;
+  overflow-y: auto;
+  border-radius: 4px;
+  padding-bottom: 12px;
+}
+.action-renderer-table-wrap.action-renderer-table-sticky {
+  /* sticky preset just enables thead pinning; height/scroll is shared. */
+}
+.action-renderer-table-wrap.action-renderer-table-sticky thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgba(40, 40, 40, 0.96);
+  backdrop-filter: blur(2px);
+}
+.action-renderer-body { padding-bottom: 16px; }
+.action-renderer-table {
+  width: 100%;
+  font-size: 13px;
+  border-collapse: collapse;
+  margin: 0;
+}
+.action-renderer-table thead th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.35);
+  white-space: nowrap;
+}
+.action-renderer-table tbody td {
+  padding: 8px 12px;
+  vertical-align: top;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid rgba(127, 127, 127, 0.15);
+}
+.action-renderer-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.action-renderer-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ---- Style presets ---- */
+/* striped (default) */
+.action-renderer-table-style-striped tbody tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.025);
+}
+/* plain — minimal lines, breathing room */
+.action-renderer-table-style-plain .action-renderer-table tbody td,
+.action-renderer-table-style-plain .action-renderer-table thead th {
+  border-bottom-color: rgba(127, 127, 127, 0.10);
+}
+/* bordered — full grid */
+.action-renderer-table-style-bordered .action-renderer-table {
+  border: 1px solid rgba(127, 127, 127, 0.30);
+}
+.action-renderer-table-style-bordered .action-renderer-table th,
+.action-renderer-table-style-bordered .action-renderer-table td {
+  border: 1px solid rgba(127, 127, 127, 0.20);
+}
+/* compact — denser rows for log-like data */
+.action-renderer-table-style-compact .action-renderer-table thead th { padding: 6px 8px; font-size: 10px; }
+.action-renderer-table-style-compact .action-renderer-table tbody td { padding: 4px 8px; font-size: 12px; }
+/* card — each row floats as a panel */
+.action-renderer-table-style-card .action-renderer-table { border-collapse: separate; border-spacing: 0 8px; }
+.action-renderer-table-style-card .action-renderer-table tbody tr td {
+  background: rgba(255, 255, 255, 0.04);
+  border-top: 1px solid rgba(127, 127, 127, 0.20);
+  border-bottom: 1px solid rgba(127, 127, 127, 0.20);
+}
+.action-renderer-table-style-card .action-renderer-table tbody tr td:first-child {
+  border-left: 1px solid rgba(127, 127, 127, 0.20);
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+.action-renderer-table-style-card .action-renderer-table tbody tr td:last-child {
+  border-right: 1px solid rgba(127, 127, 127, 0.20);
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+/* Light theme parity */
+body.theme-light .action-renderer-table thead th,
+body.theme-navy .action-renderer-table thead th { color: rgba(0, 0, 0, 0.7); }
+body.theme-light .action-renderer-table tbody td { color: rgba(0, 0, 0, 0.85); }
+body.theme-light .action-renderer-table-wrap.action-renderer-table-sticky thead th {
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.action-renderer-jinja-rendered .action-renderer-html-frame {
+  height: 600px;
+}
+
+/* ----- ui-select dropdown — playbook picker -------------------------------
+ * SOAR's dark theme leaves ui-select-choices with low-contrast defaults
+ * (selected row hot-cyan, idle rows muted gray), so these rules restyle it.
+ *
+ * NOTE: we deliberately do NOT use `data-append-to-body="true"`. ui-select
+ * 0.20.0's appendToBody moves the WHOLE `.ui-select-container` into <body>
+ * while open and relies on a placeholder + `placeholder.replaceWith(element)`
+ * on close to restore it. Inside SOAR's widget edit modal that restore fails:
+ * on select the container is left stranded as a direct child of <body> and the
+ * placeholder stays in the modal, so the picker visually disappears the moment
+ * you pick a playbook. We keep the dropdown in-place (z-index lifts it over the
+ * modal chrome) — the picker sits near the top of the subform so it has room to
+ * open downward without clipping. The dropdown is no longer body-attached, but
+ * these rules still target `.ui-select-bootstrap` globally; no other widget in
+ * this repo uses ui-select, so the global scope is safe. */
+.action-renderer-edit .ui-select-bootstrap > .ui-select-match > .btn,
+.action-renderer-edit .ui-select-bootstrap .ui-select-search {
+  color: inherit;
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: rgba(127, 127, 127, 0.35);
+}
+/* ui-select-bootstrap's match button floats its text (.ui-select-match-text
+   pull-left), so in a control taller than one line the selected text hugs the
+   TOP instead of centering ("connector text not centered"). Make the toggle a
+   flex row and vertically center its contents; the label + version meta then
+   sit on one centered baseline (the version was rendering raised/superscript
+   because the floated text and caret didn't share a line box). */
+.action-renderer-edit .ui-select-bootstrap > .ui-select-match > .btn.ui-select-toggle {
+  display: flex;
+  align-items: center;
+  min-height: 34px;
+  line-height: 1.4;
+  text-align: left;
+}
+/* Lay the match text out as a plain block with inline children, NOT a flex row.
+   ui-select-bootstrap (or SOAR's theme) gave the match-text's flex children
+   equal grow, so the label and the "v5.4.0" meta each stretched to ~half the
+   control and the version drifted far to the right; worse, shrinking the label
+   to keep them together clipped the name to nothing. Inline flow keeps
+   "Fortinet FortiGate v5.4.0" on one line, version right after the name, and
+   ellipsizes the whole string as a unit when it's too long. */
+.action-renderer-edit .ui-select-bootstrap .ui-select-match-text {
+  float: none;
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* A ui-select-bootstrap / SOAR theme rule forces the match spans to
+   `display:inline-block; width:~50%`, which is what stretched each child to half
+   the control and shoved the version to the far right (off-screen, ellipsized to
+   "…"). Force inline flow + content width; the !important is needed to beat that
+   themed selector. */
+.action-renderer-edit .ui-select-bootstrap .ui-select-match-text .ar-match-label,
+.action-renderer-edit .ui-select-bootstrap .ui-select-match-text .ar-match-meta {
+  display: inline !important;
+  width: auto !important;
+  float: none !important;
+}
+.action-renderer-edit .ar-match-meta { margin-left: 6px; font-size: 0.9em; }
+
+/* Source toggle (Connector action / Playbook): in SOAR's dark theme `btn-primary`
+   renders DARKER than the idle button, so the selected option reads as recessed
+   rather than highlighted ("doesn't show anything after clicking it"). Force a
+   clear accent so the active source is obvious. */
+.action-renderer-edit .btn-group > .btn.btn-primary,
+.action-renderer-edit .btn-group > .btn.btn-primary:hover,
+.action-renderer-edit .btn-group > .btn.btn-primary:focus {
+  background-color: #337ab7;
+  border-color: #2e6da4;
+  color: #fff;
+}
+.ui-select-bootstrap > .ui-select-choices {
+  max-height: 320px;
+  overflow-y: auto;
+  background-color: #1d2330;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  /* Just enough to overlay the form-groups below the picker. NOT a modal-level
+     z-index: at 1100 (global, above bootstrap's 1050 modal) the open dropdown
+     painted over SOAR's injected modal header — covering the × exit/close
+     button ("exit button is gone"). The .ui-select-container below creates a
+     local stacking context, so this value is scoped to the picker's siblings
+     and can never escape over the modal chrome. */
+  z-index: 5;
+}
+body.theme-light .ui-select-bootstrap > .ui-select-choices {
+  background-color: #ffffff;
+  color: rgba(0, 0, 0, 0.85);
+}
+/* ui-select 0.20.0 renders each row as
+ *   <li.ui-select-choices-row><div.ui-select-choices-row-inner>{template}</div></li>
+ * Bootstrap theme styles target `.ui-select-choices-row-inner` directly. Match
+ * its selector structure (and bump with !important) so we win the cascade. */
+.ui-select-bootstrap > .ui-select-choices .ui-select-choices-row-inner,
+.ui-select-bootstrap .ui-select-choices-row > a,
+.ui-select-bootstrap .ui-select-choices-row > span {
+  color: rgba(255, 255, 255, 0.92) !important;
+  background-color: transparent !important;
+  padding: 6px 12px;
+}
+.ui-select-bootstrap .ui-select-choices-row .ui-select-choices-row-inner * {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+body.theme-light .ui-select-bootstrap > .ui-select-choices .ui-select-choices-row-inner,
+body.theme-light .ui-select-bootstrap .ui-select-choices-row > a,
+body.theme-light .ui-select-bootstrap .ui-select-choices-row .ui-select-choices-row-inner * {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+.ui-select-bootstrap > .ui-select-choices .active > .ui-select-choices-row-inner,
+.ui-select-bootstrap .ui-select-choices-row.active > a,
+.ui-select-bootstrap .ui-select-choices-row:hover > .ui-select-choices-row-inner,
+.ui-select-bootstrap .ui-select-choices-row:hover > a {
+  background-color: rgba(78, 154, 241, 0.28) !important;
+  color: #ffffff !important;
+}
+.ui-select-bootstrap > .ui-select-choices .active .ui-select-choices-row-inner *,
+.ui-select-bootstrap .ui-select-choices-row:hover .ui-select-choices-row-inner * {
+  color: #ffffff !important;
+}
+body.theme-light .ui-select-bootstrap > .ui-select-choices .active > .ui-select-choices-row-inner,
+body.theme-light .ui-select-bootstrap .ui-select-choices-row.active > a,
+body.theme-light .ui-select-bootstrap .ui-select-choices-row:hover > .ui-select-choices-row-inner {
+  background-color: rgba(78, 154, 241, 0.18) !important;
+  color: rgba(0, 0, 0, 0.9) !important;
+}
+.ui-select-bootstrap .ui-select-choices-row .highlight {
+  background-color: rgba(255, 217, 0, 0.35);
+  color: inherit;
+  font-weight: 600;
+}
+
+/* Belt-and-suspenders: even with append-to-body, allow the body to render
+ * any inline overlays (browsers vary on how they treat <ui-select> when the
+ * parent has overflow:hidden mid-animation). */
+.action-renderer-edit .action-renderer-body { overflow: visible; }
+/* A low, non-auto z-index makes the container a local stacking context, so the
+ * open dropdown's z-index is resolved among THESE siblings and cannot rise over
+ * the modal header (which holds the × exit button). */
+.action-renderer-edit .form-group .ui-select-container { position: relative; z-index: 1; }

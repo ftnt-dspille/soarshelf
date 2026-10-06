@@ -1,0 +1,3698 @@
+{
+  "name": "aws-extended",
+  "label": "AWS EC2 (Extended)",
+  "description": "A clone of the AWS EC2 connector that adds a generic boto3 passthrough operation, so any AWS API action can be called without waiting for a curated operation to exist. Also repairs security-group rule operations, where the platform's numeric-string coercion makes IpProtocol '-1' (all protocols) unreachable. Installs alongside the stock connector and needs its own configuration.",
+  "publisher": "Community",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "version": "1.0.0",
+  "category": "AWS Service",
+  "help_online": "",
+  "icon_small_name": "AWS-EC2_small.png",
+  "icon_large_name": "AWS-EC2_large.png",
+  "configuration": {
+    "fields": [
+      {
+        "title": "Configuration Type",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "type": "select",
+        "name": "config_type",
+        "tooltip": "AWS configuration type",
+        "description": "Select configuration type that is how you want to provide credentials.",
+        "options": [
+          "IAM Role",
+          "Access Credentials"
+        ],
+        "onchange": {
+          "IAM Role": [
+            {
+              "title": "AWS Instance IAM Role",
+              "required": true,
+              "editable": true,
+              "visible": true,
+              "type": "text",
+              "name": "aws_iam_role",
+              "tooltip": "IAM Role of your AWS instance to access AWS services.",
+              "description": "IAM Role of your AWS instance to access AWS services."
+            }
+          ],
+          "Access Credentials": [
+            {
+              "title": "AWS Region",
+              "required": true,
+              "editable": true,
+              "visible": true,
+              "type": "text",
+              "name": "aws_region",
+              "placeholder": "e.g. us-east-2",
+              "tooltip": "Your account's AWS region that you will use to access AWS services.",
+              "description": "Your account's AWS region that you will use to access AWS services."
+            },
+            {
+              "title": "AWS Access Key ID",
+              "required": true,
+              "editable": true,
+              "visible": true,
+              "type": "text",
+              "name": "aws_access_key",
+              "tooltip": "ID of the AWS Access Key to access AWS services.",
+              "description": "ID of the AWS Access Key to access AWS services."
+            },
+            {
+              "title": "AWS Secret Access Key",
+              "required": true,
+              "editable": true,
+              "visible": true,
+              "type": "password",
+              "name": "aws_secret_access_key",
+              "tooltip": "Key of the AWS Secret Access to access AWS services.",
+              "description": "Key of the AWS Secret Access to access AWS services."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "operations": [
+    {
+      "operation": "get_details_for_all_images",
+      "title": "Get AMIs Detail",
+      "category": "investigation",
+      "annotation": "get_ami_details",
+      "description": "Retrieves details for all AMIs (Amazon Machine Images) or specific AMIs, based on input parameters you have specified from AWS.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Image IDs",
+          "type": "text",
+          "name": "image_ids",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "List of IDs of the AMIs whose details you want to retrieve from AWS EC2.",
+          "placeholder": "e.g [\"ami-ca2e09af\"]",
+          "description": "List of IDs of the AMIs whose details you want to retrieve from AWS EC2."
+        },
+        {
+          "title": "Executable Users",
+          "type": "text",
+          "name": "executable_users",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "List of AWS Account IDs of executable users(s) associated with the AMI(s) whose details you want to retrieve from AWS EC2.",
+          "placeholder": "e.g [\"User_name\"]",
+          "description": "List of AWS Account IDs of executable users(s) associated with the AMI(s) whose details you want to retrieve from AWS EC2."
+        },
+        {
+          "title": "Owners",
+          "type": "text",
+          "name": "owners",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "List of AWS Account IDs of owners associated with the AMI(s) whose details you want to retrieve from AWS EC2..",
+          "placeholder": "e.g [\"Owner_name\"]",
+          "description": "List of AWS Account IDs of owners associated with the AMI(s) whose details you want to retrieve from AWS EC2.."
+        },
+        {
+          "title": "Filters",
+          "type": "text",
+          "name": "filters",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "List of filters(Name and Values Pairs) based on which you want to retrieve details of AMIs from AWS EC2.",
+          "placeholder": "e.g [{\"Name\": \"string\", \"Values\": [ \"string\",]}]",
+          "description": "List of filters based on which you want to retrieve details of AMIs from AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "Images": [
+          {
+            "Architecture": "",
+            "CreationDate": "",
+            "ImageId": "",
+            "ImageLocation": "",
+            "ImageType": "",
+            "Public": "",
+            "OwnerId": "",
+            "State": "",
+            "BlockDeviceMappings": [],
+            "Description": "",
+            "Hypervisor": "",
+            "Name": "",
+            "RootDeviceName": "",
+            "RootDeviceType": "",
+            "SriovNetSupport": "",
+            "VirtualizationType": ""
+          }
+        ],
+        "ResponseMetadata": {
+          "RequestId": "",
+          "HTTPStatusCode": "",
+          "HTTPHeaders": {
+            "content-type": "",
+            "content-length": "",
+            "vary": "",
+            "date": "",
+            "server": ""
+          },
+          "RetryAttempts": ""
+        }
+      }
+    },
+    {
+      "operation": "launch_instance",
+      "title": "Launch Instance",
+      "category": "miscellaneous",
+      "annotation": "launch_instance",
+      "description": "Launches a new instance on AWS having basic configuration based on the image ID, instance type, and other input parameters you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Image ID",
+          "type": "text",
+          "name": "image_id",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "tooltip": "ID of the AMI on which you want to launch a new instance. You can get the ID of an AMI using the Get AMIs Detail operation.",
+          "placeholder": "e.g ami-ca2e09af",
+          "description": "ID of the AMI on which you want to launch a new instance. You can get the ID of an AMI using the Get AMIs Detail operation."
+        },
+        {
+          "title": "Instance Type",
+          "type": "select",
+          "name": "instance_type",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "options": [
+            "t1.micro",
+            "t2.nano",
+            "t2.micro",
+            "t2.small",
+            "t2.medium",
+            "t2.large",
+            "t2.xlarge",
+            "t2.2xlarge",
+            "m1.small",
+            "m1.medium",
+            "m1.large",
+            "m1.xlarge",
+            "m3.medium",
+            "m3.large",
+            "m3.xlarge",
+            "m3.2xlarge",
+            "m4.large",
+            "m4.xlarge",
+            "m4.2xlarge",
+            "m4.4xlarge",
+            "m4.10xlarge",
+            "m4.16xlarge",
+            "m2.xlarge",
+            "m2.2xlarge",
+            "m2.4xlarge",
+            "cr1.8xlarge",
+            "r3.large",
+            "r3.xlarge",
+            "r3.2xlarge",
+            "r3.4xlarge",
+            "r3.8xlarge",
+            "r4.large",
+            "r4.xlarge",
+            "r4.2xlarge",
+            "r4.4xlarge",
+            "r4.8xlarge",
+            "r4.16xlarge",
+            "x1.16xlarge",
+            "x1.32xlarge",
+            "x1e.xlarge",
+            "x1e.2xlarge",
+            "x1e.4xlarge",
+            "x1e.8xlarge",
+            "x1e.16xlarge",
+            "x1e.32xlarge",
+            "i2.xlarge",
+            "i2.2xlarge",
+            "i2.4xlarge",
+            "i2.8xlarge",
+            "i3.large",
+            "i3.xlarge",
+            "i3.2xlarge",
+            "i3.4xlarge",
+            "i3.8xlarge",
+            "i3.16xlarge",
+            "hi1.4xlarge",
+            "hs1.8xlarge",
+            "c1.medium",
+            "c1.xlarge",
+            "c3.large",
+            "c3.xlarge",
+            "c3.2xlarge",
+            "c3.4xlarge",
+            "c3.8xlarge",
+            "c4.large",
+            "c4.xlarge",
+            "c4.2xlarge",
+            "c4.4xlarge",
+            "c4.8xlarge",
+            "c5.large",
+            "c5.xlarge",
+            "c5.2xlarge",
+            "c5.4xlarge",
+            "c5.9xlarge",
+            "c5.18xlarge",
+            "cc1.4xlarge",
+            "cc2.8xlarge",
+            "g2.2xlarge",
+            "g2.8xlarge",
+            "g3.4xlarge",
+            "g3.8xlarge",
+            "g3.16xlarge",
+            "cg1.4xlarge",
+            "p2.xlarge",
+            "p2.8xlarge",
+            "p2.16xlarge",
+            "p3.2xlarge",
+            "p3.8xlarge",
+            "p3.16xlarge",
+            "d2.xlarge",
+            "d2.2xlarge",
+            "d2.4xlarge",
+            "d2.8xlarge",
+            "f1.2xlarge",
+            "f1.16xlarge",
+            "m5.large",
+            "m5.xlarge",
+            "m5.2xlarge",
+            "m5.4xlarge",
+            "m5.12xlarge",
+            "m5.24xlarge",
+            "h1.2xlarge",
+            "h1.4xlarge",
+            "h1.8xlarge",
+            "h1.16xlarge"
+          ],
+          "value": "t1.micro",
+          "tooltip": "Type of the instance that you want to launch on AWS EC2. For example, t1.micro",
+          "description": "Type of the instance that you want to launch on AWS EC2. For example, t1.micro"
+        },
+        {
+          "title": "Instance MaxCount",
+          "type": "integer",
+          "name": "maxcount",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": 1,
+          "tooltip": "If you specify a maximum that is greater than the maximum number of instances Amazon EC2 can launch in the target Availability Zone, Amazon EC2 launches the largest possible number of instances above MinCount.",
+          "description": "Maximum number of instances to launch on AWS EC2. If you specify a maximum that is greater than the maximum number of instances Amazon EC2 can launch in the target Availability Zone, Amazon EC2 launches the largest possible number of instances above MinCount."
+        },
+        {
+          "title": "Instance MinCount",
+          "type": "integer",
+          "name": "mincount",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": 1,
+          "tooltip": "If you specify a minimum that is lesser than the minimum number of instances than Amazon EC2 can launch in the target Availability Zone, Amazon EC2 launches no instances.",
+          "description": "Minimum number of instances to launch on AWS EC2. If you specify a minimum that is lesser than the minimum number of instances than Amazon EC2 can launch in the target Availability Zone, Amazon EC2 launches no instances."
+        },
+        {
+          "title": "SubNet ID",
+          "type": "text",
+          "name": "subnetid",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. subnet-42d09c0f",
+          "tooltip": "ID of the subnet associated with the network string. ID of a subnet must be provided if you don't want to use default subnet to this instance",
+          "description": "ID of the subnet associated with the network string.ID of a subnet must be provided if you don't want to use default subnet to this instance"
+        },
+        {
+          "title": "Device Name",
+          "type": "text",
+          "name": "device_name",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. /dev/sda1",
+          "tooltip": "Name of the device. For example, /dev/sdh or xvdh.",
+          "description": "Name of the device. For example, /dev/sdh or xvdh."
+        },
+        {
+          "title": "Instance Delete on Termination",
+          "type": "checkbox",
+          "name": "delete_on_termination",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": false,
+          "tooltip": "Indicates whether the EBS volume is deleted on instance termination.",
+          "description": "Select this option if you want to delete the interface when the instance is terminated."
+        },
+        {
+          "title": "Security Group IDs",
+          "type": "text",
+          "name": "security_groups_list",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "One or more security group IDs. Default: Amazon EC2 uses the default security group. You can give multiple group ids like \"sg-3578605d\", \"sg-f1445c99\" or ['sg-3578605d', 'sg-f1445c99']",
+          "placeholder": "e.g. ['sg-3578605d', 'sg-f1445c99']",
+          "description": "SD(s) of the security group(s) to be assigned to the newly launched instance on AWS EC2."
+        },
+        {
+          "title": "Purpose For Launch Instance",
+          "type": "text",
+          "name": "purpose",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Purpose of launching the instance on AWS EC2.",
+          "description": "Purpose of launching the instance on AWS EC2."
+        },
+        {
+          "title": "Customer Name",
+          "type": "text",
+          "name": "customer_name",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Name of the customer for whom you are requesting the launch of the new instance on AWS EC2.",
+          "description": "Name of the customer for whom you are requesting the launch of the new instance on AWS EC2."
+        },
+        {
+          "title": "Terminate by Date",
+          "type": "text",
+          "name": "terminate_by_date",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Date on which the instance will be terminated on AWS EC2.",
+          "description": "Date on which the instance will be terminated on AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "HTTPHeaders": {
+            "date": "",
+            "vary": "",
+            "transfer-encoding": "",
+            "content-type": "",
+            "server": ""
+          },
+          "RequestId": "",
+          "HTTPStatusCode": "",
+          "RetryAttempts": ""
+        },
+        "InstanceId": "",
+        "InstanceType": {
+          "Value": ""
+        }
+      }
+    },
+    {
+      "operation": "describe_instance",
+      "title": "Get Instance Details",
+      "category": "investigation",
+      "annotation": "get_instance_info",
+      "description": "Retrieves details for an instance you have specified, using the instance ID from AWS EC2.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Instance ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "instance_id",
+          "placeholder": "e.g. i-0055c209fce039354",
+          "tooltip": "ID of the instance for which you want to retrieve details from AWS EC2.",
+          "description": "ID of the instance for which you want to retrieve details from AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "HTTPHeaders": {
+            "transfer-encoding": "",
+            "vary": "",
+            "content-type": "",
+            "server": "",
+            "date": ""
+          },
+          "HTTPStatusCode": "",
+          "RetryAttempts": "",
+          "RequestId": ""
+        },
+        "Reservations": [
+          {
+            "OwnerId": "",
+            "Groups": [],
+            "RequesterId": "",
+            "ReservationId": "",
+            "Instances": [
+              {
+                "Monitoring": {
+                  "State": ""
+                },
+                "VirtualizationType": "",
+                "RootDeviceName": "",
+                "InstanceId": "",
+                "EbsOptimized": "",
+                "LaunchTime": "",
+                "SecurityGroups": [],
+                "AmiLaunchIndex": "",
+                "Hypervisor": "",
+                "StateReason": {
+                  "Message": "",
+                  "Code": ""
+                },
+                "KeyName": "",
+                "Architecture": "",
+                "BlockDeviceMappings": [],
+                "State": {
+                  "Name": "",
+                  "Code": ""
+                },
+                "InstanceType": "",
+                "ImageId": "",
+                "Placement": {
+                  "Tenancy": "",
+                  "GroupName": "",
+                  "AvailabilityZone": ""
+                },
+                "NetworkInterfaces": [],
+                "StateTransitionReason": "",
+                "ProductCodes": [],
+                "PublicDnsName": "",
+                "PrivateDnsName": "",
+                "EnaSupport": "",
+                "ClientToken": "",
+                "RootDeviceType": ""
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "operation": "start_instance",
+      "title": "Start Instance",
+      "category": "miscellaneous",
+      "annotation": "start_instance",
+      "description": "Starts an instance you have specified using the instance ID on AWS EC2.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Instance ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "instance_id",
+          "placeholder": "e.g. i-0055c209fce039354",
+          "tooltip": "ID of the instance that you want to start on AWS EC2.",
+          "description": "ID of the instance that you want to start on AWS EC2."
+        },
+        {
+          "title": "Purpose",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "description",
+          "tooltip": "Purpose of starting the instance on AWS EC2.",
+          "description": "Purpose of starting the instance on AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "RequestId": "",
+          "HTTPHeaders": {
+            "date": "",
+            "server": "",
+            "content-type": "",
+            "content-length": "",
+            "x-amzn-requestid": ""
+          },
+          "RetryAttempts": "",
+          "HTTPStatusCode": ""
+        },
+        "StartingInstances": [
+          {
+            "InstanceId": "",
+            "CurrentState": {
+              "Code": "",
+              "Name": ""
+            },
+            "PreviousState": {
+              "Code": "",
+              "Name": ""
+            }
+          }
+        ]
+      }
+    },
+    {
+      "operation": "stop_instance",
+      "title": "Stop Instance",
+      "category": "miscellaneous",
+      "annotation": "stop_instance",
+      "description": "Stops an instance you have specified using the instance ID on AWS EC2.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Instance ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "instance_id",
+          "placeholder": "e.g. i-0055c209fce039354",
+          "tooltip": "ID of the instance that you want to stop on AWS EC2.",
+          "description": "ID of the instance that you want to stop on AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "StoppingInstances": [
+          {
+            "InstanceId": "",
+            "CurrentState": {
+              "Code": "",
+              "Name": ""
+            },
+            "PreviousState": {
+              "Code": "",
+              "Name": ""
+            }
+          }
+        ],
+        "ResponseMetadata": {
+          "RequestId": "",
+          "RetryAttempts": "",
+          "HTTPHeaders": {},
+          "HTTPStatusCode": ""
+        }
+      }
+    },
+    {
+      "operation": "reboot_instance",
+      "title": "Reboot Instance",
+      "category": "miscellaneous",
+      "annotation": "reboot_instance",
+      "description": "Reboots an instance you have specified using the instance ID on AWS EC2.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Instance ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "instance_id",
+          "placeholder": "e.g. i-0055c209fce039354",
+          "tooltip": "ID of the instance that you want to reboot on AWS EC2",
+          "description": "ID of the instance that you want to reboot on AWS EC2"
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "RetryAttempts": "",
+          "RequestId": "",
+          "HTTPHeaders": {
+            "date": "",
+            "content-type": "",
+            "vary": "",
+            "transfer-encoding": "",
+            "server": ""
+          },
+          "HTTPStatusCode": ""
+        }
+      }
+    },
+    {
+      "operation": "add_tag_to_instance",
+      "title": "Add Instance Tag",
+      "category": "miscellaneous",
+      "annotation": "add_tag",
+      "description": "Adds a tag to an available AWS EC2 instance you have specified using the instance ID.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Instance ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "instance_id",
+          "placeholder": "e.g. i-0055c209fce039354",
+          "tooltip": "ID of the AWS EC2 instance to which you want to add a tag.",
+          "description": "ID of the AWS EC2 instance to which you want to add a tag."
+        },
+        {
+          "title": "Tag Key",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "tag_key",
+          "tooltip": "Key for the tag that you want to add.",
+          "description": "Key for the tag that you want to add."
+        },
+        {
+          "title": "Value",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "tag_value",
+          "tooltip": "Value for the tag that you want to add.",
+          "description": "Value for the tag that you want to add."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "RequestId": "",
+          "RetryAttempts": "",
+          "HTTPHeaders": {},
+          "HTTPStatusCode": ""
+        }
+      }
+    },
+    {
+      "operation": "register_instance_to_elb",
+      "title": "Register Instance To ELB",
+      "category": "miscellaneous",
+      "annotation": "register_instance",
+      "description": "Registers an AWS EC2 instance to the elastic load balancing (ELB) service on AWS based on the ELB name and instance ID you have specified",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "ELB Name",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "elb_name",
+          "tooltip": "Name of the ELB to which you want to register the specified instance on AWS EC2.",
+          "description": "Name of the ELB to which you want to register the specified instance on AWS EC2."
+        },
+        {
+          "title": "Instance ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "instance_id",
+          "placeholder": "e.g. i-0055c209fce039354",
+          "tooltip": "ID of the instance that you want to register with the specified ELB on AWS EC2.",
+          "description": "ID of the instance that you want to register with the specified ELB on AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "Instances": [
+          {
+            "InstanceId": ""
+          },
+          {
+            "InstanceId": ""
+          }
+        ],
+        "ResponseMetadata": {
+          "HTTPStatusCode": "",
+          "HTTPHeaders": {
+            "date": "",
+            "content-length": "",
+            "x-amzn-requestid": "",
+            "content-type": ""
+          },
+          "RetryAttempts": "",
+          "RequestId": ""
+        }
+      }
+    },
+    {
+      "operation": "deregister_instance_from_elb",
+      "title": "Deregister Instance from ELB",
+      "category": "miscellaneous",
+      "annotation": "deregister_instance",
+      "description": "Deregisters an instance from the elastic load balancing (ELB) service based on the ELB name and instance ID you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "ELB Name",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "elb_name",
+          "tooltip": "Name of the ELB from which you want to deregister the specified instance on AWS EC2.",
+          "description": "Name of the ELB from which you want to deregister the specified instance on AWS EC2."
+        },
+        {
+          "title": "Instance ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "instance_id",
+          "placeholder": "e.g. i-0055c209fce039354",
+          "tooltip": "ID of the instance that you want to deregister from the specified ELB on AWS EC2.",
+          "description": "ID of the instance that you want to deregister from the specified ELB on AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "Instances": [],
+        "ResponseMetadata": {
+          "HTTPStatusCode": "",
+          "HTTPHeaders": {
+            "date": "",
+            "content-length": "",
+            "x-amzn-requestid": "",
+            "content-type": ""
+          },
+          "RetryAttempts": "",
+          "RequestId": ""
+        }
+      }
+    },
+    {
+      "operation": "attach_instance_to_auto_scaling_group",
+      "title": "Attach Instance To Auto Scaling Group",
+      "category": "miscellaneous",
+      "annotation": "attach_instance",
+      "description": "Attaches a running instance to the auto scaling group on AWS EC2 based on the auto scaling group name and instance ID (s) you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Auto Scaling Group Name",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "autoscaling_group_name",
+          "tooltip": "Name of the auto scaling group to which you want to attach the specified instance on AWS EC2.",
+          "description": "Name of the auto scaling group to which you want to attach the specified instance on AWS EC2."
+        },
+        {
+          "title": "Instance IDs (In CSV or List Format)",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "instance_id",
+          "tooltip": "One or more security group IDs. You can give multiple group ids like 'i-000a15c1589bb38ec', 'i-0055c209fce039354' or ['i-000a15c1589bb38ec', 'i-0055c209fce039354']",
+          "placeholder": "e.g. ['i-000a15c1589bb38ec', 'i-0055c209fce039354']",
+          "description": "ID(s) of the instance(s) that you want to attach to the specified auto scaling group using the CSV or list format on AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "HTTPStatusCode": "",
+          "RequestId": "",
+          "HTTPHeaders": {
+            "x-amzn-requestid": "",
+            "date": "",
+            "content-length": "",
+            "content-type": ""
+          },
+          "RetryAttempts": ""
+        }
+      }
+    },
+    {
+      "operation": "detach_instance_from_autoscaling_group",
+      "title": "Detach Instance From Auto Scaling Group",
+      "category": "miscellaneous",
+      "annotation": "detach_instance",
+      "description": "Detaches an EC2 instance from the auto scaling group on AWS EC2 based on the auto scaling group name and instance ID (s) you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Auto Scaling Group Name (In CSV or List Format)",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "autoscaling_group_name",
+          "tooltip": "Name of the auto scaling group from which you want to detach the specified instance on AWS EC2.",
+          "description": "Name of the auto scaling group from which you want to detach the specified instance on AWS EC2."
+        },
+        {
+          "title": "Instance IDs",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "instance_id",
+          "tooltip": "One or more security group IDs. You can give multiple group ids like 'i-000a15c1589bb38ec', 'i-0055c209fce039354' or ['i-000a15c1589bb38ec', 'i-0055c209fce039354']",
+          "placeholder": "e.g. ['i-000a15c1589bb38ec', 'i-0055c209fce039354']",
+          "description": "ID of the instance that you want to detach from the specified auto scaling group on AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "Activities": [
+          {
+            "ActivityId": "",
+            "StartTime": "",
+            "Progress": "",
+            "Cause": "",
+            "AutoScalingGroupName": "",
+            "Details": "",
+            "Description": "",
+            "StatusCode": ""
+          }
+        ],
+        "ResponseMetadata": {
+          "HTTPStatusCode": "",
+          "RequestId": "",
+          "HTTPHeaders": {
+            "x-amzn-requestid": "",
+            "date": "",
+            "content-length": "",
+            "content-type": ""
+          },
+          "RetryAttempts": ""
+        }
+      }
+    },
+    {
+      "operation": "instance_api_termination",
+      "title": "Instance API Termination ",
+      "description": "Terminates an instance on AWS EC2 using the REST API, if you have enabled this operation based on the instance ID and action you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Instance ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "instance_id",
+          "placeholder": "e.g. i-0055c209fce039354",
+          "tooltip": "ID of the instance that you want to terminate on AWS EC2 using the REST API.",
+          "description": "ID of the instance that you want to terminate on AWS EC2 using the REST API."
+        },
+        {
+          "title": "Select Action",
+          "type": "select",
+          "name": "operation",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Specify Enable or Disable to either allow or disallow terminating an instance using the REST API.",
+          "description": "Specify Enable or Disable to either allow or disallow terminating an instance using the REST API.",
+          "options": [
+            "Enable",
+            "Disable"
+          ]
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "RequestId": "",
+          "RetryAttempts": "",
+          "HTTPHeaders": {},
+          "HTTPStatusCode": ""
+        }
+      }
+    },
+    {
+      "operation": "terminate_instance",
+      "title": "Terminate Instance",
+      "category": "miscellaneous",
+      "annotation": "terminate_instance",
+      "description": "Terminates an AWS EC2 instance you have specified using the instance ID.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Instance ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "instance_id",
+          "placeholder": "e.g. i-0055c209fce039354",
+          "tooltip": "ID of the AWS EC2 instance that you want to terminate.",
+          "description": "ID of the AWS EC2 instance that you want to terminate."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "",
+            "CurrentState": {
+              "Code": "",
+              "Name": ""
+            },
+            "PreviousState": {
+              "Code": "",
+              "Name": ""
+            }
+          }
+        ],
+        "ResponseMetadata": {
+          "RequestId": "",
+          "RetryAttempts": "",
+          "HTTPHeaders": {},
+          "HTTPStatusCode": ""
+        }
+      }
+    },
+    {
+      "operation": "attach_volume",
+      "title": "Attach Volume",
+      "category": "miscellaneous",
+      "annotation": "attach_volume",
+      "description": "Attaches a volume to an AWS EC2 instance based on the volume ID, Device Name, and instance ID you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Volume Id",
+          "type": "text",
+          "name": "volume_id",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g vol-01b64709def6d3b01",
+          "tooltip": "ID of the volume that you want to attach to the specified instance on AWS EC2.",
+          "description": "ID of the volume that you want to attach to the specified instance on AWS EC2."
+        },
+        {
+          "title": "Device Name",
+          "type": "text",
+          "name": "device_name",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. /dev/sda1",
+          "description": "Name (or full path) of the device on the specified instance on AWS EC2. For example, /dev/sdh or xvdh.",
+          "tooltip": "Name (or full path) of the device on the specified instance on AWS EC2. For example, /dev/sdh or xvdh."
+        },
+        {
+          "title": "Instance Id",
+          "type": "text",
+          "name": "instance_id",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. i-0055c209fce039354",
+          "description": "ID of the instance to which you want to attach the specified volume on AWS EC2.",
+          "tooltip": "ID of the instance to which you want to attach the specified volume on AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "Device": "",
+        "AttachTime": "",
+        "State": "",
+        "InstanceId": "",
+        "ResponseMetadata": {
+          "HTTPStatusCode": "",
+          "RequestId": "",
+          "RetryAttempts": "",
+          "HTTPHeaders": {
+            "transfer-encoding": "",
+            "date": "",
+            "server": "",
+            "content-type": "",
+            "vary": ""
+          }
+        },
+        "VolumeId": ""
+      }
+    },
+    {
+      "operation": "snapshot_volume",
+      "title": "Capture Volume Snapshot",
+      "category": "miscellaneous",
+      "annotation": "get_snapshot_volume",
+      "description": "Captures a snapshot of a volume on AWS EC2 based on the volume ID and volume description you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Volume ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "volume_id",
+          "placeholder": "e.g vol-01b64709def6d3b01",
+          "description": "ID of the volume on AWS EC2 for which you want to capture a snapshot.",
+          "tooltip": "ID of the volume on AWS EC2 for which you want to capture a snapshot."
+        },
+        {
+          "title": "Volume Description",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "description",
+          "description": "Description of the snapshot.",
+          "tooltip": "Description of the snapshot."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "StartTime": "",
+        "OwnerId": "",
+        "Encrypted": "",
+        "SnapshotId": "",
+        "State": "",
+        "VolumeId": "",
+        "ResponseMetadata": {}
+      }
+    },
+    {
+      "operation": "detach_volume",
+      "title": "Detach Volume",
+      "category": "remediation",
+      "annotation": "detach_volume",
+      "description": "Detaches a volume from an AWS EC2 instance based on the volume ID, Device Name, and instance ID you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Volume Id",
+          "type": "text",
+          "name": "volume_id",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g vol-01b64709def6d3b01",
+          "tooltip": "ID of the volume that you want to detach from the specified instance on AWS EC2.",
+          "description": "ID of the volume that you want to detach from the specified instance on AWS EC2."
+        },
+        {
+          "title": "Device Name",
+          "type": "text",
+          "name": "device_name",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. /dev/sda1",
+          "tooltip": "Name (or full path) of the device on the specified instance on AWS EC2. For example, /dev/sdh or xvdh.",
+          "description": "Name (or full path) of the device on the specified instance on AWS EC2. For example, /dev/sdh or xvdh."
+        },
+        {
+          "title": "Instance ID",
+          "type": "text",
+          "name": "instance_id",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. i-0055c209fce039354",
+          "tooltip": "ID of the instance from which you want to detach the specified volume on AWS EC2.",
+          "description": "ID of the instance from which you want to detach the specified volume on AWS EC2."
+        },
+        {
+          "title": "Force To Detach",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "checkbox",
+          "name": "force",
+          "value": false,
+          "tooltip": "Select this option if you want to forcefully detach the volume from the specified instance on AWS EC2.",
+          "description": "Select this option if you want to forcefully detach the volume from the specified instance on AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "Device": "",
+        "AttachTime": "",
+        "State": "",
+        "InstanceId": "",
+        "ResponseMetadata": {
+          "HTTPStatusCode": "",
+          "RequestId": "",
+          "RetryAttempts": "",
+          "HTTPHeaders": {
+            "transfer-encoding": "",
+            "date": "",
+            "server": "",
+            "content-type": "",
+            "vary": ""
+          }
+        },
+        "VolumeId": ""
+      }
+    },
+    {
+      "operation": "delete_volume",
+      "title": "Delete Volume",
+      "category": "remediation",
+      "annotation": "delete_volume",
+      "description": "Deletes a volume you have specified, using the volume ID.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Volume ID",
+          "type": "text",
+          "name": "volume_id",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g vol-01b64709def6d3b01",
+          "tooltip": "ID of the volume that you want to delete on AWS EC2.",
+          "description": "ID of the volume that you want to delete on AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "RequestId": "",
+          "RetryAttempts": "",
+          "HTTPHeaders": {},
+          "HTTPStatusCode": ""
+        }
+      }
+    },
+    {
+      "operation": "create_network_acl",
+      "title": "Create Network ACL",
+      "category": "containment",
+      "annotation": "create_network_acl",
+      "description": "Creates a network ACL in AWS EC2 in the VPC you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "VPC ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "vpc_id",
+          "placeholder": "e.g. vpc-a01106c2",
+          "tooltip": "ID of the VPC in which you want to create network ACL.",
+          "description": "ID of the VPC in which you want to create the network ACL in AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "NetworkAcl": {
+          "Associations": [],
+          "Entries": [
+            {
+              "CidrBlock": "",
+              "Egress": "",
+              "IcmpTypeCode": {},
+              "PortRange": {},
+              "Protocol": "",
+              "RuleAction": "",
+              "RuleNumber": ""
+            },
+            {
+              "CidrBlock": "",
+              "Egress": "",
+              "IcmpTypeCode": {},
+              "PortRange": {},
+              "Protocol": "",
+              "RuleAction": "",
+              "RuleNumber": ""
+            }
+          ],
+          "IsDefault": "",
+          "NetworkAclId": "",
+          "Tags": [],
+          "VpcId": "",
+          "OwnerId": ""
+        },
+        "ResponseMetadata": {
+          "RequestId": "",
+          "HTTPStatusCode": "",
+          "HTTPHeaders": {
+            "content-type": "",
+            "content-length": "",
+            "vary": "",
+            "date": "",
+            "server": ""
+          },
+          "RetryAttempts": ""
+        }
+      }
+    },
+    {
+      "operation": "add_network_acl_rule",
+      "title": "Add Network ACL Rule",
+      "category": "containment",
+      "annotation": "add_rule",
+      "description": "Adds a rule to the network access control list (ACL) on AWS EC2 based on the network ACL ID, egress rule, and other input parameters you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Network ACL ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "network_acl_id",
+          "placeholder": "e.g. acl-ac56f0c4",
+          "tooltip": "ID of the network in which you want to add the ACL rule on AWS EC2.",
+          "description": "ID of the network in which you want to add the ACL rule on AWS EC2."
+        },
+        {
+          "title": "Egress Rule",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "select",
+          "name": "egress_rule",
+          "value": "Inbound_Rule",
+          "options": [
+            "Inbound Rule",
+            "Outbound Rule"
+          ],
+          "tooltip": "Select either Inbound_Rule or Outbound_Rule.",
+          "description": "Select either Inbound_Rule or Outbound_Rule."
+        },
+        {
+          "title": "IP Address",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "ip_address",
+          "tooltip": "IP address of the network in which you want to add the ACL rule on AWS EC2.",
+          "description": "IP address of the network in which you want to add the ACL rule on AWS EC2."
+        },
+        {
+          "title": "Rule Action",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "select",
+          "name": "rule_action",
+          "value": "DENY",
+          "options": [
+            "ALLOW",
+            "DENY"
+          ],
+          "tooltip": "Action that the rule must perform. Choose between DENY or ALLOW.",
+          "description": "Action that the rule must perform. Choose between DENY or ALLOW."
+        },
+        {
+          "title": "Rule Number",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "rule_number",
+          "value": "",
+          "description": "Position of where the rule must be placed in the ACL rules on AWS EC2.Constraints: Positive integer from 1 to 32766",
+          "tooltip": "Position of where the rule must be placed in the ACL rules on AWS EC2.Constraints: Positive integer from 1 to 32766",
+          "validation": {
+            "pattern": "^([1-9][0-9]{0,3}|[12][0-9]{4}|3[01][0-9]{3}|32[0-6][0-9]{2}|327[0-5][0-9]|3276[0-6])$",
+            "patternError": "Value must be an integer in range 1 to 32766.",
+            "maxlength": "5",
+            "minlength": "1"
+          }
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "HTTPStatusCode": "",
+          "RequestId": "",
+          "HTTPHeaders": {
+            "transfer-encoding": "",
+            "server": "",
+            "date": "",
+            "vary": "",
+            "content-type": ""
+          },
+          "RetryAttempts": ""
+        }
+      }
+    },
+    {
+      "operation": "describe_network_acls",
+      "title": "Get Details of Network ACLs",
+      "category": "investigation",
+      "annotation": "get_details_of_network_acls",
+      "description": "Retrieves details of one or more of your network ACLs from AWS EC2, based on the Network ACL IDs and filters you have specified. Note: If you do not specify any network ACL ID or any filter, then details of all the network ACLs are retrieved from AWS EC2.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Network ACL IDs",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "network_acl_ids",
+          "placeholder": "e.g. acl-ac56f0c4,acl-ac56f0c5",
+          "tooltip": "IDs of the network in which you want to describe.",
+          "description": "IDs of the network ACL whose details you want to retrieve from AWS EC2. Note: If you do not specify and ID then details of all the Network ACLs are retrieved from AWS EC2."
+        },
+        {
+          "title": "Filters",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "filters",
+          "value": "",
+          "placeholder": "e.g. [{'Name': 'vpc-id','Values': ['vpc-a01106c2']}].",
+          "tooltip": "Filters to describe Network ACLs. Format: [{'Name': 'string','Values': ['string']}]",
+          "description": "Filters based on which you want to retrieve details for network ACL from AWS EC2. Format of the filter is: [{'Name': 'string','Values': ['string']}] For example, [{'Name': 'vpc-id','Values': ['vpc-a01106c2']}]"
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "NetworkAcls": [
+          {
+            "Associations": [
+              {
+                "NetworkAclAssociationId": "",
+                "NetworkAclId": "",
+                "SubnetId": ""
+              }
+            ],
+            "Entries": [
+              {
+                "CidrBlock": "",
+                "Egress": "",
+                "Protocol": "",
+                "RuleAction": "",
+                "RuleNumber": ""
+              }
+            ],
+            "IsDefault": true,
+            "NetworkAclId": "",
+            "Tags": [],
+            "VpcId": "",
+            "OwnerId": ""
+          }
+        ],
+        "ResponseMetadata": {
+          "RequestId": "",
+          "HTTPStatusCode": "",
+          "HTTPHeaders": {
+            "content-type": "",
+            "content-length": "",
+            "vary": "",
+            "date": "",
+            "server": ""
+          },
+          "RetryAttempts": ""
+        }
+      }
+    },
+    {
+      "operation": "delete_network_acl_rule",
+      "title": "Delete Network ACL Rule",
+      "category": "containment",
+      "annotation": "delete_network_acl_rule",
+      "description": "Deletes the network ACL from AWS EC2,  based on the network ACL ID, Egress rule, and rule number you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Network ACL ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "network_acl_id",
+          "placeholder": "e.g. acl-ac56f0c4",
+          "tooltip": "ID of the network from which you want to delete the ACL rule on AWS EC2.",
+          "description": "ID of the network from which you want to delete the ACL rule on AWS EC2."
+        },
+        {
+          "title": "Egress Rule",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "select",
+          "name": "egress_rule",
+          "value": "Inbound Rule",
+          "options": [
+            "Inbound Rule",
+            "Outbound Rule"
+          ],
+          "tooltip": "Select either Inbound_Rule or Outbound_Rule.",
+          "description": "Select either Inbound_Rule or Outbound_Rule."
+        },
+        {
+          "title": "Rule Number",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "rule_number",
+          "value": "",
+          "description": "The rule number of the entry to delete.Constraints: Positive integer from 1 to 32766",
+          "tooltip": "Rule number of the entry that you want to delete from AWS EC2. Constraint: You can enter only a positive integer from 1 to 32766 in this field.",
+          "validation": {
+            "pattern": "^([1-9][0-9]{0,3}|[12][0-9]{4}|3[01][0-9]{3}|32[0-6][0-9]{2}|327[0-5][0-9]|3276[0-6])$",
+            "patternError": "Value must be an integer in range 1 to 32766.",
+            "maxlength": "5",
+            "minlength": "1"
+          }
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "HTTPStatusCode": "",
+          "RequestId": "",
+          "HTTPHeaders": {
+            "transfer-encoding": "",
+            "server": "",
+            "date": "",
+            "vary": "",
+            "content-type": ""
+          },
+          "RetryAttempts": ""
+        }
+      }
+    },
+    {
+      "operation": "delete_network_acl",
+      "title": "Delete Network ACL",
+      "category": "containment",
+      "annotation": "delete_network_acl",
+      "description": "Deletes the specified network ACL. from AWS EC2, based on the Network ACL ID you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Network ACL ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "network_acl_id",
+          "placeholder": "e.g. acl-5fb85d36",
+          "tooltip": "The ID of the network ACL",
+          "description": "ID of the network ACL that you want to delete from AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "RequestId": "",
+          "HTTPStatusCode": "",
+          "HTTPHeaders": {
+            "content-type": "",
+            "content-length": "",
+            "vary": "",
+            "date": "",
+            "server": ""
+          },
+          "RetryAttempts": ""
+        }
+      }
+    },
+    {
+      "operation": "describe_user",
+      "title": "Get User Details",
+      "category": "investigation",
+      "annotation": "get_user_info",
+      "description": "Retrieves details for a user you have specified, using the username from AWS EC2.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Username",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "username",
+          "tooltip": "Name of the user for whom you want to retrieve details from AWS EC2.",
+          "description": "Name of the user for whom you want to retrieve details from AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "UserPolicies": "",
+        "MFADevices": "",
+        "UserGroups": "",
+        "UserName": "",
+        "CreateDate": "",
+        "UserID": ""
+      }
+    },
+    {
+      "operation": "create_security_group",
+      "title": "Create Security Groups",
+      "category": "containment",
+      "annotation": "create_security_group",
+      "description": "Creates a new security group in the AWS EC2 service based on the group name and description you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Group Name",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "group_name",
+          "tooltip": "Name of the new security group that you want to create on AWS EC2.",
+          "description": "Name of the new security group that you want to create on AWS EC2."
+        },
+        {
+          "title": "Description",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "description",
+          "tooltip": "Description of the new security group that you want to create on AWS EC2.",
+          "description": "Description of the new security group that you want to create on AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "RequestId": "",
+          "HTTPHeaders": {
+            "content-length": "",
+            "content-type": "",
+            "server": "",
+            "date": ""
+          },
+          "HTTPStatusCode": "",
+          "RetryAttempts": ""
+        },
+        "GroupId": ""
+      }
+    },
+    {
+      "operation": "get_security_groups",
+      "title": "Get Security Groups",
+      "category": "investigation",
+      "annotation": "get_security_groups",
+      "description": "Retrieves details of all security groups from the AWS EC2 service.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "RequestId": "",
+          "HTTPHeaders": {
+            "content-length": "",
+            "content-type": "",
+            "server": "",
+            "date": "",
+            "vary": ""
+          },
+          "HTTPStatusCode": "",
+          "RetryAttempts": ""
+        },
+        "SecurityGroups": [
+          {
+            "VpcId": "",
+            "Description": "",
+            "OwnerId": "",
+            "GroupName": "",
+            "IpPermissionsEgress": [
+              {
+                "PrefixListIds": [],
+                "IpProtocol": "",
+                "Ipv6Ranges": [],
+                "UserIdGroupPairs": [],
+                "IpRanges": [
+                  {
+                    "CidrIp": ""
+                  }
+                ]
+              }
+            ],
+            "GroupId": "",
+            "IpPermissions": [
+              {
+                "FromPort": "",
+                "Ipv6Ranges": [],
+                "PrefixListIds": [],
+                "IpProtocol": "",
+                "UserIdGroupPairs": [],
+                "ToPort": "",
+                "IpRanges": [
+                  {
+                    "CidrIp": ""
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "operation": "get_details_of_security_group",
+      "title": "Get Details of Security Group",
+      "category": "investigation",
+      "annotation": "get_details_of_security_group",
+      "description": "Retrieves details of the given security group from the AWS EC2 service based on the security group ID and other input parameters you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Security Group ID",
+          "type": "text",
+          "name": "security_group_id",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "tooltip": "ID of the security group ID on AWS EC2 for which you want to retrieve details from AWS.",
+          "description": "ID of the security group ID on AWS EC2 for which you want to retrieve details from AWS."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "RequestId": "",
+          "HTTPHeaders": {
+            "content-length": "",
+            "content-type": "",
+            "server": "",
+            "date": "",
+            "vary": ""
+          },
+          "HTTPStatusCode": "",
+          "RetryAttempts": ""
+        },
+        "SecurityGroups": [
+          {
+            "VpcId": "",
+            "Description": "",
+            "OwnerId": "",
+            "GroupName": "",
+            "IpPermissionsEgress": [
+              {
+                "PrefixListIds": [],
+                "IpProtocol": "",
+                "Ipv6Ranges": [],
+                "UserIdGroupPairs": [],
+                "IpRanges": [
+                  {
+                    "CidrIp": ""
+                  }
+                ]
+              }
+            ],
+            "GroupId": "",
+            "IpPermissions": [
+              {
+                "FromPort": "",
+                "Ipv6Ranges": [],
+                "PrefixListIds": [],
+                "IpProtocol": "",
+                "UserIdGroupPairs": [],
+                "ToPort": "",
+                "IpRanges": [
+                  {
+                    "CidrIp": ""
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "operation": "add_security_group_to_instance",
+      "title": "Add Security Group To Instance",
+      "category": "containment",
+      "annotation": "add_group",
+      "description": "Adds a security group to an AWS EC2 instance based on the security group name(s) or ID(s) and instance ID you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Instance ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "instance_id",
+          "placeholder": "e.g. i-0055c209fce039354",
+          "tooltip": "ID of the instance that you want to add to the specified Security Group(s) on AWS EC2.",
+          "description": "ID of the instance that you want to add to the specified Security Group(s) on AWS EC2."
+        },
+        {
+          "title": "Security Group Name or ID (In CSV or List Format)",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "group_list",
+          "tooltip": "One or more security group IDs. You can give multiple group ids like 'sg-3578605d', 'sg-f1445c99' or ['sg-3578605d', 'sg-f1445c99']",
+          "placeholder": "e.g. ['sg-3578605d', 'sg-f1445c99']",
+          "description": "Name(s) or ID(s) of the Security Group(s) to which you want to add the specified instance on AWS EC2. The Security Group ID(s) or Name(s) must be specified in the CSV or list format.For example, [\"default\", \"launch-wizard-3\", \"sg-9fc7dcf7\"]"
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "Response": {
+          "ResponseMetadata": {}
+        }
+      }
+    },
+    {
+      "operation": "delete_security_group",
+      "title": "Delete Security Groups",
+      "category": "remediation",
+      "annotation": "delete_security_group",
+      "description": "Deletes a security group you have specified, using the security group ID.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Security Group ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "security_group_id",
+          "placeholder": "e.g. sg-0123456789abcdef0",
+          "tooltip": "ID of the security group ID that you want to delete from AWS EC2.",
+          "description": "ID of the security group ID that you want to delete from AWS EC2."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "status": "",
+        "data": {
+          "ResponseMetadata": {
+            "HTTPStatusCode": "",
+            "HTTPHeaders": {
+              "content-type": "",
+              "server": "",
+              "date": "",
+              "content-length": ""
+            },
+            "RetryAttempts": "",
+            "RequestId": ""
+          }
+        },
+        "operation": "",
+        "message": "",
+        "env": {}
+      }
+    },
+    {
+      "operation": "authorize_ingress",
+      "title": "Authorize Ingress",
+      "category": "containment",
+      "annotation": "authorize_ingress",
+      "description": "Adds (authorizes) ingress rules to a security group on AWS EC2 based on the security group ID, CIDR IP value, and other input parameters you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Security Group ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "security_group_id",
+          "placeholder": "e.g. sg-0123456789abcdef0",
+          "tooltip": "ID of the security group ID on AWS EC2 in which you want to authorize (add) the ingress rule.",
+          "description": "ID of the security group ID on AWS EC2 in which you want to authorize (add) the ingress rule."
+        },
+        {
+          "title": "IP Permissions",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "ip_permissions",
+          "placeholder": "e.g. [{\"IpProtocol\": \"-1\", \"IpRanges\": [{\"CidrIp\": \"0.0.0.0/0\"}], \"Ipv6Ranges\": [{\"CidrIpv6\": \"::/0\"}], \"PrefixListIds\": [], \"UserIdGroupPairs\": []}]",
+          "tooltip": "IP permissions required to Authorize ingress rules.",
+          "description": "IP permissions required to Authorize ingress rules."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "HTTPHeaders": {
+            "content-length": "",
+            "content-type": "",
+            "date": "",
+            "server": ""
+          },
+          "RequestId": "",
+          "HTTPStatusCode": "",
+          "RetryAttempts": ""
+        }
+      }
+    },
+    {
+      "operation": "authorize_egress",
+      "title": "Authorize Egress",
+      "category": "containment",
+      "annotation": "authorize_egress",
+      "description": "Adds (authorizes) egress rules to a security group on AWS EC2 based on the security group ID, and IP permissions you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Security Group ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "security_group_id",
+          "placeholder": "e.g. sg-0123456789abcdef0",
+          "tooltip": "ID of the security group ID on AWS EC2 in which you want to authorize (add) egress rules.",
+          "description": "ID of the security group ID on AWS EC2 in which you want to authorize (add) egress rules."
+        },
+        {
+          "title": "IP Permissions",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "ip_permissions",
+          "placeholder": "e.g [{\"UserIdGroupPairs\": [], \"IpRanges\": [{\"CidrIp\": \"192.168.0.0/16\"}], \"Ipv6Ranges\": [], \"PrefixListIds\": [], \"IpProtocol\": \"-1\"}]",
+          "tooltip": "IP permissions required to authorize egress rules.",
+          "description": "IP permissions required to authorize egress rules."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "HTTPStatusCode": "",
+          "RetryAttempts": "",
+          "RequestId": "",
+          "HTTPHeaders": {
+            "content-length": "",
+            "content-type": "",
+            "server": "",
+            "date": ""
+          }
+        }
+      }
+    },
+    {
+      "operation": "revoke_egress",
+      "title": "Revoke Egress",
+      "category": "containment",
+      "annotation": "revoke_egress",
+      "description": "Removes (revokes) egress rules from a security group on AWS EC2 based on the security group ID, and IP permissions you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Security Group ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "security_group_id",
+          "tooltip": "ID of the security group ID on AWS EC2 from which you want to revoke (remove) egress rules.",
+          "description": "ID of the security group ID on AWS EC2 from which you want to revoke (remove) egress rules."
+        },
+        {
+          "title": "IP Permissions",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "ip_permissions",
+          "placeholder": "e.g [{\"UserIdGroupPairs\": [], \"IpRanges\": [{\"CidrIp\": \"192.168.0.0/16\"}], \"Ipv6Ranges\": [], \"PrefixListIds\": [], \"IpProtocol\": \"-1\"}]",
+          "tooltip": "IP permissions required to revoke egress rules.",
+          "description": "IP permissions required to revoke egress rules."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "ResponseMetadata": {
+          "HTTPStatusCode": "",
+          "HTTPHeaders": {
+            "content-type": "",
+            "date": "",
+            "content-length": "",
+            "server": ""
+          },
+          "RetryAttempts": "",
+          "RequestId": ""
+        }
+      }
+    },
+    {
+      "operation": "revoke_ingress",
+      "title": "Revoke Ingress",
+      "category": "containment",
+      "annotation": "revoke_ingress",
+      "description": "Removes (revokes) ingress rules from a security group on AWS EC2 based on the security group ID, CIDR IP value, and other input parameters you have specified.",
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "Security Group ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "security_group_id",
+          "placeholder": "e.g. sg-0123456789abcdef0",
+          "tooltip": "ID of the security group ID on AWS EC2 from which you want to revoke (remove) the ingress rule.",
+          "description": "ID of the security group ID on AWS EC2 from which you want to revoke (remove) the ingress rule."
+        },
+        {
+          "title": "IP Permissions",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "ip_permissions",
+          "placeholder": "e.g. [{\"IpProtocol\": \"-1\", \"IpRanges\": [{\"CidrIp\": \"0.0.0.0/0\"}], \"Ipv6Ranges\": [{\"CidrIpv6\": \"::/0\"}], \"PrefixListIds\": [], \"UserIdGroupPairs\": []}]",
+          "tooltip": "IP permissions required to revoke ingress rules.",
+          "description": "IP permissions required to revoke ingress rules."
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "status": "",
+        "data": {
+          "ResponseMetadata": {
+            "HTTPStatusCode": "",
+            "RetryAttempts": "",
+            "HTTPHeaders": {
+              "content-length": "",
+              "server": "",
+              "content-type": "",
+              "date": ""
+            },
+            "RequestId": ""
+          }
+        },
+        "operation": "",
+        "env": {},
+        "message": ""
+      }
+    },
+    {
+      "operation": "generic_action",
+      "title": "Generic AWS API Action",
+      "category": "investigation",
+      "annotation": "generic_action",
+      "description": "Calls any boto3 client method on any AWS service. Supply the service, the boto3 method name, and a JSON object of keyword arguments. Passing arguments as a JSON string preserves their types, which the platform's own parameter handling does not.",
+      "enabled": true,
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "AWS Service",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "service",
+          "placeholder": "e.g. ec2",
+          "tooltip": "boto3 service name, lowercase.",
+          "description": "The boto3 service name, in lowercase, e.g. ec2, iam, s3, cloudtrail, guardduty."
+        },
+        {
+          "title": "API Action",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "api_action",
+          "placeholder": "e.g. describe_instances",
+          "tooltip": "boto3 client method name, snake_case.",
+          "description": "The boto3 client method name in snake_case, e.g. describe_instances, not the API name DescribeInstances."
+        },
+        {
+          "title": "Payload",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "payload",
+          "placeholder": "{\"InstanceIds\": [\"i-0123456789abcdef0\"]}",
+          "tooltip": "JSON object of boto3 keyword arguments.",
+          "description": "A JSON object of keyword arguments passed straight to the boto3 method. Keep it as a JSON string: values inside a string are never retyped by the platform, so \"-1\" stays a string."
+        },
+        {
+          "title": "Paginate Results",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "type": "checkbox",
+          "name": "paginate",
+          "value": false,
+          "tooltip": "Walk every page and merge the results.",
+          "description": "Walk every page of a paginated API and merge the list values, adding a PageCount. Without this a large account returns only the first page, which reads as a complete answer when it is not."
+        },
+        {
+          "title": "Read Only Mode",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "type": "checkbox",
+          "name": "read_only",
+          "value": false,
+          "tooltip": "Refuse any action that is not a read.",
+          "description": "Refuse any API action that does not begin with describe_, get_, list_, search_, lookup_ or batch_get_. Useful when the operation is exposed to an enrichment playbook that should never mutate the account."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "generic_resource_action",
+      "title": "Generic AWS Resource Action",
+      "category": "containment",
+      "annotation": "generic_resource_action",
+      "description": "Calls a method on a boto3 resource object rather than a client, for the AWS operations only reachable that way. Supply the resource class and its identifier, then the method and its keyword arguments.",
+      "enabled": true,
+      "parameters": [
+        {
+          "title": "Assume a Role",
+          "type": "checkbox",
+          "name": "assume_role",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Enable to assume a role",
+          "description": "Select this option to assume a role.Note: You must enable this option, i.e., this parameter is required, if you have specified IAM Role as the Configuration Type. If you have specified Access Credentials as the Configuration Type, then this parameter is optional.If you select this option, then you must specify the following parameters: AWS Region: Your account's AWS region that you will use to access AWS services. Role ARN: ARN of the role that you want to assume to execute this action on AWS. Session Name: Name of the session that will be created to execute this action on AWS.",
+          "value": false,
+          "onchange": {
+            "true": [
+              {
+                "title": "AWS Region",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "aws_region",
+                "placeholder": "e.g. us-east-2",
+                "tooltip": "Your account's AWS region that you will use to access AWS services.",
+                "description": "Your account's AWS region that you will use to access AWS services."
+              },
+              {
+                "title": "Role ARN",
+                "type": "text",
+                "name": "role_arn",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "placeholder": "arn:aws:iam::{{account_id}}:role/{{role_name}}",
+                "tooltip": "ARN of the role that you want assume to execute this action on AWS.",
+                "description": "ARN of the role that you want assume to execute this action on AWS."
+              },
+              {
+                "title": "Session Name",
+                "type": "text",
+                "name": "session_name",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "tooltip": "Name of the session that will be created to execute this action on AWS.",
+                "description": "Name of the session that will be created to execute this action on AWS."
+              }
+            ]
+          }
+        },
+        {
+          "title": "AWS Service",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "service",
+          "placeholder": "e.g. ec2",
+          "tooltip": "boto3 service name, lowercase.",
+          "description": "The boto3 service name, in lowercase, e.g. ec2."
+        },
+        {
+          "title": "Resource Class",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "resource_class",
+          "placeholder": "e.g. SecurityGroup",
+          "tooltip": "boto3 resource class name.",
+          "description": "The boto3 resource class, e.g. SecurityGroup, Instance, Volume, Snapshot."
+        },
+        {
+          "title": "Resource ID",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "resource_id",
+          "placeholder": "e.g. sg-0123456789abcdef0",
+          "tooltip": "Identifier passed to the resource class.",
+          "description": "The identifier passed to the resource class constructor."
+        },
+        {
+          "title": "API Action",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "api_action",
+          "placeholder": "e.g. revoke_egress",
+          "tooltip": "Method name on the resource object.",
+          "description": "The method to call on the resource object, in snake_case."
+        },
+        {
+          "title": "Payload",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "payload",
+          "placeholder": "{\"IpPermissions\": [{\"IpProtocol\": \"-1\", \"IpRanges\": [{\"CidrIp\": \"0.0.0.0/0\"}]}]}",
+          "tooltip": "JSON object of keyword arguments.",
+          "description": "A JSON object of keyword arguments passed straight to the resource method."
+        }
+      ],
+      "output_schema": {}
+    }
+  ]
+}

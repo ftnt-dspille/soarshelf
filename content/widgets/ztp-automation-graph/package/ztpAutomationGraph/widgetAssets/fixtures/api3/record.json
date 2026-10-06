@@ -1,0 +1,18 @@
+{
+  "@id": "/api/3/ztpf_devices/seed-ztp-device-1",
+  "@type": "ZtpfDevice",
+  "uuid": "seed-ztp-device-1",
+  "id": 1,
+  "name": "FG-Branch101",
+  "ztpfRunning": true,
+  "ztpfArtifact": {
+    "ztfGroup": "ztpf-9000000001",
+    "total_steps": 4,
+    "steps": [
+      { "id": 1, "fqid": "/api/3/ztpf_device_automation_steps/step-uuid-1", "name": "Provision device", "stepNumber": 1, "action_type": "DeviceDB", "action_category": "FortiManager", "ztpf_status": "Complete", "ztpf_start_time": 1783000000, "ztpf_stop_time": 1783000010 },
+      { "id": 2, "fqid": "/api/3/ztpf_device_automation_steps/step-uuid-2", "name": "Install config", "stepNumber": 2, "action_type": "PolicyDB", "action_category": "FortiManager", "ztpf_status": "Failed", "ztpf_start_time": 1783000010, "ztpf_stop_time": 1783000020 },
+      { "id": 3, "fqid": "/api/3/ztpf_device_automation_steps/step-uuid-3", "name": "Run triage playbook", "stepNumber": 3, "action_type": "Playbook", "action_category": "FortiSOAR", "ztpf_status": "Running", "ztpf_start_time": 1783000020, "ztpf_stop_time": null },
+      { "id": 4, "fqid": "/api/3/ztpf_device_automation_steps/step-uuid-4", "name": "Refresh device", "stepNumber": 4, "action_type": "Remote CLI", "action_category": "FortiManager", "ztpf_status": "Queued", "ztpf_start_time": null, "ztpf_stop_time": null }
+    ]
+  }
+}

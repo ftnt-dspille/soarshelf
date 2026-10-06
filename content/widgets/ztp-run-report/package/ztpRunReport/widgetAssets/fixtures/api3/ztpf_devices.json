@@ -1,0 +1,112 @@
+{
+  "@context": "/api/3/contexts/ZtpfDevice",
+  "@id": "/api/3/x",
+  "@type": "hydra:Collection",
+  "hydra:totalItems": 4,
+  "hydra:member": [
+    {
+      "@id": "/api/3/ztpf_devices/dev-uuid-1",
+      "@type": "ZtpfDevice",
+      "uuid": "dev-uuid-1",
+      "id": 1,
+      "name": "fgt-branch-01",
+      "managementIP": "198.51.100.11",
+      "platform": "FortiGate-VM64-KVM",
+      "firmware": "7.6.7-build3704",
+      "adom": "root",
+      "managementMode": "fmgfaz",
+      "connectionStatus": "up",
+      "configStatus": "insync",
+      "configDBStatus": "nomod",
+      "productFamily": "FG VM series",
+      "ztpfRunning": false,
+      "ztpfArtifacts": {
+        "ztfGroup": "ztpf-1787603831-118",
+        "ztfGroup_id": 352
+      },
+      "ztpfManagers": {
+        "@id": "/api/3/ztpf_managers/mgr-1",
+        "@type": "ZtpfManager",
+        "name": "fortimanager.example.com"
+      }
+    },
+    {
+      "@id": "/api/3/ztpf_devices/dev-uuid-2",
+      "@type": "ZtpfDevice",
+      "uuid": "dev-uuid-2",
+      "id": 2,
+      "name": "fgt-branch-02",
+      "managementIP": "198.51.100.12",
+      "platform": "FortiGate-VM64-KVM",
+      "firmware": "7.6.7-build3704",
+      "adom": "root",
+      "managementMode": "fmgfaz",
+      "connectionStatus": "up",
+      "configStatus": "insync",
+      "configDBStatus": "nomod",
+      "productFamily": "FG VM series",
+      "ztpfRunning": false,
+      "ztpfArtifacts": {
+        "ztfGroup": "ztpf-1787603831-118",
+        "ztfGroup_id": 352
+      },
+      "ztpfManagers": {
+        "@id": "/api/3/ztpf_managers/mgr-1",
+        "@type": "ZtpfManager",
+        "name": "fortimanager.example.com"
+      }
+    },
+    {
+      "@id": "/api/3/ztpf_devices/dev-uuid-3",
+      "@type": "ZtpfDevice",
+      "uuid": "dev-uuid-3",
+      "id": 3,
+      "name": "fgt-branch-03",
+      "managementIP": "198.51.100.13",
+      "platform": "FortiGate-VM64-KVM",
+      "firmware": "7.6.4-build2662",
+      "adom": "root",
+      "managementMode": "fmgfaz",
+      "connectionStatus": "up",
+      "configStatus": "insync",
+      "configDBStatus": "nomod",
+      "productFamily": "FG VM series",
+      "ztpfRunning": true,
+      "ztpfArtifacts": {
+        "ztfGroup": "ztpf-1787603831-118",
+        "ztfGroup_id": 352
+      },
+      "ztpfManagers": {
+        "@id": "/api/3/ztpf_managers/mgr-1",
+        "@type": "ZtpfManager",
+        "name": "fortimanager.example.com"
+      }
+    },
+    {
+      "@id": "/api/3/ztpf_devices/dev-uuid-4",
+      "@type": "ZtpfDevice",
+      "uuid": "dev-uuid-4",
+      "id": 4,
+      "name": "fgt-branch-04",
+      "managementIP": "198.51.100.14",
+      "platform": "FortiGate-VM64-KVM",
+      "firmware": "7.6.4-build2662",
+      "adom": "root",
+      "managementMode": "fmgfaz",
+      "connectionStatus": "down",
+      "configStatus": "insync",
+      "configDBStatus": "nomod",
+      "productFamily": "FG VM series",
+      "ztpfRunning": false,
+      "ztpfArtifacts": {
+        "ztfGroup": "ztpf-1787603831-118",
+        "ztfGroup_id": 352
+      },
+      "ztpfManagers": {
+        "@id": "/api/3/ztpf_managers/mgr-1",
+        "@type": "ZtpfManager",
+        "name": "fortimanager.example.com"
+      }
+    }
+  ]
+}

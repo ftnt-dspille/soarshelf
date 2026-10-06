@@ -1,0 +1,968 @@
+{
+  "@context": "/api/3/contexts/ZtpfDeviceAutomationStep",
+  "@id": "/api/3/x",
+  "@type": "hydra:Collection",
+  "hydra:totalItems": 30,
+  "hydra:member": [
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-1",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-1",
+      "id": 1,
+      "stepNumber": 1,
+      "name": "Add device to DeviceDB",
+      "triggerKey": "FortiManager DeviceDB",
+      "stepDone": true,
+      "stepStartTimestamp": 1787600056,
+      "stepStopTimestamp": 1787600086,
+      "stepTimeSeconds": null,
+      "createDate": 1787600056,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-1",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-01"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787600056-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787600056-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-2",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-2",
+      "id": 2,
+      "stepNumber": 2,
+      "name": "Assign provisioning template",
+      "triggerKey": "FortiManager DeviceDB",
+      "stepDone": true,
+      "stepStartTimestamp": 1787600056,
+      "stepStopTimestamp": 1787600086,
+      "stepTimeSeconds": null,
+      "createDate": 1787600056,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-1",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-01"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787600056-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787600056-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-3",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-3",
+      "id": 3,
+      "stepNumber": 3,
+      "name": "Upgrade Firmware 7.6.7",
+      "triggerKey": "FortiManager Upgrade Device Firmware",
+      "stepDone": true,
+      "stepStartTimestamp": 1787600056,
+      "stepStopTimestamp": 1787600086,
+      "stepTimeSeconds": null,
+      "createDate": 1787600056,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-fail",
+        "@type": "Picklist",
+        "itemValue": "Fail",
+        "color": "#ff0000",
+        "orderIndex": 7
+      },
+      "outputStatusMessage": "Upgrade image not present on the manager",
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-1",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-01"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787600056-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787600056-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-4",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-4",
+      "id": 4,
+      "stepNumber": 4,
+      "name": "Install device config",
+      "triggerKey": "FortiManager Install Device Config",
+      "stepDone": true,
+      "stepStartTimestamp": 1787600056,
+      "stepStopTimestamp": 1787600086,
+      "stepTimeSeconds": null,
+      "createDate": 1787600056,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-1",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-01"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787600056-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787600056-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-5",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-5",
+      "id": 5,
+      "stepNumber": 5,
+      "name": "Get Port Details",
+      "triggerKey": "FortiManager Proxy API",
+      "stepDone": true,
+      "stepStartTimestamp": 1787600056,
+      "stepStopTimestamp": 1787600086,
+      "stepTimeSeconds": null,
+      "createDate": 1787600056,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-1",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-01"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787600056-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787600056-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-6",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-6",
+      "id": 6,
+      "stepNumber": 6,
+      "name": "Diff running config",
+      "triggerKey": "ZTPF Diff Step Output",
+      "stepDone": true,
+      "stepStartTimestamp": 1787600056,
+      "stepStopTimestamp": 1787600086,
+      "stepTimeSeconds": null,
+      "createDate": 1787600056,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-1",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-01"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787600056-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787600056-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-7",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-7",
+      "id": 7,
+      "stepNumber": 1,
+      "name": "Add device to DeviceDB",
+      "triggerKey": "FortiManager DeviceDB",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-1",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-01"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-8",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-8",
+      "id": 8,
+      "stepNumber": 2,
+      "name": "Assign provisioning template",
+      "triggerKey": "FortiManager DeviceDB",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-1",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-01"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-9",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-9",
+      "id": 9,
+      "stepNumber": 3,
+      "name": "Upgrade Firmware 7.6.7",
+      "triggerKey": "FortiManager Upgrade Device Firmware",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-1",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-01"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-10",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-10",
+      "id": 10,
+      "stepNumber": 4,
+      "name": "Install device config",
+      "triggerKey": "FortiManager Install Device Config",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-1",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-01"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-11",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-11",
+      "id": 11,
+      "stepNumber": 5,
+      "name": "Get Port Details",
+      "triggerKey": "FortiManager Proxy API",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-1",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-01"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-12",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-12",
+      "id": 12,
+      "stepNumber": 6,
+      "name": "Diff running config",
+      "triggerKey": "ZTPF Diff Step Output",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-1",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-01"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-13",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-13",
+      "id": 13,
+      "stepNumber": 1,
+      "name": "Add device to DeviceDB",
+      "triggerKey": "FortiManager DeviceDB",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-2",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-02"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-14",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-14",
+      "id": 14,
+      "stepNumber": 2,
+      "name": "Assign provisioning template",
+      "triggerKey": "FortiManager DeviceDB",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-2",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-02"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-15",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-15",
+      "id": 15,
+      "stepNumber": 3,
+      "name": "Upgrade Firmware 7.6.7",
+      "triggerKey": "FortiManager Upgrade Device Firmware",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-2",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-02"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-16",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-16",
+      "id": 16,
+      "stepNumber": 4,
+      "name": "Install device config",
+      "triggerKey": "FortiManager Install Device Config",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-2",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-02"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-17",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-17",
+      "id": 17,
+      "stepNumber": 5,
+      "name": "Get Port Details",
+      "triggerKey": "FortiManager Proxy API",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-fail",
+        "@type": "Picklist",
+        "itemValue": "Fail",
+        "color": "#ff0000",
+        "orderIndex": 7
+      },
+      "outputStatusMessage": "No Output Status Template",
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-2",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-02"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-18",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-18",
+      "id": 18,
+      "stepNumber": 6,
+      "name": "Diff running config",
+      "triggerKey": "ZTPF Diff Step Output",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-2",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-02"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-19",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-19",
+      "id": 19,
+      "stepNumber": 1,
+      "name": "Add device to DeviceDB",
+      "triggerKey": "FortiManager DeviceDB",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-3",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-03"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-20",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-20",
+      "id": 20,
+      "stepNumber": 2,
+      "name": "Assign provisioning template",
+      "triggerKey": "FortiManager DeviceDB",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-3",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-03"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-21",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-21",
+      "id": 21,
+      "stepNumber": 3,
+      "name": "Upgrade Firmware 7.6.7",
+      "triggerKey": "FortiManager Upgrade Device Firmware",
+      "stepDone": true,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-3",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-03"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-22",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-22",
+      "id": 22,
+      "stepNumber": 4,
+      "name": "Install device config",
+      "triggerKey": "FortiManager Install Device Config",
+      "stepDone": false,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-running",
+        "@type": "Picklist",
+        "itemValue": "Running",
+        "color": "#07b7f6",
+        "orderIndex": 5
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-3",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-03"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-23",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-23",
+      "id": 23,
+      "stepNumber": 5,
+      "name": "Get Port Details",
+      "triggerKey": "FortiManager Proxy API",
+      "stepDone": false,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-queued",
+        "@type": "Picklist",
+        "itemValue": "Queued",
+        "color": "#b517ef",
+        "orderIndex": 4
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-3",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-03"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-24",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-24",
+      "id": 24,
+      "stepNumber": 6,
+      "name": "Diff running config",
+      "triggerKey": "ZTPF Diff Step Output",
+      "stepDone": false,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-queued",
+        "@type": "Picklist",
+        "itemValue": "Queued",
+        "color": "#b517ef",
+        "orderIndex": 4
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-3",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-03"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-25",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-25",
+      "id": 25,
+      "stepNumber": 1,
+      "name": "Add device to DeviceDB",
+      "triggerKey": "FortiManager DeviceDB",
+      "stepDone": false,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-queued",
+        "@type": "Picklist",
+        "itemValue": "Queued",
+        "color": "#b517ef",
+        "orderIndex": 4
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-4",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-04"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-26",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-26",
+      "id": 26,
+      "stepNumber": 2,
+      "name": "Assign provisioning template",
+      "triggerKey": "FortiManager DeviceDB",
+      "stepDone": false,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-queued",
+        "@type": "Picklist",
+        "itemValue": "Queued",
+        "color": "#b517ef",
+        "orderIndex": 4
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-4",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-04"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-27",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-27",
+      "id": 27,
+      "stepNumber": 3,
+      "name": "Upgrade Firmware 7.6.7",
+      "triggerKey": "FortiManager Upgrade Device Firmware",
+      "stepDone": false,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-queued",
+        "@type": "Picklist",
+        "itemValue": "Queued",
+        "color": "#b517ef",
+        "orderIndex": 4
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-4",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-04"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-28",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-28",
+      "id": 28,
+      "stepNumber": 4,
+      "name": "Install device config",
+      "triggerKey": "FortiManager Install Device Config",
+      "stepDone": false,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-queued",
+        "@type": "Picklist",
+        "itemValue": "Queued",
+        "color": "#b517ef",
+        "orderIndex": 4
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-4",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-04"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-29",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-29",
+      "id": 29,
+      "stepNumber": 5,
+      "name": "Get Port Details",
+      "triggerKey": "FortiManager Proxy API",
+      "stepDone": false,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-queued",
+        "@type": "Picklist",
+        "itemValue": "Queued",
+        "color": "#b517ef",
+        "orderIndex": 4
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-4",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-04"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-30",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-30",
+      "id": 30,
+      "stepNumber": 6,
+      "name": "Diff running config",
+      "triggerKey": "ZTPF Diff Step Output",
+      "stepDone": false,
+      "stepStartTimestamp": 1787603831,
+      "stepStopTimestamp": 1787603861,
+      "stepTimeSeconds": null,
+      "createDate": 1787603831,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-queued",
+        "@type": "Picklist",
+        "itemValue": "Queued",
+        "color": "#b517ef",
+        "orderIndex": 4
+      },
+      "outputStatusMessage": null,
+      "ztpfDevices": {
+        "@id": "/api/3/ztpf_devices/dev-uuid-4",
+        "@type": "ZtpfDevice",
+        "name": "fgt-branch-04"
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-1787603831-118",
+        "uuid": "rg-uuid-1"
+      },
+      "ztpfGroup": "ztpf-1787603831-118"
+    }
+  ]
+}

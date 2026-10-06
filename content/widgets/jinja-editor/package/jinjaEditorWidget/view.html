@@ -1,0 +1,400 @@
+<!-- Copyright start
+     MIT License
+     Copyright (c) 2026 Dylan Spille
+     Copyright end -->
+<link rel="stylesheet" type="text/css"
+      href="jinjaEditorWidget-1.2.2/widgetAssets/css/jinjaEditorWidget.css" />
+<script src="jinjaEditorWidget-1.2.2/widgetAssets/js/constants/jinjaFilters.constants.js"></script>
+<script src="jinjaEditorWidget-1.2.2/widgetAssets/js/constants/jinjaSnippets.constants.js"></script>
+<script src="jinjaEditorWidget-1.2.2/widgetAssets/js/constants/jinjaTemplates.constants.js"></script>
+<script src="jinjaEditorWidget-1.2.2/widgetAssets/js/constants/jinjaLanguage.constants.js"></script>
+<script src="jinjaEditorWidget-1.2.2/widgetAssets/js/jinjaMonaco.service.js"></script>
+
+<!-- No `data-ng-controller` attribute on the root: SOAR's csWidgetContent
+     directive instantiates the controller by name (from the widget
+     definition, `<name><version>Ctrl` — SOAR's publish pipeline strips
+     our `Dev` suffix) and attaches it to the compile scope itself. A
+     manual `data-ng-controller` here would reference the pre-strip
+     `DevCtrl` name, fail to resolve post-publish, and create a parallel
+     scope that silently loses its bindings. The dev harness wraps the
+     view in its own `ng-controller` when loading from the source tree. -->
+<div class="widget-container jinja-editor-widget">
+  <div class="display-flex-space-between margin-chart padding-left-lg padding-right-lg padding-top-sm">
+    <h5 data-ng-if="config.title !== ''"
+        class="margin-top-0 margin-bottom-0 text-overflow">
+      {{ config.title || 'Jinja Editor' }}
+      <small class="muted-65 font-size-12 margin-left-sm"
+             data-ng-if="widgetVersion">v{{ widgetVersion }}</small>
+    </h5>
+    <div>
+      <button type="button"
+              class="btn btn-default btn-sm margin-right-sm"
+              data-ng-if="isViewPanel"
+              data-ng-click="loadCurrentRecord()"
+              data-ng-disabled="loadingRecord || processing"
+              title="Seed input with the current record as vars.input.records[0]">
+        <i class="fa fa-download margin-right-sm" data-ng-if="!loadingRecord"></i>
+        <i class="fa fa-spinner fa-spin margin-right-sm" data-ng-if="loadingRecord"></i>
+        Load current record
+      </button>
+      <select class="form-control input-sm jinja-layout-picker margin-right-sm"
+              data-ng-model="layoutPreset"
+              data-ng-change="setLayoutPreset(layoutPreset)"
+              title="Pane layout">
+        <option value="equal">Layout: equal</option>
+        <option value="outputFocus">Layout: output focus</option>
+        <option value="templateFocus">Layout: template focus</option>
+        <option value="splitBottom">Layout: split (output bottom)</option>
+        <option value="stacked">Layout: stacked</option>
+      </select>
+      <button type="button"
+              class="btn btn-default btn-sm margin-right-sm"
+              data-ng-click="copyTemplate()">
+        <i class="fa fa-clipboard margin-right-sm"></i>Copy template
+      </button>
+      <button type="button"
+              class="btn btn-primary btn-sm render-btn"
+              data-ng-click="submit()"
+              data-ng-disabled="processing || !monacoReady">
+        Render<i class="fa fa-arrow-right margin-left-sm"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Playbook execution history picker (only on main.playbookDetail and only
+       when SOAR's csJinjaEditorLog directive is available — see view.controller.js
+       for the gating logic that sets $scope.playbookEntity). The directive owns
+       the dropdown UI + filter; we own the "Load Env JSON" button. -->
+  <div class="jinja-history-row padding-left-lg padding-right-lg padding-top-sm"
+       data-ng-if="playbookEntity">
+    <div class="display-flex form-group margin-0" style="align-items: end">
+      <div class="form-group jinja-log-container margin-0"
+           style="flex: 0 1 480px; min-width: 240px"
+           data-cs-jinja-editor-log
+           data-ng-model="selectedRunningPlaybook"
+           data-playbook-entity="playbookEntity"
+           data-open-direction="down"></div>
+      <div class="margin-left-sm">
+        <button type="button"
+                class="btn btn-default btn-sm margin-top-sm"
+                data-ng-click="loadRunningPlaybook(selectedRunningPlaybook)"
+                data-ng-disabled="(selectedRunningPlaybook === undefined) || envProcessing">
+          Load Env JSON
+          <span class="margin-left-sm fa fa-spinner fa-spin"
+                data-ng-show="envProcessing"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="jinja-editor-widget-body">
+    <div class="row padding-left-lg padding-right-lg padding-bottom-lg">
+      <div class="jinja-pane" data-ng-class="paneClasses().input">
+        <div class="display-flex-space-between margin-top-sm">
+          <label class="control-label font-size-16 margin-bottom-0">Input</label>
+          <div>
+            <button type="button"
+                    class="btn btn-xs btn-warning margin-right-sm"
+                    data-ng-if="savedInputJson !== null"
+                    data-ng-click="revertFilterInput()"
+                    title="Revert to the input you had before clicking 'try'">
+              <i class="fa fa-undo margin-right-sm"></i>Revert input
+            </button>
+            <button type="button"
+                    class="btn btn-xs btn-default"
+                    data-ng-click="formatInput()"
+                    data-ng-disabled="!monacoReady">
+              <i class="fa fa-magic margin-right-sm"></i>Format JSON
+            </button>
+            <button type="button"
+                    class="btn btn-default btn-xs margin-left-sm jinja-output-expand"
+                    data-ng-click="openInputModal()"
+                    data-ng-disabled="!monacoReady"
+                    title="Open input in a larger view">
+              <i class="fa fa-expand"></i>
+            </button>
+          </div>
+        </div>
+        <div class="font-size-12 muted-65 margin-bottom-sm">
+          JSON object available to the template (e.g. <code ng-non-bindable>vars.input.records[0]</code>).
+        </div>
+        <div id="jinja-widget-input-editor"
+             class="monaco-pane"
+             data-ng-class="{'has-error-border': inputJsonError}"
+             data-ng-if="monacoReady"
+             data-monaco-editor
+             data-editor-config="inputEditorConfig"
+             data-editor-content="inputJsonText"
+             data-editor-changed="onInputEditorReady(editor)"></div>
+        <div class="text-danger font-size-12 margin-top-sm"
+             data-ng-if="inputJsonError">
+          Input JSON is malformed: {{ inputJsonError }}
+        </div>
+      </div>
+
+      <div class="jinja-pane position-relative" data-ng-class="paneClasses().template">
+        <div class="display-flex-space-between margin-top-sm jinja-template-header">
+          <label class="control-label font-size-16 margin-bottom-0">
+            Jinja template <span class="text-danger">*</span>
+          </label>
+          <div class="jinja-template-actions">
+            <button type="button"
+                    class="btn btn-default btn-xs margin-right-sm jinja-filter-toggle"
+                    data-ng-click="toggleFilterPalette()"
+                    data-ng-class="{ active: filterPaletteOpen }"
+                    data-ng-disabled="!monacoReady"
+                    title="Browse available Jinja filters">
+              <i class="fa fa-filter margin-right-sm"></i>Filters
+            </button>
+            <select class="form-control input-sm jinja-example-picker"
+                    data-ng-model="selectedExampleId"
+                    data-ng-change="applyExample(selectedExampleId)"
+                    data-ng-disabled="!monacoReady || !templateExamples.length"
+                    title="Insert an example template (replaces only the template — your input JSON is preserved)">
+              <option value="">Insert example…</option>
+              <option data-ng-repeat="example in templateExamples"
+                      data-ng-value="example.id"
+                      title="{{ example.description }}">{{ example.label }}</option>
+            </select>
+            <button type="button"
+                    class="btn btn-default btn-xs margin-left-sm jinja-output-expand"
+                    data-ng-click="openTemplateModal()"
+                    data-ng-disabled="!monacoReady"
+                    title="Open template in a larger view">
+              <i class="fa fa-expand"></i>
+            </button>
+          </div>
+        </div>
+        <div class="font-size-12 muted-65 margin-bottom-sm">
+          Write a Jinja expression. Reference the input as <code ng-non-bindable>{{ vars.input.records[0] }}</code>.
+        </div>
+        <div id="jinja-widget-template-editor"
+             class="monaco-pane"
+             data-ng-if="monacoReady"
+             data-monaco-editor
+             data-editor-config="templateEditorConfig"
+             data-editor-content="templateText"
+             data-editor-changed="onTemplateEditorReady(editor)"></div>
+
+        <div class="jinja-filter-palette"
+             data-ng-show="filterPaletteOpen"
+             data-ng-click="$event.stopPropagation()"
+             data-ng-class="{'jinja-filter-palette--light': !isDark}"
+             data-jinja-draggable>
+          <div class="jinja-filter-palette-header">
+            <strong>Filter library</strong>
+            <button type="button"
+                    class="btn btn-link btn-xs jinja-filter-palette-close"
+                    data-ng-click="closeFilterPalette()"
+                    title="Close (Esc)">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+          <div class="jinja-filter-palette-search">
+            <i class="fa fa-search jinja-filter-palette-search-icon"></i>
+            <input id="jinja-widget-filter-search"
+                   type="text"
+                   class="form-control input-sm"
+                   placeholder="Search filters by name or description…"
+                   data-ng-model="filterPaletteQuery"
+                   data-ng-change="rebuildFilterGroups(filterPaletteQuery)"
+                   data-ng-keydown="handleFilterSearchKey($event)" />
+          </div>
+          <div class="jinja-filter-palette-body">
+            <div data-ng-if="!filterPaletteGroups.length"
+                 class="jinja-filter-palette-empty">
+              No filters match <em>"{{ filterPaletteQuery }}"</em>.
+            </div>
+            <div data-ng-repeat="group in filterPaletteGroups"
+                 class="jinja-filter-group">
+              <div class="jinja-filter-group-title">{{ group.category }}</div>
+              <div class="jinja-filter-item"
+                   data-ng-repeat="filter in group.filters">
+                <div class="jinja-filter-item-main"
+                     data-ng-click="insertFilter(filter.name)"
+                     title="Click to insert | {{ filter.name }} at the cursor">
+                  <div class="jinja-filter-item-head">
+                    <span class="jinja-filter-item-name">{{ filter.name }}</span>
+                    <span class="jinja-filter-item-return">→ {{ filter.returnValue.type }}</span>
+                  </div>
+                  <div class="jinja-filter-item-signature"
+                       data-ng-if="filter.parameters.length">
+                    ({{ paramSummary(filter.parameters) }})
+                  </div>
+                  <div class="jinja-filter-item-doc">{{ filter.documentation }}</div>
+                </div>
+                <div class="jinja-filter-item-example"
+                     data-ng-if="filter.example">
+                  <code class="jinja-filter-example-code">{{ filter.example }}</code>
+                  <button type="button"
+                          class="btn btn-link btn-xs jinja-filter-example-insert"
+                          data-ng-click="insertFilterExample(filter.name); $event.stopPropagation()"
+                          title="Insert this example into the template">
+                    <i class="fa fa-arrow-right"></i> try
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="jinja-filter-palette-footer muted-65">
+            {{ totalFilterCount(filterPaletteGroups) }} filters · Esc to close
+          </div>
+        </div>
+      </div>
+
+      <div class="jinja-pane" data-ng-class="paneClasses().output">
+        <div class="display-flex-space-between margin-top-sm">
+          <label class="control-label font-size-16 margin-bottom-0">Output</label>
+          <div class="display-flex">
+            <ul class="nav nav-pills jinja-output-tabs">
+              <li data-ng-class="{ active: resolveOutputTab() === 'raw' }">
+                <a href="" data-ng-click="setOutputTab('raw')">Raw</a>
+              </li>
+              <li data-ng-class="{ active: resolveOutputTab() === 'json' }">
+                <a href="" data-ng-click="setOutputTab('json')">JSON</a>
+              </li>
+              <li data-ng-class="{ active: resolveOutputTab() === 'html' }">
+                <a href="" data-ng-click="setOutputTab('html')">HTML</a>
+              </li>
+            </ul>
+            <button type="button"
+                    class="btn btn-default btn-xs margin-left-sm jinja-output-expand"
+                    data-ng-click="openOutputModal()"
+                    data-ng-disabled="output == null"
+                    title="Open output in a larger view">
+              <i class="fa fa-expand"></i>
+            </button>
+          </div>
+        </div>
+        <div class="font-size-12 muted-65 margin-bottom-sm">
+          Result of <code>POST api/wf/api/jinja-editor/</code>.
+          <span data-ng-if="outputTabPick === 'auto' && output != null"> Auto-selected: <strong>{{ detectedOutputKind }}</strong>.</span>
+        </div>
+        <div class="position-relative output-area">
+          <i class="fa fa-spinner fa-spin output-loader position-absolute"
+             data-ng-if="processing"></i>
+
+          <!-- Raw tab: textarea (always-renderable fallback) -->
+          <textarea id="jinja-widget-output"
+                    class="form-control jinja-code-area"
+                    data-ng-class="{'has-error-border': isErrorOutput, 'jinja-output--light': !isDark}"
+                    data-ng-model="output"
+                    readonly="readonly"
+                    rows="12"
+                    data-ng-if="resolveOutputTab() === 'raw'"></textarea>
+
+          <!-- JSON tab: read-only Monaco editor for arrays/dicts -->
+          <div id="jinja-widget-output-json"
+               class="monaco-pane"
+               data-ng-if="resolveOutputTab() === 'json' && monacoReady"
+               data-monaco-editor
+               data-editor-config="outputJsonEditorConfig"
+               data-editor-content="outputJsonText"></div>
+
+          <!-- HTML tab: sandboxed iframe preview -->
+          <div class="jinja-html-preview"
+               data-ng-if="resolveOutputTab() === 'html'"
+               data-jinja-html-preview="output"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Output expand modal -->
+  <div class="jinja-output-modal-backdrop"
+       data-ng-if="outputModalOpen"
+       data-ng-click="closeOutputModal()">
+    <div class="jinja-output-modal" data-ng-click="$event.stopPropagation()">
+      <div class="jinja-output-modal-header">
+        <strong>Output</strong>
+        <ul class="nav nav-pills jinja-output-tabs margin-left-md">
+          <li data-ng-class="{ active: resolveOutputTab() === 'raw' }">
+            <a href="" data-ng-click="setOutputTab('raw')">Raw</a>
+          </li>
+          <li data-ng-class="{ active: resolveOutputTab() === 'json' }">
+            <a href="" data-ng-click="setOutputTab('json')">JSON</a>
+          </li>
+          <li data-ng-class="{ active: resolveOutputTab() === 'html' }">
+            <a href="" data-ng-click="setOutputTab('html')">HTML</a>
+          </li>
+        </ul>
+        <button type="button"
+                class="btn btn-link btn-sm jinja-output-modal-close"
+                data-ng-click="closeOutputModal()"
+                title="Close (Esc)">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="jinja-output-modal-body">
+        <textarea class="form-control jinja-code-area jinja-output-modal-textarea"
+                  data-ng-class="{'has-error-border': isErrorOutput, 'jinja-output--light': !isDark}"
+                  data-ng-model="output"
+                  readonly="readonly"
+                  data-ng-if="resolveOutputTab() === 'raw'"></textarea>
+        <div class="monaco-pane jinja-output-modal-monaco"
+             data-ng-if="resolveOutputTab() === 'json' && monacoReady"
+             data-monaco-editor
+             data-editor-config="outputJsonModalEditorConfig"
+             data-editor-content="outputJsonText"></div>
+        <div class="jinja-html-preview jinja-output-modal-html"
+             data-ng-if="resolveOutputTab() === 'html'"
+             data-jinja-html-preview="output"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input expand modal -->
+  <div class="jinja-output-modal-backdrop"
+       data-ng-if="inputModalOpen"
+       data-ng-click="closeInputModal()">
+    <div class="jinja-output-modal" data-ng-click="$event.stopPropagation()">
+      <div class="jinja-output-modal-header">
+        <strong>Input</strong>
+        <button type="button"
+                class="btn btn-xs btn-default margin-left-md"
+                data-ng-click="formatInput()"
+                data-ng-disabled="!monacoReady">
+          <i class="fa fa-magic margin-right-sm"></i>Format JSON
+        </button>
+        <button type="button"
+                class="btn btn-link btn-sm jinja-output-modal-close"
+                data-ng-click="closeInputModal()"
+                title="Close (Esc)">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="jinja-output-modal-body">
+        <div class="monaco-pane jinja-output-modal-monaco"
+             data-ng-class="{'has-error-border': inputJsonError}"
+             data-ng-if="monacoReady"
+             data-monaco-editor
+             data-editor-config="inputModalEditorConfig"
+             data-editor-content="inputJsonText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Template expand modal -->
+  <div class="jinja-output-modal-backdrop"
+       data-ng-if="templateModalOpen"
+       data-ng-click="closeTemplateModal()">
+    <div class="jinja-output-modal" data-ng-click="$event.stopPropagation()">
+      <div class="jinja-output-modal-header">
+        <strong>Jinja template</strong>
+        <button type="button"
+                class="btn btn-link btn-sm jinja-output-modal-close"
+                data-ng-click="closeTemplateModal()"
+                title="Close (Esc)">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="jinja-output-modal-body">
+        <div class="monaco-pane jinja-output-modal-monaco"
+             data-ng-if="monacoReady"
+             data-monaco-editor
+             data-editor-config="templateModalEditorConfig"
+             data-editor-content="templateText"></div>
+      </div>
+    </div>
+  </div>
+</div>

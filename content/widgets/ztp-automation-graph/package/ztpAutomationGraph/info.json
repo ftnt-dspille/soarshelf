@@ -1,0 +1,27 @@
+{
+  "name": "ztpAutomationGraph",
+  "title": "ZTP Automation Step Graph",
+  "subTitle": "Directed graph of a ZTP device's automation-step run-group, with live status and deep links.",
+  "version": "1.0.40",
+  "published_date": 1748908800,
+  "releaseNotes": "Three defects found against a live box running installs on four FortiGates. (1) The step fetch carried no $limit, so the API served its default page of 30: a device holding 44 records -- a finished 22-step run plus 22 steps staged for the next one -- returned only 8 of the current group, and the graph drew steps 15-22 with the first fourteen simply absent. It now asks for the whole history and says so out loud if the box still has more to give. (2) ztpfRunning was read once from FormEntityService, which never refetches, so the badge read 'running' over 22 Complete steps for the life of the panel; the device record is now re-read over HTTP every poll, and an all-terminal run outranks the flag regardless. (3) That device read is deliberately NOT awaited before drawing -- gating the render on it let a slow box draw nothing at all.",
+  "development": true,
+  "metadata": {
+    "description": "Renders a Cytoscape.js node graph of a ZTP device's automation-step run-group (ztpf_device_automation_steps), ordered by step number ascending. Nodes are colored by live queueStatus (Added/Queued/Running/Complete/Failed) using FortiSOAR's own picklist colors, carry an icon by step type (FortiManager -> fmg, Playbook -> playbook, ...), and the currently-running step glows/blinks. Clicking a node opens its step record. While a run is queued (not yet running) the nodes are drag-to-reorder. Polls the step records for live updates.",
+    "publisher": "Dylan Spille",
+    "certified": "No",
+    "compatibility": [
+      "7.6.0"
+    ],
+    "snapshots": [],
+    "category": [
+      "Utilities"
+    ],
+    "pages": [
+      "View Panel"
+    ],
+    "standalone": false,
+    "windowClass": "Full Width",
+    "size": "lg"
+  }
+}

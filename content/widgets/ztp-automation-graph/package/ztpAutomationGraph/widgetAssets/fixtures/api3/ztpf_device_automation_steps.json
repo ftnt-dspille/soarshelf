@@ -1,0 +1,224 @@
+{
+  "@context": "/api/3/contexts/ZtpfDeviceAutomationStep",
+  "@id": "/api/3/ztpf_device_automation_steps",
+  "@type": "hydra:Collection",
+  "hydra:totalItems": 9,
+  "hydra:member": [
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-1",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-1",
+      "id": 1,
+      "stepNumber": 1,
+      "name": "Provision device",
+      "triggerKey": "FortiManager DeviceDB",
+      "stepDone": true,
+      "stepStartTimestamp": 1783000010,
+      "stepStopTimestamp": 1783000015,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-9000000001",
+        "uuid": "rg-1"
+      },
+      "outputSourceData": null
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-2",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-2",
+      "id": 2,
+      "stepNumber": 2,
+      "name": "Push policy package",
+      "triggerKey": "FortiManager PolicyDB",
+      "stepDone": true,
+      "stepStartTimestamp": 1783000020,
+      "stepStopTimestamp": 1783000025,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-fail",
+        "@type": "Picklist",
+        "itemValue": "Fail",
+        "color": "#ff0000",
+        "orderIndex": 7
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-9000000001",
+        "uuid": "rg-1"
+      },
+      "outputSourceData": null
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-3",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-3",
+      "id": 3,
+      "stepNumber": 3,
+      "name": "Get system status (REST)",
+      "triggerKey": "FortiManager Proxy API",
+      "stepDone": true,
+      "stepStartTimestamp": 1783000030,
+      "stepStopTimestamp": 1783000035,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-9000000001",
+        "uuid": "rg-1"
+      },
+      "outputSourceData": null
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-4",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-4",
+      "id": 4,
+      "stepNumber": 4,
+      "name": "Show interface config",
+      "triggerKey": "FortiManager Remote CLI",
+      "stepDone": true,
+      "stepStartTimestamp": 1783000040,
+      "stepStopTimestamp": 1783000045,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-cancelled",
+        "@type": "Picklist",
+        "itemValue": "Cancelled",
+        "color": "#808080",
+        "orderIndex": 8
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-9000000001",
+        "uuid": "rg-1"
+      },
+      "outputSourceData": null
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-5",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-5",
+      "id": 5,
+      "stepNumber": 5,
+      "name": "Upgrade firmware",
+      "triggerKey": "FortiManager Upgrade Device Firmware",
+      "stepDone": false,
+      "stepStartTimestamp": 1783000050,
+      "stepStopTimestamp": null,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-input-needed",
+        "@type": "Picklist",
+        "itemValue": "Input Needed",
+        "color": "#b1ae06",
+        "orderIndex": 2
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-9000000001",
+        "uuid": "rg-1"
+      },
+      "outputSourceData": null
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-6",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-6",
+      "id": 6,
+      "stepNumber": 6,
+      "name": "Diff routing table",
+      "triggerKey": "ZTPF Diff Step Output",
+      "stepDone": false,
+      "stepStartTimestamp": 1783000060,
+      "stepStopTimestamp": null,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-running",
+        "@type": "Picklist",
+        "itemValue": "Running",
+        "color": "#07b7f6",
+        "orderIndex": 5
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-9000000001",
+        "uuid": "rg-1"
+      },
+      "outputSourceData": null
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-7",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-7",
+      "id": 7,
+      "stepNumber": 7,
+      "name": "Wait for HA sync",
+      "triggerKey": "ZTPF Wait for Condition",
+      "stepDone": false,
+      "stepStartTimestamp": 1783000070,
+      "stepStopTimestamp": null,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-queued",
+        "@type": "Picklist",
+        "itemValue": "Queued",
+        "color": "#b517ef",
+        "orderIndex": 4
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-9000000001",
+        "uuid": "rg-1"
+      },
+      "outputSourceData": null
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-old-1",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-old-1",
+      "id": 1,
+      "stepNumber": 1,
+      "name": "Provision device",
+      "triggerKey": "FortiManager DeviceDB",
+      "stepDone": true,
+      "stepStartTimestamp": 1783000010,
+      "stepStopTimestamp": 1783000015,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-9000000000",
+        "uuid": "rg-0"
+      },
+      "outputSourceData": null
+    },
+    {
+      "@id": "/api/3/ztpf_device_automation_steps/step-uuid-old-2",
+      "@type": "ZtpfDeviceAutomationStep",
+      "uuid": "step-uuid-old-2",
+      "id": 2,
+      "stepNumber": 2,
+      "name": "Push policy package",
+      "triggerKey": "FortiManager PolicyDB",
+      "stepDone": true,
+      "stepStartTimestamp": 1783000020,
+      "stepStopTimestamp": 1783000025,
+      "queueStatus": {
+        "@id": "/api/3/picklists/qs-complete",
+        "@type": "Picklist",
+        "itemValue": "Complete",
+        "color": "#34ca46",
+        "orderIndex": 6
+      },
+      "ztpfRunGroups": {
+        "name": "ztpf-9000000000",
+        "uuid": "rg-0"
+      },
+      "outputSourceData": null
+    }
+  ]
+}

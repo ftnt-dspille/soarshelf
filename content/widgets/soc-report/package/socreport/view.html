@@ -1,0 +1,860 @@
+<!-- Copyright start
+  MIT License
+  Copyright (c) 2024 Fortinet Inc
+  Copyright end -->
+<div class="widget widget-container chg-report-widget">
+    <!-- Widget Header -->
+    <div class="chg-widget-header display-flex-space-between margin-chart" style="background: transparent !important;">
+        <div class="widget-title-section padding-right-0 padding-left-0"
+             data-ng-class="(page === 'dashboard' || page === 'reporting') ? 'widget-dashboard-title-width' : 'widget-title-width'">
+            <h5 data-ng-if="config.title"
+                class="padding-left-lg margin-top-0 margin-bottom-0 text-overflow widget-title">
+                {{ config.title }}
+                <span class="change-number-badge" data-ng-if="changeNumber">
+                    {{ changeNumber }}
+                </span>
+                <span class="context-badge" data-ng-if="recordInfo.loadMethod">
+                    {{ recordInfo.loadMethod }}
+                </span>
+            </h5>
+        </div>
+        <div class="widget-controls padding-right-lg" style="background: transparent !important;">
+            <button class="btn btn-xs btn-success widget-pdf-btn margin-right-sm"
+                    data-ng-click="exportToPDF()"
+                    data-ng-disabled="loading || !hasData()"
+                    data-uib-tooltip="Export to PDF"
+                    style="background-color: #28a745 !important; border-color: #28a745 !important;">
+                <i class="icon icon-download margin-right-xs"></i>PDF
+            </button>
+            <button class="btn btn-xs btn-default widget-refresh-btn"
+                    data-ng-click="refreshData()"
+                    data-ng-disabled="loading"
+                    data-uib-tooltip="Refresh report"
+                    style="background-color: transparent !important; border: 1px solid rgba(255, 255, 255, 0.3) !important;">
+                <i class="icon icon-refresh" data-ng-class="{'fa-spin': loading}"></i>
+            </button>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+
+    <!-- Context Information -->
+    <div class="context-info padding-left-lg padding-right-lg margin-bottom-sm" data-ng-if="recordInfo.loadMethod">
+        <div class="context-details">
+            <span class="context-item">
+                <i class="icon icon-info-circle margin-right-xs"></i>
+                <strong>Source:</strong> {{ getUsageModeText() }}
+            </span>
+            <span class="context-item" data-ng-if="recordInfo.module">
+                <i class="icon icon-database margin-right-xs"></i>
+                <strong>Module:</strong> {{ recordInfo.module }}
+            </span>
+            <span class="context-item" data-ng-if="recordInfo.queryFilters">
+                <i class="icon icon-filter margin-right-xs"></i>
+                <strong>Filters:</strong> {{ recordInfo.queryFilters }} condition(s)
+            </span>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state text-center padding-top-xl padding-bottom-xl" data-ng-if="loading">
+        <cs-spinner class="state-wait" data-show-background="true"></cs-spinner>
+        <div class="loading-text font-size-14 margin-top-sm">
+            <span data-ng-if="recordInfo.loadMethod === 'Query'">Searching for record...</span>
+            <span data-ng-if="recordInfo.loadMethod === 'Detail Page'">Loading revision report...</span>
+            <span data-ng-if="!recordInfo.loadMethod">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state alert alert-warning margin-lg" data-ng-if="!loading && error">
+        <i class="icon icon-warning margin-right-sm"></i>
+        <strong>Error:</strong> {{ error }}
+        <div class="error-actions margin-top-sm" data-ng-if="!isViewPanel">
+            <small class="text-muted">
+                <strong>Troubleshooting tips for dashboard/report usage:</strong><br>
+                • Ensure the selected module contains records with the specified field<br>
+                • Check that query filters match existing records<br>
+                • Verify the data source field contains valid JSON data<br>
+                • Make sure the change number field is populated in the target record
+            </small>
+        </div>
+    </div>
+
+    <!-- Report Content -->
+    <div class="report-content" data-ng-if="!loading && !error && hasData()">
+
+        <!-- Summary Section -->
+        <div class="summary-section padding-lg">
+            <div class="row">
+                <!-- Stats Cards -->
+                <div class="col-md-8">
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="icon icon-server"></i></div>
+                            <div class="stat-content">
+                                <div class="stat-number">{{ totalDevices }}</div>
+                                <div class="stat-label">Devices</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="icon icon-git-branch"></i></div>
+                            <div class="stat-content">
+                                <div class="stat-number">{{ totalRevisions }}</div>
+                                <div class="stat-label">Total Revisions</div>
+                            </div>
+                        </div>
+                        <div class="stat-card highlight">
+                            <div class="stat-icon"><i class="icon icon-flag"></i></div>
+                            <div class="stat-content">
+                                <div class="stat-number">{{ totalMatches }}</div>
+                                <div class="stat-label">CHG Matches</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHG Info -->
+                <div class="col-md-4">
+                    <div class="chg-info-panel" data-ng-if="getAllCHGNumbers().length > 0">
+                        <div class="info-label">Change Numbers Found:</div>
+                        <div class="chg-badges">
+                            <span data-ng-repeat="chg in getAllCHGNumbers()" class="chg-badge">{{ chg }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Device Summary Table -->
+        <div class="devices-summary-section padding-lg" data-ng-if="deviceSummary.length > 0">
+            <h5 class="section-title">
+                <i class="icon icon-list margin-right-sm"></i>Device Summary
+            </h5>
+            <div class="summary-table">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th class="device-col">Device Name</th>
+                        <th class="count-col text-center">Total Revisions</th>
+                        <th class="matches-col text-center">CHG Matches</th>
+                        <th class="percent-col text-center">Match Rate</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr data-ng-repeat="device in getDevicesWithCounts()">
+                        <td class="device-col">
+                                <span class="device-name">
+                                    <i class="icon icon-server margin-right-xs"></i>{{ device.device }}
+                                </span>
+                        </td>
+                        <td class="count-col text-center">
+                            <span class="revision-count">{{ device.total }}</span>
+                        </td>
+                        <td class="matches-col text-center">
+                                <span class="match-count" data-ng-class="{'has-matches': device.matches > 0}">
+                                    {{ device.matches }}
+                                </span>
+                        </td>
+                        <td class="percent-col text-center">
+                            <div class="progress-container">
+                                <div class="progress">
+                                    <div class="progress-bar"
+                                         data-ng-class="device.matches > 0 ? 'progress-bar-warning' : 'progress-bar-default'"
+                                         style="width: {{ (device.matches / device.total * 100) || 0 }}%">
+                                    </div>
+                                </div>
+                                <span class="percent-text">{{ ((device.matches / device.total * 100) || 0).toFixed(1) }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Matching Revisions Section -->
+        <div class="revisions-section padding-lg" data-ng-if="matchingRecords.length > 0">
+            <h5 class="section-title">
+                <i class="icon icon-flag margin-right-sm"></i>Matching Revisions
+                <span class="match-count-badge">{{ matchingRecords.length }}</span>
+            </h5>
+
+            <div class="revisions-list">
+                <div class="revision-card" data-ng-repeat="record in getAllMatchingRecords()">
+                    <!-- Revision Header -->
+                    <div class="revision-header">
+                        <div class="revision-main-info">
+                            <span class="device-tag">
+                                <i class="icon icon-server"></i>{{ record.device }}
+                            </span>
+                            <span class="revision-tag">
+                                Rev #{{ record.revisionID }}
+                            </span>
+                            <span class="status-tag" data-ng-class="'status-' + record.statusColor">
+                                {{ record.status }}
+                            </span>
+                        </div>
+                        <div class="revision-timestamp">
+                            <i class="icon icon-clock-o"></i> {{ record.modifiedDate }}
+                        </div>
+                    </div>
+
+                    <!-- CHG Information -->
+                    <div class="chg-info" data-ng-if="record.chgNumbers.length > 0">
+                        <div class="chg-alert">
+                            <i class="icon icon-flag chg-icon"></i>
+                            <span class="chg-label">Change Numbers:</span>
+                            <span data-ng-repeat="chg in record.chgNumbers" class="chg-number">{{ chg }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="revision-comments" data-ng-if="record.comments">
+                        <div class="field-label">Comments:</div>
+                        <div class="field-content">{{ record.comments}} </div>
+                    </div>
+
+                    <!-- Additional Details -->
+                    <div class="revision-details">
+                        <div class="detail-grid">
+                            <div class="detail-item" data-ng-if="record.modifyingUser">
+                                <span class="detail-label">Modified By:</span>
+                                <span class="detail-value">{{ record.modifyingUser }}</span>
+                            </div>
+                            <div class="detail-item" data-ng-if="record.installingUser">
+                                <span class="detail-label">Installed By:</span>
+                                <span class="detail-value">{{ record.installingUser }}</span>
+                            </div>
+                            <div class="detail-item" data-ng-if="record.installTime && record.installTime !== 'N/A'">
+                                <span class="detail-label">Install Time:</span>
+                                <span class="detail-value">{{ record.installTime }}</span>
+                            </div>
+                            <div class="detail-item" data-ng-if="record.extraInfo">
+                                <span class="detail-label">Extra Info:</span>
+                                <span class="detail-value">{{ record.extraInfo }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Matches State -->
+        <div class="no-matches-state text-center padding-xl"
+             data-ng-if="deviceSummary.length > 0 && matchingRecords.length === 0">
+            <div class="empty-icon">
+                <i class="icon icon-search"></i>
+            </div>
+            <h5 class="empty-title">No Matching Revisions</h5>
+            <p class="empty-text">No revisions found matching the query criteria.</p>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state text-center padding-xl"
+         data-ng-if="!loading && !error && !hasData()">
+        <div class="empty-icon">
+            <i class="icon icon-database"></i>
+        </div>
+        <h5 class="empty-title">No Data Available</h5>
+        <p class="empty-text">
+            <span data-ng-if="recordInfo.loadMethod === 'Query'">No records found matching the query filters, or the selected field contains no data.</span>
+            <span data-ng-if="recordInfo.loadMethod === 'Detail Page'">No revision data found in the selected field.</span>
+            <span data-ng-if="!recordInfo.loadMethod">No revision data found.</span>
+        </p>
+    </div>
+</div>
+
+<style>
+    /* Widget Base Styles */
+    .chg-report-widget {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: transparent;
+        color: inherit;
+    }
+
+    /* Widget Header - using more specific selector to override FortiSOAR's styles */
+    .chg-report-widget .chg-widget-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        padding-bottom: 10px !important;
+        margin-bottom: 0 !important;
+        background: transparent !important;
+    }
+
+    /* Ensure the header area stays transparent */
+    .chg-report-widget .widget-header {
+        background: transparent !important;
+    }
+
+    .chg-report-widget .widget-title {
+        color: inherit;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .chg-report-widget .change-number-badge {
+        background: #007bff;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        font-family: monospace;
+    }
+
+    .chg-report-widget .context-badge {
+        background: rgba(255, 255, 255, 0.1);
+        color: inherit;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Context Information */
+    .chg-report-widget .context-info {
+        background: rgba(0, 123, 255, 0.05);
+        border: 1px solid rgba(0, 123, 255, 0.1);
+        border-radius: 4px;
+        padding: 8px 12px;
+    }
+
+    .chg-report-widget .context-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        font-size: 12px;
+    }
+
+    .chg-report-widget .context-item {
+        display: flex;
+        align-items: center;
+        color: inherit;
+        opacity: 0.8;
+    }
+
+    .chg-report-widget .widget-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent !important;
+    }
+
+    .chg-report-widget .widget-pdf-btn {
+        transition: all 0.2s ease;
+        color: white !important;
+    }
+
+    .chg-report-widget .widget-refresh-btn {
+        transition: all 0.2s ease;
+        color: inherit !important;
+    }
+
+    .chg-report-widget .widget-refresh-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Loading and Error States */
+    .chg-report-widget .loading-text {
+        color: inherit;
+        opacity: 0.7;
+    }
+
+    .chg-report-widget .error-state {
+        background: rgba(255, 193, 7, 0.1);
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        border-radius: 6px;
+    }
+
+    .chg-report-widget .error-actions {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        padding: 8px;
+    }
+
+    /* Summary Section */
+    .chg-report-widget .summary-section {
+        background: rgba(0, 123, 255, 0.05);
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(0, 123, 255, 0.1);
+    }
+
+    .chg-report-widget .stats-row {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .chg-report-widget .stat-card {
+        flex: 1;
+        min-width: 140px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .chg-report-widget .stat-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .chg-report-widget .stat-card.highlight {
+        background: rgba(255, 193, 7, 0.15);
+        border-color: rgba(255, 193, 7, 0.3);
+        color: inherit;
+    }
+
+    .chg-report-widget .stat-icon {
+        font-size: 24px;
+        opacity: 0.6;
+    }
+
+    .chg-report-widget .stat-content {
+        flex: 1;
+    }
+
+    .chg-report-widget .stat-number {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .chg-report-widget .stat-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.8;
+    }
+
+    /* CHG Info Panel */
+    .chg-report-widget .chg-info-panel {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chg-report-widget .info-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        opacity: 0.7;
+    }
+
+    .chg-report-widget .chg-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .chg-report-widget .chg-badge {
+        background: #ffc107;
+        color: #212529;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-family: monospace;
+        font-size: 14px;
+    }
+
+    /* Section Styles */
+    .chg-report-widget .section-title {
+        color: inherit;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid rgba(0, 123, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .chg-report-widget .match-count-badge {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ff9800;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* Summary Table */
+    .chg-report-widget .summary-table {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chg-report-widget .summary-table table {
+        margin-bottom: 0;
+    }
+
+    .chg-report-widget .summary-table th {
+        background: rgba(255, 255, 255, 0.03);
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        padding: 12px;
+    }
+
+    .chg-report-widget .summary-table td {
+        padding: 12px;
+        vertical-align: middle;
+    }
+
+    .chg-report-widget .device-name {
+        font-weight: 600;
+        color: inherit;
+    }
+
+    .chg-report-widget .revision-count,
+    .chg-report-widget .match-count {
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+    .chg-report-widget .match-count.has-matches {
+        color: #ff9800;
+    }
+
+    .chg-report-widget .progress-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .chg-report-widget .progress {
+        flex: 1;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .chg-report-widget .progress-bar {
+        height: 100%;
+        transition: width 0.3s ease;
+    }
+
+    .chg-report-widget .percent-text {
+        font-size: 12px;
+        font-weight: 600;
+        min-width: 45px;
+        text-align: right;
+    }
+
+    /* Revision Cards */
+    .chg-report-widget .revisions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .chg-report-widget .revision-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 20px;
+        transition: all 0.2s ease;
+    }
+
+    .chg-report-widget .revision-card:hover {
+        transform: translateX(4px);
+        border-color: rgba(0, 123, 255, 0.3);
+    }
+
+    .chg-report-widget .revision-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .chg-report-widget .revision-main-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .chg-report-widget .device-tag,
+    .chg-report-widget .revision-tag {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .chg-report-widget .status-tag {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .chg-report-widget .status-success {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+
+    .chg-report-widget .status-warning {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+
+    .chg-report-widget .status-danger {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+
+    .chg-report-widget .status-info {
+        background: rgba(23, 162, 184, 0.1);
+        color: #17a2b8;
+    }
+
+    .chg-report-widget .status-secondary {
+        background: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+    }
+
+    .chg-report-widget .revision-timestamp {
+        font-size: 12px;
+        color: inherit;
+        opacity: 0.6;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* CHG Alert */
+    .chg-report-widget .chg-alert {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.15) 100%);
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        border-radius: 6px;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .chg-report-widget .chg-icon {
+        color: #ff9800;
+        font-size: 16px;
+    }
+
+    .chg-report-widget .chg-label {
+        font-weight: 600;
+        color: inherit;
+        font-size: 13px;
+    }
+
+    .chg-report-widget .chg-number {
+        background: #ffc107;
+        color: #212529;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-weight: 700;
+        font-family: monospace;
+        font-size: 12px;
+    }
+
+    .chg-report-widget .chg-highlight {
+        background: #ffc107;
+        color: #212529;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-weight: 700;
+    }
+
+    /* Comments Section */
+    .chg-report-widget .revision-comments {
+        margin-bottom: 12px;
+    }
+
+    .chg-report-widget .field-label {
+        font-weight: 600;
+        font-size: 12px;
+        color: inherit;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+    }
+
+    .chg-report-widget .field-content {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 4px;
+        padding: 10px 12px;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    /* Detail Grid */
+    .chg-report-widget .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .chg-report-widget .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .chg-report-widget .detail-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: inherit;
+        opacity: 0.6;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .chg-report-widget .detail-value {
+        font-size: 13px;
+        color: inherit;
+        font-weight: 500;
+    }
+
+    /* Empty States */
+    .chg-report-widget .empty-state,
+    .chg-report-widget .no-matches-state {
+        padding: 60px 20px;
+    }
+
+    .chg-report-widget .empty-icon {
+        font-size: 48px;
+        color: inherit;
+        opacity: 0.2;
+        margin-bottom: 16px;
+    }
+
+    .chg-report-widget .empty-title {
+        color: inherit;
+        opacity: 0.7;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .chg-report-widget .empty-text {
+        color: inherit;
+        opacity: 0.5;
+        font-size: 14px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .chg-report-widget .stats-row {
+            flex-direction: column;
+        }
+
+        .chg-report-widget .stat-card {
+            min-width: 100%;
+        }
+
+        .chg-report-widget .revision-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .chg-report-widget .revision-main-info {
+            width: 100%;
+        }
+
+        .chg-report-widget .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .chg-report-widget .summary-table {
+            overflow-x: auto;
+        }
+
+        .chg-report-widget .summary-table table {
+            min-width: 500px;
+        }
+
+        .chg-report-widget .progress-container {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .chg-report-widget .progress {
+            width: 100%;
+        }
+
+        .chg-report-widget .percent-text {
+            text-align: left;
+        }
+
+        .chg-report-widget .context-details {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chg-report-widget .widget-title {
+            font-size: 14px;
+        }
+
+        .chg-report-widget .change-number-badge,
+        .chg-report-widget .context-badge {
+            font-size: 10px;
+            padding: 1px 6px;
+        }
+    }
+
+    /* Print Styles */
+    @media print {
+        .chg-report-widget .widget-controls {
+            display: none;
+        }
+
+        .chg-report-widget .revision-card {
+            page-break-inside: avoid;
+        }
+
+        .chg-report-widget .stat-card,
+        .chg-report-widget .revision-card {
+            box-shadow: none;
+            border: 1px solid #ddd;
+        }
+
+        .chg-report-widget .context-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+    }
+</style>

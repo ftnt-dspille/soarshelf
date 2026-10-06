@@ -1,0 +1,22 @@
+{
+    "name": "socreport",
+    "title": "SOC Report",
+    "subTitle": "Display FMG SOC report",
+    "version": "1.0.0",
+    "publishedDate": 1752868635,
+    "releaseNotes": "unavailable",
+    "metadata": {
+        "description": "",
+        "pages": [
+            "View Panel",
+            "Dashboard",
+            "Reports"
+        ],
+        "certified": "No",
+        "publisher": "Dylan Spille",
+        "compatibility": [
+            "7.6.2"
+        ]
+    },
+    "development": false
+}

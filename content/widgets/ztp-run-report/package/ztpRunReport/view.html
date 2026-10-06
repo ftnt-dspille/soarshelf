@@ -1,0 +1,1893 @@
+<!-- Copyright start
+  MIT License
+  Copyright (c) 2026 Fortinet Inc
+  Copyright end -->
+<!-- VIEW template. Do NOT put data-ng-controller on the root here -- the harness
+     (and SOAR after publish) wraps the widget with its own ng-controller; a
+     second one creates a dead parallel scope. See KNOWLEDGEBASE.md widget gotchas. -->
+<!-- Pure aggregation/CSV/chart-geometry module (namespace global, no define()).
+     Path prefix is <name>-<version>/widgetAssets/...; `widget bump` rewrites the
+     version segment (lint `stale-version-ref` flags a mismatch). -->
+<script src="ztpRunReport-1.0.55/widgetAssets/js/ztpReport.js"></script>
+<style>
+/* Inlined, not <link>: Angular $compile does not load <link> tags in templates,
+   and the harness auto-injects only widgetAssets .js.
+
+   ONE palette and ONE type ramp, as custom properties. The widget used to run
+   two colour systems side by side -- neutral chrome for its own furniture, and
+   the raw ZTP picklist colours (pure #ff0000, a magenta Queued) inside the
+   charts -- so a fleet that was merely QUEUED looked as alarming as one that
+   had failed. Here colour carries exactly one meaning:
+       red   = a device needs a human      grey  = waiting, nothing wrong
+       blue  = moving on its own           green = complete, done
+   And the ramp is real (11/13/16/28/44): the old template was 11-12px for
+   almost everything, so nothing on it could be scanned first. */
+.ztp-rr {
+  --rr-fail: #f2555a; --rr-run: #38bdf8; --rr-wait: #5b6673; --rr-ok: #35c98a;
+  /* Exceptions are their own state: the step RAN, and what it produced is
+     worth reading. Amber, so it never reads as a failure and never
+     disappears into the completed green. */
+  --rr-exc: #f0a63a;
+  --rr-accent: #2aa8c9;
+  --rr-line: rgba(128,128,128,.22); --rr-line-2: rgba(128,128,128,.4);
+  --rr-fill: rgba(128,128,128,.05); --rr-hover: rgba(128,128,128,.1);
+  /* Sized for a DASHBOARD, read at desk distance across a wide monitor, not
+     for a cramped side panel. The old ramp bottomed out at 11px, which is
+     where the "tiny text" came from -- and 11px does not get more readable
+     just because there are 2000 pixels of room for it. */
+  --rr-t-micro: 12px; --rr-t-body: 14px; --rr-t-lead: 18px;
+  --rr-t-num: 26px; --rr-t-hero: 40px;
+  box-sizing: border-box; width: 100%;
+  font-family: "Helvetica Neue", Arial, sans-serif; color: inherit;
+  font-size: var(--rr-t-body);
+}
+.ztp-rr *, .ztp-rr *:before, .ztp-rr *:after { box-sizing: border-box; }
+.ztp-rr .rr-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 0 0 10px; border-bottom: 1px solid var(--rr-line); }
+.ztp-rr .rr-title { font-size: var(--rr-t-lead); font-weight: 600; margin: 0; display: flex; align-items: center; gap: 10px; }
+.ztp-rr .rr-when { font-size: var(--rr-t-micro); opacity: .6; font-weight: 400; transition: opacity .2s; }
+/* A background refresh in flight. Opacity only -- no inserted node, no size
+   change, nothing that can reflow the header. */
+.ztp-rr .rr-when.stale { opacity: .3; }
+.ztp-rr .rr-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.ztp-rr .rr-btn { border: 1px solid var(--rr-line-2); background: transparent; color: inherit; border-radius: 4px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+.ztp-rr .rr-btn:hover { background: var(--rr-hover); }
+.ztp-rr .rr-btn[disabled] { opacity: .45; cursor: not-allowed; }
+.ztp-rr .rr-btn.primary { border-color: var(--rr-accent); color: var(--rr-accent); font-weight: 600; }
+
+/* layout switcher */
+.ztp-rr .rr-seg { display: inline-flex; border: 1px solid var(--rr-line-2); border-radius: 5px; overflow: hidden; margin-right: 4px; }
+.ztp-rr .rr-seg button { border: 0; background: transparent; color: inherit; font: inherit; font-size: 12px; padding: 4px 11px; cursor: pointer; border-right: 1px solid var(--rr-line); }
+.ztp-rr .rr-seg button:last-child { border-right: 0; }
+.ztp-rr .rr-seg button:hover { background: var(--rr-hover); }
+.ztp-rr .rr-seg button.on { background: var(--rr-accent); color: #fff; font-weight: 600; }
+.ztp-rr .rr-seg-icon button { padding: 6px 10px; display: inline-flex; align-items: center; }
+.ztp-rr .rr-seg-icon svg { display: block; }
+
+/* headline + KPI strip share one row once there is room for both. Below
+   1100px they stack, exactly as before. */
+.ztp-rr .rr-top { display: flex; gap: 12px; align-items: stretch; margin: 12px 0; flex-wrap: wrap; }
+.ztp-rr .rr-top > .rr-headline { flex: 1 1 460px; margin: 0; }
+.ztp-rr .rr-top > .rr-kpis { flex: 0 1 372px; margin: 0; grid-template-columns: repeat(3, minmax(104px, 1fr)); }
+
+/* headline */
+.ztp-rr .rr-headline { display: flex; gap: 16px; align-items: center; margin: 16px 0 4px; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--rr-line); background: var(--rr-fill); border-left-width: 4px; }
+.ztp-rr .rr-headline.lvl-failed { border-left-color: var(--rr-fail); background: rgba(242,85,90,.07); }
+.ztp-rr .rr-headline.lvl-running { border-left-color: var(--rr-run); background: rgba(56,189,248,.07); }
+.ztp-rr .rr-headline.lvl-healthy { border-left-color: var(--rr-ok); background: rgba(53,201,138,.07); }
+/* EXCEPTIONS ALONE ARE AMBER. A window where nothing failed but several
+   steps reported drift is not a healthy window and must not be green; it is
+   also not a broken one and must not be red. The band had no third colour,
+   so this case used to render in whatever the fall-through was. */
+.ztp-rr .rr-headline.lvl-exception { border-left-color: var(--rr-exc); background: rgba(240,166,58,.08); }
+.ztp-rr .rr-headline.lvl-none { border-left-color: var(--rr-wait); }
+.ztp-rr .rr-headline .hl-hero { text-align: center; flex: 0 0 auto; }
+.ztp-rr .rr-headline .hl-nl { font-size: var(--rr-t-micro); text-transform: uppercase;
+  letter-spacing: .06em; opacity: .6; margin-top: 3px; }
+/* A filterable word inside a sentence. It has to read as PROSE first and as a
+   control second -- a row of buttons where a sentence should be is unreadable
+   -- so it inherits the type it sits in and earns an underline only on the
+   hover that proves it is one. */
+.ztp-rr .narr-link { border: 0; background: transparent; padding: 0; font: inherit;
+  color: inherit; cursor: pointer; border-bottom: 1px dashed var(--rr-line);
+  line-height: inherit; }
+.ztp-rr .narr-link:hover { color: var(--rr-accent); border-bottom-color: var(--rr-accent); }
+.ztp-rr .narr-link.on { color: var(--rr-accent); border-bottom-style: solid; font-weight: 600; }
+.ztp-rr .rr-headline .hl-n { font-size: var(--rr-t-hero); font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+.ztp-rr .rr-headline .hl-body { flex: 1; min-width: 200px; }
+.ztp-rr .rr-headline .hl-text { font-size: 19px; font-weight: 600; line-height: 1.25; }
+.ztp-rr .rr-headline .hl-detail { font-size: var(--rr-t-body); opacity: .75; margin-top: 5px; }
+.ztp-rr .rr-headline .hl-cta { margin-top: 10px; }
+/* The narrative reads as prose, so it gets prose measure and leading rather
+   than the tight label/number rhythm of the facts list under it. */
+.ztp-rr .rr-headline .hl-narr { font-size: var(--rr-t-body); line-height: 1.55; margin: 8px 0 0;
+  opacity: .92; max-width: 78ch; }
+.ztp-rr .lvl-failed .hl-n { color: var(--rr-fail); }
+.ztp-rr .lvl-running .hl-n { color: var(--rr-run); }
+.ztp-rr .lvl-healthy .hl-n { color: var(--rr-ok); }
+.ztp-rr .lvl-exception .hl-n { color: var(--rr-exc); }
+
+/* KPI strip. A GRID, not a stretch-flex: with `flex: 1` seven tiles on a wide
+   dashboard each inflate to ~270px of mostly padding. auto-fit with a sane max
+   keeps them tile-sized and lets them wrap to a second row, which is denser
+   and stays readable at any width. */
+.ztp-rr .rr-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; margin: 14px 0; align-content: start; }
+.ztp-rr .rr-kpi { min-width: 0; border: 1px solid var(--rr-line); border-radius: 6px; padding: 8px 11px; background: var(--rr-fill);
+  /* margin:0 is load-bearing -- the platform ships Bootstrap, and any
+     generic modifier class we add here inherits its box rules. */
+  margin: 0; }
+/* CENTRED, because a tile is now three stacked things -- count, share,
+   label -- and three left-aligned lines of different lengths read as a
+   ragged list rather than as one figure. */
+.ztp-rr .rr-kpi { text-align: center; }
+.ztp-rr .rr-kpi .n { font-size: var(--rr-t-num); font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+/* The share, directly under the number it qualifies and visibly subordinate
+   to it: the count is what the chip selects, the percent is only there to
+   make two tiles comparable. */
+.ztp-rr .rr-kpi .p { font-size: var(--rr-t-micro); opacity: .6; margin-top: 2px; line-height: 1; }
+.ztp-rr .rr-kpi .l { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; opacity: .65; margin-top: 4px; line-height: 1.25; }
+/* NOT `.alert` -- that is Bootstrap's, and the platform theme gives it
+   `margin-bottom: 20px`, which shrank this tile relative to its
+   siblings in the flex row. Namespaced so nothing leaks in. */
+.ztp-rr .rr-kpi.rr-alert { border-color: rgba(242,85,90,.5); background: rgba(242,85,90,.08); }
+.ztp-rr .rr-kpi.rr-alert .n { color: var(--rr-fail); }
+.ztp-rr .rr-kpi.good .n { color: var(--rr-ok); }
+.ztp-rr .rr-kpi.clickable { cursor: pointer; }
+.ztp-rr .rr-kpi.clickable:hover { border-color: rgba(42,168,201,.6); }
+/* A tile that IS the active filter has to look like it, or clicking one is a
+   change with no visible result -- the same unseeable-filter state the chip
+   panel refuses to create. */
+.ztp-rr .rr-kpi.clickable.on { border-color: var(--rr-accent); box-shadow: inset 0 0 0 1px var(--rr-accent); }
+/* The KPI strip is SHARED chrome -- it sits above every layout and reads the
+   same numbers in all three. It used to shrink to 18px outside the answer
+   layout, which made the type jump when you switched views. One size. */
+
+/* charts row.
+   GRID, not flex-wrap: a flex row stretches every card in it to the tallest
+   card's height, so one facet with fifteen values (TAG, RUN GROUP) forced
+   short ones (STEP STATUS, a two-slice pie) to inflate into mostly-empty
+   panels below their own content -- the "awkward layout" a wrapping flex row
+   of ragged-height boxes always produces. `align-items: start` lets each
+   card be exactly as tall as its own content; the legend's own max-height
+   below caps how tall "its own content" gets to be. */
+.ztp-rr .rr-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 14px; align-items: start; margin-bottom: 16px; }
+.ztp-rr .rr-card { border: 1px solid var(--rr-line); border-radius: 6px; padding: 14px 18px; background: rgba(128,128,128,.04); }
+.ztp-rr .rr-card h4 { margin: 0 0 10px; font-size: var(--rr-t-micro); text-transform: uppercase; letter-spacing: .06em; opacity: .7; font-weight: 600; }
+.ztp-rr .rr-card.mix { display: flex; gap: 14px; align-items: center; }
+.ztp-rr .rr-card.bars { flex: 1; min-width: 300px; }
+/* The trend card is the widest thing on the charts tab -- it reads a whole
+   window of history, so it gets the full row to itself rather than sharing
+   with the first pie the way the KPI-strip cards share width. */
+.ztp-rr .rr-card.trend { grid-column: 1 / -1; }
+/* FOCUSED: one card takes the whole grid, at a size worth reading from
+   across a room. Its siblings are removed from the DOM (`ng-if` in the
+   template), not merely hidden, so the grid has nothing else to lay out. */
+.ztp-rr .rr-charts.has-focus { grid-template-columns: 1fr; }
+.ztp-rr .rr-card.rr-focused { grid-column: 1 / -1; padding: 28px 34px; }
+.ztp-rr .rr-card.rr-focused .rr-linechart-wrap { height: 460px; }
+/* A focused PIE gets a whole reading, not just a bigger version of the tile:
+   c3's own legend (position: right) already reads fine at this size without
+   the column-flow rules the hand-rolled legend used to need. */
+.ztp-rr .rr-card.rr-focused .rr-chart-pie-row { height: 380px; }
+.ztp-rr .donut-hole { font-size: var(--rr-t-micro); opacity: .7; }
+.ztp-rr .donut-total { font-size: 22px; font-weight: 700; }
+
+/* ---- CHARTS layout ---------------------------------------------------- */
+.ztp-rr .rr-chart-card { display: flex; flex-direction: column; }
+.ztp-rr .rr-chart-head { display: flex; align-items: center; gap: 6px; }
+.ztp-rr .rr-chart-datefilter { display: flex; align-items: center; gap: 8px;
+  font-size: 12px; padding: 4px 10px; margin-bottom: 6px; border-radius: 4px;
+  background: rgba(56, 189, 248, .12); color: inherit; }
+.ztp-rr .rr-btn-sm { padding: 0 6px; font-size: 11px; }
+.ztp-rr .rr-chart-min, .ztp-rr .rr-chart-focus { margin: 0; }
+.ztp-rr .rr-chart-focus { border: 0; background: transparent; color: inherit; opacity: .45; cursor: pointer;
+  padding: 0 2px; line-height: 1; }
+.ztp-rr .rr-chart-focus:hover, .ztp-rr .rr-chart-focus.on { opacity: 1; color: var(--rr-accent); }
+.ztp-rr .rr-chart-pie-body { width: 100%; }
+/* Both are now c3 BINDTO targets (see renderLineChart/renderPieChart) -- c3
+   reads its container's own rendered size at generate time, so these are
+   the only sizing this widget still has to specify; everything past that
+   (axes, arcs, legend, tooltip) is c3's. */
+.ztp-rr .rr-linechart-wrap { width: 100%; height: 280px; }
+.ztp-rr .rr-chart-pie-row { width: 100%; height: 220px; }
+.ztp-rr .rr-chart-sub { margin-left: auto; font-weight: 400; text-transform: none;
+  letter-spacing: normal; opacity: .7; }
+
+/* per-device bars */
+.ztp-rr .bar-row { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 12px; }
+.ztp-rr .bar-name { flex: 0 0 96px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.ztp-rr .bar-track { flex: 1; height: 12px; border-radius: 3px; overflow: hidden; display: flex; background: rgba(128,128,128,.18); }
+.ztp-rr .bar-seg { align-self: stretch; }
+.ztp-rr .bar-tail { flex: 0 0 62px; text-align: right; opacity: .75; font-size: var(--rr-t-micro); }
+.ztp-rr .bar-tail .f { color: var(--rr-fail); font-weight: 700; }
+
+/* controls */
+.ztp-rr .rr-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.ztp-rr .rr-search { padding: 5px 9px; border: 1px solid var(--rr-line-2); border-radius: 4px; background: transparent; color: inherit; min-width: 220px; font-size: 12px; }
+.ztp-rr .chip { border: 1px solid var(--rr-line-2); border-radius: 20px; padding: 3px 11px; font-size: var(--rr-t-micro); cursor: pointer; background: transparent; color: inherit; display: inline-flex; align-items: center; gap: 5px; }
+.ztp-rr .chip.on { background: var(--rr-accent); border-color: var(--rr-accent); color: #fff; }
+.ztp-rr .chip .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+
+/* The range picker reads as ONE control, not five loose chips, so the eye can
+   tell "pick a window" from the verdict chips beside it. */
+.ztp-rr .rr-range { display: inline-flex; border: 1px solid var(--rr-line-2); border-radius: 20px; overflow: hidden; }
+.ztp-rr .chip.rr-rchip { border: 0; border-radius: 0; padding: 3px 10px; }
+.ztp-rr .chip.rr-rchip + .chip.rr-rchip { border-left: 1px solid var(--rr-line-2); }
+.ztp-rr .chip.rr-rchip.on { background: var(--rr-accent); color: #fff; }
+
+/* TAGS.
+   A tag is an identifier, so it gets the mono face and a squared-off chip --
+   deliberately NOT the pill shape a verdict uses. Verdict and tag answer
+   different questions and sit on the same row; if they looked alike the run
+   row would read as one undifferentiated stream of badges.
+   `own` (the run's own tag, its wave) is solid, `dev` (a tag carried by a
+   device inside the run) is outlined. */
+.ztp-rr .rr-tagbar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 0 0 10px; }
+.ztp-rr .rr-tagbar .tb-label { font-size: var(--rr-t-micro); text-transform: uppercase; letter-spacing: .06em; opacity: .55; margin-right: 2px; }
+.ztp-rr .tag-chip { font-family: var(--rr-mono, ui-monospace, SFMono-Regular, Menlo, monospace); font-size: 11px; line-height: 1.5; border: 1px solid var(--rr-line-2); background: transparent; color: inherit; border-radius: 4px; padding: 1px 7px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ztp-rr .tag-chip:hover { border-color: var(--rr-accent); }
+.ztp-rr .tag-chip.on { background: var(--rr-accent); border-color: var(--rr-accent); color: #fff; }
+.ztp-rr .tag-chip .tc-n { font-size: 10px; opacity: .6; }
+.ztp-rr .tag-chip.on .tc-n { opacity: .85; }
+.ztp-rr .tag-chip.t-own { background: var(--rr-line); border-color: var(--rr-line-2); font-weight: 600; }
+.ztp-rr .tag-chip.t-own.on { background: var(--rr-accent); color: #fff; }
+.ztp-rr .tag-chip.t-dev { border-style: dashed; }
+.ztp-rr .tag-chip.t-dev.on { border-style: solid; }
+
+/* On the rows themselves tags must never push the numbers off the line, so
+   they get their own shrinkable track and clip rather than wrap. */
+.ztp-rr .run-tags, .ztp-rr .dev-tags { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; overflow: hidden; min-width: 0; flex-shrink: 1; }
+.ztp-rr .dev-tags .tag-chip { font-size: 10px; padding: 0 5px; max-width: 120px; }
+
+.ztp-rr .rr-state-cta { margin-top: 12px; display: flex; gap: 8px; justify-content: center; }
+.ztp-rr .rr-count { font-size: var(--rr-t-micro); opacity: .6; margin-left: auto; }
+
+/* CONSOLE layout: fleet rail + detail pane */
+.ztp-rr .rr-console { display: flex; gap: 14px; align-items: flex-start; margin-top: 12px; }
+.ztp-rr .rr-rail { flex: 0 0 260px; max-height: 560px; overflow-y: auto; border: 1px solid var(--rr-line); border-radius: 6px; }
+.ztp-rr .rail-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; cursor: pointer; border-bottom: 1px solid rgba(128,128,128,.14); border-left: 3px solid transparent; }
+.ztp-rr .rail-row:last-child { border-bottom: 0; }
+.ztp-rr .rail-row:hover { background: var(--rr-hover); }
+.ztp-rr .rail-row.on { background: rgba(42,168,201,.12); border-left-color: var(--rr-accent); }
+.ztp-rr .rail-row .rail-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+.ztp-rr .rail-row .rail-name { flex: 1; font-weight: 600; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ztp-rr .rail-row .rail-meta { font-size: 10px; opacity: .6; }
+.ztp-rr .rr-detail { flex: 1; min-width: 320px; border: 1px solid var(--rr-line); border-radius: 6px; padding: 14px 16px; }
+.ztp-rr .rr-detail .d-name { font-size: 20px; font-weight: 700; margin: 0 0 2px; }
+.ztp-rr .rr-detail .d-sub { font-size: var(--rr-t-micro); opacity: .65; margin-bottom: 12px; }
+.ztp-rr .d-facts { display: flex; gap: 18px; flex-wrap: wrap; margin: 12px 0 14px; }
+.ztp-rr .d-facts div { font-size: var(--rr-t-micro); opacity: .7; }
+.ztp-rr .d-facts div b { display: block; font-size: var(--rr-t-body); opacity: 1; font-weight: 600; margin-top: 2px; }
+
+/* step timeline (console detail) */
+.ztp-rr .tl { list-style: none; margin: 0; padding: 0; }
+.ztp-rr .tl li { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0 6px 2px; font-size: 12px; border-left: 2px solid var(--rr-line); padding-left: 12px; margin-left: 4px; }
+.ztp-rr .tl li .tl-dot { width: 9px; height: 9px; border-radius: 50%; margin-left: -18px; margin-top: 4px; flex: 0 0 auto; box-shadow: 0 0 0 3px rgba(128,128,128,.08); }
+.ztp-rr .tl li .tl-body { flex: 1; }
+.ztp-rr .tl li .tl-msg { font-size: var(--rr-t-micro); color: var(--rr-fail); margin-top: 2px; }
+
+/* GRID layout */
+.ztp-rr .rr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; margin-top: 12px; }
+.ztp-rr .dev-card { border: 1px solid var(--rr-line); border-top: 3px solid var(--rr-wait); border-radius: 9px; padding: 15px 16px 14px; cursor: pointer; background: var(--rr-fill); transition: border-color .12s, transform .12s; }
+.ztp-rr .dev-card:hover { border-color: var(--rr-line-2); transform: translateY(-1px); }
+.ztp-rr .dev-card.v-failed { border-top-color: var(--rr-fail); }
+.ztp-rr .dev-card.v-running { border-top-color: var(--rr-run); }
+.ztp-rr .dev-card.v-healthy { border-top-color: var(--rr-ok); }
+.ztp-rr .dev-card .c-name { font-size: var(--rr-t-lead); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ztp-rr .dev-card .c-sub { font-size: var(--rr-t-micro); opacity: .6; margin-top: 1px; }
+.ztp-rr .dev-card .c-ribbon { display: flex; gap: 3px; margin: 14px 0 11px; }
+.ztp-rr .dev-card .c-ribbon i { flex: 1; height: 8px; border-radius: 2px; background: rgba(128,128,128,.2); }
+.ztp-rr .dev-card .c-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: var(--rr-t-micro); }
+.ztp-rr .dev-card .c-fail { color: var(--rr-fail); font-size: var(--rr-t-micro); margin-top: 7px; line-height: 1.35; }
+
+/* table
+   The mockups' tables read better than a default-bordered grid for three
+   reasons, all reproduced here: rows get real vertical rhythm (11px, not 7),
+   numbers are right-aligned and tabular so digits line up in a column instead
+   of ragging, and the whole thing sits in a rounded panel with a sticky header
+   rather than floating loose on the page background. */
+.ztp-rr .rr-tablewrap { border: 1px solid var(--rr-line); border-radius: 8px; overflow: hidden; background: var(--rr-fill); }
+.ztp-rr .rr-tablewrap.scroll { overflow-x: auto; }
+.ztp-rr table { width: 100%; border-collapse: collapse; font-size: var(--rr-t-body); }
+.ztp-rr th, .ztp-rr td { padding: 9px 14px; text-align: left; border-bottom: 1px solid rgba(128,128,128,.14); }
+.ztp-rr thead th { position: sticky; top: 0; z-index: 1; background: rgba(128,128,128,.09); backdrop-filter: blur(6px); }
+/* A rendered step report can embed several of its own tables (Summary, Diff
+   Results, ...) inside one scrolling .step-doc box. Letting each keep the
+   sticky-header treatment above stacks multiple translucent headers on top of
+   one another as you scroll past table boundaries, ghosting old header text
+   over new rows. These are short reference tables, not long lists, so a
+   sticky header buys nothing here. */
+.ztp-rr .md-body table.md-table thead th { position: static; backdrop-filter: none; }
+.ztp-rr th { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; opacity: .7; font-weight: 700; white-space: nowrap; }
+.ztp-rr tbody tr:last-child td { border-bottom: 0; }
+/* Numeric columns: tabular figures, right-aligned. Ragged left-aligned numbers
+   were the single biggest thing making these tables look unfinished. */
+.ztp-rr td.num, .ztp-rr th.num { text-align: right; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+.ztp-rr tbody tr.dev-row { cursor: pointer; }
+.ztp-rr tbody tr.dev-row:hover { background: var(--rr-hover); }
+.ztp-rr tbody tr.has-fail { background: rgba(242,85,90,.045); }
+.ztp-rr tr.has-fail td:first-child { box-shadow: inset 3px 0 0 var(--rr-fail); }
+.ztp-rr td .dev-name { font-weight: 700; }
+/* A count of zero is not news -- dim it so the eye lands on the ones that are. */
+.ztp-rr .zero { opacity: .35; }
+.ztp-rr .num-fail { color: var(--rr-fail); font-weight: 700; }
+.ztp-rr .pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
+.ztp-rr .pill:before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: 0 0 auto; }
+.ztp-rr .verdict-failed { background: rgba(242,85,90,.15); color: var(--rr-fail); }
+.ztp-rr .verdict-running { background: rgba(56,189,248,.15); color: var(--rr-run); }
+.ztp-rr .verdict-pending { background: rgba(128,128,128,.16); color: var(--rr-wait); }
+.ztp-rr .verdict-healthy { background: rgba(53,201,138,.15); color: var(--rr-ok); }
+.ztp-rr .verdict-exception { background: rgba(240,166,58,.16); color: var(--rr-exc); }
+.ztp-rr .verdict-cancelled { background: rgba(128,128,128,.18); color: #9aa0a6; }
+.ztp-rr .verdict-unknown { background: rgba(154,160,166,.15); color: #9aa0a6; }
+.ztp-rr .verdict-no-data { background: rgba(128,128,128,.15); opacity: .8; }
+.ztp-rr .num-warn { color: var(--rr-exc); font-weight: 700; }
+.ztp-rr .rr-kpi.rr-warnk { border-color: rgba(240,166,58,.5); background: rgba(240,166,58,.08); }
+.ztp-rr .rr-kpi.rr-warnk .n { color: var(--rr-exc); }
+
+/* ---- time scale: its own row, above everything it governs ---------- */
+.ztp-rr .rr-timescale { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 0 0 10px;
+  padding: 6px 8px; border: 1px solid var(--rr-line); border-radius: 6px; background: var(--rr-fill); }
+.ztp-rr .rr-timescale .ts-label { font-size: var(--rr-t-micro); text-transform: uppercase; letter-spacing: .06em; opacity: .55; margin-right: 4px; }
+.ztp-rr .rr-timescale .ts-note { font-size: var(--rr-t-micro); opacity: .55; margin-left: auto; }
+.ztp-rr .rr-timescale .chip.rr-rchip { border: 1px solid var(--rr-line-2); border-radius: 20px; padding: 3px 11px; }
+.ztp-rr .rr-timescale .chip.rr-rchip + .chip.rr-rchip { border-left: 1px solid var(--rr-line-2); }
+.ztp-rr .rr-customrange { position: relative; display: inline-flex; }
+.ztp-rr .rr-customrange-pop { position: absolute; top: 100%; left: 0; margin-top: 6px; z-index: 5;
+  background: var(--rr-fill, #fff); border: 1px solid var(--rr-line-2); border-radius: 6px;
+  padding: 10px; display: flex; flex-direction: column; gap: 8px; min-width: 260px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18); font-size: var(--rr-t-micro); }
+.ztp-rr .rr-customrange-pop label { display: flex; align-items: center; gap: 6px; }
+.ztp-rr .rr-customrange-pop input { font: inherit; padding: 2px 4px;
+  /* The native date/time control keeps its own white field background
+     regardless of this widget's dark theme, but `color` still cascades from
+     `.ztp-rr`'s `color: inherit` -- found live: that made the picked date
+     render in the theme's light text colour, effectively white-on-white and
+     invisible even though the field's actual value was correct. */
+  color: #1a1a1a; color-scheme: light; }
+.ztp-rr .rr-customrange-hint { margin: 0; opacity: .6; }
+
+/* ---- the facet panel ----------------------------------------------- */
+/* One ROW per axis, with the label in a fixed gutter. A wrapping
+   vocabulary then wraps inside its own axis instead of pushing the next
+   label out of alignment, which is what makes six stacked axes scannable
+   rather than one long ribbon of chips. */
+.ztp-rr .rr-facets { border: 1px solid var(--rr-line); border-radius: 6px; padding: 4px 8px; margin: 0 0 10px; }
+/* The Filters toggle sits with the search box and reads as one control with
+   it. `.on` covers BOTH an open panel and a shut one that is still filtering,
+   so the button never looks idle while it is hiding active axes. */
+.ztp-rr .rr-filter-toggle { display: inline-flex; align-items: center; gap: 5px; }
+.ztp-rr .rr-filter-toggle .rr-funnel { flex: 0 0 auto; opacity: .85; }
+.ztp-rr .rr-filter-toggle.on { border-color: var(--rr-accent); color: var(--rr-accent); }
+.ztp-rr .rr-filter-toggle.on .rr-funnel { opacity: 1; }
+.ztp-rr .rr-facet { display: flex; gap: 8px; align-items: baseline; padding: 5px 0; }
+.ztp-rr .rr-facet + .rr-facet { border-top: 1px solid var(--rr-line); }
+.ztp-rr .rr-facet .fc-label { flex: 0 0 116px; font-size: var(--rr-t-micro); text-transform: uppercase;
+  letter-spacing: .06em; opacity: .55; }
+.ztp-rr .rr-facet .fc-chips { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; min-width: 0; }
+/* A SHUT axis is one line. The controller measures how many chips fit and
+   hands back that many, so this only has to stop a rounding error from
+   spilling onto a second row. An OPEN axis wraps as it always did -- that is
+   what opening it is for. */
+.ztp-rr .rr-facet.fc-shut .fc-chips { flex-wrap: nowrap; overflow: hidden; }
+/* The measurement adds up offsetWidth, so the chips must not then shrink to
+   fit -- a shrunk chip makes the arithmetic that placed it wrong. */
+.ztp-rr .rr-facet.fc-shut .fc-chip,
+.ztp-rr .rr-facet.fc-shut .fc-more { flex: 0 0 auto; }
+.ztp-rr .fc-chip { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ztp-rr .fc-chip .fc-n { font-size: 10px; opacity: .55; }
+.ztp-rr .fc-chip.on .fc-n { opacity: .85; }
+.ztp-rr .fc-more { border: 0; background: transparent; color: var(--rr-accent); cursor: pointer;
+  font-size: var(--rr-t-micro); padding: 2px 4px; text-decoration: underline; }
+.ztp-rr .rr-facet-empty { font-size: var(--rr-t-micro); opacity: .55; padding: 6px 0; }
+
+/* ---- the step table under an expanded run --------------------------- */
+.ztp-rr table.rr-steps { width: 100%; border-collapse: collapse; font-size: var(--rr-t-micro); }
+.ztp-rr table.rr-steps th { text-align: left; font-weight: 600; text-transform: uppercase; letter-spacing: .05em;
+  font-size: 10px; opacity: .55; padding: 4px 8px; border-bottom: 1px solid var(--rr-line); }
+.ztp-rr table.rr-steps td { padding: 3px 8px; border-bottom: 1px solid rgba(128,128,128,.12); vertical-align: top; }
+.ztp-rr table.rr-steps tr.bad td { background: rgba(242,85,90,.07); }
+.ztp-rr table.rr-steps tr.flagged td { background: rgba(240,166,58,.07); }
+.ztp-rr table.rr-steps .c-n, .ztp-rr table.rr-steps .c-t { width: 1%; white-space: nowrap; text-align: right; }
+.ztp-rr table.rr-steps .c-grp { max-width: 170px; }
+.ztp-rr table.rr-steps .c-st, .ztp-rr table.rr-steps .c-exc { width: 1%; white-space: nowrap; }
+.ztp-rr table.rr-steps .c-dev { width: 1%; white-space: nowrap; }
+/* The report-dropdown column. 1% + nowrap is the table idiom for "as narrow
+   as its content"; a fixed width would wander with the font. */
+.ztp-rr table.rr-steps .c-x { width: 1%; white-space: nowrap; padding-right: 0; }
+.ztp-rr .step-caret { background: none; border: 0; padding: 0 2px; cursor: pointer; color: inherit; }
+.ztp-rr table.rr-steps tr.open td { background: rgba(42,168,201,.06); }
+.ztp-rr table.rr-steps tr.step-doc-row td { padding: 0 8px 8px; background: rgba(128,128,128,.05); }
+/* The step's own report. Scrolls in its own box so a long one cannot push the
+   rest of the run off the screen. */
+.ztp-rr .step-doc { position: relative; max-height: 360px; overflow: auto;
+  font-size: var(--rr-t-micro); line-height: 1.55; padding: 8px 10px; border-radius: 6px;
+  border: 1px solid var(--rr-line); background: var(--rr-fill); }
+.ztp-rr .step-doc-raw { position: sticky; top: 0; float: right; margin-left: 8px; z-index: 1;
+  font-size: 10px; padding: 1px 7px; opacity: .75; }
+.ztp-rr .step-doc-raw:hover { opacity: 1; }
+.ztp-rr .md-raw { margin: 0; white-space: pre-wrap; word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+/* The rendered report. Sized DOWN from the widget's ramp, not up: this is a
+   document embedded in a row of a table, and a report whose h1 outshouts the
+   run header above it reads as a different page having opened. */
+.ztp-rr .md-body > :first-child { margin-top: 0; }
+.ztp-rr .md-body > :last-child { margin-bottom: 0; }
+.ztp-rr .md-body p { margin: 0 0 8px; }
+.ztp-rr .md-body h4, .ztp-rr .md-body h5, .ztp-rr .md-body h6 {
+  margin: 12px 0 6px; font-weight: 700; line-height: 1.3; color: inherit; }
+.ztp-rr .md-body .md-h1 { font-size: var(--rr-t-body); border-bottom: 1px solid var(--rr-line); padding-bottom: 3px; }
+.ztp-rr .md-body .md-h2 { font-size: var(--rr-t-micro); text-transform: uppercase; letter-spacing: .05em; opacity: .8; }
+.ztp-rr .md-body .md-h3, .ztp-rr .md-body .md-h4,
+.ztp-rr .md-body .md-h5, .ztp-rr .md-body .md-h6 { font-size: var(--rr-t-micro); }
+.ztp-rr .md-body ul.md-list { margin: 0 0 8px; padding-left: 18px; }
+.ztp-rr .md-body ul.md-list li { margin: 2px 0; }
+.ztp-rr .md-body hr.md-hr { border: 0; border-top: 1px solid var(--rr-line); margin: 10px 0; }
+.ztp-rr .md-body code.md-code-inline { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: rgba(128,128,128,.16); border-radius: 3px; padding: 0 4px; }
+/* A fenced block is usually raw device output, so it keeps its own line
+   breaks and scrolls sideways rather than wrapping CLI into nonsense. */
+.ztp-rr .md-body pre.md-code { margin: 0 0 8px; padding: 7px 9px; border-radius: 5px;
+  border: 1px solid var(--rr-line); background: rgba(128,128,128,.09);
+  overflow-x: auto; white-space: pre; }
+.ztp-rr .md-body pre.md-code code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ztp-rr .md-body table.md-table { border-collapse: collapse; margin: 0 0 8px; width: auto; max-width: 100%; }
+.ztp-rr .md-body table.md-table th, .ztp-rr .md-body table.md-table td {
+  border: 1px solid var(--rr-line); padding: 3px 8px; text-align: left; vertical-align: top;
+  font-variant-numeric: tabular-nums; }
+.ztp-rr .md-body table.md-table th { background: rgba(128,128,128,.12); font-weight: 600;
+  text-transform: uppercase; font-size: 10px; letter-spacing: .04em; }
+.ztp-rr table.rr-steps .st-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
+/* A cell you can click to filter by it. Styled as text, not as a button:
+   a table of forty buttons reads as a toolbar. */
+.ztp-rr .cell-filter { border: 0; background: transparent; color: inherit; padding: 0; cursor: pointer;
+  font: inherit; text-align: left; border-bottom: 1px dotted transparent; }
+.ztp-rr .cell-filter:hover { border-bottom-color: var(--rr-accent); color: var(--rr-accent); }
+.ztp-rr .cell-filter.on { color: var(--rr-accent); font-weight: 700; }
+.ztp-rr .cell-filter.warn { color: var(--rr-exc); }
+.ztp-rr .rr-hidden { font-size: var(--rr-t-micro); opacity: .6; padding: 6px 8px; }
+.ztp-rr .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--rr-t-micro); }
+.ztp-rr .fail-detail { background: rgba(242,85,90,.05); }
+.ztp-rr .fail-detail table { font-size: var(--rr-t-micro); }
+.ztp-rr .fail-detail th, .ztp-rr .fail-detail td { border-bottom: 1px solid rgba(128,128,128,.12); }
+
+/* states */
+.ztp-rr .rr-state { text-align: center; padding: 44px 20px; opacity: .7; font-size: var(--rr-t-body); }
+.ztp-rr .rr-error { background: rgba(242,85,90,.08); border: 1px solid rgba(242,85,90,.35); color: var(--rr-fail); border-radius: 6px; padding: 10px 14px; margin: 12px 0; font-size: 12px; }
+.ztp-rr .rr-warn { background: rgba(251,146,60,.1); border: 1px solid rgba(251,146,60,.4); border-radius: 4px; padding: 7px 12px; font-size: var(--rr-t-micro); margin-bottom: 12px; }
+.ztp-rr .rr-ok { background: rgba(53,201,138,.08); border: 1px solid rgba(53,201,138,.3); border-radius: 6px; padding: 12px 14px; font-size: 12px; color: var(--rr-ok); margin-bottom: 14px; }
+.ztp-rr .section-title { font-size: var(--rr-t-micro); text-transform: uppercase; letter-spacing: .06em; opacity: .7; font-weight: 600; margin: 18px 0 8px; }
+
+@media (max-width: 780px) {
+  .ztp-rr .rr-card.mix { flex-basis: 100%; }
+  .ztp-rr .bar-name { flex-basis: 70px; }
+  .ztp-rr .rr-console { flex-wrap: wrap; }
+  .ztp-rr .rr-rail { flex-basis: 100%; max-height: 220px; }
+  .ztp-rr .rr-headline { flex-wrap: wrap; }
+}
+/* RUNS layout: run group -> device -> phase.
+   Nesting is carried by a left border and one indent per level, not by boxes
+   inside boxes -- three nested panels at three border radii is the thing that
+   made the old drill-down read as clutter. Each level keeps the same verdict
+   colour vocabulary as everything else: red = act, blue = moving, grey =
+   waiting, green = done. */
+.ztp-rr .rr-run { border: 1px solid var(--rr-line); border-left: 3px solid var(--rr-wait); border-radius: 8px; margin-bottom: 10px; background: var(--rr-fill); overflow: hidden; }
+.ztp-rr .rr-run.v-failed { border-left-color: var(--rr-fail); }
+.ztp-rr .rr-run.v-running { border-left-color: var(--rr-run); }
+.ztp-rr .rr-run.v-healthy { border-left-color: var(--rr-ok); }
+.ztp-rr .rr-run.v-pending { border-left-color: var(--rr-wait); }
+.ztp-rr .rr-run.open { background: transparent; }
+/* The device view reuses the run row's shell so the two layouts read as one
+   page with two pivots rather than as two widgets. */
+.ztp-rr .rr-devrow { border: 1px solid var(--rr-line); border-left: 3px solid var(--rr-wait); border-radius: 8px;
+  margin-bottom: 10px; background: var(--rr-fill); overflow: hidden; }
+.ztp-rr .rr-devrow.v-failed { border-left-color: var(--rr-fail); }
+.ztp-rr .rr-devrow.v-running { border-left-color: var(--rr-run); }
+.ztp-rr .rr-devrow.v-healthy { border-left-color: var(--rr-ok); }
+.ztp-rr .rr-devrow.v-exception { border-left-color: var(--rr-exc); }
+.ztp-rr .rr-devrow.v-pending, .ztp-rr .rr-devrow.v-cancelled, .ztp-rr .rr-devrow.v-unknown { border-left-color: var(--rr-wait); }
+.ztp-rr .rr-devrow.open { background: transparent; }
+/* The device's OWN status, deliberately neutral: it is a fact about the box,
+   not a verdict on the run, and colouring it like one invites reading it as
+   one. */
+.ztp-rr .pill.dev-status { background: rgba(128,128,128,.16); color: inherit; opacity: .8; }
+.ztp-rr .dev-run { display: inline-flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
+  font-size: var(--rr-t-micro); }
+
+.ztp-rr .run-head { display: flex; align-items: baseline; gap: 12px; padding: 9px 14px; cursor: pointer; flex-wrap: wrap; }
+.ztp-rr .run-head:hover { background: var(--rr-hover); }
+/* Name and date on one line -- a second row per run bought nothing. */
+.ztp-rr .run-id { display: flex; align-items: baseline; gap: 10px; min-width: 250px; }
+.ztp-rr .run-name { font-size: var(--rr-t-body); font-weight: 700; }
+.ztp-rr .run-when { font-size: var(--rr-t-micro); opacity: .55; white-space: nowrap; }
+/* NOT `.caret` -- that is BOOTSTRAP's, and the platform ships it: Bootstrap
+   draws its own triangle out of borders, so every disclosure arrow rendered
+   TWICE, a glyph and a border-triangle, rotating together. Same class of leak
+   the `.rr-alert` note above describes.
+   The caret ROTATES rather than swapping glyphs: a swap reflows the row by a
+   pixel or two on every open, which reads as a twitch. */
+.ztp-rr .rr-caret { flex: 0 0 auto; display: inline-block; font-size: 11px; opacity: .55; transition: transform .12s; transform: rotate(0deg); width: 10px; }
+.ztp-rr .rr-caret.on { transform: rotate(90deg); opacity: .9; }
+/* CAPPED. Stretched across a wide dashboard this became a 1200px band
+   carrying one bit of information ("all green"), and it pushed the numbers
+   that actually matter off to the far edge. 300px says the same thing. */
+.ztp-rr .run-bar { flex: 0 1 300px; min-width: 120px; height: 9px; align-self: center; border-radius: 3px; overflow: hidden; display: flex; background: rgba(128,128,128,.18); }
+/* Facts and the link hug the right edge, so every run row reads as a table
+   with a left half and a right half instead of content adrift in whitespace. */
+.ztp-rr .run-nums { margin-left: auto; }
+.ztp-rr .run-bar .bar-seg { align-self: stretch; }
+.ztp-rr .run-nums { font-size: var(--rr-t-micro); display: flex; align-items: baseline; gap: 5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ztp-rr .run-nums b { font-size: var(--rr-t-body); font-weight: 700; }
+/* The count and its denominator are ONE token -- the row's flex gap belongs
+   between facts, not inside "4/4 devices". */
+.ztp-rr .run-nums .run-count { display: inline-flex; align-items: baseline; gap: 0; }
+.ztp-rr .dim { opacity: .55; }
+
+/* Deep links. Styled as quiet text, not buttons: there is one on every row at
+   every level, and forty buttons down a page is a toolbar, not a table. */
+.ztp-rr .rr-link { font-size: var(--rr-t-micro); color: var(--rr-accent); text-decoration: none; white-space: nowrap; border-bottom: 1px solid transparent; cursor: pointer; }
+.ztp-rr .rr-link:hover { border-bottom-color: currentColor; }
+.ztp-rr .rr-link.dead { color: inherit; opacity: .35; cursor: default; }
+.ztp-rr .rr-link.dead:hover { border-bottom-color: transparent; }
+
+.ztp-rr .run-body { border-top: 1px solid var(--rr-line); padding: 4px 0 4px 26px; }
+
+/* LEVEL 2: one device in this run */
+.ztp-rr .dev-line { border-left: 2px solid var(--rr-line); }
+.ztp-rr .dev-line.v-failed { border-left-color: rgba(242,85,90,.5); }
+.ztp-rr .dev-line.v-running { border-left-color: rgba(56,189,248,.5); }
+.ztp-rr .dev-line.v-healthy { border-left-color: rgba(53,201,138,.45); }
+.ztp-rr .dev-line-head { display: flex; align-items: center; gap: 10px; padding: 7px 14px 7px 12px; cursor: pointer; flex-wrap: wrap; }
+.ztp-rr .dev-line-head:hover { background: var(--rr-hover); }
+.ztp-rr .dev-line .dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+.ztp-rr .dl-name { font-weight: 700; font-size: var(--rr-t-body); }
+.ztp-rr .dl-sub { opacity: .6; }
+/* No max-width: the ribbon IS the device's run at a glance, and the space to
+   its right was empty anyway. Letting it take the slack turns a 200px smudge
+   into a readable per-step strip. */
+.ztp-rr .dl-ribbon { display: flex; gap: 2px; flex: 1 1 140px; min-width: 60px; }
+.ztp-rr .dl-ribbon i { flex: 1; height: 8px; border-radius: 2px; background: rgba(128,128,128,.2); }
+.ztp-rr .dl-nums { margin-left: auto; }
+.ztp-rr .dl-nums { font-size: var(--rr-t-micro); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ztp-rr .dl-fail { font-size: var(--rr-t-micro); color: var(--rr-fail); padding: 0 14px 7px 42px; margin-top: -3px; line-height: 1.4; }
+
+/* LEVEL 3: the phases. Numbered, because ZTP steps are ordered and the order
+   is the story -- which one it got to before it stopped.
+   COLUMNS, because a single column put one step name on the left of a 2000px
+   row and its status on the right, with 1500px of nothing in between, and an
+   11-step device then ran off the bottom of the screen. auto-fill wraps them
+   into as many columns as the width allows: 11 steps become three short
+   columns instead of eleven empty lines. The numbers carry the reading order.
+   Below ~700px it collapses back to one column on its own. */
+.ztp-rr .phases { padding: 2px 14px 10px 40px; }
+.ztp-rr .ph-list { list-style: none; margin: 4px 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 0 20px; }
+.ztp-rr .ph-list li { display: flex; align-items: flex-start; gap: 8px; padding: 5px 8px 5px 12px; font-size: 13px; position: relative; border-left: 2px solid var(--rr-line); }
+.ztp-rr .ph-list li .ph-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; margin-left: -17px; margin-top: 4px; box-shadow: 0 0 0 3px rgba(128,128,128,.08); }
+.ztp-rr .ph-list li .ph-n { flex: 0 0 18px; text-align: right; font-size: var(--rr-t-micro); opacity: .5; font-variant-numeric: tabular-nums; margin-top: 1px; }
+.ztp-rr .ph-list li .ph-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ztp-rr .ph-list li .ph-head { display: flex; align-items: baseline; gap: 8px; }
+.ztp-rr .ph-list li .ph-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.ztp-rr .ph-list li .ph-meta { display: flex; align-items: baseline; gap: 8px; opacity: .75; }
+.ztp-rr .ph-list li .ph-meta .ph-trigger { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ztp-rr .ph-list li .ph-name { font-weight: 600; }
+.ztp-rr .ph-list li .ph-trigger { opacity: .5; }
+.ztp-rr .ph-list li .ph-msg { color: var(--rr-fail); font-size: var(--rr-t-micro); margin-top: 2px; line-height: 1.4; }
+/* The status word is redundant with the dot for every COMPLETE step -- it is
+   only news when something failed or is still moving. Dim the common case so
+   a column of finished steps reads as texture and the odd one out pops. */
+.ztp-rr .ph-list li .ph-status { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; white-space: nowrap; }
+.ztp-rr .ph-list li.ok .ph-status { opacity: .45; font-weight: 600; }
+.ztp-rr .ph-list li .ph-time { font-size: var(--rr-t-micro); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* A completed step is context, not news: dimmed so the eye lands on the one
+   that failed and the one still running. */
+.ztp-rr .ph-list li.ok .ph-name { font-weight: 500; opacity: .75; }
+.ztp-rr .ph-list li.bad { background: rgba(242,85,90,.08); border-left-color: var(--rr-fail); border-radius: 0 4px 4px 0; }
+.ztp-rr .ph-list li.active { background: rgba(56,189,248,.08); border-left-color: var(--rr-run); border-radius: 0 4px 4px 0; }
+.ztp-rr .ph-state { font-size: var(--rr-t-micro); opacity: .6; padding: 10px 0 10px 14px; }
+.ztp-rr .ph-err { font-size: var(--rr-t-micro); color: var(--rr-fail); padding: 10px 0 10px 14px; display: flex; align-items: center; gap: 10px; }
+
+@media (max-width: 780px) {
+  .ztp-rr .rr-top { gap: 8px; }
+  .ztp-rr .run-id { flex-direction: column; align-items: flex-start; gap: 0; min-width: 160px; }
+  .ztp-rr .run-nums, .ztp-rr .dl-nums { margin-left: 0; }
+  .ztp-rr .run-bar { flex-basis: 100%; order: 9; }
+  .ztp-rr .run-body { padding-left: 10px; }
+  .ztp-rr .phases { padding-left: 20px; }
+  .ztp-rr .dl-ribbon { display: none; }
+}
+
+/* The on-screen widget is not what gets printed -- exportPdf() builds its own
+   document. These rules only keep an accidental browser print readable. */
+@media print {
+  .ztp-rr .rr-actions, .ztp-rr .rr-controls, .ztp-rr .rr-seg, .ztp-rr .rr-auto { display: none; }
+  .ztp-rr tr { page-break-inside: avoid; }
+}
+
+/* ---- the narrative summary -------------------------------------------
+   The totals as a wrapping definition list rather than as tiles. They are
+   read once, in passing, on the way to the three numbers that are buttons;
+   giving each of them a 118px card taught the eye to treat them as controls
+   and made the band twice as tall as the sentence it exists to support. */
+.ztp-rr .hl-facts { list-style: none; margin: 9px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 3px 18px; }
+.ztp-rr .hl-facts li { display: flex; align-items: baseline; gap: 5px; }
+.ztp-rr .hl-facts .f-l { font-size: var(--rr-t-micro); opacity: .6; }
+.ztp-rr .hl-facts .f-n { font-size: var(--rr-t-body); font-weight: 700; }
+.ztp-rr .hl-runtime { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 14px; margin-top: 6px; }
+.ztp-rr .hl-runtime-stat { display: flex; align-items: baseline; gap: 5px; }
+
+/* ---- the export menu -------------------------------------------------- */
+.ztp-rr .rr-menu { position: relative; display: inline-flex; }
+.ztp-rr .rr-chev { font-size: 9px; margin-left: 5px; opacity: .7; }
+/* Full-viewport, behind the popup and above everything else, so a click
+   anywhere outside dismisses the menu instead of doing two things at once. */
+.ztp-rr .rr-menu-veil { position: fixed; inset: 0; z-index: 40; }
+.ztp-rr .rr-menu-pop { position: absolute; top: calc(100% + 4px); right: 0; z-index: 41;
+  min-width: 232px; display: flex; flex-direction: column; padding: 4px;
+  border: 1px solid var(--rr-line-2); border-radius: 6px; color: inherit;
+  /* OPAQUE, in whichever theme the host is wearing -- a dropdown you can read
+     the table through is not a dropdown.
+
+     --rr-pop is set on the widget root at runtime (see adoptHostSurface): it
+     is the background of the first ancestor that actually paints one, which
+     is the colour this menu is sitting on by construction.
+
+     It is NOT `Canvas`. That was the first attempt and it was wrong: Canvas is
+     the BROWSER's page colour for the OS colour scheme, not the application's
+     theme, so FortiSOAR's dark steel theme under a light OS drew a white menu.
+
+     The fallback is for when the walk finds nothing to measure -- a themed
+     gradient, an image, a detached node. A heavy neutral scrim plus a backdrop
+     blur is legible over a light or a dark host without having to know which,
+     and the blur is a no-op once an opaque --rr-pop lands. */
+  background: var(--rr-pop, rgba(128,128,128,.32));
+  backdrop-filter: blur(14px) saturate(1.6);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  box-shadow: 0 8px 22px rgba(0,0,0,.35); }
+.ztp-rr .rr-menu-pop button { border: 0; background: transparent; color: inherit; font: inherit;
+  text-align: left; padding: 6px 9px; border-radius: 4px; cursor: pointer; font-size: var(--rr-t-body); }
+.ztp-rr .rr-menu-pop button:hover:not(:disabled) { background: var(--rr-hover); }
+.ztp-rr .rr-menu-pop button:disabled { opacity: .4; cursor: default; }
+.ztp-rr .rr-menu-pop em { display: block; font-style: normal; font-size: var(--rr-t-micro); opacity: .55; margin-top: 1px; }
+.ztp-rr .rr-busy { padding: 6px 0; font-size: var(--rr-t-micro); opacity: .7; }
+
+/* ---- the expand/collapse bar ------------------------------------------ */
+.ztp-rr .rr-listbar { display: flex; gap: 8px; align-items: center; margin: 4px 0 8px; }
+.ztp-rr .rr-listbar .rr-caret { margin-right: 5px; }
+
+/* ---- OPEN RECORD ------------------------------------------------------
+   One glyph, beside the thing it opens, in every place a record can be
+   reached: the run group, the device, the automation action, the step. It
+   holds its slot whether or not the row is hovered -- an arrow that only
+   appears on hover is an arrow nobody knows is there -- but it stays quiet
+   until it is pointed at. */
+/* Sits between the name and the open-record arrow, so a row reads
+   name -> narrow to it -> open it. Quiet until hovered: it is on every row,
+   and a column of bright buttons would out-shout the run names themselves. */
+/* The all-reports caret lives in a header cell, where the per-row carets
+   below it are centred in a 22px column -- so it has to line up with them
+   exactly or the column reads as bent. */
+.ztp-rr table.rr-steps th.c-x { text-align: center; }
+.ztp-rr .step-caret.allrep { opacity: .55; }
+.ztp-rr .step-caret.allrep:hover { opacity: 1; color: var(--rr-accent); }
+.ztp-rr .rr-rowfilter { display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid var(--rr-line); background: transparent; color: inherit;
+  border-radius: 4px; padding: 1px 6px; margin-left: 6px; cursor: pointer;
+  font-size: var(--rr-t-micro); opacity: .62; white-space: nowrap; line-height: 1.5; }
+.ztp-rr .rr-rowfilter:hover { opacity: 1; color: var(--rr-accent); border-color: var(--rr-accent); }
+.ztp-rr .rr-rowfilter.on { opacity: 1; color: var(--rr-accent); border-color: var(--rr-accent);
+  background: rgba(42,168,201,.12); }
+.ztp-rr .rr-open { display: inline-block; margin-left: 4px; font-size: 11px; line-height: 1;
+  color: inherit; opacity: .35; text-decoration: none; cursor: pointer; }
+.ztp-rr .rr-open:hover { opacity: 1; color: var(--rr-accent); }
+
+/* The step number is a handle, not another number in the row -- and the
+   whole handle, arrow included, is one link. */
+.ztp-rr .stepno-link { text-decoration: none; color: inherit; white-space: nowrap; cursor: pointer; }
+.ztp-rr .stepno-link:hover .stepno { background: var(--rr-accent); color: #fff; }
+.ztp-rr .stepno-link:hover .rr-open { opacity: 1; color: var(--rr-accent); }
+.ztp-rr .stepno { display: inline-block; min-width: 18px; padding: 0 4px; border-radius: 3px;
+  background: var(--rr-hover); font-weight: 600; text-align: center; }
+
+/* ---- long names concatenate rather than widening the table ------------
+   Ten columns is what the step row now carries, and an action called
+   "Upgrade Firmware from Planning Sheet Target Firmware" will otherwise set
+   the width of the whole table. Each of these cells caps itself and hands
+   the full text to the title attribute, which is where it was already going
+   for the filter hint. */
+.ztp-rr table.rr-steps .ell { display: inline-block; max-width: 100%; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+.ztp-rr table.rr-steps .c-dev { max-width: 150px; }
+/* Step name and automation action share the leftover width equally (26% each,
+   max-width:0 makes % widths truncate in auto layout). The table has no table-layout: fixed, so an auto-layout column
+   already grows to its content up to whatever room the row has left once
+   every OTHER column has taken its own (1%-idiom or capped) share -- and the
+   step name is the one column an operator actually reads start to finish, so
+   it should get that leftover width, not a guessed pixel ceiling that leaves
+   it truncating into "..." beside a mostly-empty Automation Action column. */
+.ztp-rr table.rr-steps .c-step, .ztp-rr table.rr-steps .c-act { width: 26%; max-width: 0; white-space: nowrap; }
+/* Leave room for the open-record arrow so it stays on the same line. */
+.ztp-rr table.rr-steps .c-act .ell { max-width: calc(100% - 18px); }
+.ztp-rr table.rr-steps .c-trg { max-width: 160px; }
+.ztp-rr table.rr-steps .c-when { width: 1%; white-space: nowrap; opacity: .8; }
+/* ---- Run Automation panel ---------------------------------------------
+   Inline under the header rather than a modal: it is a short pick-list, and
+   the playbook it fires opens its own prompt next. */
+.ztp-rr .rr-auto { margin: 10px 0; border: 1px solid var(--rr-line-2); border-radius: 8px; background: var(--rr-fill); }
+.ztp-rr .rr-auto-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 12px; border-bottom: 1px solid var(--rr-line); }
+.ztp-rr .rr-auto-head .ttl { font-weight: 600; margin-right: auto; }
+.ztp-rr .rr-auto-head input[type=search] { min-width: 180px; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--rr-line-2); background: transparent; color: inherit; font-size: 12px; }
+.ztp-rr .rr-auto-list { max-height: 260px; overflow-y: auto; }
+/* Capped columns, packed to the left: with bare `fr` tracks a wide dashboard
+   tile spread one row across 2000px and left the IP a screen away from the
+   name it belongs to. */
+.ztp-rr .rr-auto-row { display: grid; grid-template-columns: 16px minmax(120px, 240px) minmax(100px, 150px) minmax(120px, 220px) minmax(100px, 200px);
+  justify-content: start; gap: 10px; align-items: center; margin: 0; padding: 4px 12px; font-size: 12px; font-weight: normal; cursor: pointer; }
+.ztp-rr .rr-auto-row:hover { background: var(--rr-hover); }
+.ztp-rr .rr-auto-row .nm { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A grid item stretches to its track, and a native checkbox stretched to
+   22x13 draws as a squashed dark bar. Pin it square. */
+.ztp-rr .rr-auto-row input[type=checkbox] { width: 14px; height: 14px; margin: 0; justify-self: center;
+  accent-color: var(--rr-accent); cursor: pointer; }
+.ztp-rr .rr-auto-row .dim { opacity: .7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ztp-rr .rr-auto-msg { padding: 10px 12px; font-size: 12px; }
+.ztp-rr .rr-auto-msg.err { color: var(--rr-fail); }
+.ztp-rr .rr-auto-msg.ok { color: var(--rr-ok); }
+.ztp-rr .rr-auto-foot { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--rr-line); }
+.ztp-rr .rr-auto-foot .count { margin-right: auto; font-size: 12px; opacity: .8; }
+</style>
+
+<div class="ztp-rr" data-testid="ztp-run-report-root">
+
+  <div class="rr-head">
+    <h3 class="rr-title">
+      {{ config.title }}
+      <!-- The ONLY thing a background refresh is allowed to change up here.
+           An ng-if that inserts a "refreshing..." node would reflow the header
+           on every tick, which is the flash in miniature; a class that dims
+           text already on the page moves nothing. -->
+      <span class="rr-when" data-ng-if="generatedAt && !loading"
+            data-ng-class="{stale: refreshing}" data-testid="rr-generated">
+        generated {{ generatedAt | date:'short' }}
+      </span>
+    </h3>
+    <!-- TWO PIVOTS of one filtered cube, not two widgets. It sits with the
+         TITLE and not in the button cluster on the right, because it is not an
+         action -- it decides what the whole page below is about, and reading
+         it out of a row of Refresh/Export/PDF made the most consequential
+         control on the widget look like the least. -->
+    <!-- ICON-ONLY: three tabs is still a row of prose beside the title once
+         each carries a full word, and the words duplicate what the hint
+         tooltip already says. The label is not gone, just moved to hover --
+         `title` is what a mouseover already meant on every other button here. -->
+    <span class="rr-seg rr-seg-icon" data-ng-if="!loading && !error" data-testid="rr-layout-switch">
+      <button data-ng-repeat="L in LAYOUTS" data-ng-class="{on: isLayout(L.id)}"
+              data-ng-click="setLayout(L.id)" title="{{ L.label }}"
+              aria-label="{{ L.label }}"
+              data-testid="rr-layout-{{L.id}}">
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+          <path data-ng-if="L.icon === 'charts'"
+                d="M2 13.5h12M4 13V7.5M8 13V3M12 13v-4" stroke="currentColor" stroke-width="1.6"
+                fill="none" stroke-linecap="round"></path>
+          <path data-ng-if="L.icon === 'groups'"
+                d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.6"
+                fill="none" stroke-linecap="round"></path>
+          <path data-ng-if="L.icon === 'grid'"
+                d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z" stroke="currentColor"
+                stroke-width="1.4" fill="none"></path>
+        </svg>
+      </button>
+    </span>
+    <div class="rr-actions">
+      <!-- Background, like the timer: a manual refresh should not blank the
+           page and collapse everything either. `loading` alone disables it --
+           `refreshing` would make the button flicker on every tick. -->
+      <button class="rr-btn primary" data-ng-if="config.showRunAutomation"
+              data-ng-click="auto.open ? closeAutomation() : openAutomation()"
+              data-ng-class="{on: auto.open}"
+              data-testid="rr-run-automation">Run Automation</button>
+      <button class="rr-btn" data-ng-click="refresh()" data-ng-disabled="loading"
+              data-testid="rr-refresh">Refresh</button>
+      <!-- ONE export control, three destinations. Four sibling CSV buttons
+           plus a PDF was five controls fighting for this corner, and
+           "CSV: steps" beside "CSV: run groups" asked the reader to work out
+           the difference from the filenames. Each entry says what the sheet is
+           ABOUT; every one of them is of what is ON SCREEN, filtered. -->
+      <span class="rr-menu" data-ng-if="!loading && !error">
+        <button class="rr-btn" data-ng-class="{on: exportOpen}"
+                data-ng-click="toggleExport($event)"
+                data-ng-disabled="exportBusy"
+                data-ng-attr-aria-expanded="{{ !!exportOpen }}"
+                data-testid="rr-export">{{ exportBusy ? 'Exporting...' : 'Export' }}
+          <span class="rr-chev">&#9662;</span></button>
+        <!-- The overlay is what makes an outside click dismiss the menu. A
+             dropdown that only closes on its own button is the half-finished
+             kind that ends up stuck open behind the next thing you do. -->
+        <span class="rr-menu-veil" data-ng-if="exportOpen" data-ng-click="closeExport()" data-testid="rr-export-veil"></span>
+        <span class="rr-menu-pop" data-ng-if="exportOpen" data-testid="rr-export-menu">
+          <button data-ng-click="exportRunGroupsCsv()"
+                  data-ng-disabled="!runsView.length"
+                  data-testid="rr-export-rungroups">
+            Run Groups<em>one row per dispatch</em></button>
+          <button data-ng-click="exportDeviceGridCsv()"
+                  data-ng-disabled="!deviceGrid.length"
+                  data-testid="rr-export-devices">
+            Devices<em>one row per device</em></button>
+          <button data-ng-click="exportStepsCsv()"
+                  data-ng-disabled="!runsView.length"
+                  data-testid="rr-export-steps">
+            Steps<em>one row per step, with its output text</em></button>
+        </span>
+      </span>
+      <button class="rr-btn primary" data-ng-click="exportPdf()"
+              data-ng-disabled="loading || (!runsView.length && !deviceGrid.length)"
+              data-testid="rr-pdf">PDF</button>
+    </div>
+  </div>
+
+  <!-- RUN AUTOMATION. Pick devices; the playbook asks for the rest (profile,
+       whether to run straight away) through its own prompt. -->
+  <div class="rr-auto" data-ng-if="auto.open" data-ng-class="{minimized: auto.minimized}" data-testid="rr-auto-panel">
+    <div class="rr-auto-head" data-ng-if="!auto.minimized">
+      <span class="ttl">Run automation on {{ config.automationDeviceStatus }} devices</span>
+      <input type="search" placeholder="Search name, IP, platform"
+             data-ng-model="auto.search" data-ng-disabled="auto.loading || !auto.devices.length"
+             data-testid="rr-auto-search">
+      <button class="rr-btn rr-btn-sm" data-ng-click="autoSelectAll(true)"
+              data-ng-disabled="!autoVisible().length" data-testid="rr-auto-all">All</button>
+      <button class="rr-btn rr-btn-sm" data-ng-click="autoSelectAll(false)"
+              data-ng-disabled="!autoSelected().length" data-testid="rr-auto-none">None</button>
+    </div>
+    <div class="rr-auto-msg" data-ng-if="!auto.minimized && auto.loading" data-testid="rr-auto-loading">Loading devices...</div>
+    <div class="rr-auto-msg" data-ng-if="!auto.minimized && !auto.loading && !auto.error && !auto.devices.length"
+         data-testid="rr-auto-empty">No {{ config.automationDeviceStatus }} devices that are not already running.</div>
+    <div class="rr-auto-list" data-ng-if="!auto.minimized && !auto.loading && auto.devices.length">
+      <label class="rr-auto-row" data-ng-repeat="d in autoVisible() track by d.uuid"
+             data-testid="rr-auto-device">
+        <input type="checkbox" data-ng-model="auto.selected[d.uuid]"
+               data-testid="rr-auto-check-{{ d.name }}">
+        <span class="nm" title="{{ d.name }}">{{ d.name }}</span>
+        <span class="dim">{{ d.managementIP }}</span>
+        <span class="dim" title="{{ d.platform }}">{{ d.platform }}</span>
+        <span class="dim" title="{{ d.firmware }}">{{ d.firmware }}</span>
+      </label>
+      <div class="rr-auto-msg" data-ng-if="!autoVisible().length">Nothing matches "{{ auto.search }}".</div>
+    </div>
+    <div class="rr-auto-msg err" data-ng-if="auto.error" data-testid="rr-auto-error">{{ auto.error }}</div>
+    <!-- Minimized after a successful dispatch: this is the only line left in
+         the panel, with a way back to full size for another batch. -->
+    <div class="rr-auto-msg ok" data-ng-if="auto.done" data-testid="rr-auto-done">
+      Started "{{ auto.done.playbook }}" on {{ auto.done.count }} device{{ auto.done.count === 1 ? '' : 's' }}.
+      It will ask for the automation profile next.
+      <button class="rr-btn rr-btn-sm" data-ng-if="auto.minimized" data-ng-click="expandAutomation()"
+              data-testid="rr-auto-expand">Run more</button>
+      <button class="rr-btn rr-btn-sm" data-ng-if="auto.minimized" data-ng-click="closeAutomation()"
+              data-testid="rr-auto-cancel-min">Close</button>
+    </div>
+    <div class="rr-auto-foot" data-ng-if="!auto.minimized">
+      <span class="count" data-testid="rr-auto-count">{{ autoSelected().length }} of {{ auto.devices.length }} selected</span>
+      <button class="rr-btn" data-ng-click="closeAutomation()" data-testid="rr-auto-cancel">Close</button>
+      <button class="rr-btn primary" data-ng-click="runAutomation()"
+              data-ng-disabled="!autoSelected().length || auto.running"
+              data-testid="rr-auto-run">{{ auto.running ? 'Starting...' : 'Run on ' + autoSelected().length }}</button>
+    </div>
+  </div>
+  <!-- A long export says so. The step sheet is two round trips over every step
+       in the window, and a button that looks idle for four seconds reads as a
+       button that did nothing. -->
+  <div class="rr-state rr-busy" data-ng-if="exportNote" data-testid="rr-export-note">{{ exportNote }}</div>
+
+  <div class="rr-state" data-ng-if="loading" data-testid="rr-loading">Loading ZTP fleet data...</div>
+
+  <div class="rr-error" data-ng-if="error" data-testid="rr-error">{{ error }}</div>
+
+  <!-- A failed BACKGROUND read says so without taking the page away: the
+       numbers under this banner were true at the timestamp in the header. -->
+  <div class="rr-warn" data-ng-if="refreshError && !error" data-testid="rr-refresh-error">{{ refreshError }}</div>
+
+  <div data-ng-if="!loading && !error" data-testid="rr-body">
+
+    <div class="rr-warn" data-ng-if="truncated" data-testid="rr-truncated">{{ truncated }}</div>
+
+    <!-- THE ANSWER plus the numbers behind it, on ONE row. They used to be two
+         full-width bands stacked: on a wide dashboard that is a 2000px banner
+         holding one sentence, then seven tiles each padded out to 270px. Side
+         by side they fill the width with content instead of air, and the fold
+         moves up by ~90px -- which is a run and a half of the actual list.
+
+         WHICH numbers depends on the layout, and that is a correctness fix,
+         not a cosmetic one. The fleet roll-up counts a device once, in its
+         LATEST run; the Runs list counts it in every run it was part of. Both
+         were on screen at once: a "0 failed" tile directly above a Failed chip
+         that filtered the list to a run with two failed devices. When the list
+         is about runs, the summary above it is about runs. -->
+    <div class="rr-top">
+
+      <!-- THE LEFT HALF is everything the operator is NOT going to click:
+           the verdict sentence, then the totals as prose. Zeroes are omitted
+           by R.summaryLines -- "0 run groups running" costs a line and says
+           nothing, and a quiet window should read as a short summary rather
+           than as a grid of noughts.
+
+           Nothing appears both here and in the tiles beside it. A number that
+           is a button on one side of the band and plain text on the other
+           teaches that neither is reliably clickable. -->
+      <div class="rr-headline" data-ng-if="verdictLine"
+           data-ng-class="'lvl-' + verdictLine.level"
+           data-testid="rr-headline">
+        <!-- THE HERO NUMBER is the size of the window: how many dispatches
+             this report is about. It used to be whichever of failed /
+             exceptions / runs happened to be non-zero, so the same digit
+             position meant a different thing on Tuesday than on Monday and
+             the only way to know which was to read the sentence beside it.
+             The problems it used to show are now in that sentence, spelled
+             out and counted separately. -->
+        <div class="hl-hero">
+          <div class="hl-n" data-testid="rr-headline-n">{{ summary.runs }}</div>
+          <div class="hl-nl">run group{{ summary.runs === 1 ? '' : 's' }}</div>
+        </div>
+        <div class="hl-body">
+          <!-- The sentence, with every word that is a FILTER rendered as one.
+               The parts are precomputed in applyFilter -- an expression that
+               splits a string per digest returns a fresh array every time,
+               which never settles. -->
+          <div class="hl-text" data-testid="rr-headline-text"><span
+              data-ng-repeat="part in verdictParts track by $index"><button
+              class="narr-link" data-ng-if="part.axis"
+              data-ng-class="{on: facetOn(part.axis, part.value)}"
+              data-ng-click="partToggle(part)"
+              title="Filter to {{ part.value }}"
+              data-testid="rr-headline-link">{{ part.text }}</button><span
+              data-ng-if="!part.axis">{{ part.text }}</span></span></div>
+          <!-- THE NARRATIVE. Picked at random from the observations that are
+               actually true of this window, so it must be computed in
+               applyFilter and only READ here: an expression that returns a
+               new string every digest never settles. -->
+          <p class="hl-narr" data-ng-if="narrative" data-testid="rr-narrative"><span
+              data-ng-repeat="part in narrativeParts track by $index"><button
+              class="narr-link" data-ng-if="part.axis"
+              data-ng-class="{on: facetOn(part.axis, part.value)}"
+              data-ng-click="partToggle(part)"
+              title="Filter to {{ part.value }}"
+              data-testid="rr-narrative-link">{{ part.text }}</button><span
+              data-ng-if="!part.axis">{{ part.text }}</span></span></p>
+          <!-- Precomputed in applyFilter, never built in this expression: an
+               ng-repeat over a function that returns a fresh array is
+               $rootScope:infdig, which presents as a page that renders its
+               text and then silently stops applying ng-class. -->
+          <ul class="hl-facts" data-testid="rr-summary-facts">
+            <li data-ng-repeat="f in summaryLines track by f.key"
+                data-testid="rr-fact-{{f.key}}">
+              <span class="f-l">{{ f.label }}</span><b class="f-n">{{ f.value }}</b>
+            </li>
+          </ul>
+          <!-- Run Time gets its OWN line, not one fact among the counts above:
+               a single averaged clock hides whether the batch ran evenly or a
+               couple of stragglers dragged the mean out -- Min/Max say that at
+               a glance. Gated on avgSeconds, same as the old single fact was:
+               no timed run in the window means nothing to report. -->
+          <div class="hl-runtime" data-ng-if="summary.avgGroupSeconds > 0" data-testid="rr-runtime-groups"><span class="f-l">Run Group Times ( Min:</span><b class="f-n">{{ summary.minGroupRuntime }}</b><span class="f-l"> Avg:</span><b class="f-n">{{ summary.avgGroupRuntime }}</b><span class="f-l"> Max:</span><b class="f-n">{{ summary.maxGroupRuntime }}</b><span class="f-l"> )</span></div>
+          <div class="hl-runtime" data-ng-if="summary.avgSeconds > 0" data-testid="rr-runtime"><span class="f-l">Step Times ( Min:</span><b class="f-n">{{ summary.minRuntime }}</b><span class="f-l"> Avg:</span><b class="f-n">{{ summary.avgRuntime }}</b><span class="f-l"> Max:</span><b class="f-n">{{ summary.maxRuntime }}</b><span class="f-l"> )</span></div>
+        </div>
+      </div>
+
+      <!-- THE RIGHT HALF is only the tiles that DO something. A tile and the
+           chip it selects must count the same thing or the number lies:
+           "Steps complete" selects status=Complete, which is the value the
+           tile summed. Clicking an already-selected tile clears it, and
+           selecting opens the filter panel -- a filter the user cannot see is
+           the unseeable state this widget refuses to create. -->
+      <div class="rr-kpis" data-testid="rr-kpis-runs">
+        <!-- IN THE ORDER A STEP LIVES: queued, running, complete, failed,
+             and then the one that is not a life stage at all -- a step can be
+             Complete and still have reported exceptions, so it sits last
+             rather than pretending to be a sixth state.
+
+             Every tile carries a COUNT and its share of the steps on screen.
+             The count is what the chip selects; the percent is what makes two
+             tiles comparable, and it is always taken against the same
+             denominator (see stepPct) so they can be read against each other
+             rather than each against its own private total. -->
+        <div class="rr-kpi clickable" data-ng-class="{on: facetOn('status', 'Queued')}"
+             data-ng-click="filterQueued()"
+             title="Filter to steps waiting to start"
+             data-testid="kpi-steps-queued">
+          <div class="n">{{ summary.queued }}</div>
+          <div class="p" data-ng-if="summary.queued > 0">({{ stepPct(summary.queued) }}%)</div>
+          <div class="l">Steps queued</div></div>
+        <div class="rr-kpi clickable" data-ng-class="{on: facetOn('status', 'Running')}"
+             data-ng-click="filterRunning()"
+             title="Filter to steps currently running"
+             data-testid="kpi-steps-running">
+          <div class="n">{{ summary.runningNow }}</div>
+          <div class="p" data-ng-if="summary.runningNow > 0">({{ stepPct(summary.runningNow) }}%)</div>
+          <div class="l">Steps running</div></div>
+        <div class="rr-kpi clickable" data-ng-class="{good: summary.percent >= 100, on: facetOn('status', 'Complete')}"
+             data-ng-click="filterComplete()"
+             title="Filter to completed steps"
+             data-testid="kpi-progress">
+          <div class="n">{{ summary.complete }}</div>
+          <div class="p" data-ng-if="summary.complete > 0">({{ stepPct(summary.complete) }}%)</div>
+          <div class="l">Steps complete</div></div>
+        <div class="rr-kpi clickable" data-ng-class="{'rr-alert': summary.failed > 0, on: facetOn('status', 'Fail')}"
+             data-ng-click="filterFailed()"
+             title="Filter to failed steps"
+             data-testid="kpi-steps-failed">
+          <div class="n">{{ summary.failed }}</div>
+          <div class="p" data-ng-if="summary.failed > 0">({{ stepPct(summary.failed) }}%)</div>
+          <div class="l">Steps failed</div></div>
+        <div class="rr-kpi clickable" data-ng-class="{'rr-warnk': summary.exceptions > 0, on: facetOn('exception', 'Exceptions Found')}"
+             data-ng-click="filterExceptions()"
+             title="Filter to steps that reported exceptions"
+             data-testid="kpi-exceptions">
+          <div class="n">{{ summary.exceptions }}</div>
+          <div class="p" data-ng-if="summary.exceptions > 0">({{ stepPct(summary.exceptions) }}%)</div>
+          <div class="l">Steps with exceptions</div></div>
+      </div>
+    </div>
+
+    <!-- ================= TIME SCALE ==================================
+         On a row of its OWN, and first, because it is not a seventh chip --
+         it is the question the other six are asked about. Everything below
+         (which run groups exist, which tags they carry, which devices and
+         actions appear in them, which statuses those steps reached) is read
+         out of the run groups inside THIS window and nothing else. Mixing it
+         into the chip row made it look like one more way to narrow the list,
+         when changing it actually re-fetches and rebuilds every vocabulary
+         underneath. -->
+    <div class="rr-timescale" data-testid="rr-range">
+      <span class="ts-label">Time scale</span>
+      <button class="chip rr-rchip" data-ng-repeat="r in RANGES track by r.id"
+              data-ng-if="r.id !== 'all'"
+              data-ng-class="{on: range === r.id}" data-ng-click="setRange(r.id)"
+              data-testid="rr-range-{{r.id}}">{{ r.label }}</button>
+      <!-- A DATE RANGE, sitting to the left of "All time" -- it is the same
+           kind of question as the fixed chips (what window is the fleet
+           being read over) but answered with exact dates instead of a
+           relative span. Clicking a chart bucket (see toggleDateBucket)
+           fills these same fields in, so the picker and a chart click are
+           one control read two ways, not two competing ones. -->
+      <div class="rr-customrange">
+        <button class="chip rr-rchip" data-ng-class="{on: isCustomRange()}"
+                data-ng-click="toggleCustomRange()"
+                data-testid="rr-range-custom">{{ isCustomRange() ? customRangeLabel() : "Date range" }}</button>
+        <div class="rr-customrange-pop" data-ng-if="customRangeOpen" data-testid="rr-customrange-pop">
+          <label>From
+            <input type="date" data-ng-model="customRange.fromDate" data-testid="rr-customrange-from-date">
+            <input type="time" data-ng-model="customRange.fromTime" data-testid="rr-customrange-from-time">
+          </label>
+          <label>To
+            <input type="date" data-ng-model="customRange.toDate" data-testid="rr-customrange-to-date">
+            <input type="time" data-ng-model="customRange.toTime" data-testid="rr-customrange-to-time">
+          </label>
+          <!-- Picking the SAME date for from and to (or leaving "to" blank)
+               means "that whole day" -- 00:00 through 23:59, editable if a
+               narrower window inside the day is wanted. -->
+          <p class="rr-customrange-hint">Same date for both = the whole day (00:00-23:59). Hours/minutes are yours to narrow.</p>
+          <button class="rr-btn primary" data-ng-click="applyCustomRange()"
+                  data-ng-disabled="!customRange.fromDate"
+                  data-testid="rr-customrange-apply">Apply</button>
+        </div>
+      </div>
+      <button class="chip rr-rchip" data-ng-repeat="r in RANGES track by r.id"
+              data-ng-if="r.id === 'all'"
+              data-ng-class="{on: range === r.id}" data-ng-click="setRange(r.id)"
+              data-testid="rr-range-{{r.id}}">{{ r.label }}</button>
+      <span class="ts-note" data-testid="rr-range-note">
+        {{ runs.length }} run group{{ runs.length === 1 ? '' : 's' }} in this window
+      </span>
+    </div>
+
+    <!-- Shared controls. -->
+    <div class="rr-controls">
+      <input class="rr-search" type="text" placeholder="Search runs, devices, actions, steps..."
+             data-ng-model="filter.q" data-testid="rr-search">
+      <!-- The filter panel is the widest thing on this page, so it opens on
+           demand. The badge is load-bearing: a shut panel must still say how
+           many axes are narrowing the list under it. -->
+      <button class="rr-btn rr-filter-toggle"
+              data-ng-class="{on: facetsShown || facetTotal()}"
+              data-ng-click="toggleFacets()"
+              data-ng-attr-title="{{ facetsShown ? 'Hide filters' : 'Show filters' }}"
+              aria-label="Filters"
+              data-ng-attr-aria-expanded="{{ !!facetsShown }}"
+              aria-controls="rr-facets-panel"
+              data-testid="rr-filter-toggle">
+        <svg class="rr-funnel" viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" focusable="false">
+          <path d="M1.5 2.5h13L9.5 8.4v4.3l-3 1.8V8.4z" fill="currentColor"></path>
+        </svg>Filters<span class="fc-n" data-ng-if="facetTotal()">{{ facetTotal() }}</span>
+      </button>
+      <button class="rr-btn" data-ng-if="anyFilter()" data-ng-click="clearFilters()"
+              data-testid="rr-clear">Clear filters</button>
+    </div>
+
+    <!-- ================= THE FACET PANEL =============================
+         Six axes, stacked in the order an operator narrows: which dispatch,
+         which wave, which box, which action, how did it end, and did it find
+         anything. One row each, so a long vocabulary wraps within its own
+         axis instead of shoving the next one off the screen.
+
+         Every axis draws at most FACET_PEEK chips until it is opened. A fleet
+         window can hold eighty run groups and sixty distinct actions, and
+         eighty chips above the list IS the wall this widget exists to not be.
+         An axis with something SELECTED always draws in full -- a hidden
+         active chip is a filter the user can neither see nor undo, which is
+         the worst state a filter panel can be in.
+
+         OR within an axis, AND across them: two devices means either device,
+         while a device and an action together means that device doing that
+         action. A run survives when at least ONE of its steps satisfies every
+         active axis at once -- see ztpReport.filterRunGroups for why testing
+         the axes independently would keep runs whose step list then comes up
+         empty. -->
+    <div class="rr-facets" id="rr-facets-panel" data-ng-if="facetsShown" data-testid="rr-facets">
+      <!-- data-axis is read by the fit pass in the controller, which
+           measures how many chips fit on ONE line before the row wraps. -->
+      <div class="rr-facet" data-ng-repeat="f in FACETS track by f.id"
+           data-ng-if="vocab[f.id].length" data-axis="{{f.id}}"
+           data-ng-class="{'fc-shut': vocab[f.id].length > FACET_MIN_TO_HIDE && !facetOpen[f.id] && !facetCount(f.id)}"
+           data-testid="rr-facet-{{f.id}}">
+        <span class="fc-label" title="{{ f.hint }}">{{ f.label }}</span>
+        <span class="fc-chips">
+          <button class="chip fc-chip" data-ng-repeat="v in facetShown(f.id) track by v.name"
+                  data-ng-class="{on: facetOn(f.id, v.name)}"
+                  data-ng-click="facetToggle(f.id, v.name)"
+                  title="{{ v.count }} run group{{ v.count === 1 ? '' : 's' }}"
+                  data-testid="rr-facet-{{f.id}}-chip">{{ v.name }}<span class="fc-n">{{ v.count }}</span></button>
+          <button class="fc-more fc-more-open" data-ng-if="facetCollapsible(f.id)"
+                  data-ng-click="facetExpand(f.id)"
+                  data-testid="rr-facet-{{f.id}}-more">+{{ facetMore(f.id) }} more</button>
+          <button class="fc-more" data-ng-if="facetOpen[f.id] && !facetCount(f.id) && facetMore(f.id) > 0"
+                  data-ng-click="facetExpand(f.id)"
+                  data-testid="rr-facet-{{f.id}}-less">Show fewer</button>
+          <button class="fc-more" data-ng-if="facetCount(f.id)"
+                  data-ng-click="facetClear(f.id)"
+                  data-testid="rr-facet-{{f.id}}-clear">Clear {{ facetCount(f.id) }}</button>
+        </span>
+      </div>
+      <div class="rr-facet-empty" data-ng-if="!runs.length" data-testid="rr-facets-empty">
+        Nothing to filter -- no run group falls inside this time scale.
+      </div>
+    </div>
+
+    <!-- ONE control, directly above the rows it acts on and always below the
+         filter panel. It used to sit in the controls row between Clear filters
+         and a count, where it was read as another filter; and there were two
+         of them, one per view, both saying "Expand all" and neither admitting
+         that the second click collapses. The verb follows the state. -->
+    <div class="rr-listbar" data-ng-if="!isLayout('charts')">
+      <button class="rr-btn" data-ng-click="expandCollapseAll()"
+              data-ng-attr-title="{{ expandAllOpen() ? 'Expand every row' : 'Collapse every row' }}"
+              data-testid="rr-expand-all">
+        <span class="rr-caret" data-ng-class="{on: !expandAllOpen()}">&#9656;</span>Expand/Collapse</button>
+      <span class="rr-count" data-ng-if="isLayout('groups')" data-testid="rr-run-count">{{ runsShown.length }} of {{ runsView.length }} runs shown<span
+            data-ng-if="runsView.length < runs.length"> ({{ runs.length }} in this window)</span></span>
+      <span class="rr-count" data-ng-if="isLayout('grid')">{{ deviceGrid.length }} device{{ deviceGrid.length === 1 ? '' : 's' }} in these runs</span>
+    </div>
+
+    <!-- ================= CHARTS (steps over time, and by facet) ==========
+         THE SAME filtered cube as the two table pivots, read a third way.
+         Nothing here selects rows of its own -- the line chart reads the
+         window the time-scale picker above already set, and every pie slice
+         calls the exact facetToggle the chip row above it calls, so clicking
+         a slice and clicking its chip are the same action by construction. -->
+    <div data-ng-if="isLayout('charts')" data-testid="rr-layout-body-charts">
+      <!-- FOCUS. One chart id in $scope.chartFocus takes the whole row; every
+           other card is removed from the DOM (ng-if, not ng-show) so the grid
+           has nothing else to size around it. The bar is its own row so
+           "back to all charts" reads as leaving a mode, not as another chart
+           control. -->
+      <div class="rr-listbar" data-ng-if="hasChartFocus()" data-testid="rr-chart-unfocus-bar">
+        <button class="rr-btn" data-ng-click="toggleChartFocus(chartFocus)"
+                data-testid="rr-chart-unfocus">&larr; All charts</button>
+      </div>
+      <div class="rr-charts" data-ng-class="{'has-focus': hasChartFocus()}">
+        <div class="rr-card trend rr-chart-card" data-ng-class="{'rr-focused': isChartFocused('line')}"
+             data-ng-if="!hasChartFocus() || isChartFocused('line')"
+             data-testid="rr-chart-line">
+          <h4 class="rr-chart-head">
+            <button class="rr-caret rr-chart-min" data-ng-class="{on: !isChartMinimized('line')}"
+                    data-ng-click="toggleChartMin('line')"
+                    data-ng-attr-title="{{ isChartMinimized('line') ? 'Expand this chart' : 'Minimize this chart' }}"
+                    data-testid="rr-chart-min-line">&#9656;</button>
+            Steps over time
+            <span class="rr-chart-sub">{{ lineChart.hourly ? 'by hour' : 'by day' }}</span>
+            <span class="rr-chart-sub" data-ng-if="!isCustomRange()"
+                  title="Click a bar to set the Time Scale's Date Range to that bucket. Shift-click a second bar to span a range between them.">
+              &middot; click to filter, shift-click for a range
+            </span>
+            <!-- Stacked bar is the default rendering; this swaps to a line
+                 chart and back without touching the underlying data -- see
+                 $scope.toggleChartType. -->
+            <button class="rr-chart-focus" data-ng-if="!isChartMinimized('line')"
+                    data-ng-click="toggleChartType()"
+                    data-ng-attr-title="{{ chartType === 'bar' ? 'Switch to line chart' : 'Switch to stacked bar chart' }}"
+                    data-testid="rr-chart-type-toggle">{{ chartType === 'bar' ? '📈' : '📊' }}</button>
+            <!-- Unicode corner-arrows glyph -- the same "no icon font" rule
+                 the layout tabs' inline SVGs follow, just cheaper to write
+                 for a single stand-in glyph than a fourth <svg>. -->
+            <button class="rr-chart-focus" data-ng-if="!isChartMinimized('line')"
+                    data-ng-class="{on: isChartFocused('line')}"
+                    data-ng-click="toggleChartFocus('line')"
+                    data-ng-attr-title="{{ isChartFocused('line') ? 'Restore all charts' : 'Focus this chart' }}"
+                    data-testid="rr-chart-focus-line">&#10021;</button>
+          </h4>
+          <div data-ng-if="!isChartMinimized('line')">
+            <div class="rr-chart-datefilter" data-ng-if="isCustomRange()" data-testid="rr-chart-datefilter">
+              Filtered to {{ customRangeLabel() }}
+              <button class="rr-btn rr-btn-sm" data-ng-click="clearChartRange()"
+                      data-testid="rr-chart-datefilter-clear">&times; clear</button>
+            </div>
+            <div class="rr-state" data-ng-if="!lineChart.columns.length" data-testid="rr-chart-line-empty">
+              No timed run group in this window.
+            </div>
+            <!-- c3 mounts INTO this div (bindto in the controller's
+                 renderLineChart) and owns everything under it: the axes,
+                 the per-point hover tooltip, and a legend that toggles a
+                 line's visibility on click, all built in rather than the
+                 hand-rolled SVG/HTML overlay this used to be. -->
+            <div data-ng-if="lineChart.columns.length"
+                 id="{{ chartDomId('line') }}" class="rr-linechart-wrap"
+                 data-testid="rr-chart-line-mount"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Two grids, not one auto-fit row: WHO ran (tag / run group / device)
+           reads as its own line because those three identify the dispatch,
+           and everything else -- how it went -- is a second line below. A
+           single auto-fit grid only hints at that split through DOM order,
+           which a wide-enough viewport is free to ignore by wrapping all
+           eight into one row anyway. -->
+      <div class="rr-charts rr-charts-top" data-ng-class="{'has-focus': hasChartFocus()}">
+        <div class="rr-card mix rr-chart-card" data-ng-repeat="f in CHART_FACETS_TOP track by f.id"
+             data-ng-class="{'rr-focused': isChartFocused('pie-' + f.id)}"
+             data-ng-if="facetDonuts[f.id] && (!hasChartFocus() || isChartFocused('pie-' + f.id))"
+             data-testid="rr-chart-pie-{{f.id}}">
+          <div class="rr-chart-pie-body">
+            <h4 class="rr-chart-head">
+              <button class="rr-caret rr-chart-min" data-ng-class="{on: !isChartMinimized('pie-' + f.id)}"
+                      data-ng-click="toggleChartMin('pie-' + f.id)"
+                      data-ng-attr-title="{{ isChartMinimized('pie-' + f.id) ? 'Expand this chart' : 'Minimize this chart' }}"
+                      data-testid="rr-chart-min-pie-{{f.id}}">&#9656;</button>
+              {{ f.label }}
+              <button class="rr-chart-focus" data-ng-if="!isChartMinimized('pie-' + f.id)"
+                      data-ng-class="{on: isChartFocused('pie-' + f.id)}"
+                      data-ng-click="toggleChartFocus('pie-' + f.id)"
+                      data-ng-attr-title="{{ isChartFocused('pie-' + f.id) ? 'Restore all charts' : 'Focus this chart' }}"
+                      data-testid="rr-chart-focus-pie-{{f.id}}">&#10021;</button>
+            </h4>
+            <!-- c3 mounts a donut into this div (renderPieChart): its own
+                 arcs, hole title (the total), legend and click-to-filter
+                 (wired to the same $scope.facetToggle the old hand-drawn
+                 slices called) -- see the controller for the click/legend
+                 overrides. -->
+            <div class="rr-chart-pie-row" data-ng-if="!isChartMinimized('pie-' + f.id)"
+                 id="{{ chartDomId('pie-' + f.id) }}"
+                 data-testid="rr-chart-pie-{{f.id}}-mount"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row two of three: HOW the run/device/step is currently reading --
+           run group and device status first (the coarsest read of "is this
+           batch/box OK"), then the step-level status/exception pair. -->
+      <div class="rr-charts rr-charts-mid" data-ng-class="{'has-focus': hasChartFocus()}">
+        <div class="rr-card mix rr-chart-card" data-ng-repeat="f in CHART_FACETS_MID track by f.id"
+             data-ng-class="{'rr-focused': isChartFocused('pie-' + f.id)}"
+             data-ng-if="facetDonuts[f.id] && (!hasChartFocus() || isChartFocused('pie-' + f.id))"
+             data-testid="rr-chart-pie-{{f.id}}">
+          <div class="rr-chart-pie-body">
+            <h4 class="rr-chart-head">
+              <button class="rr-caret rr-chart-min" data-ng-class="{on: !isChartMinimized('pie-' + f.id)}"
+                      data-ng-click="toggleChartMin('pie-' + f.id)"
+                      data-ng-attr-title="{{ isChartMinimized('pie-' + f.id) ? 'Expand this chart' : 'Minimize this chart' }}"
+                      data-testid="rr-chart-min-pie-{{f.id}}">&#9656;</button>
+              {{ f.label }}
+              <button class="rr-chart-focus" data-ng-if="!isChartMinimized('pie-' + f.id)"
+                      data-ng-class="{on: isChartFocused('pie-' + f.id)}"
+                      data-ng-click="toggleChartFocus('pie-' + f.id)"
+                      data-ng-attr-title="{{ isChartFocused('pie-' + f.id) ? 'Restore all charts' : 'Focus this chart' }}"
+                      data-testid="rr-chart-focus-pie-{{f.id}}">&#10021;</button>
+            </h4>
+            <div class="rr-chart-pie-row" data-ng-if="!isChartMinimized('pie-' + f.id)"
+                 id="{{ chartDomId('pie-' + f.id) }}"
+                 data-testid="rr-chart-pie-{{f.id}}-mount"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- One pie per facet axis that has a vocabulary to show -- same
+           gate (`vocab[f.id].length`) the filter panel itself uses just
+           above, so a pie never appears for an axis with nothing in it. -->
+      <div class="rr-charts rr-charts-bottom" data-ng-class="{'has-focus': hasChartFocus()}">
+        <div class="rr-card mix rr-chart-card" data-ng-repeat="f in CHART_FACETS_BOTTOM track by f.id"
+             data-ng-class="{'rr-focused': isChartFocused('pie-' + f.id)}"
+             data-ng-if="facetDonuts[f.id] && (!hasChartFocus() || isChartFocused('pie-' + f.id))"
+             data-testid="rr-chart-pie-{{f.id}}">
+          <div class="rr-chart-pie-body">
+            <h4 class="rr-chart-head">
+              <button class="rr-caret rr-chart-min" data-ng-class="{on: !isChartMinimized('pie-' + f.id)}"
+                      data-ng-click="toggleChartMin('pie-' + f.id)"
+                      data-ng-attr-title="{{ isChartMinimized('pie-' + f.id) ? 'Expand this chart' : 'Minimize this chart' }}"
+                      data-testid="rr-chart-min-pie-{{f.id}}">&#9656;</button>
+              {{ f.label }}
+              <button class="rr-chart-focus" data-ng-if="!isChartMinimized('pie-' + f.id)"
+                      data-ng-class="{on: isChartFocused('pie-' + f.id)}"
+                      data-ng-click="toggleChartFocus('pie-' + f.id)"
+                      data-ng-attr-title="{{ isChartFocused('pie-' + f.id) ? 'Restore all charts' : 'Focus this chart' }}"
+                      data-testid="rr-chart-focus-pie-{{f.id}}">&#10021;</button>
+            </h4>
+            <div class="rr-chart-pie-row" data-ng-if="!isChartMinimized('pie-' + f.id)"
+                 id="{{ chartDomId('pie-' + f.id) }}"
+                 data-testid="rr-chart-pie-{{f.id}}-mount"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= RUNS (run group -> steps) ================= -->
+    <!-- The default layout, and the one the widget is really for. A ZTP device
+         is almost never dispatched alone: an operator pushes a run group of
+         them and then wants to know how THAT batch went.
+
+         TWO levels, not three. The old shape was run -> device -> phases,
+         which meant two clicks and a request per device to reach the steps --
+         and the middle level answered a question ("how is this one box
+         doing") that the step list answers better, because a step row names
+         its device anyway. One run now expands to every step in it, from one
+         aggregate, with the device as a column. -->
+    <div data-ng-if="isLayout('groups')" data-testid="rr-layout-body-groups">
+
+      <div class="rr-run" data-ng-repeat="g in runsShown track by g.name"
+           data-ng-class="['v-' + g.verdict, {open: isGroupOpen(g)}]"
+           data-testid="rr-run">
+
+        <!-- LEVEL 1: the run -->
+        <div class="run-head" data-ng-click="toggleGroup(g)" data-testid="rr-run-head">
+          <span class="rr-caret" data-ng-class="{on: isGroupOpen(g)}">&#9656;</span>
+          <span class="run-id">
+            <span class="run-name mono">{{ g.name }}</span>
+            <!-- FILTER BY THIS ROW. The name was already a name and an arrow;
+                 the third thing an operator wants from a row they are looking
+                 at is "now show me only this", and until now that meant
+                 scrolling back up to the panel and finding the matching chip
+                 among eighty. Named, not just an icon: a bare funnel beside a
+                 run group and a bare funnel beside a device are the same
+                 picture doing two different things. -->
+            <!-- OPEN RECORD, beside the thing it opens. It used to be a
+                 word-and-arrow link pinned to the far right of the row, a
+                 screen away from the name it belonged to and in a different
+                 column on every row, because the run numbers in between are
+                 not a fixed width. An arrow next to the name is always in the
+                 same place relative to what it opens. -->
+            <a class="rr-open" data-ng-if="groupUrl(g)" data-ng-href="{{ groupUrl(g) }}"
+               data-ng-click="openRecord(groupUrl(g), $event)"
+               title="Open Record" data-testid="rr-run-link">&#8599;</a>
+            <!-- FILTER BY THIS ROW, icon-only -- the word beside the funnel
+                 cost as much width as a short device name, on a row that is
+                 already the widest thing on the page. The mouseover title
+                 says the same thing the label used to. Sits right of Open
+                 Record, the row's other one-click action. -->
+            <button class="rr-rowfilter" data-ng-class="{on: facetOn('group', g.name)}"
+                    data-ng-click="facetToggle('group', g.name); $event.stopPropagation()"
+                    title="Filter Group"
+                    data-testid="rr-run-filter"><svg class="rr-funnel" viewBox="0 0 16 16" width="10" height="10" aria-hidden="true" focusable="false"><path d="M1.5 2.5h13L9.5 8.4v4.3l-3 1.8V8.4z" fill="currentColor"></path></svg></button>
+            <span class="run-when">{{ stamp(g.createDate) }}</span>
+          </span>
+          <span class="pill" data-ng-class="verdictClass(g.verdict)"
+                data-testid="rr-run-verdict">{{ verdictLabel(g.verdict) }}</span>
+
+          <span class="run-tags" data-ng-if="config.showTags && g.tags.length"
+                data-ng-click="$event.stopPropagation()" data-testid="rr-run-tags">
+            <button class="tag-chip t-own" data-ng-repeat="t in g.ownTags track by t"
+                    data-ng-class="{on: facetOn('tag', t)}" data-ng-click="facetToggle('tag', t)"
+                    title="Run tag -- filter to {{ t }}"
+                    data-testid="rr-run-tag-{{t}}">{{ t }}</button>
+            <button class="tag-chip t-dev" data-ng-repeat="t in g.deviceTags track by t"
+                    data-ng-class="{on: facetOn('tag', t)}" data-ng-click="facetToggle('tag', t)"
+                    title="Device tag in this run -- filter to {{ t }}"
+                    data-testid="rr-run-devtag-{{t}}">{{ t }}</button>
+          </span>
+
+          <!-- THE PROGRESS BAR, in STEPS: totalStepsComplete over totalSteps,
+               which is the run's own declared arithmetic. The segments are
+               drawn against the DECLARED total, so the unfilled tail is work
+               that has not reported yet -- a bar normalised to what has
+               already reported always reads 100% and says nothing. -->
+          <span class="run-bar" data-testid="rr-run-bar"
+                title="{{ g.steps.complete }} complete, {{ g.steps.failed }} failed, {{ g.steps.running }} running, {{ g.steps.pending }} queued of {{ g.progress.total }} steps">
+            <span class="bar-seg" data-ng-repeat="b in g.bar track by b.key"
+                  data-ng-style="{width: b.pct + '%', background: b.color}"></span>
+          </span>
+
+          <span class="run-nums">
+            <b data-testid="rr-run-progress">{{ g.progress.complete }}</b><span class="dim">/{{ g.progress.total }} steps</span>
+            <span class="dim">&middot; {{ g.progress.percent }}%</span>
+            <b class="num-fail" data-ng-if="g.steps.failed">&middot; {{ g.steps.failed }} failed</b>
+            <b class="num-warn" data-ng-if="g.steps.exceptions">&middot; {{ g.steps.exceptions }} exc</b>
+            <!-- A status no synonym covers. Shown rather than swallowed: the
+                 whole reason this row once read IN PROGRESS at 5/5 was a
+                 status value silently landing in a bucket that means "still
+                 going". Naming the value is what makes it fixable. -->
+            <b class="num-warn" data-ng-if="g.steps.unknown"
+               title="Unrecognized step status: {{ unknownList(g) }}. Counted as finished, not as progress."
+               data-testid="rr-run-unknown">&middot; {{ g.steps.unknown }} unknown</b>
+            <span class="dim">&middot; {{ g.deviceNames.length || g.totalDevices }} devices</span>
+            <span class="dim" data-ng-if="g.runtime">&middot; {{ g.runtime }}</span>
+          </span>
+
+        </div>
+
+        <!-- LEVEL 2: every step in this run -->
+        <div class="run-body" data-ng-if="isGroupOpen(g)" data-testid="rr-run-body">
+          <div class="ph-state" data-ng-if="stepStatusOf(g) === 'loading'"
+               data-testid="rr-steps-loading">Loading steps...</div>
+          <div class="ph-err" data-ng-if="stepStatusOf(g) === 'error'"
+               data-testid="rr-steps-error">
+            {{ stepMessage(g) }}
+            <button class="rr-btn" data-ng-click="retryGroupSteps(g)"
+                    data-testid="rr-steps-retry">Retry</button>
+          </div>
+
+          <table class="rr-steps" data-ng-if="stepStatusOf(g) === 'ok' && stepsFor(g).length"
+                 data-testid="rr-steps">
+            <thead><tr>
+              <th class="c-x"><!-- EVERY REPORT AT ONCE. The reports are what the run
+                  actually produced, and reading a run through them one caret
+                  at a time is thirty clicks and thirty scroll positions. It
+                  is a toggle and the tooltip says which way it will go: a
+                  control that only opens leaves thirty panels to shut by
+                  hand. -->
+                <button class="rr-caret step-caret allrep"
+                      data-ng-class="{on: allStepDocsOpen(stepsFor(g))}"
+                      data-ng-click="toggleAllStepDocs(stepsFor(g), $event)"
+                      data-ng-attr-title="{{ allStepDocsOpen(stepsFor(g)) ? 'Hide All Steps Report' : 'Show All Steps Report' }}"
+                      aria-label="Show All Steps Report"
+                      data-testid="rr-steps-showall">&#9656;</button></th>
+              <th class="c-dev">Device</th>
+              <th class="c-n">Step#</th>
+              <th class="c-step">Step name</th>
+              <th class="c-act">Automation action</th>
+              <th class="c-trg">Action type</th>
+              <th class="c-st">Status</th>
+              <th class="c-exc">Output status</th>
+              <th class="c-when">Started - stopped</th>
+              <th class="c-t">Time</th>
+            </tr></thead>
+            <tbody>
+              <tr data-ng-repeat-start="st in stepsFor(g) track by st.key"
+                  data-ng-class="{bad: st.bad, flagged: st.flagged, open: isStepOpen(st)}"
+                  data-testid="rr-step">
+                <!-- The report dropdown. A step with no uuid is not expandable
+                     at all rather than expandable onto a spinner that can
+                     never resolve. -->
+                <td class="c-x">
+                  <button class="rr-caret step-caret" data-ng-if="st.uuid"
+                          data-ng-class="{on: isStepOpen(st)}"
+                          data-ng-click="toggleStep(st, $event)"
+                          data-ng-attr-aria-expanded="{{ !!isStepOpen(st) }}"
+                          title="Show this step's report"
+                          data-testid="rr-step-toggle">&#9656;</button>
+                </td>
+                <td class="c-dev">
+                  <!-- Clicking a cell filters by it. Reading a step list and
+                       then hunting for the matching chip above is the same
+                       drill-down done twice. The arrow beside it opens the
+                       record, which is the other thing a name is good for. -->
+                  <button class="cell-filter ell" data-ng-click="facetToggle('device', st.device)"
+                          data-ng-class="{on: facetOn('device', st.device)}"
+                          data-testid="rr-step-device"
+                          title="{{ st.device }} -- click to filter">{{ st.device }}</button>
+                  <a class="rr-open" data-ng-if="deviceUrlByName(st.device)"
+                     data-ng-href="{{ deviceUrlByName(st.device) }}"
+                     data-ng-click="openRecord(deviceUrlByName(st.device), $event)"
+                     title="Open Record" data-testid="rr-step-device-link">&#8599;</a>
+                </td>
+                <!-- The step NUMBER is the step's identity inside its run, so
+                     it is the thing the record arrow belongs to -- and, unlike
+                     every other cell in this row, it is not a filter, so there
+                     is no second meaning for a click to be confused with. The
+                     number and the arrow are therefore ONE link rather than a
+                     label sitting next to a separate target: two hit areas an
+                     ellipsis apart, doing the same thing, is a control the
+                     reader has to aim at. -->
+                <td class="c-n"><a class="stepno-link" data-ng-if="stepUrl(st)"
+                    data-ng-href="{{ stepUrl(st) }}"
+                    data-ng-click="openRecord(stepUrl(st), $event)"
+                    title="Open Record" data-testid="rr-step-link"><span
+                    class="stepno mono">{{ st.stepNumber }}</span><span class="rr-open">&#8599;</span></a><span
+                    class="stepno mono" data-ng-if="!stepUrl(st)">{{ st.stepNumber }}</span></td>
+                <td class="c-step" title="{{ st.name }}"><span class="ell">{{ st.name }}</span></td>
+                <td class="c-act">
+                  <button class="cell-filter ell" data-ng-click="facetToggle('action', st.action)"
+                          data-ng-class="{on: facetOn('action', st.action)}"
+                          data-testid="rr-step-action"
+                          title="{{ st.action }} -- click to filter">{{ st.action }}</button>
+                  <a class="rr-open" data-ng-if="actionUrlByName(st.action)"
+                     data-ng-href="{{ actionUrlByName(st.action) }}"
+                     data-ng-click="openRecord(actionUrlByName(st.action), $event)"
+                     title="Open Record" data-testid="rr-step-action-link">&#8599;</a>
+                </td>
+                <!-- The trigger key: what KIND of automation this step was, as
+                     against which named action it belonged to. -->
+                <td class="c-trg">
+                  <button class="cell-filter ell" data-ng-click="facetToggle('trigger', st.trigger)"
+                          data-ng-class="{on: facetOn('trigger', st.trigger)}"
+                          data-testid="rr-step-trigger"
+                          title="{{ st.trigger }} -- click to filter">{{ st.trigger }}</button>
+                </td>
+                <td class="c-st"><span class="st-dot" data-ng-style="{background: st.color}"></span><button
+                    class="cell-filter" data-ng-click="facetToggle('status', st.status)"
+                    data-ng-class="{on: facetOn('status', st.status)}"
+                    data-testid="rr-step-status"
+                    title="Filter to {{ st.status }}">{{ st.status }}</button></td>
+                <!-- The platform's own sentence about the output, on hover.
+                     It is a paragraph, so it cannot be a column; and it is
+                     the thing an exception status is asking you to read. -->
+                <td class="c-exc"><button class="cell-filter"
+                    data-ng-class="{on: facetOn('exception', st.exception), warn: st.flagged}"
+                    data-ng-click="facetToggle('exception', st.exception)"
+                    data-testid="rr-step-exception"
+                    title="{{ st.message || 'No output status message.' }}">{{ st.exception }}</button></td>
+                <!-- Start and stop in ONE cell -- two columns' worth of width
+                     for two times that are almost always the same day. The
+                     date is spelled once unless the step crossed midnight;
+                     see R.stampRange. -->
+                <td class="c-when mono">{{ st.when || '--' }}</td>
+                <td class="c-t mono">{{ st.seconds ? human(st.seconds) : '--' }}</td>
+              </tr>
+              <tr data-ng-repeat-end data-ng-if="isStepOpen(st)" class="step-doc-row"
+                  data-testid="rr-step-doc-row">
+                <td colspan="10">
+                  <div class="ph-state" data-ng-if="stepDocStatus(st) === 'loading'"
+                       data-testid="rr-step-doc-loading">Loading report...</div>
+                  <div class="ph-err" data-ng-if="stepDocStatus(st) === 'error'"
+                       data-testid="rr-step-doc-error">
+                    {{ stepDocMessage(st) }}
+                    <button class="rr-btn" data-ng-click="retryStepDoc(st, $event)"
+                            data-testid="rr-step-doc-retry">Retry</button>
+                  </div>
+                  <!-- An empty report is a real answer and must not look like
+                       a failed fetch. -->
+                  <div class="ph-state" data-ng-if="stepDocStatus(st) === 'empty'"
+                       data-testid="rr-step-doc-empty">This step produced no report.</div>
+                  <!-- RENDERED, but never trusted. outputMarkdown is produced
+                       by whatever automation the run happened to carry, so it
+                       is escaped before a single tag is built and the HTML
+                       bound here is made only of markup the widget itself
+                       emitted -- see ztpReport.renderMarkdown. The rendered
+                       value is CACHED in the controller: trustAsHtml returns a
+                       new object per call, and rendering in this expression
+                       would stop the digest settling. -->
+                  <div class="step-doc" data-ng-if="stepDocStatus(st) === 'ok'"
+                       data-testid="rr-step-doc">
+                    <button class="rr-btn step-doc-raw" data-ng-click="toggleStepRaw(st, $event)"
+                            data-testid="rr-step-doc-raw">{{ isStepRaw(st) ? 'Rendered' : 'Source' }}</button>
+                    <div class="md-body" data-ng-if="!isStepRaw(st)"
+                         data-ng-bind-html="stepDocHtml(st)"
+                         data-testid="rr-step-doc-html"></div>
+                    <pre class="md-raw" data-ng-if="isStepRaw(st)"
+                         data-testid="rr-step-doc-source">{{ stepDocOf(st) }}</pre>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Say so when the chips hid some of this run's steps. A step list
+               that is silently a subset reads as missing data. -->
+          <div class="rr-hidden" data-ng-if="stepStatusOf(g) === 'ok' && g.stepsHidden > 0"
+               data-testid="rr-steps-hidden">
+            {{ g.stepsHidden }} more step{{ g.stepsHidden === 1 ? '' : 's' }} in this run
+            are hidden by the current filters.
+          </div>
+
+          <div class="ph-state" data-ng-if="stepStatusOf(g) === 'ok' && !stepsFor(g).length"
+               data-testid="rr-steps-empty">
+            No step in this run matches the current filters.
+          </div>
+        </div>
+      </div>
+
+      <!-- The row limit caps what is DRAWN, never what is counted: the
+           summary, charts and exports above already cover every run here. -->
+      <div class="rr-state" data-ng-if="runsShown.length < runsView.length" data-testid="rr-runs-more">
+        {{ runsView.length - runsShown.length }} more run{{ runsView.length - runsShown.length === 1 ? '' : 's' }}
+        in this window, counted in the totals above.
+        <button class="rr-btn" data-ng-click="showMoreRuns()" data-testid="rr-runs-show-more">Show more</button>
+      </div>
+
+      <!-- An empty list has to say WHICH constraint emptied it, and offer the
+           way out. "No run groups match" in front of an operator whose newest
+           run is nine days old, on a board defaulting to seven, is a widget
+           that looks broken. The time scale is named, and widening it is one
+           click. -->
+      <div class="rr-state" data-ng-if="!runsView.length" data-testid="rr-runs-empty">
+        <div data-ng-if="!runs.length">
+          No runs in the last {{ rangeLabel() }}.
+          <div class="rr-state-cta" data-ng-if="range !== 'all'">
+            <button class="rr-btn" data-ng-click="setRange('30d')"
+                    data-testid="rr-empty-widen-30">Try 30 days</button>
+            <button class="rr-btn" data-ng-click="setRange('all')"
+                    data-testid="rr-empty-widen-all">Show all time</button>
+          </div>
+        </div>
+        <div data-ng-if="runs.length">
+          No run in the last {{ rangeLabel() }} matches the current filters.
+          <div class="rr-state-cta">
+            <button class="rr-btn" data-ng-click="clearFilters()"
+                    data-testid="rr-empty-clear">Clear filters</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= DEVICE GRID (device -> its steps) ============
+         THE SAME CUBE, PIVOTED. Every row here is folded out of `runsView` --
+         the very run groups the other view is drawing, carrying the very
+         facts that survived the filter panel above. That is what lets one
+         filter serve both: there is no second query for the two views to
+         disagree about.
+
+         The Answer and Console layouts used to live here. Both were flat
+         FLEET readings that counted each device once in its latest run, while
+         the filters, the summary and the run list all count device-runs
+         inside the selected window. Two different questions on one screen is
+         how a "0 failed" tile came to sit above a list with two failures in
+         it, and no amount of labelling fixes that -- only deleting one of the
+         two questions does. -->
+    <div data-ng-if="isLayout('grid')" data-testid="rr-layout-body-grid">
+
+      <div class="rr-devrow" data-ng-repeat="d in deviceGrid track by d.name"
+           data-ng-class="['v-' + d.verdict, {open: isDeviceRowOpen(d)}]"
+           data-testid="rr-device">
+
+        <!-- LEVEL 1: the device -->
+        <div class="run-head" data-ng-click="toggleDeviceRow(d)" data-testid="rr-device-head">
+          <span class="rr-caret" data-ng-class="{on: isDeviceRowOpen(d)}">&#9656;</span>
+          <span class="run-id">
+            <span class="run-name" data-testid="rr-device-name">{{ d.name }}</span>
+            <a class="rr-open" data-ng-if="deviceUrl(d)" data-ng-href="{{ deviceUrl(d) }}"
+               data-ng-click="openRecord(deviceUrl(d), $event)"
+               title="Open Record" data-testid="rr-device-link">&#8599;</a>
+            <button class="rr-rowfilter" data-ng-class="{on: facetOn('device', d.name)}"
+                    data-ng-click="facetToggle('device', d.name); $event.stopPropagation()"
+                    title="Filter Device"
+                    data-testid="rr-device-filter"><svg class="rr-funnel" viewBox="0 0 16 16" width="10" height="10" aria-hidden="true" focusable="false"><path d="M1.5 2.5h13L9.5 8.4v4.3l-3 1.8V8.4z" fill="currentColor"></path></svg></button>
+            <span class="run-when mono">{{ d.managementIP || '--' }}<span
+              data-ng-if="d.platform"> &middot; {{ d.platform }}</span></span>
+          </span>
+
+          <!-- The DEVICE's own status picklist -- a fact about the box, not
+               about the run. Kept distinct from the verdict beside it, which
+               is about how its steps went: a reachable device can sit at Ok
+               above a run that failed outright. -->
+          <span class="pill dev-status" data-ng-if="d.status"
+                title="Device status on the device record"
+                data-testid="rr-device-status">{{ d.status }}</span>
+          <span class="pill" data-ng-class="verdictClass(d.verdict)"
+                title="How this device's steps went in the runs on screen"
+                data-testid="rr-device-verdict">{{ verdictLabel(d.verdict) }}</span>
+
+          <span class="run-bar" data-testid="rr-device-bar"
+                title="{{ d.complete }} complete, {{ d.failed }} failed, {{ d.inFlight }} in flight of {{ d.steps }} steps">
+            <span class="bar-seg" data-ng-repeat="b in d.bar track by b.key"
+                  data-ng-style="{width: b.pct + '%', background: b.color}"></span>
+          </span>
+
+          <span class="run-nums">
+            <b data-testid="rr-device-stepcount">{{ d.steps }}</b><span class="dim"> steps</span>
+            <span class="dim" data-ng-if="d.runs > 1">&middot; {{ d.runs }} runs</span>
+            <b class="num-fail" data-ng-if="d.failed">&middot; {{ d.failed }} failed</b>
+            <b class="num-warn" data-ng-if="d.exceptions">&middot; {{ d.exceptions }} exc</b>
+            <b class="num-warn" data-ng-if="d.inFlight">&middot; {{ d.inFlight }} in flight</b>
+          </span>
+
+          <!-- The LAST run group this device took part in, and its clock.
+               The run group carries no completion timestamp of its own, so
+               the finish is its start plus the duration the platform
+               reported -- and a run still going shows no finish at all
+               rather than a time that advances every time you look. -->
+          <span class="dev-run" data-ng-click="$event.stopPropagation()"
+                data-testid="rr-device-lastrun">
+            <button class="cell-filter run-name mono"
+                    data-ng-class="{on: facetOn('group', d.lastRun)}"
+                    data-ng-click="facetToggle('group', d.lastRun)"
+                    data-testid="rr-device-run-chip"
+                    title="Filter to run group {{ d.lastRun }}">{{ d.lastRun }}</button>
+            <a class="rr-open" data-ng-if="d.lastRunUuid"
+               data-ng-href="/modules/view-panel/ztpf_run_groups/{{ d.lastRunUuid }}"
+               data-ng-click="openRecord('/modules/view-panel/ztpf_run_groups/' + d.lastRunUuid, $event)"
+               title="Open Record" data-testid="rr-device-run-link">&#8599;</a>
+            <span class="dim" data-testid="rr-device-run-started">{{ stamp(d.lastRunStartedAt) }}</span>
+            <span class="dim">&rarr;</span>
+            <span class="dim" data-testid="rr-device-run-finished">{{ d.lastRunFinishedAt ? stamp(d.lastRunFinishedAt) : 'running' }}</span>
+          </span>
+
+        </div>
+
+        <!-- LEVEL 2: the steps of that last run, for this device.
+             IDENTICAL to the run view's table, minus the device column --
+             the row you opened already names the device, and repeating it
+             down every line is noise. The markup is duplicated rather than
+             shared through an ng-include: the include would need the row
+             object passed through ng-init, which captures once and then goes
+             stale on the next rebuild, silently rendering a device's steps
+             under a different device. -->
+        <div class="run-body" data-ng-if="isDeviceRowOpen(d)" data-testid="rr-device-body">
+          <div class="ph-state" data-ng-if="deviceStepState(d) === 'loading'"
+               data-testid="rr-device-steps-loading">Loading steps...</div>
+          <div class="ph-err" data-ng-if="deviceStepState(d) === 'error'"
+               data-testid="rr-device-steps-error">
+            {{ deviceStepError(d) }}
+            <button class="rr-btn" data-ng-click="retryDeviceSteps(d)"
+                    data-testid="rr-device-steps-retry">Retry</button>
+          </div>
+
+          <table class="rr-steps" data-ng-if="deviceStepState(d) === 'ok' && deviceStepsFor(d).length"
+                 data-testid="rr-device-steps">
+            <thead><tr>
+              <th class="c-x"><!-- EVERY REPORT AT ONCE. The reports are what the run
+                  actually produced, and reading a run through them one caret
+                  at a time is thirty clicks and thirty scroll positions. It
+                  is a toggle and the tooltip says which way it will go: a
+                  control that only opens leaves thirty panels to shut by
+                  hand. -->
+                <button class="rr-caret step-caret allrep"
+                      data-ng-class="{on: allStepDocsOpen(deviceStepsFor(d))}"
+                      data-ng-click="toggleAllStepDocs(deviceStepsFor(d), $event)"
+                      data-ng-attr-title="{{ allStepDocsOpen(deviceStepsFor(d)) ? 'Hide All Steps Report' : 'Show All Steps Report' }}"
+                      aria-label="Show All Steps Report"
+                      data-testid="rr-device-steps-showall">&#9656;</button></th>
+              <!-- Where the device sits in the run view. These rows span every
+                   run group this device appears in, so the step number alone
+                   no longer says which sequence a row belongs to. -->
+              <th class="c-grp">Run group</th>
+              <th class="c-n">Step#</th>
+              <th class="c-step">Step name</th>
+              <th class="c-act">Automation action</th>
+              <th class="c-trg">Action type</th>
+              <th class="c-st">Status</th>
+              <th class="c-exc">Output status</th>
+              <th class="c-when">Started - stopped</th>
+              <th class="c-t">Time</th>
+            </tr></thead>
+            <tbody>
+              <tr data-ng-repeat-start="st in deviceStepsFor(d) track by st.key"
+                  data-ng-class="{bad: st.bad, flagged: st.flagged, open: isStepOpen(st)}"
+                  data-testid="rr-device-step">
+                <td class="c-x">
+                  <button class="rr-caret step-caret" data-ng-if="st.uuid"
+                          data-ng-class="{on: isStepOpen(st)}"
+                          data-ng-click="toggleStep(st, $event)"
+                          data-ng-attr-aria-expanded="{{ !!isStepOpen(st) }}"
+                          title="Show this step's report"
+                          data-testid="rr-device-step-toggle">&#9656;</button>
+                </td>
+                <td class="c-grp">
+                  <button class="cell-filter ell" data-ng-click="facetToggle('group', st.group)"
+                          data-ng-class="{on: facetOn('group', st.group)}"
+                          data-testid="rr-device-step-group"
+                          title="{{ st.group }} -- click to filter">{{ st.group }}</button>
+                  <a class="rr-open" data-ng-if="groupUrlByName(st.group)"
+                     data-ng-href="{{ groupUrlByName(st.group) }}"
+                     data-ng-click="openRecord(groupUrlByName(st.group), $event)"
+                     title="Open Record" data-testid="rr-device-step-group-link">&#8599;</a>
+                </td>
+                <!-- The step NUMBER is the step's identity inside its run, so
+                     it is the thing the record arrow belongs to -- and, unlike
+                     every other cell in this row, it is not a filter, so there
+                     is no second meaning for a click to be confused with. The
+                     number and the arrow are therefore ONE link rather than a
+                     label sitting next to a separate target: two hit areas an
+                     ellipsis apart, doing the same thing, is a control the
+                     reader has to aim at. -->
+                <td class="c-n"><a class="stepno-link" data-ng-if="stepUrl(st)"
+                    data-ng-href="{{ stepUrl(st) }}"
+                    data-ng-click="openRecord(stepUrl(st), $event)"
+                    title="Open Record" data-testid="rr-device-step-link"><span
+                    class="stepno mono">{{ st.stepNumber }}</span><span class="rr-open">&#8599;</span></a><span
+                    class="stepno mono" data-ng-if="!stepUrl(st)">{{ st.stepNumber }}</span></td>
+                <td class="c-step" title="{{ st.name }}"><span class="ell">{{ st.name }}</span></td>
+                <td class="c-act">
+                  <button class="cell-filter ell" data-ng-click="facetToggle('action', st.action)"
+                          data-ng-class="{on: facetOn('action', st.action)}"
+                          data-testid="rr-device-step-action"
+                          title="{{ st.action }} -- click to filter">{{ st.action }}</button>
+                  <a class="rr-open" data-ng-if="actionUrlByName(st.action)"
+                     data-ng-href="{{ actionUrlByName(st.action) }}"
+                     data-ng-click="openRecord(actionUrlByName(st.action), $event)"
+                     title="Open Record" data-testid="rr-device-step-action-link">&#8599;</a>
+                </td>
+                <td class="c-trg">
+                  <button class="cell-filter ell" data-ng-click="facetToggle('trigger', st.trigger)"
+                          data-ng-class="{on: facetOn('trigger', st.trigger)}"
+                          data-testid="rr-device-step-trigger"
+                          title="{{ st.trigger }} -- click to filter">{{ st.trigger }}</button>
+                </td>
+                <td class="c-st"><span class="st-dot" data-ng-style="{background: st.color}"></span><button
+                    class="cell-filter" data-ng-click="facetToggle('status', st.status)"
+                    data-ng-class="{on: facetOn('status', st.status)}"
+                    data-testid="rr-device-step-status"
+                    title="Filter to {{ st.status }}">{{ st.status }}</button></td>
+                <td class="c-exc"><button class="cell-filter"
+                    data-ng-class="{on: facetOn('exception', st.exception), warn: st.flagged}"
+                    data-ng-click="facetToggle('exception', st.exception)"
+                    data-testid="rr-device-step-exception"
+                    title="{{ st.message || 'No output status message.' }}">{{ st.exception }}</button></td>
+                <td class="c-when mono">{{ st.when || '--' }}</td>
+                <td class="c-t mono">{{ st.seconds ? human(st.seconds) : '--' }}</td>
+              </tr>
+              <tr data-ng-repeat-end data-ng-if="isStepOpen(st)" class="step-doc-row"
+                  data-testid="rr-device-step-doc-row">
+                <td colspan="10">
+                  <div class="ph-state" data-ng-if="stepDocStatus(st) === 'loading'">Loading report...</div>
+                  <div class="ph-err" data-ng-if="stepDocStatus(st) === 'error'">
+                    {{ stepDocMessage(st) }}
+                    <button class="rr-btn" data-ng-click="retryStepDoc(st, $event)"
+                            data-testid="rr-device-step-doc-retry">Retry</button>
+                  </div>
+                  <div class="ph-state" data-ng-if="stepDocStatus(st) === 'empty'">This step produced no report.</div>
+                  <div class="step-doc" data-ng-if="stepDocStatus(st) === 'ok'"
+                       data-testid="rr-device-step-doc">
+                    <button class="rr-btn step-doc-raw" data-ng-click="toggleStepRaw(st, $event)"
+                            data-testid="rr-device-step-doc-raw">{{ isStepRaw(st) ? 'Rendered' : 'Source' }}</button>
+                    <div class="md-body" data-ng-if="!isStepRaw(st)"
+                         data-ng-bind-html="stepDocHtml(st)"></div>
+                    <pre class="md-raw" data-ng-if="isStepRaw(st)">{{ stepDocOf(st) }}</pre>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ph-state" data-ng-if="deviceStepState(d) === 'ok' && !deviceStepsFor(d).length"
+               data-testid="rr-device-steps-empty">
+            No step of this device matches the current filters.
+          </div>
+        </div>
+      </div>
+
+      <div class="rr-state" data-ng-if="!deviceGrid.length" data-testid="rr-grid-empty">
+        <div data-ng-if="!runs.length">
+          No runs in the last {{ rangeLabel() }}, so no device has any steps to show.
+          <div class="rr-state-cta" data-ng-if="range !== 'all'">
+            <button class="rr-btn" data-ng-click="setRange('30d')"
+                    data-testid="rr-grid-widen-30">Try 30 days</button>
+            <button class="rr-btn" data-ng-click="setRange('all')"
+                    data-testid="rr-grid-widen-all">Show all time</button>
+          </div>
+        </div>
+        <div data-ng-if="runs.length">
+          No device in the last {{ rangeLabel() }} matches the current filters.
+          <div class="rr-state-cta">
+            <button class="rr-btn" data-ng-click="clearFilters()"
+                    data-testid="rr-grid-clear">Clear filters</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Include C3.js if not already loaded -- the Charts layout's line and pie
+     charts are c3, not hand-rolled SVG. Same lazy-load-once pattern the
+     c3charts widget already uses (its view.html carries the identical
+     block): a widget already loaded on this dashboard may have put c3 on
+     window first, in which case a second script tag would double-register
+     it, so this only fires when window.c3 is absent. -->
+<script data-ng-if="!window.c3">
+    (function() {
+        var script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.js';
+        document.head.appendChild(script);
+
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.css';
+        document.head.appendChild(link);
+    })();
+</script>

@@ -1,0 +1,268 @@
+<!-- Copyright start 
+  MIT License
+  Copyright (c) 2025 Fortinet Inc
+  Copyright end -->
+<form data-ng-submit="save()" class="noMargin" name="firewallDashboardForm" novalidate>
+    <div class="modal-header">
+        <h3 class="modal-title col-md-10">Edit Firewall Owner Dashboard</h3>
+        <button type="button" class="close" data-ng-click="cancel()" data-dismiss="modal" aria-label="Close"
+                id="close-edit-firewall-dashboard-btn">
+            <div aria-hidden="true" class="version-button">+</div>
+        </button>
+    </div>
+
+    <div class="modal-body">
+        <!-- Title -->
+        <div class="form-group"
+             data-ng-class="{ 'has-error': firewallDashboardForm.title.$invalid && firewallDashboardForm.title.$touched }">
+            <label for="title" class="control-label">
+                Widget Title
+                <span class="text-danger">*</span>
+            </label>
+            <input id="title"
+                   name="title"
+                   type="text"
+                   class="form-control"
+                   data-ng-model="config.title"
+                   placeholder="Firewall Owner Dashboard"
+                   required>
+            <div data-cs-messages="firewallDashboardForm.title"></div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+            <label for="description" class="control-label">Description</label>
+            <textarea id="description"
+                      name="description"
+                      class="form-control"
+                      rows="3"
+                      data-ng-model="config.description"
+                      placeholder="Optional description for this dashboard widget"></textarea>
+        </div>
+
+        <!-- Data Configuration Section -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">Data Source Configuration</h4>
+            </div>
+            <div class="panel-body">
+
+                <!-- Use Live Data Toggle -->
+                <div class="form-group">
+                    <label class="control-label">Data Mode</label>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox"
+                                   data-ng-model="config.useLiveData"
+                                   data-ng-init="config.useLiveData = config.useLiveData !== undefined ? config.useLiveData : true">
+                            Use live firewall device data from FortiSOAR
+                        </label>
+                    </div>
+                    <p class="help-block">
+                        <strong>Default: Enabled.</strong> Connects to <code>firewall_devices</code> module. When
+                        disabled, uses demo data.
+                    </p>
+                </div>
+
+                <div data-ng-if="config.useLiveData">
+                    <!-- Filter Criteria -->
+                    <div class="form-group" data-ng-if="fieldsArray.length > 0">
+                        <label for="filters" class="control-label">Filter Criteria (Optional)</label>
+                        <span data-uib-tooltip="Define filters to select specific firewall devices"
+                              data-tooltip-append-to-body="true">
+              <i class="icon icon-information font-Size-13"></i>
+            </span>
+                        <div data-cs-conditional
+                             data-ng-if="fieldsArray.length > 0"
+                             data-fields="fields"
+                             data-mode="'queryFilters'"
+                             data-ng-model="config.query"
+                             data-parent-form="firewallDashboardForm"
+                             data-enable-expression="(page==='dashboard' || page==='reporting')"
+                             data-show-uuid="true"
+                             data-form-name="'firewallDashboardForm'"></div>
+                        <!--                        <p class="help-block">Apply filters to retrieve only relevant firewall devices (e.g., filter by-->
+                        <!--                            ADOM, status, etc.)</p>-->
+                    </div>
+
+                    <!-- Spinner while loading fields -->
+                    <cs-spinner data-ng-show="!fieldsArray || fieldsArray.length === 0"></cs-spinner>
+
+                    <!-- Query Configuration -->
+                    <div class="form-group">
+                        <label for="queryLookbackDays" class="control-label">
+                            Query Lookback Period (days)
+                        </label>
+                        <input id="queryLookbackDays"
+                               name="queryLookbackDays"
+                               type="number"
+                               class="form-control"
+                               data-ng-model="config.queryLookbackDays"
+                               min="1"
+                               max="365"
+                               data-ng-init="config.queryLookbackDays = config.queryLookbackDays || 30"
+                               placeholder="30">
+                        <!--                        <p class="help-block">Filter records modified within the last N days.</p>-->
+                    </div>
+
+                    <!-- Query Limit -->
+                    <div class="form-group">
+                        <label for="queryLimit" class="control-label">Maximum Records to Retrieve</label>
+                        <input id="queryLimit"
+                               name="queryLimit"
+                               type="number"
+                               class="form-control"
+                               data-ng-model="config.queryLimit"
+                               min="1"
+                               max="1000"
+                               data-ng-init="config.queryLimit = config.queryLimit || 100"
+                               placeholder="100">
+                        <!--                        <p class="help-block">Limit the number of firewall devices retrieved.</p>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Display Settings -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">Display Settings</h4>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label class="control-label">View Options</label>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox"
+                                   data-ng-model="config.showAnnouncements"
+                                   data-ng-init="config.showAnnouncements = config.showAnnouncements !== undefined ? config.showAnnouncements : true">
+                            Show Announcements Section
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox"
+                                   data-ng-model="config.showMetrics"
+                                   data-ng-init="config.showMetrics = config.showMetrics !== undefined ? config.showMetrics : true">
+                            Show CPU/Memory Metrics
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox"
+                                   data-ng-model="config.showTopPolicies"
+                                   data-ng-init="config.showTopPolicies = config.showTopPolicies !== undefined ? config.showTopPolicies : true">
+                            Show Top Policies on Cards
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Default ADOM Filter -->
+                <div class="form-group">
+                    <label for="defaultAdom" class="control-label">Default ADOM Filter</label>
+                    <input id="defaultAdom"
+                           name="defaultAdom"
+                           type="text"
+                           class="form-control"
+                           data-ng-model="config.defaultAdom"
+                           data-ng-init="config.defaultAdom = config.defaultAdom || 'All'"
+                           placeholder="All">
+                    <p class="help-block">Enter comma-separated ADOM names or "All" for all ADOMs</p>
+                </div>
+
+                <!-- Default Role -->
+                <div class="form-group">
+                    <label for="defaultRole" class="control-label">Default Role</label>
+                    <select id="defaultRole"
+                            name="defaultRole"
+                            class="form-control"
+                            data-ng-model="config.defaultRole"
+                            data-ng-init="config.defaultRole = config.defaultRole || 'Owner'">
+                        <option value="Owner">Owner</option>
+                        <option value="Delegate">Delegate</option>
+                        <option value="CX">Customer Experience</option>
+                    </select>
+                </div>
+
+                <!-- Max Policies Display -->
+                <div class="form-group">
+                    <label for="maxPoliciesDisplay" class="control-label">
+                        Maximum Policies to Display
+                    </label>
+                    <input id="maxPoliciesDisplay"
+                           name="maxPoliciesDisplay"
+                           type="number"
+                           class="form-control"
+                           data-ng-model="config.maxPoliciesDisplay"
+                           min="1"
+                           max="50"
+                           data-ng-init="config.maxPoliciesDisplay = config.maxPoliciesDisplay || 10"
+                           placeholder="10">
+                </div>
+            </div>
+        </div>
+
+        <!-- Refresh Settings -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#refreshSettings">
+                        Refresh Settings
+                        <i class="icon icon-chevron-down pull-right"></i>
+                    </a>
+                </h4>
+            </div>
+            <div id="refreshSettings" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox"
+                                   data-ng-model="config.autoRefresh"
+                                   data-ng-init="config.autoRefresh = config.autoRefresh !== undefined ? config.autoRefresh : false">
+                            Enable Auto-Refresh
+                        </label>
+                    </div>
+
+                    <div class="form-group" data-ng-show="config.autoRefresh">
+                        <label for="refreshInterval" class="control-label">
+                            Refresh Interval (seconds)
+                        </label>
+                        <input id="refreshInterval"
+                               name="refreshInterval"
+                               type="number"
+                               class="form-control"
+                               data-ng-model="config.refreshInterval"
+                               min="30"
+                               max="3600"
+                               data-ng-init="config.refreshInterval = config.refreshInterval || 300"
+                               placeholder="300">
+                        <p class="help-block">Minimum: 30 seconds, Maximum: 3600 seconds (1 hour)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="alert alert-info">
+            <i class="icon icon-information"></i>
+            <strong>Note:</strong> This widget is designed for the <code>firewall_devices</code> module. When "Use live
+            data" is enabled, the widget queries firewall devices using the configured filters. When disabled, it
+            displays built-in demo data.
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button id="widget-edit-save"
+                type="submit"
+                data-ng-disabled="firewallDashboardForm.$invalid"
+                class="btn btn-sm btn-primary">
+            <i class="icon icon-check margin-right-sm"></i>Save
+        </button>
+        <button id="widget-edit-cancel"
+                type="button"
+                class="btn btn-sm btn-default"
+                data-ng-click="cancel()">
+            <i class="icon icon-close margin-right-sm"></i>Close
+        </button>
+    </div>
+</form>

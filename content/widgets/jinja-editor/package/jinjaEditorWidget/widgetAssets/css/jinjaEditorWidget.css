@@ -1,0 +1,635 @@
+/* Copyright start
+   MIT License
+   Copyright (c) 2026 Dylan Spille
+   Copyright end */
+
+.jinja-editor-widget {
+  display: flex;
+  flex-direction: column;
+  min-height: 360px;
+}
+
+.jinja-editor-widget .jinja-editor-widget-body {
+  flex: 1 1 auto;
+}
+
+.jinja-editor-widget .jinja-pane {
+  display: flex;
+  flex-direction: column;
+}
+
+.jinja-editor-widget .jinja-code-area {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  resize: vertical;
+  min-height: 220px;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border-color: #3c3c3c;
+}
+
+.jinja-editor-widget .monaco-pane {
+  height: 340px;
+  border: 1px solid #dfe3e8;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+/* The SOAR `monacoEditor` directive nests a bare `<div class="Monaco">`
+   inside our pane; monaco.editor.create attaches there. It has no
+   intrinsic size, so without this it collapses to 0x0 and the editor
+   is invisible. */
+.jinja-editor-widget .monaco-pane > .Monaco {
+  width: 100%;
+  height: 100%;
+}
+
+.jinja-editor-widget .monaco-pane.has-error-border {
+  border-color: #d9534f;
+}
+
+.jinja-editor-widget .output-area {
+  min-height: 340px;
+}
+
+.jinja-editor-widget .jinja-output-tabs {
+  margin: 0;
+  padding: 0;
+}
+.jinja-editor-widget .jinja-output-tabs > li > a {
+  padding: 2px 10px;
+  font-size: 12px;
+  border-radius: 3px;
+}
+.jinja-editor-widget .jinja-output-tabs > li.active > a {
+  background-color: #337ab7;
+  color: #fff;
+}
+
+.jinja-editor-widget .jinja-html-preview {
+  border: 1px solid #444;
+  border-radius: 3px;
+  background: #fff;
+  min-height: 340px;
+  overflow: hidden;
+}
+.jinja-editor-widget .jinja-html-preview-frame {
+  display: block;
+  width: 100%;
+  height: 340px;
+  border: 0;
+  background: #fff;
+}
+
+.jinja-editor-widget .jinja-layout-picker {
+  display: inline-block;
+  width: auto;
+  vertical-align: middle;
+}
+
+.jinja-editor-widget .jinja-output-expand {
+  padding: 2px 8px;
+}
+
+/* Output expand modal */
+.jinja-editor-widget .jinja-output-modal-backdrop,
+body > .jinja-output-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.jinja-editor-widget .jinja-output-modal {
+  width: 90vw;
+  height: 88vh;
+  background: #1e1e1e;
+  color: #ddd;
+  border-radius: 4px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.jinja-editor-widget .jinja-output-modal-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #333;
+  background: #252525;
+}
+.jinja-editor-widget .jinja-output-modal-close {
+  margin-left: auto;
+  color: #ddd;
+}
+.jinja-editor-widget .jinja-output-modal-body {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+  padding: 8px;
+}
+.jinja-editor-widget .jinja-output-modal-body > * {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+}
+.jinja-editor-widget .jinja-output-modal-textarea {
+  resize: none;
+  height: 100% !important;
+}
+.jinja-editor-widget .jinja-output-modal-monaco {
+  height: 100%;
+}
+.jinja-editor-widget .jinja-output-modal-html {
+  height: 100%;
+}
+.jinja-editor-widget .jinja-output-modal-html .jinja-html-preview-frame {
+  height: 100%;
+}
+
+.jinja-editor-widget .has-error-border {
+  border-color: #d9534f;
+}
+
+.jinja-editor-widget .render-btn i {
+  font-size: 11px;
+}
+
+.jinja-editor-widget .output-loader {
+  top: 8px;
+  right: 8px;
+  z-index: 5;
+}
+
+.jinja-editor-widget .jinja-example-picker {
+  width: auto;
+  max-width: 220px;
+  height: 26px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.jinja-editor-widget .jinja-template-actions {
+  display: flex;
+  align-items: center;
+}
+
+.jinja-editor-widget .jinja-filter-toggle {
+  height: 26px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.jinja-editor-widget .jinja-filter-toggle.active {
+  background-color: #2b6cb0;
+  color: #fff;
+  border-color: #2b6cb0;
+}
+
+.jinja-editor-widget .jinja-filter-palette {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  width: 360px;
+  max-height: 480px;
+  min-height: 280px;
+  background-color: #1e1e1e;
+  color: #dcdcdc;
+  border: 1px solid #3c3c3c;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.jinja-editor-widget .jinja-filter-palette-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid #333;
+  background-color: #252526;
+}
+
+.jinja-editor-widget .jinja-filter-palette-header strong {
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.jinja-editor-widget .jinja-filter-palette-close {
+  color: #9da5b4;
+  padding: 2px 6px;
+}
+
+.jinja-editor-widget .jinja-filter-palette-close:hover {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.jinja-editor-widget .jinja-filter-palette-search {
+  position: relative;
+  padding: 8px 12px;
+  border-bottom: 1px solid #333;
+  background-color: #252526;
+}
+
+.jinja-editor-widget .jinja-filter-palette-search input {
+  background-color: #1e1e1e;
+  color: #dcdcdc;
+  border: 1px solid #3c3c3c;
+  padding-left: 28px;
+  height: 28px;
+}
+
+.jinja-editor-widget .jinja-filter-palette-search input:focus {
+  border-color: #61afef;
+  box-shadow: 0 0 0 1px #61afef;
+}
+
+.jinja-editor-widget .jinja-filter-palette-search-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c7380;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.jinja-editor-widget .jinja-filter-palette-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.jinja-editor-widget .jinja-filter-palette-empty {
+  padding: 16px;
+  text-align: center;
+  color: #9da5b4;
+  font-size: 12px;
+}
+
+.jinja-editor-widget .jinja-filter-group {
+  padding: 4px 0 6px;
+}
+
+.jinja-editor-widget .jinja-filter-group-title {
+  padding: 4px 12px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9da5b4;
+  background-color: #252526;
+  border-top: 1px solid #2d2d2d;
+  border-bottom: 1px solid #2d2d2d;
+}
+
+.jinja-editor-widget .jinja-filter-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #2a2a2a;
+  color: inherit;
+  padding: 0;
+}
+
+.jinja-editor-widget .jinja-filter-item-main {
+  padding: 6px 12px;
+  cursor: pointer;
+  width: 100%;
+  user-select: none;
+}
+
+.jinja-editor-widget .jinja-filter-item-main:hover,
+.jinja-editor-widget .jinja-filter-item-main:focus {
+  background-color: #2a2d2e;
+  outline: none;
+}
+
+.jinja-editor-widget .jinja-filter-item-example {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 12px 5px;
+  background-color: #1a1a1a;
+  border-top: 1px solid #222;
+}
+
+.jinja-editor-widget .jinja-filter-example-code {
+  flex: 1 1 auto;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 10px;
+  color: #98c379;
+  background: transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.jinja-editor-widget .jinja-filter-example-insert {
+  flex: 0 0 auto;
+  font-size: 10px;
+  color: #61afef;
+  padding: 1px 4px;
+  line-height: 1.4;
+}
+
+.jinja-editor-widget .jinja-filter-example-insert:hover {
+  color: #88c0d0;
+  text-decoration: none;
+}
+
+.jinja-editor-widget .jinja-filter-item-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.jinja-editor-widget .jinja-filter-item-name {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+  color: #61afef;
+}
+
+.jinja-editor-widget .jinja-filter-item-return {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 11px;
+  color: #d19a66;
+}
+
+.jinja-editor-widget .jinja-filter-item-signature {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 11px;
+  color: #98c379;
+  margin-top: 2px;
+}
+
+.jinja-editor-widget .jinja-filter-item-doc {
+  font-size: 11px;
+  color: #abb2bf;
+  margin-top: 2px;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.jinja-editor-widget .jinja-filter-palette-footer {
+  padding: 6px 12px;
+  border-top: 1px solid #333;
+  font-size: 11px;
+  background-color: #252526;
+  color: #6c7380;
+}
+
+.jinja-editor-widget .jinja-widget-json-view {
+  min-height: 220px;
+  max-height: 420px;
+  overflow: auto;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid #3c3c3c;
+  border-radius: 3px;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Light-theme palette overrides */
+.jinja-editor-widget .jinja-filter-palette--light {
+  background-color: #ffffff;
+  color: #24292e;
+  border-color: #d1d5da;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-palette-header,
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-palette-search,
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-group-title,
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-palette-footer {
+  background-color: #f6f8fa;
+  border-color: #e1e4e8;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-palette-header strong {
+  color: #24292e;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-palette-close {
+  color: #6a737d;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-palette-close:hover {
+  color: #24292e;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-palette-search input {
+  background-color: #ffffff;
+  color: #24292e;
+  border-color: #d1d5da;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-palette-search input:focus {
+  border-color: #0366d6;
+  box-shadow: 0 0 0 1px #0366d6;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-palette-search-icon {
+  color: #6a737d;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-item {
+  border-bottom-color: #e1e4e8;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-item-main:hover,
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-item-main:focus {
+  background-color: #f1f3f5;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-group-title {
+  color: #6a737d;
+  border-color: #e1e4e8;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-item-name {
+  color: #0366d6;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-item-return {
+  color: #b45309;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-item-signature {
+  color: #2e7d32;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-item-doc {
+  color: #586069;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-item-example {
+  background-color: #f6f8fa;
+  border-top-color: #e1e4e8;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-example-code {
+  color: #2e7d32;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-example-insert {
+  color: #0366d6;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-palette-empty {
+  color: #6a737d;
+}
+
+.jinja-editor-widget .jinja-filter-palette--light .jinja-filter-palette-footer {
+  color: #6a737d;
+}
+
+/* Output area — light-mode variant */
+.jinja-editor-widget .jinja-output--light {
+  background-color: #f6f8fa;
+  color: #24292e;
+  border-color: #d1d5da;
+}
+
+.jinja-editor-widget .jinja-output--light:focus {
+  border-color: #0366d6;
+  box-shadow: 0 0 0 1px #0366d6;
+}
+
+/* Output area — dark-mode focus */
+.jinja-editor-widget .jinja-code-area:focus {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border-color: #61afef;
+  box-shadow: 0 0 0 1px #61afef;
+  outline: none;
+}
+
+.jinja-editor-widget .jinja-code-area.has-error-border:focus {
+  border-color: #d9534f;
+  box-shadow: 0 0 0 1px #d9534f;
+}
+
+/* Light-mode: ensure labels and body text are legible */
+.jinja-editor-widget .control-label {
+  color: inherit;
+}
+
+/* Header row: wrap gracefully on narrow panels */
+.jinja-editor-widget .display-flex-space-between {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.jinja-editor-widget .display-flex-space-between > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+@media (max-width: 991px) {
+  .jinja-editor-widget .jinja-pane + .jinja-pane {
+    margin-top: 12px;
+  }
+
+  /* Reduce monaco and output min-heights on smaller panels */
+  .jinja-editor-widget .monaco-pane {
+    height: 240px;
+  }
+
+  .jinja-editor-widget .output-area {
+    min-height: 240px;
+  }
+
+  .jinja-editor-widget .jinja-code-area {
+    min-height: 160px;
+  }
+
+  /* Filter palette: fit smaller panels */
+  .jinja-editor-widget .jinja-filter-palette {
+    width: 280px;
+    right: 0;
+    left: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Stack to full-width columns on xs */
+  .jinja-editor-widget .monaco-pane {
+    height: 200px;
+  }
+
+  .jinja-editor-widget .output-area {
+    min-height: 180px;
+  }
+
+  .jinja-editor-widget .jinja-filter-palette {
+    width: 100%;
+    right: 0;
+    left: 0;
+    top: auto;
+    position: fixed;
+    bottom: 0;
+    border-radius: 8px 8px 0 0;
+    max-height: 60vh;
+  }
+}
+
+/* Drawer (custom popup) sizing override.
+   #custom-modal lives outside the widget scope. We widen + scroll-cap it,
+   but we deliberately do NOT touch `left`/`top` here — SOAR's drag handler
+   (app.unmin.js:26250) writes those inline, and any !important on them
+   would freeze the drag. Initial centering is done in JS on mount. */
+/* "splitBottom" layout: output sits below input+template on a wrapped row.
+   Add breathing room above it and let the output area grow taller than the
+   default 340px so the wider full-width pane doesn't look squat. */
+.jinja-editor-widget .jinja-pane.jinja-pane-bottom { margin-top: 12px; }
+.jinja-editor-widget .jinja-pane.jinja-pane-bottom .output-area,
+.jinja-editor-widget .jinja-pane.jinja-pane-bottom .monaco-pane,
+.jinja-editor-widget .jinja-pane.jinja-pane-bottom .jinja-code-area {
+  min-height: 420px;
+  height: 420px;
+}
+
+.jinja-editor-widget-drawer-host#custom-modal {
+  width: min(1200px, 95vw) !important;
+  max-width: 95vw !important;
+  max-height: 90vh !important;
+  /* SOAR's base #custom-modal rule sets `left: 100%` + `transform: translate(-100%, 0%)`,
+     which together flush the modal to the right edge based on the default 320px width.
+     With our wider modal, that combo lands off-screen. Neutralize the transform and
+     center via `left`/`top`. No `!important` on left/top so SOAR's drag handler
+     (which writes inline styles) can still move the modal. */
+  transform: none !important;
+  left: max(20px, calc((100vw - min(1200px, 95vw)) / 2));
+  top: 5vh;
+}
+.jinja-editor-widget-drawer-host#custom-modal .custom-modal {
+  width: 100% !important;
+  max-height: 90vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.jinja-editor-widget-drawer-host#custom-modal .custom-modal-body {
+  flex: 1 1 auto !important;
+  overflow: auto !important;
+  max-height: calc(90vh - 30px) !important;
+}

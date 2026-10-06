@@ -1,0 +1,159 @@
+<!-- Copyright start
+  MIT License
+  Copyright (c) 2026 Fortinet Inc
+  Copyright end -->
+<!-- VIEW template. Do NOT put data-ng-controller on the root here -- the harness
+     (and SOAR after publish) wraps the widget with its own ng-controller; a
+     second one creates a dead parallel scope. See KNOWLEDGEBASE.md §widget gotchas. -->
+<!-- Pure timer-math module (namespace global, no define()). Path prefix is
+     <name>-<version>/widgetAssets/...; `widget bump` rewrites the version
+     segment on every ship (lint `stale-version-ref` flags a mismatch). -->
+<script src="ztpGroupTimer-1.0.3/widgetAssets/js/ztpGroupTimer.js"></script>
+<style>
+/* Inlined, not <link>: Angular $compile does not load <link> tags in
+   templates, and the harness auto-injects only widgetAssets .js. */
+.ztp-group-timer { font-family: inherit; color: inherit; }
+.ztp-group-timer .ztp-gt-state { padding: 12px; opacity: .75; }
+.ztp-group-timer .ztp-gt-error { color: #ff8a80; }
+.ztp-group-timer .ztp-gt-retry {
+  margin-left: 8px; padding: 2px 10px; border-radius: 4px; border: 1px solid currentColor;
+  background: transparent; color: inherit; cursor: pointer;
+}
+.ztp-group-timer .ztp-gt-card { padding: 14px 16px; }
+.ztp-group-timer .ztp-gt-title { font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
+  opacity: .6; margin-bottom: 8px; }
+.ztp-group-timer .ztp-gt-badge { display: inline-block; margin-top: 8px; padding: 2px 10px;
+  border-radius: 999px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+  background: rgba(127,127,127,.2); }
+.ztp-group-timer .ztp-gt-running .ztp-gt-badge { background: #1e824c; color: #fff; }
+.ztp-group-timer .ztp-gt-stopped .ztp-gt-badge { background: #3a4a6b; color: #cfe0ff; }
+.ztp-group-timer .ztp-gt-idle .ztp-gt-badge { background: rgba(127,127,127,.25); }
+
+/* DIGITAL -- a large LCD-style monospace readout. */
+.ztp-group-timer .ztp-gt-digital { text-align: center; }
+.ztp-group-timer .ztp-gt-digital-face {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 44px; font-weight: 700; letter-spacing: .03em;
+  color: #34ca46; text-shadow: 0 0 10px rgba(52,202,70,.45);
+  background: #0b1310; border-radius: 8px; padding: 10px 18px; display: inline-block;
+}
+.ztp-group-timer .ztp-gt-idle .ztp-gt-digital-face { color: #6b7a72; text-shadow: none; }
+.ztp-group-timer .ztp-gt-stopped .ztp-gt-digital-face { color: #9fd6ff; text-shadow: none; }
+
+/* FLIP -- three digit-pair tiles, split-flap style. */
+.ztp-group-timer .ztp-gt-flip { display: flex; align-items: flex-end; gap: 6px; }
+.ztp-group-timer .ztp-gt-flip-group { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.ztp-group-timer .ztp-gt-flip-tile {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 32px; font-weight: 700; min-width: 52px; text-align: center;
+  background: #1c2230; border: 1px solid #333d52; border-radius: 6px; padding: 6px 4px;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,.35);
+}
+.ztp-group-timer .ztp-gt-flip-label { font-size: 10px; letter-spacing: .08em; opacity: .5; }
+.ztp-group-timer .ztp-gt-flip-colon { font-size: 28px; font-weight: 700; opacity: .5; padding-bottom: 20px; }
+.ztp-group-timer .ztp-gt-flip .ztp-gt-badge { margin-left: 12px; align-self: center; }
+
+/* MINIMAL -- plain text, no chrome. */
+.ztp-group-timer .ztp-gt-minimal { display: flex; align-items: baseline; gap: 8px; }
+.ztp-group-timer .ztp-gt-minimal-label { opacity: .65; }
+.ztp-group-timer .ztp-gt-minimal-time { font-size: 20px; font-weight: 700; }
+
+/* RING -- a spinner ring, spinning while running. */
+.ztp-group-timer .ztp-gt-ring-wrap { display: flex; justify-content: center; }
+.ztp-group-timer .ztp-gt-ring {
+  width: 132px; height: 132px; border-radius: 50%;
+  border: 6px solid rgba(127,127,127,.25);
+  border-top-color: #34ca46;
+  display: flex; align-items: center; justify-content: center;
+}
+.ztp-group-timer .ztp-gt-idle .ztp-gt-ring { border-top-color: rgba(127,127,127,.25); }
+.ztp-group-timer .ztp-gt-stopped .ztp-gt-ring { border-top-color: #6ea8ff; }
+.ztp-group-timer .ztp-gt-ring.spin { animation: ztp-gt-spin 2s linear infinite; }
+@keyframes ztp-gt-spin { to { transform: rotate(360deg); } }
+.ztp-group-timer .ztp-gt-ring-inner { text-align: center; transform: rotate(0deg); }
+.ztp-group-timer .ztp-gt-ring.spin .ztp-gt-ring-inner { animation: ztp-gt-spin 2s linear infinite reverse; }
+.ztp-group-timer .ztp-gt-ring-time { font-size: 16px; font-weight: 700; }
+.ztp-group-timer .ztp-gt-ring-state { font-size: 10px; text-transform: uppercase; opacity: .6; }
+
+/* BADGE -- one compact pill, for a header or a dense row. */
+.ztp-group-timer .ztp-gt-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px;
+  border-radius: 999px; background: rgba(127,127,127,.15);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 13px;
+}
+.ztp-group-timer .ztp-gt-pill-dot { width: 8px; height: 8px; border-radius: 50%; background: #7a8699; }
+.ztp-group-timer .ztp-gt-running .ztp-gt-pill-dot { background: #34ca46; box-shadow: 0 0 6px rgba(52,202,70,.7); }
+.ztp-group-timer .ztp-gt-stopped .ztp-gt-pill-dot { background: #6ea8ff; }
+</style>
+<div class="ztp-group-timer" data-testid="ztp-group-timer-root">
+
+  <div data-ng-if="!hasRecord" class="ztp-gt-state" data-testid="ztp-group-timer-no-record">
+    No run group record loaded.
+  </div>
+
+  <div data-ng-if="hasRecord && loading" class="ztp-gt-state" data-testid="ztp-group-timer-loading">
+    Loading&hellip;
+  </div>
+
+  <div data-ng-if="hasRecord && !loading && error" class="ztp-gt-state ztp-gt-error"
+       data-testid="ztp-group-timer-error">
+    {{ error }}
+    <button class="ztp-gt-retry" data-ng-click="retry()" data-testid="ztp-group-timer-retry">Retry</button>
+  </div>
+
+  <div data-ng-if="hasRecord && !loading && !error" class="ztp-gt-card ztp-gt-theme-{{ config.theme }}"
+       data-ng-class="'ztp-gt-' + state" data-testid="ztp-group-timer-card">
+
+    <div class="ztp-gt-title" data-ng-if="config.title">{{ config.title }}</div>
+
+    <!-- DIGITAL: a large LCD-style monospace readout, the "just tell me the
+         clock" theme. -->
+    <div data-ng-if="config.theme === 'digital'" class="ztp-gt-digital" data-testid="ztp-group-timer-digital">
+      <div class="ztp-gt-digital-face">{{ clock }}</div>
+      <div class="ztp-gt-badge" data-testid="ztp-group-timer-badge">{{ state }}</div>
+    </div>
+
+    <!-- FLIP: three digit-pair tiles, the split-flap departure-board look. -->
+    <div data-ng-if="config.theme === 'flip'" class="ztp-gt-flip" data-testid="ztp-group-timer-flip">
+      <div class="ztp-gt-flip-group">
+        <div class="ztp-gt-flip-tile">{{ digits.h }}</div>
+        <div class="ztp-gt-flip-label">HRS</div>
+      </div>
+      <div class="ztp-gt-flip-colon">:</div>
+      <div class="ztp-gt-flip-group">
+        <div class="ztp-gt-flip-tile">{{ digits.m }}</div>
+        <div class="ztp-gt-flip-label">MIN</div>
+      </div>
+      <div class="ztp-gt-flip-colon">:</div>
+      <div class="ztp-gt-flip-group">
+        <div class="ztp-gt-flip-tile">{{ digits.s }}</div>
+        <div class="ztp-gt-flip-label">SEC</div>
+      </div>
+      <div class="ztp-gt-badge" data-testid="ztp-group-timer-badge">{{ state }}</div>
+    </div>
+
+    <!-- MINIMAL: plain text, no chrome -- the "fits anywhere" theme. -->
+    <div data-ng-if="config.theme === 'minimal'" class="ztp-gt-minimal" data-testid="ztp-group-timer-minimal">
+      <span class="ztp-gt-minimal-label">{{ state === 'idle' ? 'Not started' : (state === 'running' ? 'Running' : 'Finished in') }}</span>
+      <span class="ztp-gt-minimal-time" data-ng-if="state !== 'idle'">{{ compact }}</span>
+    </div>
+
+    <!-- RING: a spinner ring around the compact reading -- spins while
+         running, holds still once stopped, empty while idle. -->
+    <div data-ng-if="config.theme === 'ring'" class="ztp-gt-ring-wrap" data-testid="ztp-group-timer-ring">
+      <div class="ztp-gt-ring" data-ng-class="{spin: state === 'running'}">
+        <div class="ztp-gt-ring-inner">
+          <div class="ztp-gt-ring-time">{{ compact }}</div>
+          <div class="ztp-gt-ring-state">{{ state }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BADGE: one compact pill -- for a header or a dense list row. -->
+    <div data-ng-if="config.theme === 'badge'" class="ztp-gt-pill" data-testid="ztp-group-timer-pill">
+      <span class="ztp-gt-pill-dot"></span>
+      <span class="ztp-gt-pill-time">{{ state === 'idle' ? '--:--:--' : clock }}</span>
+    </div>
+
+  </div>
+</div>

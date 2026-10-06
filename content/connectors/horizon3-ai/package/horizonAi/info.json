@@ -1,0 +1,317 @@
+{
+  "name": "horizonAi",
+  "label": "Horizon3.ai",
+  "version": "1.0.0",
+  "description": "Horizon3.ai is a cybersecurity company specializing in automated security solutions. Their flagship product, NodeZero, is an autonomous penetration testing platform that simulates real-world cyberattacks to identify vulnerabilities and provide actionable remediation insights. Designed for ease of use, NodeZero empowers organizations to continuously assess and improve their security posture without relying heavily on manual intervention. It supports cloud, on-premise, and hybrid environments, making it adaptable to diverse IT setups.",
+  "publisher": "Community",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "category": "Attack surface management",
+  "icon_small_name": "",
+  "icon_large_name": "horizon_large.png",
+  "help_online": "",
+  "configuration": {
+    "fields": [
+      {
+        "name": "server_url",
+        "title": "Server URL",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": true,
+        "placeholder": "https://api.horizon3ai.com/",
+        "value": "https://api.horizon3ai.com/",
+        "description": "Horizon.ai GraphQL API endpoint"
+      },
+      {
+        "title": "API Token",
+        "type": "password",
+        "name": "api_token",
+        "required": true,
+        "visible": true,
+        "editable": true,
+        "description": "Bearer token for API authentication"
+      },
+      {
+        "title": "Verify SSL",
+        "type": "checkbox",
+        "name": "verify_ssl",
+        "required": false,
+        "visible": true,
+        "editable": true,
+        "value": true,
+        "description": "Verify SSL certificate"
+      }
+    ]
+  },
+  "operations": [
+    {
+      "operation": "get_pentests",
+      "title": "Get Pentests",
+      "description": "Retrieve and filter pentest operations",
+      "category": "investigation",
+      "annotation": "get_pentests",
+      "parameters": [
+        {
+          "title": "Page Number",
+          "type": "integer",
+          "name": "page_num",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "description": "Page number for pagination",
+          "value": 1
+        },
+        {
+          "title": "Page Size",
+          "type": "integer",
+          "name": "page_size",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": 50,
+          "description": "Number of results per page"
+        },
+        {
+          "title": "Text Search",
+          "type": "text",
+          "name": "text_search",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "description": "Search across all text columns",
+          "tooltip": "Search across all text columns"
+        },
+        {
+          "title": "Sort By",
+          "type": "select",
+          "name": "order_by",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "options": [
+            "Operation Name",
+            "Status",
+            "Client",
+            "Launch Date",
+            "Completion Date",
+            "Impact Count",
+            "Attack Path Count"
+          ],
+          "description": "Field to sort results by",
+          "tooltip": "Choose which field to sort the results by"
+        },
+        {
+          "title": "Sort Direction",
+          "type": "select",
+          "name": "sort_order",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "options": [
+            "Ascending",
+            "Descending"
+          ],
+          "description": "Direction to sort results",
+          "tooltip": "Sort results in ascending or descending order"
+        },
+        {
+          "title": "Date Filter Field",
+          "type": "select",
+          "name": "date_field",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "options": [
+            "Launch Date",
+            "Completion Date",
+            "Schedule Date",
+            "Cancellation Date"
+          ],
+          "description": "Which date field to filter by",
+          "tooltip": "Select which date field to apply the date range filters to"
+        },
+        {
+          "title": "Date From",
+          "type": "datetime",
+          "name": "date_from",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "description": "Filter results from this date",
+          "tooltip": "Filter results from this date"
+        },
+        {
+          "title": "Date To",
+          "type": "datetime",
+          "name": "date_to",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "description": "Filter results until this date",
+          "tooltip": "Filter results until this date"
+        },
+        {
+          "title": "Operation Status",
+          "type": "select",
+          "name": "state",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "options": [
+            "Scheduled",
+            "Provisioning",
+            "Ready",
+            "Running",
+            "Complete",
+            "Post-Processing",
+            "Done",
+            "Cancelling",
+            "Canceled",
+            "Paused",
+            "Error"
+          ],
+          "description": "Filter by operation status",
+          "tooltip": "Show only operations in the selected status"
+        },
+        {
+          "title": "Client Name",
+          "type": "text",
+          "name": "client_name",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "description": "Filter by client name",
+          "tooltip": "Filter by client name"
+        },
+        {
+          "title": "Include Attack Paths",
+          "type": "checkbox",
+          "name": "include_attack_paths",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "description": "Include attack paths in the response",
+          "tooltip": "Include attack paths in the response"
+        },
+        {
+          "title": "Include Weaknesses",
+          "type": "checkbox",
+          "name": "include_weaknesses",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "description": "Include weaknesses in the response",
+          "tooltip": "Include weaknesses in the response"
+        }
+      ],
+      "output_schema": {
+        "pentests_page": {
+          "pentests": [],
+          "page_info": {
+            "page_size": 0,
+            "end_cursor": "",
+            "has_next_page": false,
+            "total_count": 0
+          }
+        }
+      }
+    },
+    {
+      "operation": "get_attack_paths",
+      "title": "Get Attack Paths",
+      "description": "Retrieve attack paths for a specific pentest",
+      "category": "investigation",
+      "annotation": "get_attack_paths",
+      "parameters": [
+        {
+          "title": "Operation ID",
+          "type": "text",
+          "name": "op_id",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "description": "Pentest operation ID"
+        },
+        {
+          "title": "Page Number",
+          "type": "integer",
+          "name": "page_num",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "description": "Page number for pagination"
+        },
+        {
+          "title": "Page Size",
+          "type": "integer",
+          "name": "page_size",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "description": "Number of results per page"
+        }
+      ],
+      "output_schema": {
+        "attack_paths_page": {
+          "attack_paths": [],
+          "page_info": {
+            "page_size": 0,
+            "end_cursor": "",
+            "has_next_page": false,
+            "total_count": 0
+          }
+        }
+      }
+    },
+    {
+      "operation": "get_weaknesses",
+      "title": "Get Weaknesses",
+      "description": "Retrieve weaknesses for a specific pentest",
+      "category": "investigation",
+      "annotation": "get_weaknesses",
+      "parameters": [
+        {
+          "name": "op_id",
+          "title": "Operation ID",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Pentest operation ID"
+        },
+        {
+          "name": "page_num",
+          "title": "Page Number",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "value": 1,
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "page_size",
+          "title": "Page Size",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "value": 50,
+          "description": "Number of results per page"
+        }
+      ],
+      "output_schema": {
+        "weaknesses_page": {
+          "weaknesses": [],
+          "page_info": {
+            "page_size": 0,
+            "end_cursor": "",
+            "has_next_page": false,
+            "total_count": 0
+          }
+        }
+      }
+    }
+  ]
+}

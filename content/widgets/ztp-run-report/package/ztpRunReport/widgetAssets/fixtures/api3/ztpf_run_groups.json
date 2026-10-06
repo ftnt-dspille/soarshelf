@@ -1,0 +1,38 @@
+{
+  "@context": "/api/3/contexts/ZtpfRunGroup",
+  "@id": "/api/3/x",
+  "@type": "hydra:Collection",
+  "hydra:totalItems": 2,
+  "hydra:member": [
+    {
+      "@id": "/api/3/ztpf_run_groups/rg-uuid-1",
+      "@type": "ZtpfRunGroup",
+      "uuid": "rg-uuid-1",
+      "id": 352,
+      "name": "ztpf-1787603831-118",
+      "totalDevices": 4,
+      "totalSteps": 6,
+      "totalStepsComplete": 6,
+      "totalStepsCompletePercent": 100,
+      "totalRunningTimeSeconds": 708,
+      "totalRunningTime": "11m",
+      "ztpfRunning": true,
+      "createDate": 1787603831
+    },
+    {
+      "@id": "/api/3/ztpf_run_groups/rg-uuid-2",
+      "@type": "ZtpfRunGroup",
+      "uuid": "rg-uuid-2",
+      "id": 351,
+      "name": "ztpf-1787600056-118",
+      "totalDevices": 1,
+      "totalSteps": 6,
+      "totalStepsComplete": 5,
+      "totalStepsCompletePercent": 83,
+      "totalRunningTimeSeconds": 420,
+      "totalRunningTime": "7m",
+      "ztpfRunning": false,
+      "createDate": 1787600056
+    }
+  ]
+}

@@ -1,0 +1,255 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "uuid": "ab95a52c-16f5-4f17-b82a-337f174c50d7",
+      "@type": "WorkflowCollection",
+      "name": "Sample - HorizonAi - 1.0.0",
+      "description": "",
+      "visible": true,
+      "image": null,
+      "recordTags": [
+        "horizonAi"
+      ],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "uuid": "28f985c2-eb85-4083-9c60-0ba918881bde",
+          "collection": "/api/3/workflow_collections/ab95a52c-16f5-4f17-b82a-337f174c50d7",
+          "triggerLimit": null,
+          "description": "Retrieve and filter pentest operations",
+          "name": "Get Pentests",
+          "tag": "#HorizonAi",
+          "recordTags": [
+            "horizonAi"
+          ],
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/5b11750b-91e6-46da-9be9-c051a95da581",
+          "steps": [
+            {
+              "uuid": "5b11750b-91e6-46da-9be9-c051a95da581",
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "route": "5a2c4694-a5b3-48d8-a4d8-77961463feba",
+                "title": "HorizonAi: Get Pentests",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "singleRecordExecution": false,
+                "noRecordExecution": true,
+                "executeButtonText": "Execute"
+              },
+              "left": "20",
+              "top": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a"
+            },
+            {
+              "uuid": "0ad59657-e31d-4562-a96d-cff2a41b5fe8",
+              "@type": "WorkflowStep",
+              "name": "Get Pentests",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "name": "HorizonAi",
+                "config": "''",
+                "params": [],
+                "version": "1.0.0",
+                "connector": "horizonAi",
+                "operation": "get_pentests",
+                "operationTitle": "Get Pentests",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "left": "188",
+              "top": "120",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "8f1110b4-530e-4d23-b058-8438d520bfdf",
+              "label": null,
+              "isExecuted": false,
+              "name": "Start-> Get Pentests",
+              "sourceStep": "/api/3/workflow_steps/5b11750b-91e6-46da-9be9-c051a95da581",
+              "targetStep": "/api/3/workflow_steps/0ad59657-e31d-4562-a96d-cff2a41b5fe8"
+            }
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "uuid": "d5c9b33c-cb9c-485e-b4b1-306985137ad5",
+          "collection": "/api/3/workflow_collections/ab95a52c-16f5-4f17-b82a-337f174c50d7",
+          "triggerLimit": null,
+          "description": "Retrieve attack paths for a specific pentest",
+          "name": "Get Attack Paths",
+          "tag": "#HorizonAi",
+          "recordTags": [
+            "horizonAi"
+          ],
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/10eea9bd-28e0-4dea-91d5-2aa2d009bfe2",
+          "steps": [
+            {
+              "uuid": "10eea9bd-28e0-4dea-91d5-2aa2d009bfe2",
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "route": "0edd3a80-3c02-4aae-b284-d7babcaa2786",
+                "title": "HorizonAi: Get Attack Paths",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "singleRecordExecution": false,
+                "noRecordExecution": true,
+                "executeButtonText": "Execute"
+              },
+              "left": "20",
+              "top": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a"
+            },
+            {
+              "uuid": "f863727c-ce36-4e9d-8b45-855fb0d0a7d4",
+              "@type": "WorkflowStep",
+              "name": "Get Attack Paths",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "name": "HorizonAi",
+                "config": "''",
+                "params": [],
+                "version": "1.0.0",
+                "connector": "horizonAi",
+                "operation": "get_attack_paths",
+                "operationTitle": "Get Attack Paths",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "left": "188",
+              "top": "120",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "e1c0ce41-4620-4e2c-a7bd-b873db811bb8",
+              "label": null,
+              "isExecuted": false,
+              "name": "Start-> Get Attack Paths",
+              "sourceStep": "/api/3/workflow_steps/10eea9bd-28e0-4dea-91d5-2aa2d009bfe2",
+              "targetStep": "/api/3/workflow_steps/f863727c-ce36-4e9d-8b45-855fb0d0a7d4"
+            }
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "uuid": "c4dd5ca2-937f-4a21-a224-27cb0291a720",
+          "collection": "/api/3/workflow_collections/ab95a52c-16f5-4f17-b82a-337f174c50d7",
+          "triggerLimit": null,
+          "description": "Retrieve weaknesses for a specific pentest",
+          "name": "Get Weaknesses",
+          "tag": "#HorizonAi",
+          "recordTags": [
+            "horizonAi"
+          ],
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/ea0887aa-7a51-4706-8c99-5e476946c122",
+          "steps": [
+            {
+              "uuid": "ea0887aa-7a51-4706-8c99-5e476946c122",
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "route": "52426063-d05f-468d-99f2-98abd516ae4b",
+                "title": "HorizonAi: Get Weaknesses",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "singleRecordExecution": false,
+                "noRecordExecution": true,
+                "executeButtonText": "Execute"
+              },
+              "left": "20",
+              "top": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a"
+            },
+            {
+              "uuid": "03bd2985-ef58-465f-8e98-58ad2da27776",
+              "@type": "WorkflowStep",
+              "name": "Get Weaknesses",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "name": "HorizonAi",
+                "config": "''",
+                "params": [],
+                "version": "1.0.0",
+                "connector": "horizonAi",
+                "operation": "get_weaknesses",
+                "operationTitle": "Get Weaknesses",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "left": "188",
+              "top": "120",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "f393722c-cb01-4f13-9d04-3c1e47a29174",
+              "label": null,
+              "isExecuted": false,
+              "name": "Start-> Get Weaknesses",
+              "sourceStep": "/api/3/workflow_steps/ea0887aa-7a51-4706-8c99-5e476946c122",
+              "targetStep": "/api/3/workflow_steps/03bd2985-ef58-465f-8e98-58ad2da27776"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+    "name": "firewallOwnerDashboard",
+    "title": "Firewall Owner Dashboard",
+    "subTitle": "Comprehensive firewall management dashboard for device owners",
+    "version": "1.0.0",
+    "published_date": 1729699200,
+    "metadata": {
+        "certified": "No",
+        "publisher": "Community",
+        "compatibility": [
+            "7.6.0",
+            "7.5.0",
+            "7.4.0"
+        ],
+        "pages": [
+            "Dashboard"
+        ]
+    },
+    "snapshots": [],
+    "help_online": "",
+    "description": "A comprehensive dashboard widget for firewall device owners to monitor firewall status, policies, changes, and announcements. Features include:\n- Real-time firewall status monitoring with HA, CPU, and memory metrics\n- Policy hit analysis with 24-hour statistics\n- Planned maintenance and change tracking\n- Announcement management with severity levels\n- Filtering by ADOM and role\n- Interactive firewall selection\n- Contact information display",
+    "development": false
+}

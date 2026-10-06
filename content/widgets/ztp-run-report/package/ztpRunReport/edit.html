@@ -1,0 +1,184 @@
+<!-- Copyright start
+  MIT License
+  Copyright (c) 2026 Fortinet Inc
+  Copyright end -->
+<!-- EDIT template -- SOAR opens this as a $uibModal, so the template MUST
+     carry its own modal shell (modal-header/body/footer). A bare div with a
+     footer renders unstyled: without .modal-body the platform's form styles
+     never reach the rows and every label draws as a full-width band.
+     Bind to object properties (config.X), never bare words -- the modal is a
+     child scope and a bare ng-model write would shadow the parent. -->
+<form data-ng-submit="save()" class="noMargin" name="editZtpRunReportForm" novalidate
+      data-testid="ztp-rr-edit-form">
+  <div class="modal-header">
+    <h3 class="modal-title col-md-9">ZTP Run Report -- Settings</h3>
+    <button type="button" class="close" data-ng-click="cancel()" data-dismiss="modal"
+            data-testid="cfg-close" aria-label="Close" id="close-edit-widget-form-btn">
+      <div aria-hidden="true" class="version-button">+</div>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="rr-cfg-title" class="control-label">Title</label>
+      <input id="rr-cfg-title" name="title" type="text" class="form-control"
+             data-ng-model="config.title" data-testid="cfg-title">
+    </div>
+
+    <div class="form-group">
+      <label for="rr-cfg-range" class="control-label">Default time range</label>
+      <select id="rr-cfg-range" name="range" class="form-control"
+              data-ng-model="config.range"
+              data-ng-options="r.id as r.label for r in rangeOptions"
+              data-testid="cfg-range"></select>
+      <small class="help-block">
+        How far back the run list reaches. Applied by the server, so a narrow
+        range is also a smaller query. Viewers can widen it without opening
+        settings; this sets where they start.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="rr-cfg-layout" class="control-label">Default view</label>
+      <select id="rr-cfg-layout" name="layout" class="form-control"
+              data-ng-model="config.layout"
+              data-ng-options="o.v as o.label for o in layoutOptions"
+              data-testid="cfg-layout"></select>
+      <small class="help-block">
+        Which reading the widget opens with. All four stay one click apart in
+        the widget header, so this only sets the starting point.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="rr-cfg-autoexpand" class="control-label">Runs opened on load</label>
+      <input id="rr-cfg-autoexpand" name="autoExpandGroups" type="number" min="0" max="20"
+             class="form-control" data-ng-model="config.autoExpandGroups"
+             data-testid="cfg-autoexpand">
+      <small class="help-block">
+        Runs view only. The newest N runs open themselves, and any run with a
+        failed device opens regardless. 0 leaves everything collapsed.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="rr-cfg-prefetch" class="control-label">Phase lists to prefetch</label>
+      <input id="rr-cfg-prefetch" name="prefetchDevices" type="number" min="0" max="25"
+             class="form-control" data-ng-model="config.prefetchDevices"
+             data-testid="cfg-prefetch">
+      <small class="help-block">
+        Runs view only. Loads the step detail for this many devices in the
+        opened runs before anyone clicks, so the first drill-down is instant.
+        Failed devices are fetched first. 0 fetches only on click.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="rr-cfg-scope" class="control-label">Which steps count per device</label>
+      <select id="rr-cfg-scope" name="scope" class="form-control"
+              data-ng-model="config.scope"
+              data-ng-options="o.v as o.label for o in scopeOptions"
+              data-testid="cfg-scope"></select>
+      <small class="help-block">
+        A device accumulates one step record per step per run. "Latest" answers
+        "did the run that just happened break?"; "every run" answers "has this
+        device ever broken?".
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="rr-cfg-group-limit" class="control-label">Run-group rows to show</label>
+      <input id="rr-cfg-group-limit" name="runGroupLimit" type="number" min="1" max="500"
+             class="form-control" data-ng-model="config.runGroupLimit"
+             data-testid="cfg-group-limit">
+      <small class="help-block">How many runs the list draws at a time ("Show more" draws the next batch).
+        The headline, charts and exports always count every run in the selected time range.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="rr-cfg-step-page" class="control-label">Step records to fetch</label>
+      <input id="rr-cfg-step-page" name="stepPage" type="number" min="50" max="5000"
+             class="form-control" data-ng-model="config.stepPage"
+             data-testid="cfg-step-page">
+      <small class="help-block">
+        The platform serves 30 per page unless asked otherwise. If the widget
+        reports partial data, raise this.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="rr-cfg-group-page" class="control-label">Run-group records to fetch</label>
+      <input id="rr-cfg-group-page" name="groupPage" type="number" min="10" max="2000"
+             class="form-control" data-ng-model="config.groupPage"
+             data-testid="cfg-group-page">
+    </div>
+
+    <div class="form-group">
+      <label for="rr-cfg-refresh" class="control-label">Auto-refresh (seconds, 0 = manual only)</label>
+      <input id="rr-cfg-refresh" name="refreshSecs" type="number" min="0" max="3600"
+             class="form-control" data-ng-model="config.refreshSecs"
+             data-testid="cfg-refresh">
+    </div>
+
+    <div class="form-group">
+      <div class="checkbox">
+        <label for="rr-cfg-trend">
+          <input id="rr-cfg-trend" type="checkbox" data-ng-model="config.showTrend"
+                 data-testid="cfg-trend">
+          Show the completion trend chart
+        </label>
+      </div>
+      <div class="checkbox">
+        <label for="rr-cfg-tags">
+          <input id="rr-cfg-tags" type="checkbox" data-ng-model="config.showTags"
+                 data-testid="cfg-tags">
+          Show device and run tags, and the tag filter
+        </label>
+      </div>
+      <div class="checkbox">
+        <label for="rr-cfg-newtab">
+          <input id="rr-cfg-newtab" type="checkbox" data-ng-model="config.openInNewTab"
+                 data-testid="cfg-newtab">
+          Open device / run / step links in a new tab
+        </label>
+      </div>
+      <div class="checkbox">
+        <label for="rr-cfg-groups">
+          <input id="rr-cfg-groups" type="checkbox" data-ng-model="config.showRunGroups"
+                 data-testid="cfg-groups">
+          Show the recent run-groups table
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="checkbox">
+        <label for="rr-cfg-auto">
+          <input id="rr-cfg-auto" type="checkbox" data-ng-model="config.showRunAutomation"
+                 data-testid="cfg-run-automation">
+          Show the Run Automation button
+        </label>
+      </div>
+      <div data-ng-if="config.showRunAutomation">
+        <label for="rr-cfg-auto-pb" class="control-label">Playbook to run</label>
+        <input id="rr-cfg-auto-pb" name="automationPlaybook" type="text" class="form-control"
+               data-ng-model="config.automationPlaybook" data-testid="cfg-auto-playbook">
+        <small class="help-block">
+          Name of an active Manual playbook on ZTPF Devices. It is looked up by
+          name when the button is used, and receives the selected devices as
+          its records.
+        </small>
+        <label for="rr-cfg-auto-status" class="control-label">Offer devices in status</label>
+        <input id="rr-cfg-auto-status" name="automationDeviceStatus" type="text" class="form-control"
+               data-ng-model="config.automationDeviceStatus" data-testid="cfg-auto-status">
+      </div>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" data-ng-click="cancel()"
+            data-testid="cfg-cancel">Cancel</button>
+    <button type="submit" class="btn btn-primary" data-testid="cfg-save">Save</button>
+  </div>
+</form>

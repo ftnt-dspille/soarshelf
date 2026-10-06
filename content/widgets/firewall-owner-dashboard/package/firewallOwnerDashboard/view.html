@@ -1,0 +1,330 @@
+<!-- Copyright start
+  MIT License
+  Copyright (c) 2025 Fortinet Inc
+  Copyright end -->
+<link rel="stylesheet" type="text/css" href="firewallOwnerDashboard-1.0.0/WidgetAssets/css/firewallOwnerDashboard.css"/>
+<div class="widget widget-container firewall-owner-dashboard">
+    <div class="display-flex-space-between widget-title widget-title-padding">
+        <div class="widget-title-width padding-right-0 padding-left-0">
+            <h5 class="margin-top-0 margin-bottom-0 text-overflow font-1em">
+                <i class="icon icon-shield-check"></i> {{ config.title }}
+            </h5>
+            <div class="widget-user" data-ng-show="currentUserName || currentUserEmail">
+                Signed in as <span class="user-name">{{ currentUserName || 'User' }}</span>
+                <span class="user-email" data-ng-show="currentUserEmail">({{ currentUserEmail }})</span>
+            </div>
+        </div>
+        <div class="widget-controls">
+            <input type="text"
+                   class="form-control input-md search-input"
+                   placeholder="Search serial or name..."
+                   data-ng-model="searchQuery"
+                   data-ng-change="filterFirewalls()">
+            <select class="form-control input-sm filter-select"
+                    data-ng-model="filters.adom"
+                    data-ng-options="a.value as a.label for a in adomOptions"
+                    data-ng-change="filterFirewalls()">
+            </select>
+            <select class="form-control input-md filter-select" data-ng-model="filters.role">
+                <option value="Owner">My Role: Owner</option>
+                <option value="Delegate">My Role: Delegate</option>
+                <option value="CX">My Role: CX</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="" data-ng-hide="collapsed">
+        <!-- Announcements Section -->
+        <div class="announcements-section" data-ng-if="config.showAnnouncements && announcements.length > 0">
+            <div class="section-header">
+                <i class="icon icon-bell"></i>
+                <span>Announcements</span>
+            </div>
+            <div class="announcement-list">
+                <div class="announcement-item"
+                     data-ng-repeat="announcement in announcements"
+                     data-ng-class="'severity-' + announcement.severity">
+                    <div class="announcement-header">
+                        <span class="announcement-title">{{ announcement.title }}</span>
+                        <span class="severity-badge">{{ announcement.severity | uppercase }}</span>
+                        <span class="scope-badge">{{ announcement.scope }}</span>
+                    </div>
+                    <div class="announcement-body">{{ announcement.body }}</div>
+                    <div class="announcement-footer">
+                        {{ announcement.start | date:'short' }} - {{ announcement.end | date:'short' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Left Column: Firewall Cards -->
+            <div class="firewall-cards-section">
+                <div class="firewall-card"
+                     data-ng-repeat="fw in filteredFirewalls"
+                     data-ng-class="{'selected': fw.id === selectedFirewall.id}"
+                     data-ng-click="selectFirewall(fw)">
+                    <div class="card-header">
+                        <div class="fw-name-section">
+                            <span class="fw-name">{{ fw.name }}</span>
+                            <span class="role-pill" data-ng-class="fw.primary ? 'primary' : 'secondary'">
+                <i class="icon" data-ng-class="fw.primary ? 'icon-shield-check' : 'icon-shield'"></i>
+                {{ fw.primary ? 'Primary' : 'Secondary' }}
+              </span>
+                            <span class="adom-badge">{{ fw.adom }}</span>
+                        </div>
+                        <div class="card-status">
+                            <span class="status-label">HA:</span>
+                            <span class="status-value" data-ng-class="{'status-warn': fw.status.ha !== 'OK'}">
+                {{ fw.status.ha }}
+              </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="fw-info">
+                            <div class="info-row">
+                                <span class="info-label">Serial:</span>
+                                <span class="info-value">{{ fw.serial }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">MGMT IP:</span>
+                                <span class="info-value">{{ fw.mgmt_ip }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Uptime:</span>
+                                <span class="info-value">{{ formatUptime(fw.uptime) }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Last Sync:</span>
+                                <span class="info-value">{{ fw.lastSyncText }}</span>
+                            </div>
+                        </div>
+                        <div class="metrics-row">
+                            <div class="metric">
+                                <span class="metric-label">CPU</span>
+                                <span class="metric-value">{{ fw.status.cpu }}%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Memory</span>
+                                <span class="metric-value">{{ fw.status.mem }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer" data-ng-if="fw.topPolicies.length > 0">
+                        <div class="top-policies-label">Top Policies (24h)</div>
+                        <div class="policy-chip" data-ng-repeat="policy in fw.topPolicies">
+                            #{{ policy.id }}: {{ policy.name }} ({{ policy.hits | number }})
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Selected Firewall Details -->
+            <div class="firewall-details-section">
+                <div class="details-card">
+                    <div class="details-header">
+                        <div class="fw-name-section">
+                            <span class="fw-name">{{ selectedFirewall.name }}</span>
+                            <span class="role-pill" data-ng-class="selectedFirewall.primary ? 'primary' : 'secondary'">
+                <i class="icon" data-ng-class="selectedFirewall.primary ? 'icon-shield-check' : 'icon-shield'"></i>
+                {{ selectedFirewall.primary ? 'Primary' : 'Secondary' }}
+              </span>
+                            <span class="adom-badge">{{ selectedFirewall.adom }}</span>
+                        </div>
+                        <div class="fw-info-inline">
+                            <span>Serial: {{ selectedFirewall.serial }}</span>
+                            <span>MGMT: {{ selectedFirewall.mgmt_ip }}</span>
+                        </div>
+                        <div class="metrics-inline">
+                            <div class="metric">
+                                <i class="icon icon-activity"></i>
+                                <span>HA: {{ selectedFirewall.status.ha }}</span>
+                            </div>
+                            <div class="metric">
+                                <i class="icon icon-cpu"></i>
+                                <span>CPU: {{ selectedFirewall.status.cpu }}%</span>
+                            </div>
+                            <div class="metric">
+                                <i class="icon icon-memory"></i>
+                                <span>Mem: {{ selectedFirewall.status.mem }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="tabs-container">
+                        <div class="tabs-header">
+                            <div class="tab-item"
+                                 data-ng-class="{'active': activeTab === 'policies'}"
+                                 data-ng-click="activeTab = 'policies'">
+                                Policies (24h)
+                            </div>
+                            <div class="tab-item"
+                                 data-ng-class="{'active': activeTab === 'changes'}"
+                                 data-ng-click="activeTab = 'changes'">
+                                Planned Changes
+                            </div>
+                            <div class="tab-item"
+                                 data-ng-class="{'active': activeTab === 'contacts'}"
+                                 data-ng-click="activeTab = 'contacts'">
+                                Contacts
+                            </div>
+                        </div>
+
+                        <!-- Policies Tab -->
+                        <div class="tab-content" data-ng-show="activeTab === 'policies'">
+                            <!--                            <div class="policy-chart" data-ng-if="selectedPolicies.length > 0">-->
+                            <!--                                <div class="chart-bar" data-ng-repeat="policy in selectedPolicies">-->
+                            <!--                                    <div class="bar-label">#{{ policy.policy }}</div>-->
+                            <!--                                    <div class="bar-container">-->
+                            <!--                                        <div class="bar-fill"-->
+                            <!--                                             data-ng-style="{'width': (policy.hits / maxPolicyHits * 100) + '%'}">-->
+                            <!--                                        </div>-->
+                            <!--                                    </div>-->
+                            <!--                                    <div class="bar-value">{{ policy.hits | number }}</div>-->
+                            <!--                                </div>-->
+                            <!--                            </div>-->
+
+                            <div class="policy-table" data-ng-if="selectedPolicies.length > 0">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Hits</th>
+                                        <th>GB (24h)</th>
+                                        <th>Action</th>
+                                        <th>Enabled</th>
+                                        <th>Section</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr data-ng-repeat="policy in selectedPolicies">
+                                        <td class="policy-id">{{ policy.policy }}</td>
+                                        <td class="policy-name">{{ policy.name }}</td>
+                                        <td>{{ policy.hits | number }}</td>
+                                        <td>{{ policy.bytes }}</td>
+                                        <td>
+                        <span class="action-badge" data-ng-class="'action-' + policy.action">
+                          {{ policy.action }}
+                        </span>
+                                        </td>
+                                        <td class="text-center">{{ policy.enabled ? '✓' : '✕' }}</td>
+                                        <td>
+                                            <span class="section-badge">{{ policy.section }}</span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="no-data" data-ng-if="selectedPolicies.length === 0">
+                                No policy data available
+                            </div>
+                        </div>
+
+                        <!-- Changes Tab -->
+                        <div class="tab-content" data-ng-show="activeTab === 'changes'">
+                            <div class="change-info" data-ng-if="selectedFirewall.nextChange">
+                                <div class="change-header">
+                                    <span class="change-number">{{ selectedFirewall.nextChange.number }}</span>
+                                    <span class="risk-badge"
+                                          data-ng-class="'risk-' + selectedFirewall.nextChange.risk.toLowerCase()">
+                    {{ selectedFirewall.nextChange.risk }}
+                  </span>
+                                </div>
+                                <div class="change-time">
+                                    <i class="icon icon-clock"></i>
+                                    {{ selectedFirewall.nextChange.start | date:'short' }} -
+                                    {{ selectedFirewall.nextChange.end | date:'short' }}
+                                </div>
+                            </div>
+                            <div class="no-data" data-ng-if="!selectedFirewall.nextChange">
+                                No planned changes for this device
+                            </div>
+                        </div>
+
+                        <!-- Contacts Tab -->
+                        <div class="tab-content" data-ng-show="activeTab === 'contacts'">
+                            <div class="contacts-grid">
+                                <div class="contact-card">
+                                    <div class="contact-role">Owner</div>
+                                    <div class="contact-name">{{ selectedFirewall.contacts.owner.name }}</div>
+                                </div>
+                                <div class="contact-card">
+                                    <div class="contact-role">Delegate</div>
+                                    <div class="contact-name">{{ selectedFirewall.contacts.delegate.name }}</div>
+                                </div>
+                                <div class="contact-card">
+                                    <div class="contact-role">CX</div>
+                                    <div class="contact-name">{{ selectedFirewall.contacts.cx.name }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- At-a-glance sidebar -->
+                <div class="sidebar-section">
+                    <div class="sidebar-card">
+                        <div class="card-title">At-a-glance</div>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <i class="icon icon-clock"></i>
+                                <div class="metric-content">
+                                    <div class="metric-label">Uptime</div>
+                                    <div class="metric-value">{{ formatUptime(selectedFirewall.uptime) }}</div>
+                                </div>
+                            </div>
+                            <div class="metric-item">
+                                <i class="icon icon-refresh"></i>
+                                <div class="metric-content">
+                                    <div class="metric-label">Last sync</div>
+                                    <div class="metric-value">{{ selectedFirewall.lastSyncMin }} min</div>
+                                </div>
+                            </div>
+                            <div class="metric-item">
+                                <i class="icon icon-cpu"></i>
+                                <div class="metric-content">
+                                    <div class="metric-label">CPU</div>
+                                    <div class="metric-value">{{ selectedFirewall.status.cpu }}%</div>
+                                </div>
+                            </div>
+                            <div class="metric-item">
+                                <i class="icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                         class="bi bi-sd-card" viewBox="0 0 16 16">
+                                        <path d="M6.25 3.5a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0z"/>
+                                        <path fill-rule="evenodd"
+                                              d="M5.914 0H12.5A1.5 1.5 0 0 1 14 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5V3.914c0-.398.158-.78.44-1.06L4.853.439A1.5 1.5 0 0 1 5.914 0M13 1.5a.5.5 0 0 0-.5-.5H5.914a.5.5 0 0 0-.353.146L3.146 3.561A.5.5 0 0 0 3 3.914V14.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5z"/>
+                                    </svg>
+                                </i>
+                                <div class="metric-content">
+                                    <div class="metric-label">Memory</div>
+                                    <div class="metric-value">{{ selectedFirewall.status.mem }}%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-card">
+                        <div class="card-title">Quick actions</div>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-default action-btn">
+                                <i class="icon icon-external-link"></i>
+                                Open in FortiManager
+                            </button>
+                            <button class="btn btn-sm btn-default action-btn">
+                                <i class="icon icon-external-link"></i>
+                                Open CI in ServiceNow
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div data-ng-show="processing">
+        <cs-spinner data-show-background="true"></cs-spinner>
+    </div>
+</div>

@@ -1,0 +1,156 @@
+<!-- VIEW template. Do NOT put data-ng-controller on the root here -- the harness
+     (and SOAR after publish) wraps the widget with its own ng-controller; a
+     second one creates a dead parallel scope. See KNOWLEDGEBASE.md §widget gotchas. -->
+<!-- Vendored graph stack. dagre + cytoscape + cytoscape-dagre are bundled into
+     ONE file (graph-bundle.js) because FortiSOAR auto-injects widgetAssets JS in
+     PARALLEL and executes each on arrival -- NOT document/lexical order -- so
+     per-file numeric prefixes can't order three UMD libs. Bundling makes the
+     order intrinsic; the bundle's prelude disables window.define (AMD/RequireJS)
+     so each UMD lib takes its global branch and attaches window.cytoscape instead
+     of calling anonymous define() (rejected) → "Cytoscape failed to load."
+     ztpGraph.js is the typed pure-logic module (namespace global, no define).
+     Path prefix is <name>-<version>/widgetAssets/...; `widget bump` rewrites the
+     version segment on a bump (lint `stale-version-ref` flags a mismatch). -->
+<script src="ztpAutomationGraph-1.0.40/widgetAssets/js/graph-bundle.js"></script>
+<script src="ztpAutomationGraph-1.0.40/widgetAssets/js/ztpGraph.js"></script>
+<style>
+/* Inlined (not <link>) so the harness applies it -- Angular $compile does not load
+   <link> tags in templates, and the harness auto-injects only widgetAssets .js.
+   Mirrored in widgetAssets/css/ztpGraph.css for SOAR's <link> path if needed. */
+.ztp-ag { box-sizing: border-box; position: relative; width: 100%; font-family: "Helvetica Neue", Arial, sans-serif; color: #1f2933; }
+.ztp-ag *, .ztp-ag *::before, .ztp-ag *::after { box-sizing: border-box; }
+.ztp-ag__header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 2px 8px; border-bottom: 1px solid #e4e7eb; }
+.ztp-ag__title { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.ztp-ag__h { margin: 0; font-size: 15px; font-weight: 700; }
+.ztp-ag__device { font-size: 12px; color: #52606d; }
+.ztp-ag__badges { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.ztp-ag__mode { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 8px; border-radius: 10px; color: #fff; background: #9aa0a6; }
+.ztp-ag__mode--queued { background: #b517ef; }
+.ztp-ag__mode--running { background: #07b7f6; }
+.ztp-ag__mode--completed { background: #34ca46; color: #1f2933; }
+.ztp-ag__mode--blocked { background: #b1ae06; color: #1f2933; }
+.ztp-ag__mode--failed { background: #ff0000; }
+.ztp-ag__rungrp { font-size: 11px; color: #52606d; background: #f0f2f5; padding: 2px 8px; border-radius: 10px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ztp-ag__legend { display: flex; flex-wrap: wrap; gap: 12px; padding: 8px 2px; font-size: 11px; color: #52606d; }
+.ztp-ag__legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.ztp-ag__dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.ztp-ag__body { position: relative; }
+.ztp-ag__state { padding: 24px 8px; font-size: 13px; color: #52606d; }
+.ztp-ag__state--err { color: #ea0707; }
+.ztp-ag__graph-wrap { position: relative; }
+/* Bounded scroll viewport: shrinks to the graph when small (centered), scrolls
+   when the run is long instead of running off-screen. Height is set inline from
+   config.graphHeight; width is capped to the graph content by the controller. */
+.ztp-ag__cy { position: relative; width: 100%; height: 380px; min-height: 180px; max-width: 100%; overflow: auto; border: 1px solid #e4e7eb; border-radius: 6px; background: #fbfcfd; margin: 0; }
+/* Inner cytoscape surface -- sized to the step count by the controller (may exceed
+   the viewport → the viewport scrolls). Transparent so the viewport bg shows. */
+.ztp-ag__cy-inner { width: 100%; height: 100%; }
+.ztp-ag__hint { margin-top: 6px; font-size: 11px; color: #7b8794; font-style: italic; }
+/* Step detail modal (node tap). Absolutely positioned within .ztp-ag (which is
+   position: relative) so it overlays only the widget, not the whole page. */
+.ztp-ag__modal-backdrop { position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: rgba(23, 30, 41, 0.45); padding: 12px; }
+.ztp-ag__modal { width: 100%; max-width: 340px; background: #fff; border: 1px solid #e4e7eb; border-radius: 8px; box-shadow: 0 8px 28px rgba(0,0,0,0.25); overflow: hidden; text-align: left; }
+.ztp-ag__modal-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid #e4e7eb; }
+.ztp-ag__modal-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.ztp-ag__modal-title { margin: 0; font-size: 14px; font-weight: 600; flex: 1; word-break: break-word; }
+.ztp-ag__modal-x { border: none; background: none; font-size: 20px; line-height: 1; cursor: pointer; color: #7b8794; padding: 0 2px; }
+.ztp-ag__modal-body { margin: 0; padding: 10px 12px; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: 13px; }
+.ztp-ag__modal-body dt { color: #7b8794; font-weight: 600; }
+.ztp-ag__modal-body dd { margin: 0; color: #3a4657; word-break: break-word; }
+.ztp-ag__modal-err { color: #ea0707; }
+.ztp-ag__modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 12px; border-top: 1px solid #e4e7eb; }
+.ztp-ag__btn { border-radius: 5px; padding: 5px 14px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+.ztp-ag__btn--ghost { background: #fff; border-color: #cbd2d9; color: #3a4657; }
+.ztp-ag__btn--primary { background: #2563eb; color: #fff; }
+/* Centered content (config.align==='center'): title row, legend, and graph box
+   all center horizontally so they line up instead of hugging the left edge. */
+.ztp-ag--center .ztp-ag__header { justify-content: center; }
+.ztp-ag--center .ztp-ag__legend { justify-content: center; }
+.ztp-ag--center .ztp-ag__cy { margin-left: auto; margin-right: auto; }
+.ztp-ag--center .ztp-ag__hint { text-align: center; }
+/* A width-capped widget (config.graphWidth) centers in its column rather than
+   hugging the left edge, matching the alignment of everything inside it. */
+.ztp-ag--center { margin-left: auto; margin-right: auto; }
+.ztp-ag--center .ztp-ag__state { text-align: center; }
+
+/* Dark theme (SOAR 8.0 default). ztp-ag--dark is toggled by the controller
+   (detectDark) so the canvas + chrome match the panel instead of a white box. */
+.ztp-ag--dark { color: #e4e7eb; }
+.ztp-ag--dark .ztp-ag__header { border-bottom-color: #2b3648; }
+.ztp-ag--dark .ztp-ag__device,
+.ztp-ag--dark .ztp-ag__legend,
+.ztp-ag--dark .ztp-ag__state { color: #9aa5b4; }
+.ztp-ag--dark .ztp-ag__rungrp { color: #c3cad6; background: #2b3648; }
+.ztp-ag--dark .ztp-ag__cy { background: #171e29; border-color: #2b3648; }
+.ztp-ag--dark .ztp-ag__modal { background: #1f2836; border-color: #2b3648; color: #e4e7eb; }
+.ztp-ag--dark .ztp-ag__modal-head,
+.ztp-ag--dark .ztp-ag__modal-foot { border-color: #2b3648; }
+.ztp-ag--dark .ztp-ag__modal-body dd { color: #c3cad6; }
+.ztp-ag--dark .ztp-ag__btn--ghost { background: transparent; border-color: #3a4657; color: #c3cad6; }
+.ztp-ag--dark .ztp-ag__hint { color: #7b8794; }
+.ztp-ag__state--warn { color: #b1720c; }
+.ztp-ag--dark .ztp-ag__state--warn { color: #d99e2b; }
+</style>
+
+<div class="ztp-ag" data-ng-class="{'ztp-ag--dark': dark, 'ztp-ag--center': config.align === 'center'}"
+     data-ng-style="{ maxWidth: graphMaxWidth }" data-testid="ztp-automation-graph-root">
+  <div class="ztp-ag__header">
+    <div class="ztp-ag__title">
+      <h5 class="ztp-ag__h">{{ config.title }}</h5>
+      <span class="ztp-ag__device" data-ng-if="deviceName" data-testid="ztp-ag-device">{{ deviceName }}</span>
+    </div>
+    <div class="ztp-ag__badges">
+      <span class="ztp-ag__mode ztp-ag__mode--{{mode}}" data-ng-if="mode!=='empty'" data-testid="ztp-ag-mode">{{ mode }}</span>
+      <span class="ztp-ag__rungrp" data-ng-if="runGroup" data-testid="ztp-ag-rungrp">{{ runGroup }}</span>
+    </div>
+  </div>
+
+  <div class="ztp-ag__legend" data-ng-if="state==='ready'" data-testid="ztp-ag-legend">
+    <span class="ztp-ag__legend-item" data-ng-repeat="l in legend">
+      <span class="ztp-ag__dot" data-ng-style="{ background: l.color }"></span>{{ l.value }}
+    </span>
+  </div>
+
+  <div class="ztp-ag__body">
+    <div data-ng-if="state==='loading'" class="ztp-ag__state" data-testid="ztp-ag-loading">Loading automation steps…</div>
+    <div data-ng-if="state==='empty'" class="ztp-ag__state" data-testid="ztp-ag-empty">No automation steps found for this device.</div>
+    <div data-ng-if="state==='error'" class="ztp-ag__state ztp-ag__state--err" data-testid="ztp-ag-error">{{ error }}</div>
+    <div data-ng-if="truncated" class="ztp-ag__state ztp-ag__state--warn" data-testid="ztp-ag-truncated">{{ truncated }}</div>
+    <div data-ng-show="state==='ready'" class="ztp-ag__graph-wrap" data-testid="ztp-ag-graph">
+      <div class="ztp-ag__cy" data-ng-style="{ height: graphHeightPx }">
+        <div id="ztp-cy" class="ztp-ag__cy-inner"></div>
+      </div>
+      <div class="ztp-ag__hint" data-ng-if="mode==='queued'">Drag nodes to reorder (read-only preview -- saving order is not yet enabled).</div>
+    </div>
+  </div>
+
+  <!-- Step detail modal: opened by tapping a graph node (onNodeTap). Scoped to
+       the widget (an overlay inside .ztp-ag, not a platform $uibModal) so it stays
+       self-contained and can't wedge the host on a blocking dialog. -->
+  <div class="ztp-ag__modal-backdrop" data-ng-if="selectedStep" data-ng-click="closeStep()"
+       data-testid="ztp-ag-modal-backdrop">
+    <div class="ztp-ag__modal" data-ng-click="$event.stopPropagation()" role="dialog" aria-modal="true"
+         data-testid="ztp-ag-modal">
+      <div class="ztp-ag__modal-head">
+        <span class="ztp-ag__modal-dot" data-ng-style="{ background: selectedStep.color }"></span>
+        <h5 class="ztp-ag__modal-title" data-testid="ztp-ag-modal-title">
+          Step {{ selectedStep.stepNumber }}<span data-ng-if="selectedStep.name">: {{ selectedStep.name }}</span>
+        </h5>
+        <button type="button" class="ztp-ag__modal-x" data-ng-click="closeStep()"
+                aria-label="Close" data-testid="ztp-ag-modal-close">&times;</button>
+      </div>
+      <dl class="ztp-ag__modal-body">
+        <dt>Status</dt><dd data-testid="ztp-ag-modal-status">{{ selectedStep.status }}</dd>
+        <dt data-ng-if="selectedStep.runGroup">Run group</dt>
+        <dd data-ng-if="selectedStep.runGroup">{{ selectedStep.runGroup }}</dd>
+        <dt data-ng-if="selectedStep.error">Error</dt>
+        <dd data-ng-if="selectedStep.error" class="ztp-ag__modal-err">{{ selectedStep.error }}</dd>
+      </dl>
+      <div class="ztp-ag__modal-foot">
+        <button type="button" class="ztp-ag__btn ztp-ag__btn--ghost" data-ng-click="closeStep()" data-testid="ztp-ag-modal-close">Close</button>
+        <button type="button" class="ztp-ag__btn ztp-ag__btn--primary" data-ng-click="openSelectedStep()"
+                data-testid="ztp-ag-modal-open">Open</button>
+      </div>
+    </div>
+  </div>
+</div>

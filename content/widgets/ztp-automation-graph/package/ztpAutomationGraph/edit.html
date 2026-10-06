@@ -1,0 +1,103 @@
+<!-- EDIT template -- the config form. SOAR opens this as a $uibModal, so the
+     template MUST carry its own modal shell (modal-header/body/footer) with
+     Save/Close buttons -- unlike the bare _template scaffold, which renders a
+     form with no way to save. Bind to object properties (config.X), never bare
+     words: ng-include/ng-if/ng-repeat create child scopes and a bare ng-model
+     writes shadow the parent. See KNOWLEDGEBASE.md. -->
+<form data-ng-submit="save()" class="noMargin" name="editZtpAutomationGraphForm" novalidate data-testid="ztp-ag-edit-form">
+  <div class="modal-header">
+    <h3 class="modal-title col-md-9">Edit ZTP Automation Step Graph</h3>
+    <button type="button" class="close" data-ng-click="cancel()" data-dismiss="modal" data-testid="ztp-ag-edit-close-x"
+            aria-label="Close" id="close-edit-widget-form-btn">
+      <div aria-hidden="true" class="version-button">+</div>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <div class="ztp-automation-graph-edit">
+      <div class="form-group">
+        <label for="ztp-ag-cfg-title" class="control-label">Title</label>
+        <input id="ztp-ag-cfg-title" name="title" type="text" class="form-control"
+               data-testid="ztp-ag-cfg-title"
+               data-ng-model="config.title" />
+      </div>
+      <div class="form-group">
+        <label for="ztp-ag-cfg-poll" class="control-label">Poll interval while running/queued (seconds)</label>
+        <input id="ztp-ag-cfg-poll" name="pollSeconds" type="number" class="form-control" min="0" max="120"
+               data-testid="ztp-ag-cfg-poll"
+               data-ng-model="config.pollSeconds" />
+        <small class="help-block">How often to refresh step status. 0/blank disables polling.</small>
+      </div>
+      <div class="form-group">
+        <label for="ztp-ag-cfg-orientation" class="control-label">Graph orientation</label>
+        <select id="ztp-ag-cfg-orientation" name="orientation" class="form-control"
+                data-testid="ztp-ag-cfg-orientation"
+                data-ng-model="config.orientation">
+          <option value="LR">Left → Right</option>
+          <option value="RL">Right → Left</option>
+          <option value="TB">Top → Down</option>
+          <option value="BT">Bottom → Up</option>
+          <option value="GRID">Zig-zag (grid)</option>
+        </select>
+        <small class="help-block">Direction the step flow is drawn.</small>
+      </div>
+      <div class="form-group">
+        <label for="ztp-ag-cfg-nodestyle" class="control-label">Step node style</label>
+        <select id="ztp-ag-cfg-nodestyle" name="nodeStyle" class="form-control"
+                data-testid="ztp-ag-cfg-nodestyle"
+                data-ng-model="config.nodeStyle">
+          <option value="chip">Chip -- compact icon, title below</option>
+          <option value="card">Card -- wide rectangle, title inside</option>
+        </select>
+        <small class="help-block">Card nodes put the step title inside the rectangle beside the icon.</small>
+      </div>
+      <div class="form-group">
+        <label for="ztp-ag-cfg-align" class="control-label">Content alignment</label>
+        <select id="ztp-ag-cfg-align" name="align" class="form-control"
+                data-testid="ztp-ag-cfg-align"
+                data-ng-model="config.align">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+        </select>
+        <small class="help-block">Center or left-align the title, legend, and graph.</small>
+      </div>
+      <div class="form-group">
+        <label for="ztp-ag-cfg-width" class="control-label">Max widget width (px)</label>
+        <input id="ztp-ag-cfg-width" name="graphWidth" type="number" class="form-control" min="320" max="4000" step="20"
+               data-testid="ztp-ag-cfg-width"
+               data-ng-model="config.graphWidth" />
+        <small class="help-block">Leave blank (or 0) to fill the panel. A full-width column can be far wider than the run needs.</small>
+      </div>
+      <div class="form-group">
+        <label for="ztp-ag-cfg-height" class="control-label">Graph height (px)</label>
+        <input id="ztp-ag-cfg-height" name="graphHeight" type="number" class="form-control" min="160" max="1200" step="20"
+               data-testid="ztp-ag-cfg-height"
+               data-ng-model="config.graphHeight" />
+        <small class="help-block">Height of the graph window. A long run scrolls inside it.</small>
+      </div>
+      <div class="form-group">
+        <label class="cs-checkbox">
+          <input type="checkbox" data-testid="ztp-ag-cfg-newtab"
+                 data-ng-model="config.openInNewTab" />
+          Open a step's record in a new browser tab when its node is clicked
+        </label>
+      </div>
+      <div class="form-group">
+        <label class="cs-checkbox">
+          <input type="checkbox" data-testid="ztp-ag-cfg-blink"
+                 data-ng-model="config.blinkCurrent" />
+          Blink (pulse the ring of) the current step
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button id="edit-widget-save" type="submit" class="btn btn-sm btn-primary">
+      <i class="icon icon-check margin-right-sm"></i>Save
+    </button>
+    <button id="edit-widget-cancel" type="button" class="btn btn-sm btn-default" data-ng-click="cancel()" data-testid="ztp-ag-edit-cancel">
+      <i class="icon icon-close margin-right-sm"></i>Close
+    </button>
+  </div>
+</form>

@@ -1,0 +1,51 @@
+{
+ "name": "code-runner",
+ "label": "Code Runner (Unrestricted)",
+ "description": "Execute Python snippets with no sandbox restrictions: top-level return works and open()/filesystem access is available. For trusted, operator-authored playbooks only.",
+ "publisher": "Custom",
+ "cs_approved": false,
+ "cs_compatible": true,
+ "version": "1.0.1",
+ "category": "Utilities",
+ "icon_small_name": "",
+ "icon_large_name": "",
+ "ingestion_supported": false,
+ "tags": [
+  "utility",
+  "code",
+  "unrestricted"
+ ],
+ "configuration": {
+  "fields": []
+ },
+ "operations": [
+  {
+   "operation": "run_python",
+   "title": "Run Python (Unrestricted)",
+   "annotation": "run_python",
+   "category": "investigation",
+   "description": "Execute the supplied Python with full builtins and filesystem access. Use 'return <value>' to set code_output.",
+   "enabled": true,
+   "parameters": [
+    {
+     "title": "Python Code",
+     "name": "code",
+     "type": "codeEditor",
+     "required": true,
+     "editable": true,
+     "visible": true,
+     "tooltip": "Python to execute. A top-level 'return <value>' sets code_output. The 'params' dict (from Input) and 'config' are in scope. open()/import are unrestricted."
+    },
+    {
+     "title": "Input",
+     "name": "input",
+     "type": "json",
+     "required": false,
+     "editable": true,
+     "visible": true,
+     "tooltip": "Optional dict passed to the snippet as 'params' (e.g. {\"recipients\": \"a@b.com\"})."
+    }
+   ]
+  }
+ ]
+}

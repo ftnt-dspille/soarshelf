@@ -1,0 +1,917 @@
+{
+  "name": "ansible-automation",
+  "label": "Ansible Automation",
+  "version": "1.0.0",
+  "description": "Executes Ansible playbooks, ad-hoc modules, and roles directly from FortiSOAR playbooks using ansible-runner, returning structured per-host and per-task results. Ansible is agentless, so this connector drives remote hosts over SSH or WinRM without requiring a separate Ansible Automation Platform deployment.",
+  "publisher": "Fortinet CSE",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "category": "Automation",
+  "icon_small_name": "ansible_small.png",
+  "icon_large_name": "ansible_medium.png",
+  "help_online": "",
+  "configuration": {
+    "fields": [
+      {
+        "name": "default_inventory",
+        "title": "Default Inventory",
+        "type": "textarea",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Specify the inventory used when a playbook step does not supply one, as YAML, INI, or a JSON object. Leave blank to default to implicit localhost.",
+        "tooltip": "Specify the inventory used when a playbook step does not supply one, as YAML, INI, or a JSON object. Leave blank to default to implicit localhost."
+      },
+      {
+        "name": "ssh_username",
+        "title": "SSH Username",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Specify the default user to connect to remote hosts as.",
+        "tooltip": "Specify the default user to connect to remote hosts as."
+      },
+      {
+        "name": "ssh_private_key",
+        "title": "SSH Private Key",
+        "type": "password",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Specify the PEM-encoded private key used to connect to remote hosts. The key is written to a run-scoped file with owner-only permissions and removed when the run completes.",
+        "tooltip": "Specify the PEM-encoded private key used to connect to remote hosts. The key is written to a run-scoped file with owner-only permissions and removed when the run completes."
+      },
+      {
+        "name": "ssh_password",
+        "title": "SSH Password",
+        "type": "password",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Specify the password used to connect to remote hosts, as an alternative to a private key. The password is supplied to Ansible through its prompt channel and never appears on the command line.",
+        "tooltip": "Specify the password used to connect to remote hosts, as an alternative to a private key. The password is supplied to Ansible through its prompt channel and never appears on the command line."
+      },
+      {
+        "name": "become",
+        "title": "Become",
+        "type": "checkbox",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Select this option to escalate privileges on remote hosts.",
+        "tooltip": "Select this option to escalate privileges on remote hosts.",
+        "value": false
+      },
+      {
+        "name": "become_method",
+        "title": "Become Method",
+        "type": "select",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Select the privilege escalation method to use when Become is selected.",
+        "tooltip": "Select the privilege escalation method to use when Become is selected.",
+        "value": "sudo",
+        "options": [
+          "sudo",
+          "su",
+          "pbrun",
+          "pfexec",
+          "doas",
+          "dzdo",
+          "ksu",
+          "runas"
+        ]
+      },
+      {
+        "name": "become_user",
+        "title": "Become User",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Specify the user to escalate to. Leave blank to escalate to root.",
+        "tooltip": "Specify the user to escalate to. Leave blank to escalate to root."
+      },
+      {
+        "name": "become_password",
+        "title": "Become Password",
+        "type": "password",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Specify the password used for privilege escalation, if one is required.",
+        "tooltip": "Specify the password used for privilege escalation, if one is required."
+      },
+      {
+        "name": "host_key_checking",
+        "title": "Verify Host Keys",
+        "type": "checkbox",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Specifies whether the SSH host keys of remote hosts are to be verified against the connector's known_hosts file. Clearing this option disables host key verification.",
+        "tooltip": "Specifies whether the SSH host keys of remote hosts are to be verified against the connector's known_hosts file. Clearing this option disables host key verification.",
+        "value": true
+      },
+      {
+        "name": "collections_path",
+        "title": "Collections Path",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Specify an absolute path in which Ansible collections are installed and resolved from. Leave blank to use the connector's default path.",
+        "tooltip": "Specify an absolute path in which Ansible collections are installed and resolved from. Leave blank to use the connector's default path."
+      },
+      {
+        "name": "default_timeout",
+        "title": "Default Timeout",
+        "type": "integer",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Specify the maximum number of seconds a run may take before it is terminated, used when a playbook step does not specify its own timeout.",
+        "tooltip": "Specify the maximum number of seconds a run may take before it is terminated, used when a playbook step does not specify its own timeout.",
+        "value": 300
+      },
+      {
+        "name": "forks",
+        "title": "Forks",
+        "type": "integer",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Specify the number of hosts Ansible configures in parallel.",
+        "tooltip": "Specify the number of hosts Ansible configures in parallel.",
+        "value": 5
+      },
+      {
+        "name": "verbosity",
+        "title": "Verbosity",
+        "type": "select",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Select the default Ansible verbosity level.",
+        "tooltip": "Select the default Ansible verbosity level.",
+        "value": "0",
+        "options": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      {
+        "name": "run_retention_hours",
+        "title": "Run Retention (Hours)",
+        "type": "integer",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Specify the number of hours retained run directories are kept for before they are removed.",
+        "tooltip": "Specify the number of hours retained run directories are kept for before they are removed.",
+        "value": 24
+      }
+    ]
+  },
+  "operations": [
+    {
+      "operation": "run_playbook",
+      "title": "Run Playbook",
+      "description": "Executes an Ansible playbook supplied inline, read from a path on the FortiSOAR node, or cloned from a git repository, and returns the per-host and per-task results.",
+      "category": "investigation",
+      "parameters": [
+        {
+          "name": "source_type",
+          "title": "Source Type",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Select where the playbook comes from: inline YAML, an absolute path on the FortiSOAR node, or a git repository.",
+          "tooltip": "Select where the playbook comes from: inline YAML, an absolute path on the FortiSOAR node, or a git repository.",
+          "value": "inline",
+          "options": [
+            "inline",
+            "path",
+            "git"
+          ]
+        },
+        {
+          "name": "playbook",
+          "title": "Playbook",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the playbook. For the inline source type this is the playbook YAML itself; for the path source type an absolute path; for the git source type the path to the playbook within the repository.",
+          "tooltip": "Specify the playbook. For the inline source type this is the playbook YAML itself; for the path source type an absolute path; for the git source type the path to the playbook within the repository."
+        },
+        {
+          "name": "git_repo",
+          "title": "Git Repository",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify the repository URL to clone when the source type is git.",
+          "tooltip": "Specify the repository URL to clone when the source type is git.",
+          "placeholder": "For example: https://git.example.com/team/playbooks.git"
+        },
+        {
+          "name": "git_branch",
+          "title": "Git Branch",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify the branch to clone when the source type is git. Leave blank for the default branch.",
+          "tooltip": "Specify the branch to clone when the source type is git. Leave blank for the default branch."
+        },
+        {
+          "name": "git_token",
+          "title": "Git Token",
+          "type": "password",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify an access token for a private http(s) repository. Leave blank to use the SSH key from the connector configuration.",
+          "tooltip": "Specify an access token for a private http(s) repository. Leave blank to use the SSH key from the connector configuration."
+        },
+        {
+          "name": "inventory",
+          "title": "Inventory",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify the inventory to run against, as YAML, INI, or a JSON object. Leave blank to use the default inventory from the connector configuration, or implicit localhost if that is also blank.",
+          "tooltip": "Specify the inventory to run against, as YAML, INI, or a JSON object. Leave blank to use the default inventory from the connector configuration, or implicit localhost if that is also blank."
+        },
+        {
+          "name": "extra_vars",
+          "title": "Extra Variables",
+          "type": "json",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify extra variables to pass to the play, as a JSON object. Equivalent to ansible-playbook --extra-vars.",
+          "tooltip": "Specify extra variables to pass to the play, as a JSON object. Equivalent to ansible-playbook --extra-vars.",
+          "placeholder": "For example: {\"target_path\": \"/etc/hosts\"}"
+        },
+        {
+          "name": "limit",
+          "title": "Limit",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify a host pattern to restrict the run to a subset of the inventory. Equivalent to --limit.",
+          "tooltip": "Specify a host pattern to restrict the run to a subset of the inventory. Equivalent to --limit.",
+          "placeholder": "For example: webservers"
+        },
+        {
+          "name": "tags",
+          "title": "Tags",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify a comma-separated list of tags. Only tasks carrying these tags run. Equivalent to --tags.",
+          "tooltip": "Specify a comma-separated list of tags. Only tasks carrying these tags run. Equivalent to --tags."
+        },
+        {
+          "name": "skip_tags",
+          "title": "Skip Tags",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify a comma-separated list of tags whose tasks are skipped. Equivalent to --skip-tags.",
+          "tooltip": "Specify a comma-separated list of tags whose tasks are skipped. Equivalent to --skip-tags."
+        },
+        {
+          "name": "check_mode",
+          "title": "Check Mode",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select this option to run without making changes, i.e. a dry run. Equivalent to --check.",
+          "tooltip": "Select this option to run without making changes, i.e. a dry run. Equivalent to --check.",
+          "value": false
+        },
+        {
+          "name": "diff",
+          "title": "Diff",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select this option to return the differences that would be applied to changed files. Equivalent to --diff.",
+          "tooltip": "Select this option to return the differences that would be applied to changed files. Equivalent to --diff.",
+          "value": false
+        },
+        {
+          "name": "verbosity",
+          "title": "Verbosity",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select the Ansible verbosity level for this run. Leave at Default to inherit the connector configuration.",
+          "tooltip": "Select the Ansible verbosity level for this run. Leave at Default to inherit the connector configuration.",
+          "value": "Default",
+          "options": [
+            "Default",
+            "0",
+            "1",
+            "2",
+            "3",
+            "4"
+          ]
+        },
+        {
+          "name": "timeout",
+          "title": "Timeout",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify the maximum number of seconds this run may take before it is terminated. Leave blank to use the connector configuration default.",
+          "tooltip": "Specify the maximum number of seconds this run may take before it is terminated. Leave blank to use the connector configuration default."
+        },
+        {
+          "name": "wait",
+          "title": "Wait For Completion",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select this option to block until the run finishes and return the full result. Clear it to start the run asynchronously and return an identifier you can poll with Get Run Status.",
+          "tooltip": "Select this option to block until the run finishes and return the full result. Clear it to start the run asynchronously and return an identifier you can poll with Get Run Status.",
+          "value": true
+        },
+        {
+          "name": "keep_artifacts",
+          "title": "Keep Artifacts",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select this option to retain the run directory after completion so that Get Run Artifacts can read it. Retained runs are removed after the configured retention period.",
+          "tooltip": "Select this option to retain the run directory after completion so that Get Run Artifacts can read it. Retained runs are removed after the configured retention period.",
+          "value": false
+        }
+      ],
+      "annotation": "run_playbook",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "operation": "run_module",
+      "title": "Run Module",
+      "description": "Executes a single Ansible module against a host pattern, i.e. the equivalent of an ad-hoc ansible command, and returns the per-host results.",
+      "category": "investigation",
+      "parameters": [
+        {
+          "name": "module",
+          "title": "Module",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the module to run, optionally fully qualified.",
+          "tooltip": "Specify the module to run, optionally fully qualified.",
+          "placeholder": "For example: ansible.builtin.ping"
+        },
+        {
+          "name": "module_args",
+          "title": "Module Arguments",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify the module arguments in Ansible's key=value form.",
+          "tooltip": "Specify the module arguments in Ansible's key=value form.",
+          "placeholder": "For example: path=/etc/hosts"
+        },
+        {
+          "name": "hosts",
+          "title": "Host Pattern",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify the host pattern to target within the inventory.",
+          "tooltip": "Specify the host pattern to target within the inventory.",
+          "value": "all"
+        },
+        {
+          "name": "inventory",
+          "title": "Inventory",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify the inventory to run against, as YAML, INI, or a JSON object. Leave blank to use the default inventory from the connector configuration, or implicit localhost if that is also blank.",
+          "tooltip": "Specify the inventory to run against, as YAML, INI, or a JSON object. Leave blank to use the default inventory from the connector configuration, or implicit localhost if that is also blank."
+        },
+        {
+          "name": "extra_vars",
+          "title": "Extra Variables",
+          "type": "json",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify extra variables to pass to the play, as a JSON object. Equivalent to ansible-playbook --extra-vars.",
+          "tooltip": "Specify extra variables to pass to the play, as a JSON object. Equivalent to ansible-playbook --extra-vars.",
+          "placeholder": "For example: {\"target_path\": \"/etc/hosts\"}"
+        },
+        {
+          "name": "limit",
+          "title": "Limit",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify a host pattern to restrict the run to a subset of the inventory. Equivalent to --limit.",
+          "tooltip": "Specify a host pattern to restrict the run to a subset of the inventory. Equivalent to --limit.",
+          "placeholder": "For example: webservers"
+        },
+        {
+          "name": "tags",
+          "title": "Tags",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify a comma-separated list of tags. Only tasks carrying these tags run. Equivalent to --tags.",
+          "tooltip": "Specify a comma-separated list of tags. Only tasks carrying these tags run. Equivalent to --tags."
+        },
+        {
+          "name": "skip_tags",
+          "title": "Skip Tags",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify a comma-separated list of tags whose tasks are skipped. Equivalent to --skip-tags.",
+          "tooltip": "Specify a comma-separated list of tags whose tasks are skipped. Equivalent to --skip-tags."
+        },
+        {
+          "name": "check_mode",
+          "title": "Check Mode",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select this option to run without making changes, i.e. a dry run. Equivalent to --check.",
+          "tooltip": "Select this option to run without making changes, i.e. a dry run. Equivalent to --check.",
+          "value": false
+        },
+        {
+          "name": "diff",
+          "title": "Diff",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select this option to return the differences that would be applied to changed files. Equivalent to --diff.",
+          "tooltip": "Select this option to return the differences that would be applied to changed files. Equivalent to --diff.",
+          "value": false
+        },
+        {
+          "name": "verbosity",
+          "title": "Verbosity",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select the Ansible verbosity level for this run. Leave at Default to inherit the connector configuration.",
+          "tooltip": "Select the Ansible verbosity level for this run. Leave at Default to inherit the connector configuration.",
+          "value": "Default",
+          "options": [
+            "Default",
+            "0",
+            "1",
+            "2",
+            "3",
+            "4"
+          ]
+        },
+        {
+          "name": "timeout",
+          "title": "Timeout",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify the maximum number of seconds this run may take before it is terminated. Leave blank to use the connector configuration default.",
+          "tooltip": "Specify the maximum number of seconds this run may take before it is terminated. Leave blank to use the connector configuration default."
+        },
+        {
+          "name": "wait",
+          "title": "Wait For Completion",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select this option to block until the run finishes and return the full result. Clear it to start the run asynchronously and return an identifier you can poll with Get Run Status.",
+          "tooltip": "Select this option to block until the run finishes and return the full result. Clear it to start the run asynchronously and return an identifier you can poll with Get Run Status.",
+          "value": true
+        },
+        {
+          "name": "keep_artifacts",
+          "title": "Keep Artifacts",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select this option to retain the run directory after completion so that Get Run Artifacts can read it. Retained runs are removed after the configured retention period.",
+          "tooltip": "Select this option to retain the run directory after completion so that Get Run Artifacts can read it. Retained runs are removed after the configured retention period.",
+          "value": false
+        }
+      ],
+      "annotation": "run_module",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "operation": "run_role",
+      "title": "Run Role",
+      "description": "Executes a single Ansible role against a host pattern and returns the per-host and per-task results.",
+      "category": "investigation",
+      "parameters": [
+        {
+          "name": "role",
+          "title": "Role",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the name of the role to execute.",
+          "tooltip": "Specify the name of the role to execute."
+        },
+        {
+          "name": "roles_path",
+          "title": "Roles Path",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify an absolute path on the FortiSOAR node containing the role. Leave blank to resolve the role from the configured collections path.",
+          "tooltip": "Specify an absolute path on the FortiSOAR node containing the role. Leave blank to resolve the role from the configured collections path."
+        },
+        {
+          "name": "hosts",
+          "title": "Host Pattern",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify the host pattern to target within the inventory.",
+          "tooltip": "Specify the host pattern to target within the inventory.",
+          "value": "all"
+        },
+        {
+          "name": "inventory",
+          "title": "Inventory",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify the inventory to run against, as YAML, INI, or a JSON object. Leave blank to use the default inventory from the connector configuration, or implicit localhost if that is also blank.",
+          "tooltip": "Specify the inventory to run against, as YAML, INI, or a JSON object. Leave blank to use the default inventory from the connector configuration, or implicit localhost if that is also blank."
+        },
+        {
+          "name": "extra_vars",
+          "title": "Extra Variables",
+          "type": "json",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify extra variables to pass to the play, as a JSON object. Equivalent to ansible-playbook --extra-vars.",
+          "tooltip": "Specify extra variables to pass to the play, as a JSON object. Equivalent to ansible-playbook --extra-vars.",
+          "placeholder": "For example: {\"target_path\": \"/etc/hosts\"}"
+        },
+        {
+          "name": "limit",
+          "title": "Limit",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify a host pattern to restrict the run to a subset of the inventory. Equivalent to --limit.",
+          "tooltip": "Specify a host pattern to restrict the run to a subset of the inventory. Equivalent to --limit.",
+          "placeholder": "For example: webservers"
+        },
+        {
+          "name": "tags",
+          "title": "Tags",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify a comma-separated list of tags. Only tasks carrying these tags run. Equivalent to --tags.",
+          "tooltip": "Specify a comma-separated list of tags. Only tasks carrying these tags run. Equivalent to --tags."
+        },
+        {
+          "name": "skip_tags",
+          "title": "Skip Tags",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify a comma-separated list of tags whose tasks are skipped. Equivalent to --skip-tags.",
+          "tooltip": "Specify a comma-separated list of tags whose tasks are skipped. Equivalent to --skip-tags."
+        },
+        {
+          "name": "check_mode",
+          "title": "Check Mode",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select this option to run without making changes, i.e. a dry run. Equivalent to --check.",
+          "tooltip": "Select this option to run without making changes, i.e. a dry run. Equivalent to --check.",
+          "value": false
+        },
+        {
+          "name": "diff",
+          "title": "Diff",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select this option to return the differences that would be applied to changed files. Equivalent to --diff.",
+          "tooltip": "Select this option to return the differences that would be applied to changed files. Equivalent to --diff.",
+          "value": false
+        },
+        {
+          "name": "verbosity",
+          "title": "Verbosity",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select the Ansible verbosity level for this run. Leave at Default to inherit the connector configuration.",
+          "tooltip": "Select the Ansible verbosity level for this run. Leave at Default to inherit the connector configuration.",
+          "value": "Default",
+          "options": [
+            "Default",
+            "0",
+            "1",
+            "2",
+            "3",
+            "4"
+          ]
+        },
+        {
+          "name": "timeout",
+          "title": "Timeout",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify the maximum number of seconds this run may take before it is terminated. Leave blank to use the connector configuration default.",
+          "tooltip": "Specify the maximum number of seconds this run may take before it is terminated. Leave blank to use the connector configuration default."
+        },
+        {
+          "name": "wait",
+          "title": "Wait For Completion",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select this option to block until the run finishes and return the full result. Clear it to start the run asynchronously and return an identifier you can poll with Get Run Status.",
+          "tooltip": "Select this option to block until the run finishes and return the full result. Clear it to start the run asynchronously and return an identifier you can poll with Get Run Status.",
+          "value": true
+        },
+        {
+          "name": "keep_artifacts",
+          "title": "Keep Artifacts",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select this option to retain the run directory after completion so that Get Run Artifacts can read it. Retained runs are removed after the configured retention period.",
+          "tooltip": "Select this option to retain the run directory after completion so that Get Run Artifacts can read it. Retained runs are removed after the configured retention period.",
+          "value": false
+        }
+      ],
+      "annotation": "run_role",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "operation": "get_run_status",
+      "title": "Get Run Status",
+      "description": "Retrieves the current status, return code, and statistics of a run started asynchronously, based on the run identifier you have specified.",
+      "category": "investigation",
+      "parameters": [
+        {
+          "name": "ident",
+          "title": "Run Identifier",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the identifier returned when the run was started.",
+          "tooltip": "Specify the identifier returned when the run was started."
+        }
+      ],
+      "annotation": "get_run_status",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "operation": "get_run_artifacts",
+      "title": "Get Run Artifacts",
+      "description": "Retrieves the full event stream, standard output, and gathered fact cache of a retained run, based on the run identifier you have specified.",
+      "category": "investigation",
+      "parameters": [
+        {
+          "name": "ident",
+          "title": "Run Identifier",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the identifier of a run that was executed with Keep Artifacts selected.",
+          "tooltip": "Specify the identifier of a run that was executed with Keep Artifacts selected."
+        }
+      ],
+      "annotation": "get_run_artifacts",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "operation": "cancel_run",
+      "title": "Cancel Run",
+      "description": "Terminates a run that is currently executing, based on the run identifier you have specified.",
+      "category": "containment",
+      "parameters": [
+        {
+          "name": "ident",
+          "title": "Run Identifier",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the identifier of the run to terminate.",
+          "tooltip": "Specify the identifier of the run to terminate."
+        }
+      ],
+      "annotation": "cancel_run",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "operation": "validate_playbook",
+      "title": "Validate Playbook",
+      "description": "Performs a syntax check on a playbook without executing it, and returns whether it is valid.",
+      "category": "investigation",
+      "parameters": [
+        {
+          "name": "source_type",
+          "title": "Source Type",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Select where the playbook comes from: inline YAML, an absolute path on the FortiSOAR node, or a git repository.",
+          "tooltip": "Select where the playbook comes from: inline YAML, an absolute path on the FortiSOAR node, or a git repository.",
+          "value": "inline",
+          "options": [
+            "inline",
+            "path",
+            "git"
+          ]
+        },
+        {
+          "name": "playbook",
+          "title": "Playbook",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the playbook to validate. For the inline source type this is the playbook YAML itself; for the path source type an absolute path; for the git source type the path within the repository.",
+          "tooltip": "Specify the playbook to validate. For the inline source type this is the playbook YAML itself; for the path source type an absolute path; for the git source type the path within the repository."
+        },
+        {
+          "name": "git_repo",
+          "title": "Git Repository",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify the repository URL to clone when the source type is git.",
+          "tooltip": "Specify the repository URL to clone when the source type is git."
+        },
+        {
+          "name": "git_branch",
+          "title": "Git Branch",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify the branch to clone when the source type is git.",
+          "tooltip": "Specify the branch to clone when the source type is git."
+        },
+        {
+          "name": "git_token",
+          "title": "Git Token",
+          "type": "password",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify an access token for a private http(s) repository.",
+          "tooltip": "Specify an access token for a private http(s) repository."
+        }
+      ],
+      "annotation": "validate_playbook",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "operation": "list_collections",
+      "title": "List Collections",
+      "description": "Retrieves the Ansible collections installed in the connector's collections path.",
+      "category": "investigation",
+      "parameters": [],
+      "annotation": "list_collections",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "operation": "install_collection",
+      "title": "Install Collection",
+      "description": "Installs an Ansible collection from Ansible Galaxy into the connector's collections path.",
+      "category": "miscellaneous",
+      "parameters": [
+        {
+          "name": "collection",
+          "title": "Collection",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the collection to install, optionally with a version.",
+          "tooltip": "Specify the collection to install, optionally with a version.",
+          "placeholder": "For example: fortinet.fortios"
+        },
+        {
+          "name": "force",
+          "title": "Force",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Select this option to reinstall the collection even if it is already present.",
+          "tooltip": "Select this option to reinstall the collection even if it is already present.",
+          "value": false
+        }
+      ],
+      "annotation": "install_collection",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "operation": "list_modules",
+      "title": "List Modules",
+      "description": "Retrieves the Ansible modules resolvable in the connector's environment, optionally filtered by a substring.",
+      "category": "investigation",
+      "parameters": [
+        {
+          "name": "filter",
+          "title": "Filter",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Specify a substring to filter the module names by. Leave blank to return every resolvable module.",
+          "tooltip": "Specify a substring to filter the module names by. Leave blank to return every resolvable module.",
+          "placeholder": "For example: fortios_firewall"
+        }
+      ],
+      "annotation": "list_modules",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true
+    }
+  ]
+}
