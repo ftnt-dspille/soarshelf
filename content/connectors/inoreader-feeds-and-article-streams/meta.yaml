@@ -1,0 +1,22 @@
+title: Inoreader feeds and article streams
+summary: Connector that pulls RSS and Atom feeds, article streams and saved searches from Inoreader.
+description: 'Community connector for [Inoreader](https://www.inoreader.com): list subscriptions, read
+  article streams and saved searches, and mark articles read. Useful for bringing threat-intel blogs and
+  advisories into a SOAR workflow.
+
+
+  Build it from the source repository and install it from Content Hub > Manage. You need an Inoreader
+  account with API access.'
+use_cases:
+- enrichment
+- ingestion
+tags:
+- rss
+- threat-intel
+author: ftnt-dspille
+version: 1.0.4
+min_version: null
+license: MIT
+published: '2026-10-06'
+source: https://github.com/ftnt-dspille/connector-inoreader
+author_id: 99558074
