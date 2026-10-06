@@ -253,7 +253,7 @@
           type="file"
           accept=".json,.zip,application/json,application/zip"
           class="peer sr-only"
-          aria-label="Choose a playbook export or solution pack"
+          aria-label="Choose a playbook export, solution pack, or connector or widget manifest"
           aria-describedby="file-hint {shown.file ? 'e-file' : ''}"
           onchange={(e) => pickFile((e.currentTarget as HTMLInputElement).files?.[0])}
         />
@@ -278,8 +278,8 @@
             <span class="text-xs text-faint">{formatBytes(file.size)} · click or drop to replace</span>
           {:else}
             <CloudUpload size={28} class="text-faint" aria-hidden="true" />
-            <span class="text-sm font-medium">Drop your export here, or <span class="text-accent-text">browse</span></span>
-            <span id="file-hint" class="text-xs text-faint">Playbook collection .json (up to 2 MB) or solution pack .zip (up to 20 MB)</span>
+            <span class="text-sm font-medium">Drop your file here, or <span class="text-accent-text">browse</span></span>
+            <span id="file-hint" class="text-xs text-faint">Playbook collection or info.json manifest (up to 2 MB), or solution pack .zip (up to 20 MB)</span>
           {/if}
         </label>
         {@render fieldError('file')}
