@@ -160,11 +160,16 @@ def _trigger(w: dict[str, Any]) -> str:
     playbook is never switched on: a step list could put a manual step first while
     the real trigger fires on record creation."""
     want = str(w.get("triggerStep") or "").rsplit("/", 1)[-1].lower()
-    types = {str(s.get("uuid") or "").lower(): str(s.get("stepType") or "").rsplit("/", 1)[-1].lower()
-             for s in w.get("steps") or []}
-    label = config.TRIGGER_LABELS.get(types.get(want, ""), "Unknown") if want else "Unknown"
-    others = {config.TRIGGER_LABELS[t] for u, t in types.items() if t in config.TRIGGER_LABELS and u != want}
-    return label if label in SAFE_TRIGGERS and others <= SAFE_TRIGGERS else "Unknown"
+    steps = [(str(s.get("uuid") or "").lower(), str(s.get("stepType") or "").rsplit("/", 1)[-1].lower())
+             for s in w.get("steps") or [] if isinstance(s, dict)]
+    uuids = [u for u, _ in steps]
+    # Empty or repeated step ids make "the trigger step" ambiguous: never guess.
+    if not want or "" in uuids or len(set(uuids)) != len(uuids):
+        return "Unknown"
+    hits = [t for u, t in steps if u == want]
+    label = config.TRIGGER_LABELS.get(hits[0], "Unknown") if len(hits) == 1 else "Unknown"
+    others = [config.TRIGGER_LABELS[t] for u, t in steps if t in config.TRIGGER_LABELS and u != want]
+    return label if label in SAFE_TRIGGERS and all(o in SAFE_TRIGGERS for o in others) else "Unknown"
 
 
 def _button_answers(client: Any) -> None:
@@ -273,7 +278,7 @@ def run(item: Path, *, instance: str | None, playbooks: list[str], calls: list[s
                 if client.workflow_collections.get(u, relationships=False).name.startswith(PREFIX):
                     client.workflow_collections.delete(u, hard=True)
             print(f"  removed {len(created)} scratch collection(s)")
-    return {"platform": platform, "version": res.detail["version"],
+    return {"platform": platform, "version": res.detail["version"], "sha256": res.detail["download"]["sha256"],
             "result": "ran" if ran else "imported", "playbooks": ran}
 
 

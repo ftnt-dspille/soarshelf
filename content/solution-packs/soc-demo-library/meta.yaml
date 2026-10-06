@@ -37,3 +37,4 @@ tested:
 - platform: 8.0.0
   version: 1.1.0
   result: imported
+  sha256: e03463d51638f18a757a2f7b3d43b7e6a1fe1193072fc98a8b1bfced9c21c418

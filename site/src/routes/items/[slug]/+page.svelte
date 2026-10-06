@@ -35,9 +35,9 @@
   let { data } = $props();
   const item = $derived(data.item);
   // The best test of this version, and any of an older one (shown so it's clear what wasn't retested).
-  const current = $derived((item.tests ?? []).filter((t) => t.version === item.version));
+  const current = $derived((item.tests ?? []).filter((t) => t.current));
   const best = $derived(current.find((t) => t.result === 'ran') ?? current[0]);
-  const older = $derived((item.tests ?? []).find((t) => t.version !== item.version));
+  const older = $derived((item.tests ?? []).find((t) => !t.current));
   // Authors are GitHub accounts; only link a login GitHub could actually have.
   const githubUrl = $derived(
     /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/.test(item.author.github) ? `https://github.com/${item.author.github}` : null
@@ -462,7 +462,7 @@
                 <p class="mt-1.5 text-xs text-faint">Not run there: it needs integrations or records we don't test against.</p>
               {/if}
             {:else if older}
-              <p class="mt-2 text-muted">v{older.version} {older.result === 'ran' ? 'ran end to end' : 'imported cleanly'} on FortiSOAR {older.platform}. This version hasn't been verified yet.</p>
+              <p class="mt-2 text-muted">v{older.version} {older.result === 'ran' ? 'ran end to end' : 'imported cleanly'} on FortiSOAR {older.platform}. The current file hasn't been verified yet.</p>
             {:else}
               <p class="mt-2 text-muted">Not verified yet.</p>
             {/if}

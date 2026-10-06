@@ -21,3 +21,4 @@ tested:
   playbooks:
   - FSRPB Parent Caller
   notes: Called with base 7; the child returned 70 to the parent.
+  sha256: b5a090acb76f17ce38c585bc26c4fe803fa15523868142f8f28c39daaf4cd3c3

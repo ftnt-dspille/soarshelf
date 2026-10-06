@@ -61,7 +61,10 @@ interface TestEntry extends Tested {
   version: string;                 // item version that was tested
   playbooks: string[];             // what ran (empty for imported)
   notes: string;                   // public note: inputs used and what came back; never hosts or dates
+  current: boolean;                // same version AND same download sha256 as this build
 }
+// meta.yaml entries also carry `sha256` of the download that was tested. A record only
+// vouches (tested != null) while that hash matches the file the build serves.
 ```
 
 ## `data/items/<slug>.json`

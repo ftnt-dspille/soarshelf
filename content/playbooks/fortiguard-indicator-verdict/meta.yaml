@@ -47,3 +47,4 @@ tested:
   - FortiGuard Indicator Verdict
   notes: Called with the EICAR test file hash (malicious, risk score 100) and a well-known clean domain
     (clean).
+  sha256: e5251190bb9aee7af7bc489a60f118f4074095e52d868b2cdac843bbff667e65

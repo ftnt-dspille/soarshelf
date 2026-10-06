@@ -67,6 +67,8 @@ export interface TestEntry extends Tested {
   version: string;
   playbooks: string[];
   notes: string;
+  /** True when this test covered the version and the exact file the site serves now. */
+  current: boolean;
 }
 
 /** A curated, ordered list of items (data/collections.json). */

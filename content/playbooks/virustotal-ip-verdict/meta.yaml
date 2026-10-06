@@ -26,3 +26,4 @@ tested:
   playbooks:
   - VT IP Reputation
   notes: Called with 8.8.8.8 against a configured VirusTotal connector; verdict clean.
+  sha256: 2749533600e4633e61a62266423372aca83ddb2c7b0d1b73b277d4b76cd67395

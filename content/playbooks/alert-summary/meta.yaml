@@ -44,3 +44,4 @@ tested:
   - Summarize Recent Alerts
   notes: 'Summarized the last 24 hours of alerts on a lab box: totals, severity and status counts, and
     the HTML table.'
+  sha256: 45cb3d8189052353a255c5480b46c664832305bef368f7381b419dc47a609930

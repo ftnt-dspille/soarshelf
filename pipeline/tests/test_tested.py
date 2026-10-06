@@ -8,7 +8,8 @@ from soarshelf.build import curated
 from soarshelf.process import _tested, _tests
 
 MANUAL = "f414d039-bb0d-4e59-9c39-a8f1e880b18a"  # manual trigger step type
-V1 = {"platform": "8.0.0", "version": "1.0.0", "result": "ran", "playbooks": ["A"]}
+SHA = "a" * 64
+V1 = {"platform": "8.0.0", "version": "1.0.0", "sha256": SHA, "result": "ran", "playbooks": ["A"]}
 
 
 def test_tests_drop_bad_entries_and_sort_newest_platform_first():
@@ -19,22 +20,31 @@ def test_tests_drop_bad_entries_and_sort_newest_platform_first():
         {"version": "1.0.0", "result": "ran"},                            # no platform
         "8.0.0",
     ]}
-    assert [(t["platform"], t["result"]) for t in _tests(meta)] == [("8.0.0", "ran"), ("7.6.5", "imported")]
-    assert _tests({"tested": "yes"}) == []
+    assert [(t["platform"], t["result"]) for t in _tests(meta, "1.0.0", SHA)] == [("8.0.0", "ran"), ("7.6.5", "imported")]
+    assert _tests({"tested": "yes"}, "1.0.0", SHA) == []
 
 
-def test_tested_only_vouches_for_the_current_version():
-    tests = _tests({"tested": [V1, {"platform": "8.0.0", "version": "1.1.0", "result": "imported"}]})
-    assert _tested(tests, "1.0.0") == {"platform": "8.0.0", "result": "ran"}
-    assert _tested(tests, "1.1.0") == {"platform": "8.0.0", "result": "imported"}
-    assert _tested(tests, "2.0.0") is None
+def test_tested_only_vouches_for_the_exact_file_and_version():
+    meta = {"tested": [V1, {"platform": "8.0.0", "version": "1.1.0", "sha256": "b" * 64, "result": "imported"}]}
+    assert _tested(_tests(meta, "1.0.0", SHA)) == {"platform": "8.0.0", "result": "ran"}
+    assert _tested(_tests(meta, "1.1.0", "b" * 64)) == {"platform": "8.0.0", "result": "imported"}
+    assert _tested(_tests(meta, "2.0.0", SHA)) is None
+    # same version, different payload (or a record without a hash): no badge
+    assert _tested(_tests(meta, "1.0.0", "c" * 64)) is None
+    assert _tested(_tests({"tested": [{**V1, "sha256": ""}]}, "1.0.0", SHA)) is None
 
 
 def test_process_carries_tests(doc, hub, meta, write_json):
     from soarshelf.process import process
 
+    import hashlib
+
+    path = write_json(doc)
     meta["tested"] = [V1]
-    detail = process(meta, write_json(doc), "contributor", hub).detail
+    assert process(meta, path, "contributor", hub).detail["tested"] is None      # hash of another file
+    sha = process(meta, path, "contributor", hub).detail["download"]["sha256"]
+    meta["tested"] = [{**V1, "sha256": sha}]
+    detail = process(meta, path, "contributor", hub).detail
     assert detail["tested"] == {"platform": "8.0.0", "result": "ran"}
     assert detail["tests"][0]["playbooks"] == ["A"]
 
@@ -125,3 +135,12 @@ def test_uppercase_uuids_are_regenerated_too(doc):
     wf["uuid"] = upper
     (copy,), _ = verify.scratch_copy(doc["data"], set())
     assert upper.lower() not in json.dumps(copy).lower()
+
+
+def test_duplicate_or_empty_step_ids_make_the_trigger_unknown(doc):
+    wf = doc["data"][0]["workflows"][0]
+    assert verify._trigger(wf) == "Manual trigger"
+    wf["steps"][1]["uuid"] = wf["steps"][0]["uuid"]          # a second step claims the trigger's id
+    assert verify._trigger(wf) == "Unknown"
+    wf["steps"][1]["uuid"] = ""
+    assert verify._trigger(wf) == "Unknown"

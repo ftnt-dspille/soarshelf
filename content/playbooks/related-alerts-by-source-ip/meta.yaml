@@ -40,3 +40,4 @@ tested:
   - Find Related Alerts by Source IP
   notes: Called with a source IP shared by over a hundred open alerts from the last 7 days, excluding
     one of them. The count matched a direct query minus the excluded alert.
+  sha256: c7e4eca1b2c38d6afce0684dafbb0bc14d9ebde0efc5ca8d37bb97e0f27ca981

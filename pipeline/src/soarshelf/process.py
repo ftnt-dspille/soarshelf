@@ -495,8 +495,8 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
         "source": meta.get("source"),
         "changelog": _changelog(meta.get("changelog")),
         "lastChange": _last_change(meta),
-        "tests": (tests := _tests(meta)),
-        "tested": _tested(tests, str(meta.get("version") or "1.0.0")),
+        "tests": (tests := _tests(meta, str(meta.get("version") or "1.0.0"), sha := hashlib.sha256(body).hexdigest())),
+        "tested": _tested(tests),
         "setup": setup_guide.steps(kind, rows, pack_rows, deps, macros, playbooks, bool(code), meta, packaged),
         "dependencies": {
             "connectors": rows,
@@ -551,11 +551,14 @@ def _platform_key(v: str) -> tuple[int, ...]:
     return tuple(int(x) for x in re.findall(r"\d+", v)[:3])
 
 
-def _tests(meta: dict[str, Any]) -> list[dict[str, Any]]:
+def _tests(meta: dict[str, Any], version: str, sha256: str) -> list[dict[str, Any]]:
     """meta.yaml ``tested``: what we confirmed on a live FortiSOAR, per item version.
 
     ``result`` is ``ran`` (the listed playbooks ran to completion) or ``imported``
-    (the download imported cleanly). Newest platform first."""
+    (the download imported cleanly). Newest platform first. ``current`` is true only
+    when the record names this version AND the sha256 of the very download that was
+    tested matches today's build, so swapping the payload under the same version
+    drops the badge."""
     out = []
     for e in meta.get("tested") if isinstance(meta.get("tested"), list) else []:
         if not (isinstance(e, dict) and e.get("platform") and e.get("result") in TEST_RESULTS):
@@ -566,15 +569,16 @@ def _tests(meta: dict[str, Any]) -> list[dict[str, Any]]:
             "result": e["result"],
             "playbooks": [str(n)[:200] for n in e.get("playbooks") or [] if isinstance(n, str)][:30],
             "notes": str(e.get("notes") or "")[:500],
+            "current": str(e.get("version") or "") == version and str(e.get("sha256") or "") == sha256,
         })
     out.sort(key=lambda e: (_platform_key(e["platform"]), e["result"] == "ran"), reverse=True)
     return out[:20]
 
 
-def _tested(tests: list[dict[str, Any]], version: str) -> dict[str, str] | None:
-    """The best result for the current version: ran beats imported, newer platform wins.
-    A test of an older version doesn't vouch for this one."""
-    current = [t for t in tests if t["version"] == version]
+def _tested(tests: list[dict[str, Any]]) -> dict[str, str] | None:
+    """The best result for the current download: ran beats imported, newer platform wins.
+    A test of another version or another file doesn't vouch for this one."""
+    current = [t for t in tests if t["current"]]
     if not current:
         return None
     best = max(current, key=lambda t: (t["result"] == "ran", _platform_key(t["platform"])))

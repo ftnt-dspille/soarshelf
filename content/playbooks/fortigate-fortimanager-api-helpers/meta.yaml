@@ -50,3 +50,4 @@ tested:
 - platform: 8.0.0
   version: 1.0.1
   result: imported
+  sha256: 83cf1bf2d30c4609b2791b9ec0e93774c0216297d91bd9d208953cf37d3f7d08

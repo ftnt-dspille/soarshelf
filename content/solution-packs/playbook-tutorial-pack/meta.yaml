@@ -75,3 +75,4 @@ tested:
   - FortiSOAR API call to itself
   notes: The Jinja examples that don't write records, and the API self-call, ran to completion. Playbooks
     that need other integrations were imported only.
+  sha256: c91c5913d450d16e4b6b5dfaeba1a9ea5e65abc88c1afc70b5f6edd27fd2ef68

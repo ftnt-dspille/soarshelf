@@ -23,3 +23,4 @@ tested:
   playbooks:
   - Confirm Before Block
   notes: 'Both answers tested: block and skip each took their branch.'
+  sha256: a834d8c4657b4ebc11f7a352256f283559f633a499df0c494deb0c498e9f40a6
