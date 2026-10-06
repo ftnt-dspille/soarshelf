@@ -1,4 +1,4 @@
-import type { HubStatus, ItemSummary, ItemType, LastChange, NodeFamily, Severity, Trust } from './types';
+import type { HubStatus, ItemSummary, ItemType, LastChange, NodeFamily, Severity, TestResult, Tested, Trust } from './types';
 
 export const TYPE_LABEL: Record<ItemType, string> = {
   playbook: 'Playbook',
@@ -48,6 +48,19 @@ export function formatDate(iso: string): string {
 }
 
 /** An item's latest change, falling back to its publish date for older builds. */
+/** Short labels for live test results (facets, chips). */
+export const TEST_LABEL: Record<TestResult, string> = {
+  ran: 'Ran end to end',
+  imported: 'Imported cleanly'
+};
+
+/** One sentence for a live test result, e.g. on hover. */
+export function testedHint(t: Tested): string {
+  return t.result === 'ran'
+    ? `Ran to completion on a live FortiSOAR ${t.platform}`
+    : `Imported cleanly on a live FortiSOAR ${t.platform}; not run there`;
+}
+
 export function lastChange(item: ItemSummary): LastChange {
   return item.lastChange ?? { kind: 'added', version: item.version, date: item.published, notes: '' };
 }

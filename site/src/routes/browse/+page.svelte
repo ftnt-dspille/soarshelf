@@ -3,7 +3,7 @@
   import { page } from '$app/state';
   import { SITE } from '$lib/config';
   import { connectorLabels } from '$lib/data';
-  import { HUB_LABEL, TYPE_LABEL } from '$lib/format';
+  import { HUB_LABEL, TEST_LABEL, TYPE_LABEL } from '$lib/format';
   import {
     EMPTY_FILTERS,
     activeFilterCount,
@@ -64,6 +64,7 @@
   const triggerOpts = $derived(
     opts('triggers', [...new Set(index.items.flatMap((i) => i.triggers))].sort().map((t) => ({ value: t, label: t })))
   );
+  const testedOpts = $derived(opts('tested', (['ran', 'imported'] as const).map((t) => ({ value: t, label: TEST_LABEL[t] }))));
   const connOpts = $derived(
     opts('connectors', index.connectors.map((c) => ({ value: c.name, label: c.label }))).sort(
       (a, b) => b.count - a.count || a.label.localeCompare(b.label)
@@ -79,6 +80,7 @@
     ...f.useCases.map((v) => ({ key: 'useCases' as FacetKey, v, label: index.useCases.find((u) => u.id === v)?.label ?? v })),
     ...f.hub.map((v) => ({ key: 'hub' as FacetKey, v, label: HUB_LABEL[v] })),
     ...f.triggers.map((v) => ({ key: 'triggers' as FacetKey, v, label: v })),
+    ...f.tested.map((v) => ({ key: 'tested' as FacetKey, v, label: TEST_LABEL[v] })),
     ...f.connectors.map((v) => ({ key: 'connectors' as FacetKey, v, label: labels.get(v) ?? v }))
   ]);
 
@@ -92,6 +94,7 @@
 {#snippet rail()}
   <FacetGroup title="Type" options={typeOpts} selected={f.types} onToggle={(v) => flip('types', v)} />
   <FacetGroup title="Use case" options={ucOpts} selected={f.useCases} onToggle={(v) => flip('useCases', v)} limit={10} />
+  <FacetGroup title="Tested on a live FortiSOAR" options={testedOpts} selected={f.tested} onToggle={(v) => flip('tested', v)} />
   <FacetGroup title="Connector availability" options={hubOpts} selected={f.hub} onToggle={(v) => flip('hub', v)} />
   <FacetGroup title="Trigger" options={triggerOpts} selected={f.triggers} onToggle={(v) => flip('triggers', v)} />
   <FacetGroup title="Connector" options={connOpts} selected={f.connectors} onToggle={(v) => flip('connectors', v)} searchable />

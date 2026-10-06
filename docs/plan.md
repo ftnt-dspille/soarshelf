@@ -83,7 +83,7 @@ A weekly Action refreshes it and opens a PR. Each item gets a status:
 
 `official-fingerprints.json` hashes collection/playbook UUIDs and step
 structures from official solution packs. Built locally from unpacked packs
-(76 of 132 so far). **TODO:** fetch every pack zip in CI so all 132 are covered.
+(all 75 packs the catalog publishes as downloads).
 
 ## Phases
 
@@ -93,8 +93,8 @@ structures from official solution packs. Built locally from unpacked packs
 - [x] Seed content (9 playbooks, maintainer-authored)
 - [x] Site: home, browse (facets + search), item page (graph viewer, setup, deps, checks), guide, about
 - [x] CI: tests, content build, site build
-- [ ] Pick the name and domain; set `SITE` in `site/src/lib/config.ts` and `SITE_NAME` in the pipeline
-- [ ] Create the GitHub repo and Cloudflare Pages project; deploy
+- [x] Pick the name and domain (working name soarshelf, live at soarshelf.cse-fortisoar.com)
+- [x] Create the GitHub repo and Cloudflare Pages project; deploy
 
 ### Phase 2 - in-browser uploads
 - [x] Worker: GitHub sign-in, Turnstile, size caps, daily limits, account-age gate, strikes (`worker/`)
@@ -103,13 +103,18 @@ structures from official solution packs. Built locally from unpacked packs
 - [x] Re-uploads of items already on the site are rejected
 - [x] Status sync when a submission PR is merged or closed
 - [x] Upload page, my-submissions pages, report button (`site/`)
-- [ ] Deploy: GitHub App, OAuth app, D1, R2, Worker route, Pages ([deploy.md](deploy.md))
+- [x] Deploy: GitHub App, OAuth app, D1, R2, Worker route, Pages ([deploy.md](deploy.md))
 - [x] Updating your own item from the upload page (version bump + changelog)
 
 ### Phase 3 - community features
 - [x] Versions per item and changelog (current version only; older downloads aren't kept)
+- [x] Collections / curated lists (`content/collections/*.yaml`, `/collections`, featured on the home page)
+- [x] Maintainer live tests: `soarshelf test-live` imports the download on a real box under fresh UUIDs,
+      runs playbooks (referenced ones through a scratch caller with real inputs), checks the result,
+      cleans up, and records `ran` / `imported` per item version. Shown as the Tested badge.
 - [ ] "Works on my box" confirmations (signed-in, per platform version)
-- [ ] Collections / curated lists
+- [ ] Live tests for connectors and widgets (install + health check), and for playbooks that write records
+      (needs a box with no automations on the target module)
 - [ ] Optional: pull an item straight into a platform instance via its API (client-side, user's own credentials, never sent to us)
 
 ## Open decisions

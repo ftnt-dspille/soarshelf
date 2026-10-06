@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import type { Activity, Featured, ItemDetail, SiteIndex } from './types';
+import type { Activity, CuratedCollection, Featured, ItemDetail, SiteIndex } from './types';
 
 type Fetch = typeof fetch;
 
@@ -33,4 +33,10 @@ export async function loadActivity(fetch: Fetch): Promise<Activity> {
 export async function loadFeatured(fetch: Fetch): Promise<Featured> {
   const res = await fetch('/data/featured.json');
   return res.ok ? res.json() : { items: [], connectorLabels: {} };
+}
+
+/** Curated collections. Optional: an older build without the file has none. */
+export async function loadCollections(fetch: Fetch): Promise<CuratedCollection[]> {
+  const res = await fetch('/data/collections.json');
+  return res.ok ? ((await res.json()).collections ?? []) : [];
 }

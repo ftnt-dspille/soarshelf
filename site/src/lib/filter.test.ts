@@ -35,6 +35,24 @@ describe('search', () => {
     expect(parseFilters(new URLSearchParams('sort=updated')).sort).toBe('updated');
   });
 
+  it('filters and counts by live test result, from the URL too', () => {
+    const [a, b] = idx.items;
+    const items = idx.items.map((i) =>
+      i.slug === a.slug
+        ? { ...i, tested: { platform: '8.0.0', result: 'ran' as const } }
+        : i.slug === b.slug
+          ? { ...i, tested: { platform: '8.0.0', result: 'imported' as const } }
+          : i
+    );
+    const s = createSearch(items, idx.connectors, idx.useCases);
+    const f = { ...EMPTY_FILTERS, ...parseFilters(new URLSearchParams('tested=ran,bogus')) };
+    expect(f.tested).toEqual(['ran']);
+    expect(applyFilters(items, f, s).map((i) => i.slug)).toEqual([a.slug]);
+    const counts = facetCounts(items, EMPTY_FILTERS, s).tested;
+    expect([counts.get('ran'), counts.get('imported')]).toEqual([1, 1]);
+    expect(serializeFilters(f)).toBe('?tested=ran');
+  });
+
   it('matches connector labels and ranks title hits first', () => {
     expect(run({ q: 'virustotal' })[0]).toBe('vt-ip-enrichment');
     expect(run({ q: 'abuseipdb' })).toContain('abuseipdb-feed-ingest');

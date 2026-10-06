@@ -51,10 +51,23 @@ interface ItemSummary {
   minVersion: string | null;       // minimum SOAR platform version
   published: string;               // ISO date
   updated: string;                 // ISO date
+  tested: Tested | null;           // best live test of THIS version; null if none
+}
+
+// From meta.yaml `tested`, written by `soarshelf test-live --record`.
+// ran: the listed playbooks ran to completion with the expected result. imported: the download imported cleanly.
+interface Tested { platform: string; result: 'ran' | 'imported' }
+interface TestEntry extends Tested {
+  version: string;                 // item version that was tested
+  playbooks: string[];             // what ran (empty for imported)
+  notes: string;                   // public note: inputs used and what came back; never hosts or dates
 }
 ```
 
 ## `data/items/<slug>.json`
+
+`ItemDetail` also carries `tests: TestEntry[]`, every live test, newest platform first,
+including tests of older versions.
 
 ```ts
 interface ItemDetail extends ItemSummary {
@@ -171,6 +184,23 @@ interface FeaturedItem {
   key: string;                     // "<collection>:<playbook>" index, for /items/<slug>#playbooks/<key>
   collection: string;
   playbook: Omit<Playbook, 'nodes'> & { nodes: Omit<Node, 'args'>[] };
+}
+```
+
+## `data/collections.json`
+
+Curated lists from `content/collections/<slug>.yaml`, featured first, then by `order`.
+The build fails if a collection names an item that isn't published.
+
+```ts
+interface Collections { collections: CuratedCollection[] }
+
+interface CuratedCollection {
+  slug: string; title: string; summary: string;
+  description: string;             // markdown
+  featured: boolean;               // shown on the home page (first three)
+  order: number;                   // default 100
+  items: { slug: string; note: string }[];   // in reading order
 }
 ```
 

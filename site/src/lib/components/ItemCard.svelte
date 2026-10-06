@@ -1,9 +1,10 @@
 <script lang="ts">
   import type { ItemSummary } from '$lib/types';
-  import { BUILTIN_CONNECTORS, formatDate, lastChange, plural } from '$lib/format';
+  import { BUILTIN_CONNECTORS, formatDate, lastChange, plural, testedHint } from '$lib/format';
   import TypePill from './TypePill.svelte';
   import HubBadge from './HubBadge.svelte';
   import Code from '@lucide/svelte/icons/code';
+  import BadgeCheck from '@lucide/svelte/icons/badge-check';
 
   let { item, labels }: { item: ItemSummary; labels: Map<string, string> } = $props();
   // Built-in connectors (utilities, code snippet) are in nearly every playbook, so the
@@ -21,6 +22,11 @@
   <!-- One line: type on the left, status as icons on the right (labels on hover and for screen readers). -->
   <div class="flex items-center gap-2">
     <TypePill type={item.type} />
+    {#if item.tested?.result === 'ran'}
+      <span class="inline-flex shrink-0 items-center gap-1 rounded-md bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-text" title={testedHint(item.tested)}>
+        <BadgeCheck size={13} aria-hidden="true" />Tested
+      </span>
+    {/if}
     {#if change.kind === 'updated'}
       <span class="truncate rounded-md bg-info-soft px-2 py-0.5 text-xs font-medium text-info" title="v{change.version}{change.notes ? `: ${change.notes}` : ''}">Updated</span>
     {/if}

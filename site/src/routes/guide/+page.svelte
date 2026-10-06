@@ -11,6 +11,7 @@
     { id: 'activate', label: 'Review and activate' },
     { id: 'contributing', label: 'Contributing' },
     { id: 'checks', label: 'What we check' },
+    { id: 'tested', label: 'Live tests' },
     { id: 'trust', label: 'Trust tiers' },
     { id: 'self-check', label: 'Check locally' }
   ];
@@ -160,6 +161,29 @@ description: |
           {/each}
         </tbody>
       </table>
+    </div>
+
+    <div class="prose mt-2 max-w-3xl [&_h2]:scroll-mt-20 [&_h2]:border-t [&_h2]:border-line [&_h2]:pt-10 [&_h2]:text-xl">
+      <h2 id="tested">Live tests</h2>
+      <p>
+        The checks above read a file. A live test puts it on a real FortiSOAR. The maintainers take the exact file this
+        site hands out, import it under fresh IDs so it can't touch anything already on the box, and then remove it.
+      </p>
+      <ul>
+        <li>
+          <strong>Ran end to end</strong>: the listed playbooks ran to completion and gave the expected result.
+          Playbooks meant to be called from another playbook are run from a test caller, with real inputs, the way
+          you would use them. These items carry the <strong>Tested</strong> badge.
+        </li>
+        <li>
+          <strong>Imported cleanly</strong>: every playbook and step arrived, but nothing was run, usually because
+          the playbook needs an integration or a record that a shared test box doesn't have.
+        </li>
+      </ul>
+      <p>
+        A test applies to one version. When an item is updated, the badge comes off until the new version has been
+        tested. The item page names the platform version and, for runs, the playbooks that ran.
+      </p>
     </div>
 
     <div class="prose mt-2 max-w-3xl [&_h2]:scroll-mt-20 [&_h2]:border-t [&_h2]:border-line [&_h2]:pt-10 [&_h2]:text-xl">

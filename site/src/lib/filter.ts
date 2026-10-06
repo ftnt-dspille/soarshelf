@@ -1,7 +1,7 @@
 // Pure search + facet logic for /browse. No Svelte, no DOM: unit-tested in filter.test.ts.
 import MiniSearch from 'minisearch';
 import { byLastChange } from './format';
-import type { ConnectorFacet, HubStatus, ItemSummary, ItemType, UseCase } from './types';
+import type { ConnectorFacet, HubStatus, ItemSummary, ItemType, TestResult, UseCase } from './types';
 
 export type SortKey = 'relevance' | 'newest' | 'updated' | 'name';
 
@@ -12,11 +12,12 @@ export interface FilterState {
   connectors: string[];
   hub: HubStatus[];
   triggers: string[];
+  tested: TestResult[];
   noCode: boolean;
   sort: SortKey;
 }
 
-export type FacetKey = 'types' | 'useCases' | 'connectors' | 'hub' | 'triggers';
+export type FacetKey = 'types' | 'useCases' | 'connectors' | 'hub' | 'triggers' | 'tested';
 
 export const EMPTY_FILTERS: FilterState = {
   q: '',
@@ -25,12 +26,14 @@ export const EMPTY_FILTERS: FilterState = {
   connectors: [],
   hub: [],
   triggers: [],
+  tested: [],
   noCode: false,
   sort: 'relevance'
 };
 
 const ITEM_TYPES: ItemType[] = ['playbook', 'solution-pack', 'connector', 'widget'];
 const HUB: HubStatus[] = ['complete', 'version-mismatch', 'needs-custom'];
+const TESTED: TestResult[] = ['ran', 'imported'];
 const SORTS: SortKey[] = ['relevance', 'newest', 'updated', 'name'];
 
 // URL param names are short so shared links stay readable.
@@ -39,7 +42,8 @@ const PARAM: Record<FacetKey, string> = {
   useCases: 'uc',
   connectors: 'conn',
   hub: 'hub',
-  triggers: 'trigger'
+  triggers: 'trigger',
+  tested: 'tested'
 };
 
 function list(params: URLSearchParams, key: string): string[] {
@@ -58,6 +62,7 @@ export function parseFilters(params: URLSearchParams): FilterState {
     connectors: list(params, PARAM.connectors),
     hub: list(params, PARAM.hub).filter((h): h is HubStatus => HUB.includes(h as HubStatus)),
     triggers: list(params, PARAM.triggers),
+    tested: list(params, PARAM.tested).filter((t): t is TestResult => TESTED.includes(t as TestResult)),
     noCode: params.get('nocode') === '1',
     sort: SORTS.includes(sort) ? sort : 'relevance'
   };
@@ -76,7 +81,10 @@ export function serializeFilters(f: FilterState): string {
 }
 
 export function activeFilterCount(f: FilterState): number {
-  return f.types.length + f.useCases.length + f.connectors.length + f.hub.length + f.triggers.length + (f.noCode ? 1 : 0);
+  return (
+    f.types.length + f.useCases.length + f.connectors.length + f.hub.length + f.triggers.length + f.tested.length +
+    (f.noCode ? 1 : 0)
+  );
 }
 
 export interface Search {
@@ -135,6 +143,8 @@ function matchesFacet(item: ItemSummary, f: FilterState, key: FacetKey): boolean
       return item.connectors.some((c) => sel.includes(c));
     case 'triggers':
       return item.triggers.some((t) => sel.includes(t));
+    case 'tested':
+      return !!item.tested && sel.includes(item.tested.result);
   }
 }
 
@@ -172,7 +182,15 @@ export function facetCounts(items: ItemSummary[], f: FilterState, search: Search
     for (const item of items) {
       if (!matches(item, f, scores, key)) continue;
       const values =
-        key === 'types' ? [item.type] : key === 'hub' ? [item.hubStatus] : (item[key] as string[]);
+        key === 'types'
+          ? [item.type]
+          : key === 'hub'
+            ? [item.hubStatus]
+            : key === 'tested'
+              ? item.tested
+                ? [item.tested.result]
+                : []
+              : (item[key] as string[]);
       for (const v of new Set(values)) counts.set(v, (counts.get(v) ?? 0) + 1);
     }
     out[key] = counts;

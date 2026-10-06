@@ -7,6 +7,7 @@ Layout::
       playbooks/<slug>/meta.yaml + one .json payload
       solution-packs/<slug>/meta.yaml + one .zip payload
       connectors/<slug>/meta.yaml + info.json, or + package/<folder>/... (the source, rebuilt into the .tgz)
+      collections/<slug>.yaml      # a curated, ordered list of items
 
 Content on the main branch has been approved (merged), so the build publishes
 everything that has no blocking finding, and fails if anything does.
@@ -29,7 +30,7 @@ from .process import Processed, process
 TYPE_DIRS = {"playbooks": "playbook", "solution-packs": "solution-pack", "connectors": "connector", "widgets": "widget"}
 SUMMARY_KEYS = ("slug", "type", "title", "displayName", "summary", "useCases", "tags", "connectors", "triggers",
                 "playbookCount", "stepCount", "hubStatus", "hasCode", "author", "version",
-                "minVersion", "published", "updated", "lastChange")
+                "minVersion", "published", "updated", "lastChange", "tested")
 ACTIVITY_MAX = 300
 FEED_MAX = 50
 
@@ -121,7 +122,9 @@ def featured(details: list[tuple[dict[str, Any], dict[str, Any]]], hub: HubIndex
         if not best:
             continue
         score, ci, pi, coll, pb = best
-        picks.append((score + (100 if meta.get("featured") else 0), {
+        # Prefer what we've seen run on a live box.
+        bonus = {"ran": 20, "imported": 5}.get((detail.get("tested") or {}).get("result"), 0)
+        picks.append((score + bonus + (100 if meta.get("featured") else 0), {
             "slug": detail["slug"], "title": detail["title"], "summary": detail["summary"],
             "type": detail["type"], "useCases": detail["useCases"], "connectors": detail["connectors"],
             "hubStatus": detail["hubStatus"], "key": f"{ci}:{pi}", "collection": coll["name"],
@@ -138,6 +141,49 @@ def featured(details: list[tuple[dict[str, Any], dict[str, Any]]], hub: HubIndex
     names |= {c for f in chosen for c in f["connectors"]}
     return {"items": chosen,
             "connectorLabels": {c: (hub.connectors.get(c) or {}).get("label") or c for c in sorted(names)}}
+
+
+COLLECTION_ITEMS_MAX = 40
+
+
+def curated(content: Path, published: dict[str, dict[str, Any]]) -> tuple[list[dict[str, Any]], list[str]]:
+    """``content/collections/*.yaml``: hand-picked, ordered lists of published items.
+
+    Returns the collections and a list of problems. An item that isn't published is a
+    problem, so a renamed or removed item can't leave a silent gap in a list."""
+    out, errors = [], []
+    for f in sorted((content / "collections").glob("*.yaml")):
+        slug = f.stem
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,80}", slug):
+            errors.append(f"collections/{f.name}: file name must be a slug ([a-z0-9-])")
+            continue
+        raw = yaml.safe_load(f.read_text()) or {}
+        if not raw.get("title") or not raw.get("summary"):
+            errors.append(f"collections/{f.name}: needs title and summary")
+            continue
+        items, seen = [], set()
+        for e in raw.get("items") or []:
+            e = {"slug": e} if isinstance(e, str) else e if isinstance(e, dict) else {}
+            s = str(e.get("slug") or "")
+            if s not in published:
+                errors.append(f"collections/{f.name}: {s or e!r} is not a published item")
+            elif s not in seen:
+                seen.add(s)
+                items.append({"slug": s, "note": str(e.get("note") or "")[:300]})
+        if not items:
+            errors.append(f"collections/{f.name}: no items")
+            continue
+        out.append({
+            "slug": slug,
+            "title": str(raw["title"])[:80],
+            "summary": str(raw["summary"])[:200],
+            "description": str(raw.get("description") or "")[:4000],
+            "featured": bool(raw.get("featured")),
+            "order": int(raw["order"]) if isinstance(raw.get("order"), int) else 100,
+            "items": items[:COLLECTION_ITEMS_MAX],
+        })
+    out.sort(key=lambda c: (not c["featured"], c["order"], c["title"].lower()))
+    return out, errors
 
 
 def activity(details: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -261,5 +307,10 @@ def build(content: Path, out: Path) -> int:
         {"generated": index["generated"], "events": events}, indent=1, ensure_ascii=False))
     (out / "feed.xml").write_text(atom_feed(events[:FEED_MAX], index["generated"]))
     (data_dir / "featured.json").write_text(json.dumps(featured(published, hub), indent=1, ensure_ascii=False))
+    lists, problems = curated(content, {d["slug"]: d for d, _ in published})
+    for msg in problems:
+        failures += 1
+        print(f"✗ {msg}")
+    (data_dir / "collections.json").write_text(json.dumps({"collections": lists}, indent=1, ensure_ascii=False))
     print(f"\n{len(summaries)} published, {failures} failed → {out}")
     return 1 if failures else 0

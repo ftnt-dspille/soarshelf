@@ -50,6 +50,34 @@ export interface ItemSummary {
   updated: string;
   /** Most recent change. Optional: builds before it existed don't carry it. */
   lastChange?: LastChange;
+  /** Best live test of the current version, or null when it hasn't been tested. */
+  tested?: Tested | null;
+}
+
+/** ran: the listed playbooks ran to completion on a live FortiSOAR. imported: the download imported cleanly. */
+export type TestResult = 'ran' | 'imported';
+
+export interface Tested {
+  platform: string;
+  result: TestResult;
+}
+
+export interface TestEntry extends Tested {
+  /** Item version that was tested. */
+  version: string;
+  playbooks: string[];
+  notes: string;
+}
+
+/** A curated, ordered list of items (data/collections.json). */
+export interface CuratedCollection {
+  slug: string;
+  title: string;
+  summary: string;
+  description: string;
+  featured: boolean;
+  order: number;
+  items: { slug: string; note: string }[];
 }
 
 export interface LastChange {
@@ -95,6 +123,8 @@ export interface ItemDetail extends ItemSummary {
   widget?: WidgetInfo | null;
   /** Newest first; empty until the item's first update. */
   changelog?: ChangelogEntry[];
+  /** Every live test, newest platform first, including tests of older versions. */
+  tests?: TestEntry[];
 }
 
 export interface ChangelogEntry {

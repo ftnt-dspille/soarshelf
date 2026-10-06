@@ -15,6 +15,7 @@
 
   const links = [
     { href: '/browse', label: 'Browse' },
+    { href: '/collections', label: 'Collections' },
     { href: '/changes', label: 'Changes' },
     { href: '/guide', label: 'Guide' },
     { href: '/about', label: 'About' }

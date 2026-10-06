@@ -2,7 +2,7 @@
   import { browser } from '$app/environment';
   import { SITE } from '$lib/config';
   import { connectorLabels } from '$lib/data';
-  import { CODE_TYPES, TYPE_LABEL, formatBytes, formatDate, lastChange } from '$lib/format';
+  import { CODE_TYPES, TYPE_LABEL, formatBytes, formatDate, lastChange, testedHint } from '$lib/format';
   import type { ChangelogEntry, ItemDetail, SetupStep } from '$lib/types';
   import ParamList from '$lib/components/ParamList.svelte';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
@@ -27,10 +27,17 @@
   import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
   import SquarePlus from '@lucide/svelte/icons/square-plus';
   import ExternalLink from '@lucide/svelte/icons/external-link';
+  import BadgeCheck from '@lucide/svelte/icons/badge-check';
+  import FlaskConical from '@lucide/svelte/icons/flask-conical';
+  import Library from '@lucide/svelte/icons/library';
   import type { Component } from 'svelte';
 
   let { data } = $props();
   const item = $derived(data.item);
+  // The best test of this version, and any of an older one (shown so it's clear what wasn't retested).
+  const current = $derived((item.tests ?? []).filter((t) => t.version === item.version));
+  const best = $derived(current.find((t) => t.result === 'ran') ?? current[0]);
+  const older = $derived((item.tests ?? []).find((t) => t.version !== item.version));
   // Authors are GitHub accounts; only link a login GitHub could actually have.
   const githubUrl = $derived(
     /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/.test(item.author.github) ? `https://github.com/${item.author.github}` : null
@@ -192,6 +199,9 @@
       <div class="min-w-0">
         <div class="flex flex-wrap items-center gap-2">
           <TypePill type={item.type} />
+          {#if item.tested?.result === 'ran'}
+            <a href="#tested" class="inline-flex items-center gap-1 rounded-md bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-text hover:underline" title={testedHint(item.tested)}><BadgeCheck size={13} aria-hidden="true" />Tested on {item.tested.platform}</a>
+          {/if}
           <HubBadge status={item.hubStatus} />
           {#if item.hasCode}
             <span class="inline-flex items-center gap-1 rounded-md bg-surface-2 px-2 py-0.5 text-xs font-medium text-muted"><Code size={13} aria-hidden="true" />Contains code</span>
@@ -429,6 +439,46 @@
         {/if}
       </div>
       <aside class="space-y-6 text-sm">
+        {#if item.type === 'playbook' || item.type === 'solution-pack'}
+          <div id="tested" class="scroll-mt-20 rounded-xl border p-4 {best?.result === 'ran' ? 'border-accent/40 bg-accent-soft/40' : 'border-line'}">
+            <h2 class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-faint">
+              <FlaskConical size={13} aria-hidden="true" />Live test
+            </h2>
+            {#if best}
+              <p class="mt-2 flex items-start gap-1.5 font-medium {best.result === 'ran' ? 'text-accent-text' : 'text-fg'}">
+                {#if best.result === 'ran'}<BadgeCheck size={16} class="mt-px shrink-0" aria-hidden="true" />{/if}
+                {best.result === 'ran' ? 'Ran end to end' : 'Imported cleanly'} on FortiSOAR {best.platform}
+              </p>
+              {#if best.notes}<p class="mt-1.5 text-muted">{best.notes}</p>{/if}
+              {#if best.playbooks.length}
+                <details class="mt-2">
+                  <summary class="cursor-pointer text-xs text-accent-text">{best.playbooks.length === 1 ? 'Playbook run' : `${best.playbooks.length} playbooks run`}</summary>
+                  <ul class="mt-1.5 list-disc space-y-0.5 pl-4 text-xs text-muted">
+                    {#each best.playbooks as n (n)}<li>{n}</li>{/each}
+                  </ul>
+                </details>
+              {/if}
+              {#if best.result === 'imported'}
+                <p class="mt-1.5 text-xs text-faint">Not run there: it needs integrations or records we don't test against.</p>
+              {/if}
+            {:else if older}
+              <p class="mt-2 text-muted">v{older.version} {older.result === 'ran' ? 'ran end to end' : 'imported cleanly'} on FortiSOAR {older.platform}. This version hasn't been tested yet.</p>
+            {:else}
+              <p class="mt-2 text-muted">Not tested by the maintainers yet.</p>
+            {/if}
+            <a href="/guide#tested" class="mt-2 inline-block text-xs text-accent-text hover:underline">How we test</a>
+          </div>
+        {/if}
+        {#if data.inCollections.length}
+          <div>
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-faint">In collections</h2>
+            <ul class="mt-2.5 space-y-1.5">
+              {#each data.inCollections as c (c.slug)}
+                <li><a href="/collections/{c.slug}" class="inline-flex items-center gap-1.5 text-accent-text hover:underline"><Library size={13} aria-hidden="true" />{c.title}</a></li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
         {#if item.connectors.length}
           <div>
             <h2 class="text-xs font-semibold uppercase tracking-wider text-faint">Connectors</h2>

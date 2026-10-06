@@ -140,6 +140,26 @@ def _hub_index(args: argparse.Namespace) -> int:
     return 0
 
 
+def _test_live(args: argparse.Namespace) -> int:
+    from . import verify
+
+    item = next((d for d in sorted(args.content.glob(f"*/{args.slug}")) if (d / "meta.yaml").exists()), None)
+    if item is None:
+        print(f"no item {args.slug!r} under {args.content}", file=sys.stderr)
+        return 2
+    try:
+        entry = verify.run(item, instance=args.instance, playbooks=args.run or [], calls=args.call or [], on_record=args.on_record,
+                           expect=dict(e.split("=", 1) for e in args.expect or []),
+                           inputs=json.loads(args.inputs or "{}"), answers=json.loads(args.answers or "{}"),
+                           timeout=args.timeout, keep=args.keep)
+    except verify.VerifyError as exc:
+        print(f"✗ {exc}", file=sys.stderr)
+        return 1
+    if args.record:
+        verify.record(item, entry, args.notes or "")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="soarshelf", description=__doc__)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -205,6 +225,25 @@ def main(argv: list[str] | None = None) -> int:
     h.add_argument("--catalog", default=None, help="content-hub.json URL or file (default: the public catalog)")
     h.add_argument("--packs-dir", type=Path, help="unpacked official solution packs, for fingerprints")
     h.set_defaults(fn=_hub_index)
+
+    t = sub.add_parser("test-live", help="import (and run) an item on a live FortiSOAR; --record saves the result")
+    t.add_argument("slug")
+    t.add_argument("--instance", help="pyfsr instance alias (~/.pyfsr/instances.toml); default instance if omitted")
+    t.add_argument("--run", action="append", metavar="PLAYBOOK", help="run this playbook to completion (repeatable)")
+    t.add_argument("--call", action="append", metavar="PLAYBOOK",
+                   help="run a referenced playbook from a scratch caller, with its --inputs as arguments")
+    t.add_argument("--on-record", metavar="MODULE/UUID",
+                   help="start the --call caller from this existing record (read, never changed)")
+    t.add_argument("--expect", action="append", metavar="KEY=VALUE",
+                   help="the called playbook's final result must have this value (repeatable)")
+    t.add_argument("--inputs", help='JSON {"playbook name": {input: value}}')
+    t.add_argument("--answers", help="JSON answers for manual input prompts, by title or variable name")
+    t.add_argument("--timeout", type=float, default=180)
+    t.add_argument("--keep", action="store_true", help="leave the scratch copy on the box")
+    t.add_argument("--record", action="store_true", help="write the result to the item's meta.yaml")
+    t.add_argument("--notes", help="short public note for the record (no hosts or dates)")
+    t.add_argument("--content", type=Path, default=Path("content"))
+    t.set_defaults(fn=_test_live)
 
     args = p.parse_args(argv)
     return args.fn(args)
