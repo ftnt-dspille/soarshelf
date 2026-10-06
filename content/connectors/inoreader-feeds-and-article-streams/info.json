@@ -1,0 +1,54 @@
+{
+  "name": "inoreader",
+  "label": "Inoreader",
+  "version": "1.0.4",
+  "description": "Inoreader is a cloud RSS/Atom aggregator. This connector reads subscriptions, folders, and article streams over the Inoreader Reader API, marks articles read or starred, and ingests new articles on a schedule so playbooks can act on feed-driven intelligence (vendor release notes, advisories, vulnerability disclosures) without parsing RSS dialects.",
+  "category": "Threat Intelligence",
+  "publisher": "Community",
+  "operations": [
+    {
+      "operation": "fetch_articles",
+      "title": "Fetch Articles"
+    },
+    {
+      "operation": "get_stream_contents",
+      "title": "Get Stream Contents"
+    },
+    {
+      "operation": "get_item_ids",
+      "title": "Get Article IDs"
+    },
+    {
+      "operation": "get_subscriptions",
+      "title": "Get Subscriptions"
+    },
+    {
+      "operation": "get_tags",
+      "title": "Get Folders and Tags"
+    },
+    {
+      "operation": "get_unread_counts",
+      "title": "Get Unread Counts"
+    },
+    {
+      "operation": "get_user_info",
+      "title": "Get User Information"
+    },
+    {
+      "operation": "add_subscription",
+      "title": "Add Subscription"
+    },
+    {
+      "operation": "edit_subscription",
+      "title": "Edit Subscription"
+    },
+    {
+      "operation": "edit_tag",
+      "title": "Tag Articles"
+    },
+    {
+      "operation": "mark_all_as_read",
+      "title": "Mark Stream as Read"
+    }
+  ]
+}
