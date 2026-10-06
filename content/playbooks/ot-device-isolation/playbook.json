@@ -74,17 +74,17 @@
                   "address_group_category": "IPv4 Group"
                 },
                 "version": "5.2.3",
-                "for_each": {
-                  "item": "{{vars.addr_groups}}",
-                  "parallel": false,
-                  "condition": ""
-                },
                 "connector": "fortigate-firewall",
                 "operation": "create_address_group",
                 "ignore_errors": true,
                 "operationTitle": "Create Address Group",
                 "pickFromTenant": false,
-                "step_variables": []
+                "step_variables": [],
+                "for_each": {
+                  "item": "{{vars.addr_groups}}",
+                  "parallel": false,
+                  "condition": ""
+                }
               },
               "status": null,
               "top": "60",
@@ -110,16 +110,16 @@
                   "address_category": "IPv4 Address"
                 },
                 "version": "5.2.3",
-                "for_each": {
-                  "item": "{{vars.steps.Query_Assets}}",
-                  "parallel": false,
-                  "condition": ""
-                },
                 "connector": "fortigate-firewall",
                 "operation": "create_address",
                 "operationTitle": "Create Address",
                 "pickFromTenant": false,
-                "step_variables": []
+                "step_variables": [],
+                "for_each": {
+                  "item": "{{vars.steps.Query_Assets}}",
+                  "parallel": false,
+                  "condition": ""
+                }
               },
               "status": null,
               "top": "160",
@@ -294,7 +294,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "2362a6ba-fbb0-4278-8975-0eb4f0fe5eb8"
+              "uuid": "20453f5f-7ab1-557d-850b-2bd04305c4b6"
             },
             {
               "@type": "WorkflowRoute",
@@ -304,7 +304,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "b269ddea-e381-40be-af9b-967497858fe2"
+              "uuid": "387db128-b829-50b4-ac21-4f66b5265d4c"
             },
             {
               "@type": "WorkflowRoute",
@@ -314,7 +314,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "476203c4-6dd4-4f8c-8db4-b77b5f76a7b5"
+              "uuid": "ef9141de-09e3-5fc9-91df-f372ca2ad8fe"
             },
             {
               "@type": "WorkflowRoute",
@@ -324,7 +324,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "6ddcc1a1-295e-413b-bb77-80ee1824fdbc"
+              "uuid": "b5c71ece-0a70-5d16-aa9f-607ffbfb9c11"
             },
             {
               "@type": "WorkflowRoute",
@@ -334,7 +334,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "ce4565b2-1e94-4001-846a-2066d9a58374"
+              "uuid": "52a72f38-2428-522b-ba56-05673dce4b47"
             },
             {
               "@type": "WorkflowRoute",
@@ -344,7 +344,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "4ee928d3-dcb0-406b-887f-132e95c7f2ac"
+              "uuid": "2a7244e8-fefe-5736-918b-4ca2fa53409b"
             },
             {
               "@type": "WorkflowRoute",
@@ -354,7 +354,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "05ac5933-51c5-42d3-b856-55a4d4fee779"
+              "uuid": "22d79123-23e5-5cee-9b1f-cc93943a1f41"
             },
             {
               "@type": "WorkflowRoute",
@@ -364,7 +364,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "1ba62aaa-833c-4c93-aadd-fab95bd95edd"
+              "uuid": "1c4b36c4-0ef4-54ec-8b4f-229438bd7dd9"
             }
           ],
           "groups": [
@@ -451,7 +451,7 @@
           "tag": null,
           "description": null,
           "isActive": false,
-          "debug": true,
+          "debug": false,
           "singleRecordExecution": false,
           "remoteExecutableFlag": false,
           "parameters": [],
@@ -732,7 +732,7 @@
               "label": "No",
               "isExecuted": false,
               "group": null,
-              "uuid": "8a348199-8959-4b43-882a-e2e09f3d06d9"
+              "uuid": "6a0d598d-7dee-5319-b1da-6f7e23f9527d"
             },
             {
               "@type": "WorkflowRoute",
@@ -742,7 +742,7 @@
               "label": "Yes",
               "isExecuted": false,
               "group": null,
-              "uuid": "17d578a3-4b82-4ebb-95dc-63a367c4473e"
+              "uuid": "4bcfb669-048a-512c-89dd-5c6e82dae138"
             },
             {
               "@type": "WorkflowRoute",
@@ -752,17 +752,17 @@
               "label": "added member to group",
               "isExecuted": false,
               "group": null,
-              "uuid": "952373ed-2389-45da-907a-a9d8602def96"
+              "uuid": "328a0f16-fb44-5cd5-a100-145710ca00cf"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Check update output -> Error Out if no address",
+              "name": "Check update output -> Error Out if no address group",
               "targetStep": "/api/3/workflow_steps/62cfd29a-9b45-4297-a1ab-742003abbe7c",
               "sourceStep": "/api/3/workflow_steps/4715f750-a257-4b83-af2b-a78dec11e61c",
               "label": "No address group",
               "isExecuted": false,
               "group": null,
-              "uuid": "e5eb6085-4cdb-4e9f-8275-c865da6d9a5c"
+              "uuid": "c73fb90d-87ca-5ce9-9646-68506d79d178"
             },
             {
               "@type": "WorkflowRoute",
@@ -772,7 +772,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "ab0b7abb-db91-4c71-9886-e8fb3c0e5499"
+              "uuid": "2f4b70cb-28f0-5dd4-8eac-18834f30783b"
             },
             {
               "@type": "WorkflowRoute",
@@ -782,7 +782,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "2b1faa8f-9e8d-4216-907d-dc293b85f6c9"
+              "uuid": "0059485c-7ce5-51b9-9d5a-1a2603f324fa"
             }
           ],
           "groups": [
@@ -818,7 +818,7 @@
           "tag": null,
           "description": null,
           "isActive": false,
-          "debug": true,
+          "debug": false,
           "singleRecordExecution": false,
           "remoteExecutableFlag": false,
           "parameters": [],
@@ -976,7 +976,7 @@
             },
             {
               "@type": "WorkflowStep",
-              "name": "Request CSadmin for approval",
+              "name": "Request approval to release",
               "description": null,
               "arguments": {
                 "type": "InputBased",
@@ -990,18 +990,11 @@
                 "record": "{{ vars.input.records[0][\"@id\"] }}",
                 "agent_id": null,
                 "resources": "assets",
-                "is_approval": false,
+                "is_approval": true,
                 "owner_detail": {
-                  "isAssigned": true,
+                  "isAssigned": false,
                   "assignedToTeam": [],
-                  "assignedToField": null,
-                  "assignedToPerson": [
-                    {
-                      "iri": "",
-                      "lastname": "Admin",
-                      "firstname": "CS"
-                    }
-                  ],
+                  "assignedToPerson": [],
                   "assignedToRecord": false
                 },
                 "isRecordLinked": true,
@@ -1154,13 +1147,13 @@
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "Ask for conformation -> Request CSadmin for approval",
+              "name": "Ask for conformation -> Request approval to release",
               "targetStep": "/api/3/workflow_steps/e325fcf8-d740-4b2c-a10e-42341a706e73",
               "sourceStep": "/api/3/workflow_steps/88b1c5fe-43eb-4ffc-8396-20442ba191ad",
               "label": "Yes",
               "isExecuted": false,
               "group": null,
-              "uuid": "9153f872-8e12-4c71-8068-b3364d86d309"
+              "uuid": "70be55f3-15cc-51b2-94b7-8bcba191bde1"
             },
             {
               "@type": "WorkflowRoute",
@@ -1170,47 +1163,47 @@
               "label": "No",
               "isExecuted": false,
               "group": null,
-              "uuid": "84a7136e-c4a8-466e-9e2e-a73fa3ab62f1"
+              "uuid": "c8e4581d-d369-5722-84e8-c5134f42db78"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Check update output -> Change State to Isolated",
+              "name": "Check update output -> Change State to Active",
               "targetStep": "/api/3/workflow_steps/f32fca4c-bb82-4637-ae47-39efaff8c219",
               "sourceStep": "/api/3/workflow_steps/892ff460-5c03-4930-a368-488d7c134077",
               "label": "added member to group",
               "isExecuted": false,
               "group": null,
-              "uuid": "0e2bcfa1-9ba3-495c-8c60-9034cf9ef3a5"
+              "uuid": "e53ef15a-b335-5d7f-b55d-0610f2bd72fb"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Check update output -> Error Out if no address",
+              "name": "Check update output -> Error Out if no address group",
               "targetStep": "/api/3/workflow_steps/c8595679-5826-453e-8146-d161fb845835",
               "sourceStep": "/api/3/workflow_steps/892ff460-5c03-4930-a368-488d7c134077",
               "label": "No address group",
               "isExecuted": false,
               "group": null,
-              "uuid": "6ca1f636-6e4f-4878-af45-d9fb55c7eb3b"
+              "uuid": "0da8541c-baf1-551d-95f5-89cdf9043e95"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Request CSadmin for approval -> Stop playbook",
+              "name": "Request approval to release -> Stop playbook",
               "targetStep": "/api/3/workflow_steps/eb2db934-725d-44f8-bbe0-11bbd24f7e7e",
               "sourceStep": "/api/3/workflow_steps/e325fcf8-d740-4b2c-a10e-42341a706e73",
               "label": "Reject",
               "isExecuted": false,
               "group": null,
-              "uuid": "b83b6106-463f-45cf-8094-b6a52664a25a"
+              "uuid": "644d3e3a-ed98-5ce6-b92c-a6424bc6c0a8"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Request CSadmin for approval -> update_address_group",
+              "name": "Request approval to release -> update_address_group",
               "targetStep": "/api/3/workflow_steps/d0f61761-1231-4f10-8358-6f02923bf562",
               "sourceStep": "/api/3/workflow_steps/e325fcf8-d740-4b2c-a10e-42341a706e73",
               "label": "Approve",
               "isExecuted": false,
               "group": null,
-              "uuid": "faf1ca5c-a5ab-4ddf-84a1-a4883277a8b8"
+              "uuid": "5b46b277-133b-5717-a3e5-aba1f85be920"
             },
             {
               "@type": "WorkflowRoute",
@@ -1220,7 +1213,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "645505b6-e6b8-439f-90f5-47fadd9673da"
+              "uuid": "07ba72dd-5def-5bbd-a1ea-38470496f840"
             },
             {
               "@type": "WorkflowRoute",
@@ -1230,7 +1223,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "2d140e97-914f-422b-8fe9-252f0192ddd9"
+              "uuid": "cce7037e-7833-5dd3-b117-1b51248fd248"
             }
           ],
           "groups": [

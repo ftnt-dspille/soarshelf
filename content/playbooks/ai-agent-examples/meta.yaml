@@ -42,8 +42,16 @@ tags:
 - ai
 - agents
 author: ftnt-dspille
-version: 1.0.0
+version: 1.0.1
 min_version: 8.0.0
 license: MIT
 published: '2026-10-06'
 author_id: 99558074
+updated: '2026-10-06'
+changelog:
+- version: 1.0.1
+  date: '2026-10-06'
+  notes: Agent answers and alert text are HTML-escaped before they go into the comment.
+- version: 1.0.0
+  date: '2026-10-06'
+  notes: First published.

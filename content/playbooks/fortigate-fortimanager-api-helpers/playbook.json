@@ -140,27 +140,27 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "564f1f0e-229b-4e62-a727-2dbea15290c9"
+              "uuid": "d128aa21-47cc-54b6-b40b-0a048c8dbf15"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "header_payload -> Copy of fos_login",
+              "name": "header_payload -> get_fos_data",
               "targetStep": "/api/3/workflow_steps/223e09ff-3738-4139-95d8-6aa7b7e07310",
               "sourceStep": "/api/3/workflow_steps/3e505316-960c-4ba7-a1b7-b53099db5ede",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "97e21fb1-bec6-42a7-ab8c-54dbbf34f393"
+              "uuid": "7f20f25e-bebd-5484-86c8-b033787ac66a"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "login_info -> header_payload",
+              "name": "setup_vars -> header_payload",
               "targetStep": "/api/3/workflow_steps/3e505316-960c-4ba7-a1b7-b53099db5ede",
               "sourceStep": "/api/3/workflow_steps/7c34c162-43ce-408b-bb77-c5e39fa53179",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "0a27ab8e-e20f-4bda-b2d4-ebcf47db1ae5"
+              "uuid": "9294a296-d7ab-53fb-89ee-036e5265f781"
             },
             {
               "@type": "WorkflowRoute",
@@ -170,7 +170,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "09ef2568-064f-450d-be78-972877deeb95"
+              "uuid": "eddb2e5b-8d38-5131-b6e7-551cc03424d2"
             }
           ],
           "groups": [],
@@ -312,27 +312,27 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "0f43cca8-27ef-4d3b-b537-3c0ca63cfc34"
+              "uuid": "4fdd710c-1d25-5279-bdf1-ed64cf177f58"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "header_payload -> Copy of fos_login",
+              "name": "header_payload -> get_fos_data",
               "targetStep": "/api/3/workflow_steps/57517aa8-cc0c-4e96-9a03-272353857425",
               "sourceStep": "/api/3/workflow_steps/10f6200f-2ce6-451f-a7f3-474bafaefc16",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "e4806a65-775e-4f60-8561-cb85ded171ea"
+              "uuid": "52821494-4347-5796-aa62-ed762779c8e3"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "login_info -> header_payload",
+              "name": "setup_vars -> header_payload",
               "targetStep": "/api/3/workflow_steps/10f6200f-2ce6-451f-a7f3-474bafaefc16",
               "sourceStep": "/api/3/workflow_steps/79191ba3-c839-4612-affe-3bbb31fc418c",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "c9bec8e6-24eb-44ca-bf28-ea45c9b03f84"
+              "uuid": "558281b1-a845-572b-8828-3d144b41529b"
             },
             {
               "@type": "WorkflowRoute",
@@ -342,7 +342,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "5f852e4c-8647-404a-8322-cf4e1c6c2a62"
+              "uuid": "f5ca1dc0-efc1-59c9-a588-13c77761ace1"
             }
           ],
           "groups": [],
@@ -372,7 +372,7 @@
           "tag": null,
           "description": "Perform a FortiDeploy style API change to the Central Management",
           "isActive": false,
-          "debug": true,
+          "debug": false,
           "singleRecordExecution": false,
           "remoteExecutableFlag": false,
           "parameters": [
@@ -536,23 +536,23 @@
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "bootstrap by firmware -> bootstrap_744",
+              "name": "bootstrap by firmware -> bootstrap_cmdb",
               "targetStep": "/api/3/workflow_steps/7a1d1136-c691-49de-aa27-d42928cc366f",
               "sourceStep": "/api/3/workflow_steps/3732cb69-df0f-4dbb-8211-35c1061ee614",
               "label": "/cmdb",
               "isExecuted": false,
               "group": null,
-              "uuid": "61e59586-454f-48c5-8886-4bed023e007c"
+              "uuid": "e213a671-3eeb-52c4-bd71-2c4f007ab9df"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "bootstrap by firmware -> bootstrap_legacy",
+              "name": "bootstrap by firmware -> bootstrap_legacy_monitor",
               "targetStep": "/api/3/workflow_steps/4a979177-3410-4eae-b92c-f4ee45ccc865",
               "sourceStep": "/api/3/workflow_steps/3732cb69-df0f-4dbb-8211-35c1061ee614",
               "label": "/monitor",
               "isExecuted": false,
               "group": null,
-              "uuid": "018af70a-1a01-4431-8760-57274a6cce9f"
+              "uuid": "1a8e771a-058a-5be8-82cc-70cf4c5efad7"
             },
             {
               "@type": "WorkflowRoute",
@@ -562,7 +562,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "20420f83-61df-440b-aa86-758caa43ab2d"
+              "uuid": "63b12377-8455-535f-8442-99e3605dd258"
             },
             {
               "@type": "WorkflowRoute",
@@ -572,7 +572,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "505b6f75-343d-4cbb-934a-559e8a653887"
+              "uuid": "9beece30-a8e2-57fb-ba8b-9e8e896a7001"
             },
             {
               "@type": "WorkflowRoute",
@@ -582,7 +582,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "2ccb5072-2738-474e-b222-56a70138ae05"
+              "uuid": "3a14e933-2ae6-522b-8735-813683df5f63"
             },
             {
               "@type": "WorkflowRoute",
@@ -592,7 +592,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "c3e84a3c-48b3-4144-81bf-5f284a250f81"
+              "uuid": "57a9dc38-f5b2-525a-863b-31e0bec8b87f"
             }
           ],
           "groups": [
@@ -666,12 +666,6 @@
               "name": "save_revision",
               "description": null,
               "arguments": {
-                "for_each": {
-                  "item": "{{vars.ip_list}}",
-                  "__bulk": false,
-                  "parallel": true,
-                  "condition": ""
-                },
                 "arguments": {
                   "fos_ip": "{{vars.item}}",
                   "password": "{{vars.input.params.password}}",
@@ -682,7 +676,13 @@
                 "step_variables": [],
                 "pass_parent_env": false,
                 "pass_input_record": false,
-                "workflowReference": "/api/3/workflows/8d3d9226-b79a-475b-b9da-292decd7c52c"
+                "workflowReference": "/api/3/workflows/8d3d9226-b79a-475b-b9da-292decd7c52c",
+                "for_each": {
+                  "item": "{{vars.ip_list}}",
+                  "__bulk": false,
+                  "parallel": true,
+                  "condition": ""
+                }
               },
               "status": null,
               "top": "180",
@@ -826,13 +826,13 @@
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "parse_input -> bootstrap_fmg",
+              "name": "parse_input -> save_revision",
               "targetStep": "/api/3/workflow_steps/b1d7463c-5a6c-4e73-82a0-7c4d53dda38d",
               "sourceStep": "/api/3/workflow_steps/2d46537f-b05c-474a-90eb-47942e7c00a3",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "d8d1243a-c800-45c0-97ce-0da1ed8c6944"
+              "uuid": "e5a28389-a10a-5b0e-bf6c-4736d31165bc"
             },
             {
               "@type": "WorkflowRoute",
@@ -842,7 +842,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "d2fbc4fb-1aed-4a4c-bfd7-f246b5395de9"
+              "uuid": "5dacd2f0-f544-55fc-970e-345318faa922"
             }
           ],
           "groups": [],
@@ -989,7 +989,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "cd2e4f35-e8a7-41c8-a03d-b9c03fb89003"
+              "uuid": "6658497f-f792-544a-ac4b-5adf1b8bac81"
             },
             {
               "@type": "WorkflowRoute",
@@ -999,7 +999,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "3151e435-78a5-4ff4-8aa4-5b27255ff575"
+              "uuid": "8ff8db56-045b-51de-aa2a-a1c2c01f7a02"
             },
             {
               "@type": "WorkflowRoute",
@@ -1009,7 +1009,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "0b3fc8bb-8d2d-402c-824c-39f983a9dbf5"
+              "uuid": "343b1ce0-a121-5ac7-be96-13460e591406"
             },
             {
               "@type": "WorkflowRoute",
@@ -1019,7 +1019,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "19983bdb-5724-4584-95a8-b077226f0ab7"
+              "uuid": "c87d5438-4052-5837-b45f-7306862f960d"
             },
             {
               "@type": "WorkflowRoute",
@@ -1029,7 +1029,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "d7595ce6-6d9b-4fcf-8c3d-e01a17061e82"
+              "uuid": "34752c67-dd66-52a8-a5bb-bc3678b6455e"
             }
           ],
           "groups": [],
@@ -1059,7 +1059,7 @@
           "tag": null,
           "description": "Perform a FortiDeploy style API change to the Central Management",
           "isActive": false,
-          "debug": true,
+          "debug": false,
           "singleRecordExecution": false,
           "remoteExecutableFlag": false,
           "parameters": [
@@ -1174,17 +1174,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "5d240e2c-1059-4ba6-a48a-1abe086a6d8e"
+              "uuid": "af6ad729-b1d0-53d5-ad25-cbca6315c676"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "header_payload -> get_fos_data",
+              "name": "header_payload -> fos_api",
               "targetStep": "/api/3/workflow_steps/bc453c81-b82a-49d5-b77c-1e310a427ef6",
               "sourceStep": "/api/3/workflow_steps/2eea8274-6504-4cb9-bab8-a91b8995f699",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "7c6bd073-7dce-4cbd-b6a4-5e0c5ee21b0e"
+              "uuid": "a4aa56cf-e663-5a99-b50e-6ad5ada57866"
             },
             {
               "@type": "WorkflowRoute",
@@ -1194,7 +1194,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "7c09279c-6a80-455f-8016-a183795658f8"
+              "uuid": "1ef06180-eefa-5916-abfc-b2a06844b48e"
             },
             {
               "@type": "WorkflowRoute",
@@ -1204,7 +1204,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "303ea46c-abc2-45d2-9f01-306058972433"
+              "uuid": "fb3c40a2-c67a-598a-bebf-0c026094ecea"
             }
           ],
           "groups": [],
@@ -1347,27 +1347,27 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "a4e45ae7-faaf-48a0-989f-73e45d1c9444"
+              "uuid": "19c7f8e2-a37e-54b3-a745-f41d426d6c2e"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "header_payload -> Copy of fos_login",
+              "name": "header_payload -> get_fos_data",
               "targetStep": "/api/3/workflow_steps/c10b6132-5f45-41fe-88e1-dbeb51c60a1d",
               "sourceStep": "/api/3/workflow_steps/4ff8bc42-2c8c-476f-8627-1b65f32a4f19",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "f569e839-7e29-47bb-9a75-4386a4d6390b"
+              "uuid": "7789fa32-50ed-5653-8dd1-7f497e504998"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "login_info -> header_payload",
+              "name": "setup_vars -> header_payload",
               "targetStep": "/api/3/workflow_steps/4ff8bc42-2c8c-476f-8627-1b65f32a4f19",
               "sourceStep": "/api/3/workflow_steps/cd69a244-f6a6-4ea9-8b08-e28ceeff5350",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "bbba1992-aeab-4f18-9848-46e7f3b268e8"
+              "uuid": "3249ff44-0647-5be2-b715-b81289f0dc54"
             },
             {
               "@type": "WorkflowRoute",
@@ -1377,7 +1377,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "2a9b6720-b739-4a5f-a553-d7eb611b6568"
+              "uuid": "37ecc1a4-0d78-5632-b1ba-bfa3b5e2bc5e"
             }
           ],
           "groups": [],
@@ -1519,27 +1519,27 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "044f770a-2fe1-4f31-889b-03a6cb76972a"
+              "uuid": "23065d07-3fa4-5264-9288-f897cb1d0f27"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "header_payload -> Copy of fos_login",
+              "name": "header_payload -> get_fos_data",
               "targetStep": "/api/3/workflow_steps/3b3153de-a71e-45d7-b570-2c9e29a683b4",
               "sourceStep": "/api/3/workflow_steps/d5d370d0-f23c-4c27-9171-ec4a1504f1a0",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "223da147-8dd6-4318-b0cc-6c1e5ea9dd82"
+              "uuid": "25cd32e4-cace-50fd-9433-4e67a8c7a150"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "login_info -> header_payload",
+              "name": "setup_vars -> header_payload",
               "targetStep": "/api/3/workflow_steps/d5d370d0-f23c-4c27-9171-ec4a1504f1a0",
               "sourceStep": "/api/3/workflow_steps/d8ea20c2-1e4f-4b73-b131-d16042b1c55a",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "1f581b4d-4e08-4599-9ee5-ac5baab61edc"
+              "uuid": "f42da9c1-fc38-5aff-aa00-448571237405"
             },
             {
               "@type": "WorkflowRoute",
@@ -1549,7 +1549,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "b1faba4e-21d0-4cd9-afa9-4ce44a6f3cfa"
+              "uuid": "118717bd-99da-5506-86e8-cfde40dcc7db"
             }
           ],
           "groups": [],
@@ -1579,7 +1579,7 @@
           "tag": null,
           "description": "Authenticate via username/password and retrieve the token.",
           "isActive": false,
-          "debug": true,
+          "debug": false,
           "singleRecordExecution": false,
           "remoteExecutableFlag": false,
           "parameters": [
@@ -1686,33 +1686,33 @@
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "fos_login -> Copy of extract_login_data",
+              "name": "fos_login -> return",
               "targetStep": "/api/3/workflow_steps/c500126e-544f-4887-9b8e-c9831307f845",
               "sourceStep": "/api/3/workflow_steps/25d091f8-5ed6-42d7-ba04-3dfb126edf55",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "f81d40c3-ddb9-4dcd-b49c-8c0cee27964e"
+              "uuid": "a7f0a49b-1c4d-5ef6-b5a0-a9125daae076"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "payload -> fos_login",
+              "name": "header_payload -> fos_login",
               "targetStep": "/api/3/workflow_steps/25d091f8-5ed6-42d7-ba04-3dfb126edf55",
               "sourceStep": "/api/3/workflow_steps/b15c2998-20f6-44f6-b604-de03983152fb",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "51fa46d7-b969-4f83-aeed-0297f060a265"
+              "uuid": "a1dcabac-d1a7-5d1c-be7e-8f077e15e0a6"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "setup_initial_vars -> payload",
+              "name": "setup_initial_vars -> header_payload",
               "targetStep": "/api/3/workflow_steps/b15c2998-20f6-44f6-b604-de03983152fb",
               "sourceStep": "/api/3/workflow_steps/c00c5814-596c-4a59-90c2-71a058bb5d59",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "96ecd55c-97b9-477c-8165-eaccd2fdb95e"
+              "uuid": "61b2e649-8a07-58e2-b594-5f6bb831d759"
             },
             {
               "@type": "WorkflowRoute",
@@ -1722,7 +1722,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "c313454f-c950-4cc8-83c3-cb5fdf08e8ee"
+              "uuid": "aefbffaf-7d1e-5777-bd85-509f6c79fa0a"
             }
           ],
           "groups": [],
@@ -1752,7 +1752,7 @@
           "tag": null,
           "description": "Perform a FortiDeploy style API change to the Central Management",
           "isActive": false,
-          "debug": true,
+          "debug": false,
           "singleRecordExecution": false,
           "remoteExecutableFlag": false,
           "parameters": [
@@ -2015,7 +2015,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "3e236089-a41a-48bc-a249-ad918ec89066"
+              "uuid": "eab03f4d-5964-5ce0-b514-cd408a55ff90"
             },
             {
               "@type": "WorkflowRoute",
@@ -2025,7 +2025,7 @@
               "label": "FMG Serial Automatic",
               "isExecuted": false,
               "group": null,
-              "uuid": "a0c91612-0781-4c2d-a59c-1dac4ab21af4"
+              "uuid": "7a64ed93-5629-5d35-b6f3-6d0ffad50d32"
             },
             {
               "@type": "WorkflowRoute",
@@ -2035,7 +2035,7 @@
               "label": "Using a FMG Serial",
               "isExecuted": false,
               "group": null,
-              "uuid": "ce1085d2-a51d-4b24-83dd-09dac28bf2a7"
+              "uuid": "98ba4bc3-9c46-514f-8f15-3efee6dd285b"
             },
             {
               "@type": "WorkflowRoute",
@@ -2045,7 +2045,7 @@
               "label": "Used a FMG Serial",
               "isExecuted": false,
               "group": null,
-              "uuid": "b4eda257-0519-468d-a769-125ab4700b4d"
+              "uuid": "41df970b-2a90-50bb-9200-e01df6c9d97f"
             },
             {
               "@type": "WorkflowRoute",
@@ -2055,7 +2055,7 @@
               "label": "Delete Autoscript",
               "isExecuted": false,
               "group": null,
-              "uuid": "b0d26f59-76c8-4d16-a056-d992f645e331"
+              "uuid": "c119e39a-a93e-53e7-9199-c2a4e2bb3169"
             },
             {
               "@type": "WorkflowRoute",
@@ -2065,7 +2065,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "73588ecc-ef90-4740-9899-f9b7c19c630d"
+              "uuid": "5060e4d5-fb45-592c-a3c0-6a2ee0618256"
             },
             {
               "@type": "WorkflowRoute",
@@ -2075,7 +2075,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "5175c821-3be9-4410-8ad6-cc88b4947e0b"
+              "uuid": "7e537730-4f39-5518-946e-53fbd4f5fd47"
             },
             {
               "@type": "WorkflowRoute",
@@ -2085,7 +2085,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "fbd9385c-72e5-4254-ac56-b8e28bed9555"
+              "uuid": "05acb902-bc24-513a-98c8-74812a4b5cbb"
             },
             {
               "@type": "WorkflowRoute",
@@ -2095,17 +2095,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "35982868-33e2-4fc6-b5a1-7e5adbe644ac"
+              "uuid": "a59ea840-e82b-5a44-9bba-eeb6817e63f1"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "setup_vars -> header_payload",
+              "name": "setup_vars -> header_and_payload",
               "targetStep": "/api/3/workflow_steps/915b153e-ef5a-4760-9195-e3d704216210",
               "sourceStep": "/api/3/workflow_steps/c7fc54b0-6680-4920-b492-2ccd9b331a5f",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "fcd17649-07df-4b8c-9d0e-7650fe557a41"
+              "uuid": "515767b0-0c5b-5051-982b-62c8c4ce0b42"
             },
             {
               "@type": "WorkflowRoute",
@@ -2115,7 +2115,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "600d3fd9-fb5e-4d71-bb0c-bac9300b44d7"
+              "uuid": "50321d3a-d845-5703-a3f7-303a56e259b5"
             },
             {
               "@type": "WorkflowRoute",
@@ -2125,7 +2125,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "5dfd5efa-24e3-419d-bc0a-e2f174a83be4"
+              "uuid": "22307d99-aaab-5e08-b1af-e4ff7ad0c04c"
             }
           ],
           "groups": [
@@ -2291,7 +2291,7 @@
               "@type": "WorkflowStep",
               "name": "return",
               "description": null,
-              "arguments": [],
+              "arguments": {},
               "status": null,
               "top": "520",
               "left": "360",
@@ -2304,12 +2304,6 @@
               "name": "revision_list",
               "description": null,
               "arguments": {
-                "for_each": {
-                  "item": "{{vars.ip_list}}",
-                  "__bulk": false,
-                  "parallel": true,
-                  "condition": ""
-                },
                 "arguments": {
                   "fos_ip": "{{vars.item}}",
                   "password": "{{vars.input.params.password}}",
@@ -2319,7 +2313,13 @@
                 "step_variables": [],
                 "pass_parent_env": false,
                 "pass_input_record": false,
-                "workflowReference": "/api/3/workflows/4e8ce93b-f764-4c70-ab07-12ed9507b300"
+                "workflowReference": "/api/3/workflows/4e8ce93b-f764-4c70-ab07-12ed9507b300",
+                "for_each": {
+                  "item": "{{vars.ip_list}}",
+                  "__bulk": false,
+                  "parallel": true,
+                  "condition": ""
+                }
               },
               "status": null,
               "top": "160",
@@ -2473,17 +2473,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "e6966148-0be6-4d71-8ead-4bd5c191c66a"
+              "uuid": "294b247d-0ad1-5fae-b524-fba8af0539e8"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "parse_input -> bootstrap_fmg",
+              "name": "parse_input -> revision_list",
               "targetStep": "/api/3/workflow_steps/a14efdee-7e3e-41a1-969b-541f7064edbe",
               "sourceStep": "/api/3/workflow_steps/d78a0371-a14f-4881-9722-17a74e968216",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "fe368720-258e-4ca1-84bc-02033f76304c"
+              "uuid": "d7715972-ab8f-5b0e-9206-099780ff80de"
             },
             {
               "@type": "WorkflowRoute",
@@ -2493,17 +2493,17 @@
               "label": "Ok",
               "isExecuted": false,
               "group": null,
-              "uuid": "88a81e33-d798-4b77-9627-4e8e9f0166ca"
+              "uuid": "aaeea2bb-eccc-5a76-af2d-b46ff8efada3"
             },
             {
               "@type": "WorkflowRoute",
               "name": "Report -> Timeout",
               "targetStep": "/api/3/workflow_steps/78f4f7ad-1532-4437-bbed-ffdef1ad099c",
               "sourceStep": "/api/3/workflow_steps/d8f0a188-c4c9-4bac-9c67-8997560bb5c5",
-              "label": "",
+              "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "382639a2-3a33-4646-9851-5482d463e99d"
+              "uuid": "1545ffd1-68f9-515b-9689-9e91855708f8"
             },
             {
               "@type": "WorkflowRoute",
@@ -2513,7 +2513,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "434b5346-5d6d-4d2e-9ab1-9a862c5232aa"
+              "uuid": "4509069f-b26c-5aa1-972e-0e422d9c308c"
             },
             {
               "@type": "WorkflowRoute",
@@ -2523,7 +2523,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "5a9f6e0e-f20d-42e2-b9e5-c5de24e57005"
+              "uuid": "580e8644-1fb6-5da4-a7db-27c8f0c76cab"
             }
           ],
           "groups": [],
@@ -2560,12 +2560,6 @@
               "name": "bootstrap_fmg",
               "description": null,
               "arguments": {
-                "for_each": {
-                  "item": "{{vars.ip_list}}",
-                  "__bulk": false,
-                  "parallel": true,
-                  "condition": ""
-                },
                 "arguments": {
                   "fmg": "{{vars.input.params.fortimanager}}",
                   "fos_ip": "{{vars.item}}",
@@ -2576,7 +2570,13 @@
                 "step_variables": [],
                 "pass_parent_env": false,
                 "pass_input_record": false,
-                "workflowReference": "/api/3/workflows/391a2eed-35ff-42cf-be33-bbe61bd79870"
+                "workflowReference": "/api/3/workflows/391a2eed-35ff-42cf-be33-bbe61bd79870",
+                "for_each": {
+                  "item": "{{vars.ip_list}}",
+                  "__bulk": false,
+                  "parallel": true,
+                  "condition": ""
+                }
               },
               "status": null,
               "top": "180",
@@ -2740,7 +2740,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "4cf9800e-38d2-4736-928b-08149c993eb9"
+              "uuid": "ea814b04-b0ff-5826-9f52-e2bfcab569cc"
             },
             {
               "@type": "WorkflowRoute",
@@ -2750,7 +2750,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "ef50bd8d-1d17-4d30-8a62-bc2857eab9ab"
+              "uuid": "b7821275-adc9-5e12-b289-7171c1ccdf13"
             }
           ],
           "groups": [],
@@ -2775,7 +2775,7 @@
           "tag": null,
           "description": "Logout FOS",
           "isActive": false,
-          "debug": true,
+          "debug": false,
           "singleRecordExecution": false,
           "remoteExecutableFlag": false,
           "parameters": [
@@ -2880,33 +2880,33 @@
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "fos_login -> Copy of extract_login_data",
+              "name": "fos_logout -> return",
               "targetStep": "/api/3/workflow_steps/d5e9ac89-8582-48a6-b681-19044fa75d23",
               "sourceStep": "/api/3/workflow_steps/489a9252-7e35-401e-bd64-52f162e19213",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "57bf4124-4f54-4d7a-9781-66983d4df1a6"
+              "uuid": "cc3b5bbf-97d8-5762-beca-8427cc57ab00"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "payload -> fos_login",
+              "name": "header_payload -> fos_logout",
               "targetStep": "/api/3/workflow_steps/489a9252-7e35-401e-bd64-52f162e19213",
               "sourceStep": "/api/3/workflow_steps/e3b3e5c4-8697-4881-b28b-72cca659180e",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "1df2f641-04d3-4675-9108-2a487a6f7f53"
+              "uuid": "ebf97ab8-0b5a-5eea-bd22-640459faf00b"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "setup_initial_vars -> payload",
+              "name": "setup_initial_vars -> header_payload",
               "targetStep": "/api/3/workflow_steps/e3b3e5c4-8697-4881-b28b-72cca659180e",
               "sourceStep": "/api/3/workflow_steps/d0b6df01-0cdd-4139-858a-b3a2941b1421",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "eba00640-45db-40ae-a762-2ed80cd39ed4"
+              "uuid": "bff1f277-19a6-58ee-9a7a-814a5d4f3c2d"
             },
             {
               "@type": "WorkflowRoute",
@@ -2916,7 +2916,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "6a11c33f-06a4-47e1-8950-67db0640ddea"
+              "uuid": "d0f59fd4-0dd3-52ef-ae41-9e8fff4c3227"
             }
           ],
           "groups": [],
@@ -2945,7 +2945,7 @@
           "tag": null,
           "description": "Authenticate via username/password and create a token user if needed and return an api key.",
           "isActive": false,
-          "debug": true,
+          "debug": false,
           "singleRecordExecution": false,
           "remoteExecutableFlag": false,
           "parameters": [
@@ -2963,7 +2963,7 @@
               "arguments": {
                 "config": "",
                 "params": {
-                  "python_function": "import json\r\nfrom typing import Any, Dict, Optional, Tuple\r\n\r\nimport requests\r\nfrom urllib3.exceptions import InsecureRequestWarning\r\n\r\nrequests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)\r\n\r\nHOST = \"{{vars.fos_ip}}\"\r\nUSER = \"{{vars.username}}\"\r\nPASS = \"{{vars.password}}\"\r\nAPIUSER = \"{{vars.api_user}}\"\r\nAPIPROF = \"{{vars.api_profile}}\"\r\nFSRHOST = \"{{vars.fortisoar_ip}}/32\"\r\n\r\n\r\ndef create_session(host: str, username: str, password: str, verify_ssl: bool = False) -> Dict[str, Any]:\r\n    \"\"\"\r\n    Create a session configuration dictionary\r\n\r\n    Args:\r\n        host: FortiOS device IP or hostname\r\n        username: Authentication username\r\n        password: Authentication password\r\n        verify_ssl: Whether to verify SSL certificates\r\n\r\n    Returns:\r\n        Session configuration dictionary\r\n    \"\"\"\r\n    return {\r\n        \"host\": host,\r\n        \"base_url\": f\"https://{host}/api/v2\",\r\n        \"username\": username,\r\n        \"password\": password,\r\n        \"verify_ssl\": verify_ssl,\r\n        \"session\": requests.Session(),\r\n        \"csrf_token\": None,\r\n        \"use_bearer_auth\": False,\r\n        \"status\": {},  # Status dictionary to collect messages\r\n    }\r\n\r\n\r\ndef login(config: Dict[str, Any]) -> bool:\r\n    \"\"\"\r\n    Authenticate and obtain CSRF token or access token\r\n    Automatically detects authentication method:\r\n    - If access_token in response: uses Bearer authentication\r\n    - If cookie found: uses X-CSRFTOKEN authentication\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n\r\n    Returns:\r\n        True if login successful, False otherwise\r\n    \"\"\"\r\n    payload = {\r\n        \"username\": config[\"username\"],\r\n        \"password\": config[\"password\"],\r\n        \"secretkey\": config[\"password\"],\r\n        \"ack_post_disclaimer\": True,\r\n        \"request_key\": True,\r\n    }\r\n\r\n    url = f\"{config['base_url']}/authentication\"\r\n\r\n    try:\r\n        response = config[\"session\"].post(\r\n            url,\r\n            json=payload,\r\n            verify=config[\"verify_ssl\"]\r\n        )\r\n        response.raise_for_status()\r\n\r\n        result = response.json() if response.content else {}\r\n\r\n        # Check for session_key in response (alternative token field)\r\n        if result.get(\"session_key\"):\r\n            config[\"status\"][\"login\"] = \"Found session_key in response, using Bearer authentication\"\r\n            config[\"csrf_token\"] = result[\"session_key\"]\r\n            config[\"use_bearer_auth\"] = True\r\n            return True\r\n\r\n        # Extract CSRF token from cookies (older versions - use X-CSRFTOKEN)\r\n        for cookie in config[\"session\"].cookies:\r\n            if \"ccsrf_token\" in cookie.name.lower():\r\n                config[\"csrf_token\"] = cookie.value\r\n                config[\"use_bearer_auth\"] = False\r\n                config[\"status\"][\"login\"] = f\"Login successful with cookie. Token: {config['csrf_token'][:10]}...\"\r\n                return True\r\n\r\n        config[\"status\"][\"login\"] = \"Warning: No CSRF token or access_token found\"\r\n        return False\r\n\r\n    except requests.exceptions.RequestException as e:\r\n        config[\"status\"][\"login\"] = f\"Login failed: {e}\"\r\n        return False\r\n\r\n\r\ndef logout(config: Dict[str, Any]) -> bool:\r\n    \"\"\"\r\n    End the session\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n\r\n    Returns:\r\n        True if logout successful, False otherwise\r\n    \"\"\"\r\n    if not config[\"csrf_token\"]:\r\n        return False\r\n\r\n    url = f\"{config['base_url']}/authentication\"\r\n    headers = {\"Content-Type\": \"application/json\"}\r\n\r\n    # Use appropriate authentication header\r\n    if config[\"use_bearer_auth\"]:\r\n        headers[\"Authorization\"] = f\"Bearer {config['csrf_token']}\"\r\n    else:\r\n        headers[\"X-CSRFTOKEN\"] = config[\"csrf_token\"]\r\n\r\n    try:\r\n        response = config[\"session\"].delete(\r\n            url,\r\n            headers=headers,\r\n            verify=config[\"verify_ssl\"]\r\n        )\r\n        response.raise_for_status()\r\n\r\n        config[\"session\"].close()\r\n        config[\"csrf_token\"] = None\r\n        config[\"use_bearer_auth\"] = False\r\n        config[\"status\"][\"logout\"] = \"Logout successful\"\r\n\r\n        return True\r\n\r\n    except requests.exceptions.RequestException as e:\r\n        config[\"status\"][\"logout\"] = f\"Logout failed: {e}\"\r\n        return False\r\n\r\n\r\ndef make_request(\r\n        config: Dict[str, Any],\r\n        method: str,\r\n        endpoint: str,\r\n        **kwargs\r\n) -> Optional[Dict[str, Any]]:\r\n    \"\"\"\r\n    Generic request handler\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n        method: HTTP method (GET, POST, PUT, DELETE)\r\n        endpoint: API endpoint (e.g., '/cmdb/firewall/address')\r\n        **kwargs: Additional arguments to pass to requests\r\n\r\n    Returns:\r\n        Response JSON or None if failed\r\n    \"\"\"\r\n    url = f\"{config['base_url']}{endpoint}\"\r\n\r\n    # Set default headers\r\n    headers = kwargs.pop(\"headers\", {})\r\n    headers.setdefault(\"Content-Type\", \"application/json\")\r\n\r\n    # Use appropriate authentication header\r\n    if config[\"csrf_token\"]:\r\n        if config[\"use_bearer_auth\"]:\r\n            headers[\"Authorization\"] = f\"Bearer {config['csrf_token']}\"\r\n        else:\r\n            headers[\"X-CSRFTOKEN\"] = config[\"csrf_token\"]\r\n            headers[\"X-Admin-Passwd\"] = config[\"password\"]\r\n\r\n    kwargs[\"headers\"] = headers\r\n    kwargs.setdefault(\"verify\", config[\"verify_ssl\"])\r\n\r\n    try:\r\n        response = config[\"session\"].request(method, url, **kwargs)\r\n        response.raise_for_status()\r\n        return response.json() if response.content else {}\r\n    except requests.exceptions.RequestException as e:\r\n        # Store error in status dictionary with a unique key\r\n        error_key = f\"request_error_{method}_{endpoint.replace('/', '_')}\"\r\n        config[\"status\"][error_key] = f\"Request failed: {e}\"\r\n        return None\r\n\r\n\r\n# CMDB Operations (Configuration Database)\r\n\r\n\r\ndef get(config: Dict[str, Any], path: str, params: Optional[Dict] = None) -> Optional[Dict[str, Any]]:\r\n    \"\"\"\r\n    Generic GET operation for CMDB\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n        path: Resource path (e.g., 'system/interface', 'firewall/address')\r\n        params: Query parameters\r\n\r\n    Returns:\r\n        Response data or None\r\n    \"\"\"\r\n    return make_request(config, \"GET\", f\"/cmdb/{path}\", params=params)\r\n\r\n\r\ndef create(config: Dict[str, Any], path: str, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:\r\n    \"\"\"\r\n    Generic CREATE operation for CMDB\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n        path: Resource path (e.g., 'firewall/address')\r\n        data: Object data\r\n\r\n    Returns:\r\n        Response data or None\r\n    \"\"\"\r\n    return make_request(config, \"POST\", f\"/cmdb/{path}\", json=data)\r\n\r\n\r\ndef update(\r\n        config: Dict[str, Any],\r\n        path: str,\r\n        name: str,\r\n        data: Dict[str, Any]\r\n) -> Optional[Dict[str, Any]]:\r\n    \"\"\"\r\n    Generic UPDATE operation for CMDB\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n        path: Resource path\r\n        name: Object name/identifier\r\n        data: Updated data\r\n\r\n    Returns:\r\n        Response data or None\r\n    \"\"\"\r\n    return make_request(config, \"PUT\", f\"/cmdb/{path}/{name}\", json=data)\r\n\r\n\r\ndef delete(config: Dict[str, Any], path: str, name: str) -> Optional[Dict[str, Any]]:\r\n    \"\"\"\r\n    Generic DELETE operation for CMDB\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n        path: Resource path\r\n        name: Object name/identifier\r\n\r\n    Returns:\r\n        Response data or None\r\n    \"\"\"\r\n    return make_request(config, \"DELETE\", f\"/cmdb/{path}/{name}\")\r\n\r\n\r\ndef apiuser_generate_key(config: Dict[str, Any], api_user: str):\r\n    \"\"\"\r\n    Generate API-User Key\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n        api_user: <api_user_name>\r\n\r\n    Returns:\r\n        Response data or None\r\n    \"\"\"\r\n    return make_request(config, \"POST\", f\"/monitor/system/api-user/generate-key\", json={\"api-user\": api_user})\r\n\r\n\r\n# Convenience functions for common operations\r\n\r\ndef get_api_users(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:\r\n    \"\"\"Get all system interfaces\"\"\"\r\n    return get(config, \"system/api-user\")\r\n\r\n\r\ndef create_api_user(\r\n        config: Dict[str, Any],\r\n        name: str,\r\n        accprofile: str,\r\n        trusthost: str\r\n) -> Optional[Dict[str, Any]]:\r\n    \"\"\"Create a API User\"\"\"\r\n    data = {\r\n        \"name\": name,\r\n        \"accprofile\": accprofile,\r\n        \"trusthost\": [\r\n            {\r\n                \"type\": \"ipv4-trusthost\",\r\n                \"ipv4-trusthost\": trusthost\r\n            }\r\n        ],\r\n        \"comments\": \"Created by FortiSOAR for Labenv\",\r\n    }\r\n    return create(config, \"system/api-user\", data)\r\n\r\n\r\ndef main():\r\n    \"\"\"Create APIUSER, if needed, and generate api key\"\"\"\r\n    host = HOST\r\n    username = USER\r\n    password = PASS\r\n    apiuser = APIUSER\r\n    apiprof = APIPROF\r\n    fsrhost = FSRHOST\r\n\r\n    # Create session configuration\r\n    config = create_session(host, username, password)\r\n\r\n    if not login(config):\r\n        print(json.dumps(config[\"status\"], indent=2))\r\n    else:\r\n        apiusers = get_api_users(config)\r\n        if apiusers:\r\n            config[\"status\"][\"get_api_users\"] = apiusers\r\n            if apiuser not in list({a[\"name\"] for a in apiusers[\"results\"] if \"name\" in a}):\r\n                create_apiuser = create_api_user(config, apiuser, apiprof, fsrhost)\r\n                if create_apiuser:\r\n                    config[\"status\"][\"create_api_user\"] = create_apiuser\r\n\r\n        apikey = apiuser_generate_key(config, apiuser)\r\n        if apikey:\r\n            config[\"status\"][\"generate_apikey\"] = apikey\r\n\r\n        logout(config)\r\n        # Print all status information at the end\r\n        print(json.dumps(config[\"status\"], indent=2))\r\n\r\n\r\nmain()\r\n"
+                  "python_function": "import json\r\nfrom typing import Any, Dict, Optional, Tuple\r\n\r\nimport requests\r\nfrom urllib3.exceptions import InsecureRequestWarning\r\n\r\nrequests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)\r\n\r\nHOST = {{ vars.fos_ip | tojson }}\r\nUSER = {{ vars.username | tojson }}\r\nPASS = {{ vars.password | tojson }}\r\nAPIUSER = {{ vars.api_user | tojson }}\r\nAPIPROF = {{ vars.api_profile | tojson }}\r\nFSRHOST = {{ (vars.fortisoar_ip ~ \"/32\") | tojson }}\r\n\r\n\r\ndef create_session(host: str, username: str, password: str, verify_ssl: bool = False) -> Dict[str, Any]:\r\n    \"\"\"\r\n    Create a session configuration dictionary\r\n\r\n    Args:\r\n        host: FortiOS device IP or hostname\r\n        username: Authentication username\r\n        password: Authentication password\r\n        verify_ssl: Whether to verify SSL certificates\r\n\r\n    Returns:\r\n        Session configuration dictionary\r\n    \"\"\"\r\n    return {\r\n        \"host\": host,\r\n        \"base_url\": f\"https://{host}/api/v2\",\r\n        \"username\": username,\r\n        \"password\": password,\r\n        \"verify_ssl\": verify_ssl,\r\n        \"session\": requests.Session(),\r\n        \"csrf_token\": None,\r\n        \"use_bearer_auth\": False,\r\n        \"status\": {},  # Status dictionary to collect messages\r\n    }\r\n\r\n\r\ndef login(config: Dict[str, Any]) -> bool:\r\n    \"\"\"\r\n    Authenticate and obtain CSRF token or access token\r\n    Automatically detects authentication method:\r\n    - If access_token in response: uses Bearer authentication\r\n    - If cookie found: uses X-CSRFTOKEN authentication\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n\r\n    Returns:\r\n        True if login successful, False otherwise\r\n    \"\"\"\r\n    payload = {\r\n        \"username\": config[\"username\"],\r\n        \"password\": config[\"password\"],\r\n        \"secretkey\": config[\"password\"],\r\n        \"ack_post_disclaimer\": True,\r\n        \"request_key\": True,\r\n    }\r\n\r\n    url = f\"{config['base_url']}/authentication\"\r\n\r\n    try:\r\n        response = config[\"session\"].post(\r\n            url,\r\n            json=payload,\r\n            verify=config[\"verify_ssl\"]\r\n        )\r\n        response.raise_for_status()\r\n\r\n        result = response.json() if response.content else {}\r\n\r\n        # Check for session_key in response (alternative token field)\r\n        if result.get(\"session_key\"):\r\n            config[\"status\"][\"login\"] = \"Found session_key in response, using Bearer authentication\"\r\n            config[\"csrf_token\"] = result[\"session_key\"]\r\n            config[\"use_bearer_auth\"] = True\r\n            return True\r\n\r\n        # Extract CSRF token from cookies (older versions - use X-CSRFTOKEN)\r\n        for cookie in config[\"session\"].cookies:\r\n            if \"ccsrf_token\" in cookie.name.lower():\r\n                config[\"csrf_token\"] = cookie.value\r\n                config[\"use_bearer_auth\"] = False\r\n                config[\"status\"][\"login\"] = f\"Login successful with cookie. Token: {config['csrf_token'][:10]}...\"\r\n                return True\r\n\r\n        config[\"status\"][\"login\"] = \"Warning: No CSRF token or access_token found\"\r\n        return False\r\n\r\n    except requests.exceptions.RequestException as e:\r\n        config[\"status\"][\"login\"] = f\"Login failed: {e}\"\r\n        return False\r\n\r\n\r\ndef logout(config: Dict[str, Any]) -> bool:\r\n    \"\"\"\r\n    End the session\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n\r\n    Returns:\r\n        True if logout successful, False otherwise\r\n    \"\"\"\r\n    if not config[\"csrf_token\"]:\r\n        return False\r\n\r\n    url = f\"{config['base_url']}/authentication\"\r\n    headers = {\"Content-Type\": \"application/json\"}\r\n\r\n    # Use appropriate authentication header\r\n    if config[\"use_bearer_auth\"]:\r\n        headers[\"Authorization\"] = f\"Bearer {config['csrf_token']}\"\r\n    else:\r\n        headers[\"X-CSRFTOKEN\"] = config[\"csrf_token\"]\r\n\r\n    try:\r\n        response = config[\"session\"].delete(\r\n            url,\r\n            headers=headers,\r\n            verify=config[\"verify_ssl\"]\r\n        )\r\n        response.raise_for_status()\r\n\r\n        config[\"session\"].close()\r\n        config[\"csrf_token\"] = None\r\n        config[\"use_bearer_auth\"] = False\r\n        config[\"status\"][\"logout\"] = \"Logout successful\"\r\n\r\n        return True\r\n\r\n    except requests.exceptions.RequestException as e:\r\n        config[\"status\"][\"logout\"] = f\"Logout failed: {e}\"\r\n        return False\r\n\r\n\r\ndef make_request(\r\n        config: Dict[str, Any],\r\n        method: str,\r\n        endpoint: str,\r\n        **kwargs\r\n) -> Optional[Dict[str, Any]]:\r\n    \"\"\"\r\n    Generic request handler\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n        method: HTTP method (GET, POST, PUT, DELETE)\r\n        endpoint: API endpoint (e.g., '/cmdb/firewall/address')\r\n        **kwargs: Additional arguments to pass to requests\r\n\r\n    Returns:\r\n        Response JSON or None if failed\r\n    \"\"\"\r\n    url = f\"{config['base_url']}{endpoint}\"\r\n\r\n    # Set default headers\r\n    headers = kwargs.pop(\"headers\", {})\r\n    headers.setdefault(\"Content-Type\", \"application/json\")\r\n\r\n    # Use appropriate authentication header\r\n    if config[\"csrf_token\"]:\r\n        if config[\"use_bearer_auth\"]:\r\n            headers[\"Authorization\"] = f\"Bearer {config['csrf_token']}\"\r\n        else:\r\n            headers[\"X-CSRFTOKEN\"] = config[\"csrf_token\"]\r\n            headers[\"X-Admin-Passwd\"] = config[\"password\"]\r\n\r\n    kwargs[\"headers\"] = headers\r\n    kwargs.setdefault(\"verify\", config[\"verify_ssl\"])\r\n\r\n    try:\r\n        response = config[\"session\"].request(method, url, **kwargs)\r\n        response.raise_for_status()\r\n        return response.json() if response.content else {}\r\n    except requests.exceptions.RequestException as e:\r\n        # Store error in status dictionary with a unique key\r\n        error_key = f\"request_error_{method}_{endpoint.replace('/', '_')}\"\r\n        config[\"status\"][error_key] = f\"Request failed: {e}\"\r\n        return None\r\n\r\n\r\n# CMDB Operations (Configuration Database)\r\n\r\n\r\ndef get(config: Dict[str, Any], path: str, params: Optional[Dict] = None) -> Optional[Dict[str, Any]]:\r\n    \"\"\"\r\n    Generic GET operation for CMDB\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n        path: Resource path (e.g., 'system/interface', 'firewall/address')\r\n        params: Query parameters\r\n\r\n    Returns:\r\n        Response data or None\r\n    \"\"\"\r\n    return make_request(config, \"GET\", f\"/cmdb/{path}\", params=params)\r\n\r\n\r\ndef create(config: Dict[str, Any], path: str, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:\r\n    \"\"\"\r\n    Generic CREATE operation for CMDB\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n        path: Resource path (e.g., 'firewall/address')\r\n        data: Object data\r\n\r\n    Returns:\r\n        Response data or None\r\n    \"\"\"\r\n    return make_request(config, \"POST\", f\"/cmdb/{path}\", json=data)\r\n\r\n\r\ndef update(\r\n        config: Dict[str, Any],\r\n        path: str,\r\n        name: str,\r\n        data: Dict[str, Any]\r\n) -> Optional[Dict[str, Any]]:\r\n    \"\"\"\r\n    Generic UPDATE operation for CMDB\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n        path: Resource path\r\n        name: Object name/identifier\r\n        data: Updated data\r\n\r\n    Returns:\r\n        Response data or None\r\n    \"\"\"\r\n    return make_request(config, \"PUT\", f\"/cmdb/{path}/{name}\", json=data)\r\n\r\n\r\ndef delete(config: Dict[str, Any], path: str, name: str) -> Optional[Dict[str, Any]]:\r\n    \"\"\"\r\n    Generic DELETE operation for CMDB\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n        path: Resource path\r\n        name: Object name/identifier\r\n\r\n    Returns:\r\n        Response data or None\r\n    \"\"\"\r\n    return make_request(config, \"DELETE\", f\"/cmdb/{path}/{name}\")\r\n\r\n\r\ndef apiuser_generate_key(config: Dict[str, Any], api_user: str):\r\n    \"\"\"\r\n    Generate API-User Key\r\n\r\n    Args:\r\n        config: Session configuration dictionary\r\n        api_user: <api_user_name>\r\n\r\n    Returns:\r\n        Response data or None\r\n    \"\"\"\r\n    return make_request(config, \"POST\", f\"/monitor/system/api-user/generate-key\", json={\"api-user\": api_user})\r\n\r\n\r\n# Convenience functions for common operations\r\n\r\ndef get_api_users(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:\r\n    \"\"\"Get all system interfaces\"\"\"\r\n    return get(config, \"system/api-user\")\r\n\r\n\r\ndef create_api_user(\r\n        config: Dict[str, Any],\r\n        name: str,\r\n        accprofile: str,\r\n        trusthost: str\r\n) -> Optional[Dict[str, Any]]:\r\n    \"\"\"Create a API User\"\"\"\r\n    data = {\r\n        \"name\": name,\r\n        \"accprofile\": accprofile,\r\n        \"trusthost\": [\r\n            {\r\n                \"type\": \"ipv4-trusthost\",\r\n                \"ipv4-trusthost\": trusthost\r\n            }\r\n        ],\r\n        \"comments\": \"Created by FortiSOAR for Labenv\",\r\n    }\r\n    return create(config, \"system/api-user\", data)\r\n\r\n\r\ndef main():\r\n    \"\"\"Create APIUSER, if needed, and generate api key\"\"\"\r\n    host = HOST\r\n    username = USER\r\n    password = PASS\r\n    apiuser = APIUSER\r\n    apiprof = APIPROF\r\n    fsrhost = FSRHOST\r\n\r\n    # Create session configuration\r\n    config = create_session(host, username, password)\r\n\r\n    if not login(config):\r\n        print(json.dumps(config[\"status\"], indent=2))\r\n    else:\r\n        apiusers = get_api_users(config)\r\n        if apiusers:\r\n            config[\"status\"][\"get_api_users\"] = apiusers\r\n            if apiuser not in list({a[\"name\"] for a in apiusers[\"results\"] if \"name\" in a}):\r\n                create_apiuser = create_api_user(config, apiuser, apiprof, fsrhost)\r\n                if create_apiuser:\r\n                    config[\"status\"][\"create_api_user\"] = create_apiuser\r\n\r\n        apikey = apiuser_generate_key(config, apiuser)\r\n        if apikey:\r\n            config[\"status\"][\"generate_apikey\"] = apikey\r\n\r\n        logout(config)\r\n        # Print all status information at the end\r\n        print(json.dumps(config[\"status\"], indent=2))\r\n\r\n\r\nmain()\r\n"
                 },
                 "version": "2.1.4",
                 "connector": "code-snippet",
@@ -3039,7 +3039,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "0c4c0c93-bbcf-4107-b5f7-675be6052533"
+              "uuid": "8c69236d-73bb-5247-87c7-22fc2a1e609c"
             },
             {
               "@type": "WorkflowRoute",
@@ -3049,7 +3049,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "235d2fea-62c3-40c1-8af6-62c9568b9cda"
+              "uuid": "339eaf2d-59c2-5d78-a51c-3f27b041171d"
             },
             {
               "@type": "WorkflowRoute",
@@ -3059,7 +3059,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "77487375-5f45-4589-86da-dbcc9241f2f3"
+              "uuid": "e49b8a0d-3012-57d9-a34b-b52e9a0fe0f6"
             }
           ],
           "groups": [
@@ -3133,12 +3133,6 @@
               "name": "restore_revision",
               "description": null,
               "arguments": {
-                "for_each": {
-                  "item": "{{vars.ip_list}}",
-                  "__bulk": false,
-                  "parallel": true,
-                  "condition": ""
-                },
                 "arguments": {
                   "fos_ip": "{{vars.item}}",
                   "password": "{{vars.input.params.password}}",
@@ -3149,7 +3143,13 @@
                 "step_variables": [],
                 "pass_parent_env": false,
                 "pass_input_record": false,
-                "workflowReference": "/api/3/workflows/e356b468-3ca7-4ed6-a924-a8dd87669fab"
+                "workflowReference": "/api/3/workflows/e356b468-3ca7-4ed6-a924-a8dd87669fab",
+                "for_each": {
+                  "item": "{{vars.ip_list}}",
+                  "__bulk": false,
+                  "parallel": true,
+                  "condition": ""
+                }
               },
               "status": null,
               "top": "180",
@@ -3293,13 +3293,13 @@
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "parse_input -> bootstrap_fmg",
+              "name": "parse_input -> restore_revision",
               "targetStep": "/api/3/workflow_steps/eda64a2b-c617-47c0-a5b2-ad1f4a5a3b3c",
               "sourceStep": "/api/3/workflow_steps/fc2d4de0-3122-4460-bc12-33833047a00d",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "b1152da7-3df8-4c4e-af75-676e3d6d1340"
+              "uuid": "0877ecdd-8881-5b4b-b59d-58c3c2e1c480"
             },
             {
               "@type": "WorkflowRoute",
@@ -3309,7 +3309,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "de936199-6d57-4279-bca7-f4d06795719f"
+              "uuid": "5f35379b-d65a-5e36-990a-978e48a463d5"
             }
           ],
           "groups": [],
@@ -3424,11 +3424,6 @@
               "name": "find_revision",
               "description": null,
               "arguments": {
-                "for_each": {
-                  "item": "{{vars.ip_list}}",
-                  "parallel": false,
-                  "condition": ""
-                },
                 "arguments": {
                   "fos_ip": "{{vars.item}}",
                   "password": "{{vars.password}}",
@@ -3439,7 +3434,12 @@
                 "step_variables": [],
                 "pass_parent_env": false,
                 "pass_input_record": false,
-                "workflowReference": "/api/3/workflows/45d1368f-24bd-4f73-82db-bb18784e1c3f"
+                "workflowReference": "/api/3/workflows/45d1368f-24bd-4f73-82db-bb18784e1c3f",
+                "for_each": {
+                  "item": "{{vars.ip_list}}",
+                  "parallel": false,
+                  "condition": ""
+                }
               },
               "status": null,
               "top": "160",
@@ -3453,12 +3453,6 @@
               "name": "restore_revision",
               "description": null,
               "arguments": {
-                "for_each": {
-                  "item": "{{vars.revert_list}}",
-                  "__bulk": false,
-                  "parallel": true,
-                  "condition": ""
-                },
                 "arguments": {
                   "fos_ip": "{{vars.item['ip']}}",
                   "password": "{{vars.input.params.password}}",
@@ -3469,7 +3463,13 @@
                 "step_variables": [],
                 "pass_parent_env": false,
                 "pass_input_record": false,
-                "workflowReference": "/api/3/workflows/e356b468-3ca7-4ed6-a924-a8dd87669fab"
+                "workflowReference": "/api/3/workflows/e356b468-3ca7-4ed6-a924-a8dd87669fab",
+                "for_each": {
+                  "item": "{{vars.revert_list}}",
+                  "__bulk": false,
+                  "parallel": true,
+                  "condition": ""
+                }
               },
               "status": null,
               "top": "520",
@@ -3669,17 +3669,17 @@
               "label": "Revert",
               "isExecuted": false,
               "group": null,
-              "uuid": "a4e43ba2-e991-40e3-b8f8-aaac19752dbf"
+              "uuid": "10fe2700-86a1-5df0-87d4-f4dc014c0d53"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "confirm -> timeout",
+              "name": "confirm -> skip",
               "targetStep": "/api/3/workflow_steps/fbb9a01d-f4c1-4f21-9f2b-50033f1f67de",
               "sourceStep": "/api/3/workflow_steps/d50ca39b-b29e-44b1-be01-127da8bde170",
               "label": "Skip",
               "isExecuted": false,
               "group": null,
-              "uuid": "774152b6-86c4-4e22-b20a-713129d2964b"
+              "uuid": "7c4ce6f4-1055-585c-9f55-8bc66f595b64"
             },
             {
               "@type": "WorkflowRoute",
@@ -3689,7 +3689,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "34be08b6-606f-47de-b391-2782ac18eaf2"
+              "uuid": "699d7fc1-dcb5-5295-88de-f291572c0e26"
             },
             {
               "@type": "WorkflowRoute",
@@ -3699,17 +3699,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "7005f62a-9f54-4f26-b1ed-40b2301293da"
-            },
-            {
-              "@type": "WorkflowRoute",
-              "name": "parse_input -> find_revision",
-              "targetStep": "/api/3/workflow_steps/f0baaaf3-10c0-4cdd-a9b6-f7c24f05efde",
-              "sourceStep": "/api/3/workflow_steps/654550d2-4f93-4eae-998e-589198f33396",
-              "label": null,
-              "isExecuted": false,
-              "group": null,
-              "uuid": "30c33cda-eb61-4125-afc1-e1df9a966fbe"
+              "uuid": "0f4e54e3-61c9-55d2-bc38-b294eec8e07b"
             },
             {
               "@type": "WorkflowRoute",
@@ -3719,17 +3709,27 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "1006d170-60b0-4260-9c3c-cee4a6348614"
+              "uuid": "8bb85946-7ec3-53dd-b4a5-938ddbef3307"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Start -> parse_input",
+              "name": "set env -> find_revision",
+              "targetStep": "/api/3/workflow_steps/f0baaaf3-10c0-4cdd-a9b6-f7c24f05efde",
+              "sourceStep": "/api/3/workflow_steps/654550d2-4f93-4eae-998e-589198f33396",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1a55fda7-5d81-5928-85c1-fb089c1f234c"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> set env",
               "targetStep": "/api/3/workflow_steps/654550d2-4f93-4eae-998e-589198f33396",
               "sourceStep": "/api/3/workflow_steps/fc71d093-0f1b-422b-b214-119827b345f5",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "9cb9f5ac-2a91-49f0-8e42-4312fb1298a8"
+              "uuid": "81f5f72b-9b84-5bd4-b50b-eb0f9c2335cd"
             }
           ],
           "groups": [],
@@ -3754,7 +3754,7 @@
           "tag": null,
           "description": "Perform a FortiDeploy style API change to the Central Management",
           "isActive": false,
-          "debug": true,
+          "debug": false,
           "singleRecordExecution": false,
           "remoteExecutableFlag": false,
           "parameters": [
@@ -3868,17 +3868,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "4cd32b03-dc84-4454-a21d-c5f66a68710d"
+              "uuid": "b91d0ebb-c00c-5561-b17e-fbdb21cf2f46"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "header_payload -> get_fos_data",
+              "name": "header_payload -> fos_api",
               "targetStep": "/api/3/workflow_steps/ab56a51e-a004-44fa-ae73-db753ca73c0b",
               "sourceStep": "/api/3/workflow_steps/90428d66-3eca-407f-bd8e-e9d187429975",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "7a17fae1-7058-47af-9e68-76907b1719c7"
+              "uuid": "d214f5c9-1dac-5ef4-b5a9-ad8d77dd64ed"
             },
             {
               "@type": "WorkflowRoute",
@@ -3888,7 +3888,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "c828c586-2e2e-4101-9947-9f173794a828"
+              "uuid": "d87e5111-a2af-594b-82a1-f70ab6dae53c"
             },
             {
               "@type": "WorkflowRoute",
@@ -3898,7 +3898,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "5fb5a69d-4f89-41c7-a415-b1771dc57e18"
+              "uuid": "47552bdb-dc8b-52c7-bf4f-7f486cbcd4ae"
             }
           ],
           "groups": [],
@@ -3928,7 +3928,7 @@
           "tag": null,
           "description": "Restore the config of a FG.",
           "isActive": false,
-          "debug": true,
+          "debug": false,
           "singleRecordExecution": false,
           "remoteExecutableFlag": false,
           "parameters": [
@@ -4042,17 +4042,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "2d9f8923-0ef4-4df2-8dc4-df59ea53d16b"
+              "uuid": "5d77506d-e599-5f59-b802-cf9332e759ea"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "header_payload -> get_fos_data",
+              "name": "header_payload -> fos_api",
               "targetStep": "/api/3/workflow_steps/0dabcf3f-e29c-47ce-94d4-de099ea8aee3",
               "sourceStep": "/api/3/workflow_steps/c2ade352-764d-4e4a-bdf4-6f96449b9811",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "4c8fd2ab-b105-40ef-9232-3f012d547b3a"
+              "uuid": "183030b4-e8e5-5554-88c1-279012ffc0bf"
             },
             {
               "@type": "WorkflowRoute",
@@ -4062,7 +4062,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "97ac92a2-f8a4-4217-b4f7-b803fe0de071"
+              "uuid": "2e7df3dd-ef97-5d19-a59a-c6cbe9c94665"
             },
             {
               "@type": "WorkflowRoute",
@@ -4072,7 +4072,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "bbead9c8-2c43-4434-8b15-6a8d7048ccaf"
+              "uuid": "3a5833da-f919-5344-b09d-21a0c51912af"
             }
           ],
           "groups": [],
@@ -4275,7 +4275,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "9b2219b6-9fea-4f46-9390-763c9d5860a9"
+              "uuid": "5891067f-4ca7-5da1-8925-e0ec12bd4beb"
             },
             {
               "@type": "WorkflowRoute",
@@ -4285,7 +4285,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "611adc13-a549-4d38-bf3c-3e75f5abd900"
+              "uuid": "dc3126ff-c268-5a21-9f61-abdfda01175c"
             },
             {
               "@type": "WorkflowRoute",
@@ -4295,17 +4295,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "c187022f-2419-47a7-a82f-5d57fe69377d"
+              "uuid": "b5615f5a-23ac-545d-8ed6-89d80cbbaa07"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "header_payload -> fmg_login",
+              "name": "header_payload -> fmg_api",
               "targetStep": "/api/3/workflow_steps/a6863813-2284-470b-ac7c-9c4aad9a99d4",
               "sourceStep": "/api/3/workflow_steps/18d6a746-ee73-498e-9d86-0a5beef2c3d2",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "5503fa1e-82c5-4708-88dd-98314c582b6a"
+              "uuid": "134e511e-f319-55e1-a96e-dc814c9223cf"
             },
             {
               "@type": "WorkflowRoute",
@@ -4315,7 +4315,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "73a0c18b-4778-4db8-ae78-618420a145a0"
+              "uuid": "544cd7c9-abe6-56a7-84ea-bf6edcf7a2ed"
             },
             {
               "@type": "WorkflowRoute",
@@ -4325,7 +4325,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "a8367e1d-558e-4aec-a8ee-2c34f443fd74"
+              "uuid": "a4b69913-a944-5da2-a165-b122ed504bd5"
             }
           ],
           "groups": [],
@@ -4342,7 +4342,7 @@
           "tag": null,
           "description": "Authenticate via username/password and retrieve the session.",
           "isActive": false,
-          "debug": true,
+          "debug": false,
           "singleRecordExecution": false,
           "remoteExecutableFlag": false,
           "parameters": [
@@ -4451,33 +4451,33 @@
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "fos_login -> Copy of extract_login_data",
+              "name": "fmg_login -> return",
               "targetStep": "/api/3/workflow_steps/24d305bc-0f38-4e32-8b17-2205d48dd2db",
               "sourceStep": "/api/3/workflow_steps/4bc7efcc-5e03-438a-b773-86175d6e63db",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "6e2453e3-df8f-49ae-be27-bc971834bb17"
+              "uuid": "800c6673-f8ad-5532-be9d-ccb7b7879158"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "payload -> fos_login",
+              "name": "header_payload -> fmg_login",
               "targetStep": "/api/3/workflow_steps/4bc7efcc-5e03-438a-b773-86175d6e63db",
               "sourceStep": "/api/3/workflow_steps/015af29e-5303-4ed4-9402-e3327bc47746",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "57a5d4bd-b1c5-429b-b17a-66a83a19b8e4"
+              "uuid": "5ce8d7e9-43f5-515e-bd2e-7267345b1393"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "setup_initial_vars -> payload",
+              "name": "setup_initial_vars -> header_payload",
               "targetStep": "/api/3/workflow_steps/015af29e-5303-4ed4-9402-e3327bc47746",
               "sourceStep": "/api/3/workflow_steps/64f43c4e-3e27-4247-a6fd-6ca5e50982be",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "c656a4b3-72a1-4f2a-a368-318dd4e0fd1e"
+              "uuid": "f3ea70fd-45da-5328-a428-a2f12f064d68"
             },
             {
               "@type": "WorkflowRoute",
@@ -4487,7 +4487,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "90bb4614-fce2-4064-b371-f11abbe07ba9"
+              "uuid": "e1eaa3a4-b1cf-52b1-b6d3-ec439b7e98c4"
             }
           ],
           "groups": [],
@@ -4509,7 +4509,7 @@
           "tag": null,
           "description": "Logout",
           "isActive": false,
-          "debug": true,
+          "debug": false,
           "singleRecordExecution": false,
           "remoteExecutableFlag": false,
           "parameters": [
@@ -4616,33 +4616,33 @@
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "fos_login -> Copy of extract_login_data",
+              "name": "fmg_logout -> return",
               "targetStep": "/api/3/workflow_steps/770f0c9e-db9d-4d3d-931c-1b5c0367deeb",
               "sourceStep": "/api/3/workflow_steps/ed567ed1-0e50-48cd-b13d-a8aec534e7de",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "8437f5c0-488b-43ee-ba9c-406dbb3ab0ba"
+              "uuid": "58254b65-5149-50e4-84bd-89685b052b8e"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "payload -> fos_login",
+              "name": "header_payload -> fmg_logout",
               "targetStep": "/api/3/workflow_steps/ed567ed1-0e50-48cd-b13d-a8aec534e7de",
               "sourceStep": "/api/3/workflow_steps/300e99f9-8c11-44b6-8a2c-ca168bf1d24b",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "ed5a20ab-8438-444c-83a8-eb284dc4391f"
+              "uuid": "3aba77f0-2dc1-5478-b1b8-970c07662abf"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "setup_initial_vars -> payload",
+              "name": "setup_initial_vars -> header_payload",
               "targetStep": "/api/3/workflow_steps/300e99f9-8c11-44b6-8a2c-ca168bf1d24b",
               "sourceStep": "/api/3/workflow_steps/e7b5b598-77d5-422b-8473-028992c07c92",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "b20b9331-a820-4209-b1e9-6ffce50e04c7"
+              "uuid": "5f80eb02-4ec5-5d84-ab27-0266e0ac4355"
             },
             {
               "@type": "WorkflowRoute",
@@ -4652,7 +4652,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "5b206a83-d354-4a4e-ac1b-25fa08177d39"
+              "uuid": "cbd49f20-067c-5b47-86cd-aaee9746d6a0"
             }
           ],
           "groups": [],
@@ -4840,7 +4840,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "be5b6b3b-4289-4d85-8ec7-1d690475c291"
+              "uuid": "eb3efc95-779c-58b7-8428-4e14bfc04837"
             },
             {
               "@type": "WorkflowRoute",
@@ -4850,7 +4850,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "cc23b861-e9c6-4f4e-b260-cdea4198c90f"
+              "uuid": "2ad7162d-ea9f-57c9-aa38-0ca1f13a157a"
             },
             {
               "@type": "WorkflowRoute",
@@ -4860,17 +4860,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "b49c7ca6-2e10-4e41-8bd5-4735b9eee048"
+              "uuid": "69ff9d49-9f58-55ba-927d-39db12572c1c"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "header_payload -> fmg_login",
+              "name": "header_payload -> fmg_api",
               "targetStep": "/api/3/workflow_steps/19405186-2780-4e34-8781-fbb986d95781",
               "sourceStep": "/api/3/workflow_steps/6325bcaa-90ac-4ca3-94d3-28873c5faa8a",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "516de2e9-53a8-4b3d-abfe-2626b063898d"
+              "uuid": "ef6e4515-69d4-5f53-8ad1-6b47e7f1e6e2"
             },
             {
               "@type": "WorkflowRoute",
@@ -4880,7 +4880,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "aa22fa6b-eed9-4f3b-8da2-91f9f501f3b2"
+              "uuid": "140963fd-ddec-58fb-8c8b-76a00c875557"
             },
             {
               "@type": "WorkflowRoute",
@@ -4890,7 +4890,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "c72c5a11-35aa-456b-9f84-1cbd6721f76d"
+              "uuid": "ed7b9bfe-4acd-55ea-a5fc-1c5de79a7739"
             }
           ],
           "groups": [],
@@ -5143,33 +5143,33 @@
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "Copy of fmg_api -> fmg logout",
-              "targetStep": "/api/3/workflow_steps/ece2ec0f-a263-4f17-8b16-2762152db777",
-              "sourceStep": "/api/3/workflow_steps/9c1c9607-c6a3-444b-89d4-9b75b7a74e98",
-              "label": null,
-              "isExecuted": false,
-              "group": null,
-              "uuid": "a5aa379e-cf06-4e2e-8bb8-1ddf05c12d0c"
-            },
-            {
-              "@type": "WorkflowRoute",
-              "name": "fmgapi_gettemplate -> payload_updtae",
+              "name": "fmgapi_gettemplate -> payload_update",
               "targetStep": "/api/3/workflow_steps/33a2e348-9cf2-4cf6-a47f-3b8a3ffc64e5",
               "sourceStep": "/api/3/workflow_steps/10021b1a-478b-4e21-96a4-2d4048300b7a",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "a1ff5b84-78e3-4f23-9572-7ecde36f756c"
+              "uuid": "86cb6e39-055f-59ec-bace-acb1f164cd4c"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "fmgapi_update_scope -> fmgapi_gettempalte",
+              "name": "fmg_api_update -> fmg logout",
+              "targetStep": "/api/3/workflow_steps/ece2ec0f-a263-4f17-8b16-2762152db777",
+              "sourceStep": "/api/3/workflow_steps/9c1c9607-c6a3-444b-89d4-9b75b7a74e98",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "61c4af1d-ad68-5d22-bba2-f3338360147f"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "fmgapi_update_scope -> fmgapi_gettemplate",
               "targetStep": "/api/3/workflow_steps/10021b1a-478b-4e21-96a4-2d4048300b7a",
               "sourceStep": "/api/3/workflow_steps/c543de38-d99f-4f65-99ec-040a451ed0b0",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "202163b5-722f-4e8d-8106-99696dfcba20"
+              "uuid": "9dec4a67-8c4f-5304-bbe2-a74b5fb9bf39"
             },
             {
               "@type": "WorkflowRoute",
@@ -5179,7 +5179,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "c15fd79b-ddc3-4629-b9a5-41437d3c4da9"
+              "uuid": "4609b21f-9148-57cd-9394-a47347a3cd0c"
             },
             {
               "@type": "WorkflowRoute",
@@ -5189,17 +5189,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "0f9170f9-8504-4010-84d2-d92a608f205d"
-            },
-            {
-              "@type": "WorkflowRoute",
-              "name": "header_payload -> fmg_login",
-              "targetStep": "/api/3/workflow_steps/c543de38-d99f-4f65-99ec-040a451ed0b0",
-              "sourceStep": "/api/3/workflow_steps/923f7b24-adb9-4d19-ad9c-9f2764d51428",
-              "label": null,
-              "isExecuted": false,
-              "group": null,
-              "uuid": "982e3852-5e8d-4ca5-a828-a1be316eb1e3"
+              "uuid": "f43aa28f-4415-5fd4-9683-072cd28c6058"
             },
             {
               "@type": "WorkflowRoute",
@@ -5209,17 +5199,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "d3fd3a83-c750-46d2-9cb5-71c745bbf7fe"
+              "uuid": "a6cc5c88-da0d-5187-aa36-98bcf821472a"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "setup env -> header_payload",
+              "name": "setup env -> url_header_payload",
               "targetStep": "/api/3/workflow_steps/923f7b24-adb9-4d19-ad9c-9f2764d51428",
               "sourceStep": "/api/3/workflow_steps/3ce1670b-b12d-4818-8648-196c8bae9e4c",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "62c1af98-70dc-4ed2-9c42-ec6a5891b35f"
+              "uuid": "71e1d1d7-4b6a-5696-9dcf-50009d2e5628"
             },
             {
               "@type": "WorkflowRoute",
@@ -5229,7 +5219,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "5749f40a-f163-4fed-9a1f-c65e2ee69a7b"
+              "uuid": "a490de33-2d3e-5945-ab43-cb282b7663a9"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "url_header_payload -> fmgapi_update_scope",
+              "targetStep": "/api/3/workflow_steps/c543de38-d99f-4f65-99ec-040a451ed0b0",
+              "sourceStep": "/api/3/workflow_steps/923f7b24-adb9-4d19-ad9c-9f2764d51428",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6c180fb7-4145-50f8-898f-e860a37ea83a"
             }
           ],
           "groups": [],

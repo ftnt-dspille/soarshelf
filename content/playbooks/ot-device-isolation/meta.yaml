@@ -11,13 +11,17 @@ description: 'Contains an OT or IoT device by moving it into an isolation addres
   - **Add device to OT Isolated Group**: after an analyst confirms, adds the asset''s address to the group
   and marks the asset Isolated.
 
-  - **Remove device from OT Isolated Group**: asks an administrator to approve, removes the address and
-  marks the asset Active.
+  - **Remove device from OT Isolated Group**: waits for an approval, then removes the address and marks
+  the asset Active.
 
 
   Needs the FortiGate connector. The SSH step reads the login from the global variables `FGT_SSH_Username`
   and `FGT_SSH_Password`, so create them first. Review the policy script in the Set vars step against
-  your own interfaces and VDOM.'
+  your own interfaces and VDOM.
+
+
+  The release approval step ships unassigned. Assign it to your approver team before you activate the
+  playbook, so the person who asks for the release is not the one who approves it.'
 use_cases:
 - containment
 tags:
@@ -25,8 +29,17 @@ tags:
 - fortigate
 - isolation
 author: ftnt-dspille
-version: 1.0.0
+version: 1.0.1
 min_version: 7.4.0
 license: MIT
 published: '2026-10-06'
 author_id: 99558074
+updated: '2026-10-06'
+changelog:
+- version: 1.0.1
+  date: '2026-10-06'
+  notes: Releasing a device now waits on a real approval step instead of a plain prompt assigned to a
+    placeholder user.
+- version: 1.0.0
+  date: '2026-10-06'
+  notes: First published.

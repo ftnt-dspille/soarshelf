@@ -165,13 +165,13 @@
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "Create FGD Resource Txt file -> Copy of Create FGD Resource Txt file",
+              "name": "Create FGD Resource Txt file -> Create IP Threat Feed",
               "targetStep": "/api/3/workflow_steps/a44ee61a-f13d-41ab-8a22-be745e65febe",
               "sourceStep": "/api/3/workflow_steps/ffe83ce5-8e26-4432-b1c3-06cdc02f97f2",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "16c47571-7128-4d69-8949-b9009f4ffa5d"
+              "uuid": "153b6632-84a6-5c2a-a4f5-1c366bbeec7b"
             },
             {
               "@type": "WorkflowRoute",
@@ -181,7 +181,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "4e1b07a1-79ba-4c96-8241-c09e72cec6c9"
+              "uuid": "d1991152-a081-5ba4-adcd-4f45ef981296"
             },
             {
               "@type": "WorkflowRoute",
@@ -191,7 +191,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "572b5b8a-fcb3-4dea-9f0c-7b099fef533a"
+              "uuid": "c58de47c-a497-5499-a54e-26944b8a46f1"
             },
             {
               "@type": "WorkflowRoute",
@@ -201,7 +201,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "8a38560b-3acd-4400-a3d7-88af57ecef53"
+              "uuid": "226dc7e1-ee31-527f-a729-ec7052c63d92"
             },
             {
               "@type": "WorkflowRoute",
@@ -211,7 +211,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "f20c8fcb-e188-45f9-b55f-96a78f79f7da"
+              "uuid": "b85d4fce-e1ed-541a-8438-812fdb7893cf"
             }
           ],
           "groups": [
@@ -347,7 +347,7 @@
               "arguments": {
                 "resource": {
                   "tlp": "/api/3/picklists/7bff95b7-6438-4b01-b23a-0fe8cb5b33d3",
-                  "value": "{{vars.input.records[0].destinationIp}}",
+                  "value": "{{ vars.destination_ip }}",
                   "alerts": "{{vars.input.records[0]['@id']}}",
                   "__replace": "true",
                   "reputation": "/api/3/picklists/7074e547-7785-4979-be32-c6d0c863e4bd",
@@ -478,6 +478,75 @@
               "stepType": "/api/3/workflow_step_types/ea155646-3821-4542-9702-b246da430a8d",
               "group": null,
               "uuid": "2c477aed-380c-4687-b6cc-b9b423e1358e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set vars",
+              "description": null,
+              "arguments": {
+                "destination_ip": "{{ vars.input.records[0].destinationIp | default('', true) | string | trim }}"
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "c7064486-c437-539a-a534-8d9871a29a07"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Check destination is a public IP",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Destination is Public",
+                    "condition": "{{ (vars.destination_ip | ipaddr('public')) is string and '/' not in vars.destination_ip }}",
+                    "step_iri": "/api/3/workflow_steps/a9493f9f-41ac-4041-a863-5f4a9f7ce453",
+                    "step_name": "Create IOC for destination"
+                  },
+                  {
+                    "option": "Not a public IP",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/6f45866c-87a8-5ff3-a250-31429892f03d",
+                    "step_name": "No operation"
+                  }
+                ],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "3a3711f9-fdab-5b98-a84a-d0ea2ca34a0b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "No operation",
+              "description": null,
+              "arguments": {
+                "params": [],
+                "message": {
+                  "tags": [],
+                  "type": "/api/3/picklists/ff599189-3eeb-4c86-acb0-a7915e85ac3b",
+                  "tenant": "",
+                  "thread": false,
+                  "content": "<p>Destination {{ vars.destination_ip | e }} is not a public IP address, so it was not added to the threat feed.</p>",
+                  "records": ""
+                },
+                "version": "3.4.0",
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "640",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "6f45866c-87a8-5ff3-a250-31429892f03d"
             }
           ],
           "routes": [
@@ -489,17 +558,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "b7d537dc-11d4-4700-bbad-b74966e9e9af"
+              "uuid": "183ea1a6-7572-543a-b134-b90bd1ee3352"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Get Alert IOC Details -> Create IOC for destination",
-              "targetStep": "/api/3/workflow_steps/a9493f9f-41ac-4041-a863-5f4a9f7ce453",
+              "name": "Get Alert IOC Details -> Set vars",
+              "targetStep": "/api/3/workflow_steps/c7064486-c437-539a-a534-8d9871a29a07",
               "sourceStep": "/api/3/workflow_steps/00a2f387-1b7c-42a4-a780-271b25974763",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "297e883f-f6ad-4db2-8f78-e37623e7d7c7"
+              "uuid": "8bd7901c-e9ab-586c-855b-b9914dcf3a02"
             },
             {
               "@type": "WorkflowRoute",
@@ -509,7 +578,37 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "7ecb3638-f814-4456-802b-8a543242e477"
+              "uuid": "4575136a-2b37-5d5c-9bc8-8ea9ba1d395d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set vars -> Check destination is a public IP",
+              "targetStep": "/api/3/workflow_steps/3a3711f9-fdab-5b98-a84a-d0ea2ca34a0b",
+              "sourceStep": "/api/3/workflow_steps/c7064486-c437-539a-a534-8d9871a29a07",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f86540ba-f6fc-5060-97de-1b567e675428"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check destination is a public IP -> Create IOC for destination",
+              "targetStep": "/api/3/workflow_steps/a9493f9f-41ac-4041-a863-5f4a9f7ce453",
+              "sourceStep": "/api/3/workflow_steps/3a3711f9-fdab-5b98-a84a-d0ea2ca34a0b",
+              "label": "Destination is Public",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9800bff2-adae-56f2-a5b5-48bbde205860"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check destination is a public IP -> No operation",
+              "targetStep": "/api/3/workflow_steps/6f45866c-87a8-5ff3-a250-31429892f03d",
+              "sourceStep": "/api/3/workflow_steps/3a3711f9-fdab-5b98-a84a-d0ea2ca34a0b",
+              "label": "Not a public IP",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "a4b6c483-71a4-5bcc-b418-07ff997ed58e"
             }
           ],
           "groups": [
@@ -577,6 +676,13 @@
                       "displayTemplate": "",
                       "previousOperator": "in",
                       "previousTemplate": "multiselectpicklist"
+                    },
+                    {
+                      "type": "object",
+                      "field": "typeofindicator",
+                      "value": "/api/3/picklists/c0beeda4-2c7a-4214-b7e5-53ba1649539c",
+                      "operator": "eq",
+                      "_operator": "eq"
                     }
                   ],
                   "__selectFields": [
@@ -613,7 +719,7 @@
               "name": "Set IPs from IOCs",
               "description": null,
               "arguments": {
-                "malicious_iocs": "{{vars.steps.Query_Malicious_IOCs_in_SOAR  | json_query('[].[value] | []')}}"
+                "malicious_iocs": "{{ vars.steps.Query_Malicious_IOCs_in_SOAR | json_query(\"[?!contains(value, '/')].value\") | ipaddr('public') | unique | list }}"
               },
               "status": null,
               "top": "460",
@@ -652,7 +758,7 @@
                 "config": "",
                 "params": {
                   "url": "/pm/config/global/_external/resource/{{vars.fmg_config.ioc_filename}}",
-                  "data": "{  \"content\": \"{{vars.malicious_iocs | join('\\n')}}\"}"
+                  "data": "{{ {'content': vars.malicious_iocs | join('\\n')} | tojson }}"
                 },
                 "version": "1.0.6",
                 "connector": "fortinet-fortimanager-json-rpc",
@@ -672,13 +778,13 @@
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "Query Malicious IOCs in SOAR -> test",
+              "name": "Query Malicious IOCs in SOAR -> Set IPs from IOCs",
               "targetStep": "/api/3/workflow_steps/40115896-ebcb-4074-9f57-b37f2ef4b30f",
               "sourceStep": "/api/3/workflow_steps/0a9ac4e0-fa02-474d-b3c8-fa65f19dff9b",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "a9793f32-4266-43f1-8cbb-e98abe2e0b7a"
+              "uuid": "746ce82b-c8a0-5ac4-bd84-e5c7c9f5ba4a"
             },
             {
               "@type": "WorkflowRoute",
@@ -688,7 +794,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "220e2a97-3320-4fc8-a919-312e1a869e80"
+              "uuid": "8e75309b-bc1d-5df8-bd9d-5b2cc841f10e"
             },
             {
               "@type": "WorkflowRoute",
@@ -698,7 +804,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "b3748c2a-fa58-4364-a574-48b50e5de6d0"
+              "uuid": "624aeb1c-8751-5564-ae2e-0f84c226d369"
             },
             {
               "@type": "WorkflowRoute",
@@ -708,7 +814,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "4babf7dc-b907-4d11-8b19-35d8e04440a0"
+              "uuid": "965307d2-1bac-515a-b4b1-680d2d4da987"
             }
           ],
           "groups": [
@@ -805,21 +911,21 @@
             },
             {
               "@type": "WorkflowStep",
-              "name": "Check if destination IP is private",
+              "name": "Check destination is a public IP",
               "description": null,
               "arguments": {
                 "conditions": [
                   {
-                    "option": "Private IP identified",
-                    "step_iri": "/api/3/workflow_steps/afa14f68-8904-4026-81dd-c55706d57cda",
-                    "condition": "{{ vars.destination_ip | ipaddr('private') is not none }}",
-                    "step_name": "No operation"
-                  },
-                  {
                     "option": "Destination is Public",
-                    "default": true,
+                    "condition": "{{ (vars.destination_ip | ipaddr('public')) is string and '/' not in vars.destination_ip }}",
                     "step_iri": "/api/3/workflow_steps/bbef6cd1-affc-4fc4-8687-8b90b7d58a57",
                     "step_name": "Create IOC for destination"
+                  },
+                  {
+                    "option": "Not a public IP",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/afa14f68-8904-4026-81dd-c55706d57cda",
+                    "step_name": "No operation"
                   }
                 ],
                 "step_variables": []
@@ -838,7 +944,7 @@
               "arguments": {
                 "resource": {
                   "tlp": "/api/3/picklists/7bff95b7-6438-4b01-b23a-0fe8cb5b33d3",
-                  "value": "{{vars.input.records[0].destinationIp}}",
+                  "value": "{{ vars.destination_ip }}",
                   "alerts": "{{vars.input.records[0]['@id']}}",
                   "__replace": "true",
                   "reputation": "/api/3/picklists/7074e547-7785-4979-be32-c6d0c863e4bd",
@@ -872,7 +978,7 @@
                   "type": "/api/3/picklists/ff599189-3eeb-4c86-acb0-a7915e85ac3b",
                   "tenant": "",
                   "thread": false,
-                  "content": "<p>Destination IP {{vars.destination_ip}} is Private, Skipping adding the IP to the threat feed</p>",
+                  "content": "<p>Destination {{ vars.destination_ip | e }} is not a public IP address, so it was not added to the threat feed.</p>",
                   "records": ""
                 },
                 "version": "3.4.0",
@@ -893,7 +999,7 @@
               "name": "Set vars",
               "description": null,
               "arguments": {
-                "destination_ip": "{{vars.input.records[0].destinationIp}}"
+                "destination_ip": "{{ vars.input.records[0].destinationIp | default('', true) | string | trim }}"
               },
               "status": null,
               "top": "220",
@@ -957,23 +1063,23 @@
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "Check if destination IP is private -> Create IOC for destination",
+              "name": "Check destination is a public IP -> Create IOC for destination",
               "targetStep": "/api/3/workflow_steps/bbef6cd1-affc-4fc4-8687-8b90b7d58a57",
               "sourceStep": "/api/3/workflow_steps/fce3f166-b126-4694-b961-2a2fd6bead00",
               "label": "Destination is Public",
               "isExecuted": false,
               "group": null,
-              "uuid": "facbd56f-fa19-4855-b887-c2e59ff2418f"
+              "uuid": "516713d6-7859-5761-8101-1faa1276d7a6"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Check if destination IP is private -> No operation",
+              "name": "Check destination is a public IP -> No operation",
               "targetStep": "/api/3/workflow_steps/afa14f68-8904-4026-81dd-c55706d57cda",
               "sourceStep": "/api/3/workflow_steps/fce3f166-b126-4694-b961-2a2fd6bead00",
-              "label": "Private IP identified",
+              "label": "Not a public IP",
               "isExecuted": false,
               "group": null,
-              "uuid": "ac192cc7-e5d9-48e6-a59f-5f0d41f2ca1a"
+              "uuid": "94bd5562-d598-5e2e-829d-d0ad99a47e9e"
             },
             {
               "@type": "WorkflowRoute",
@@ -983,17 +1089,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "74dc57d7-a23e-4c5c-b71f-a84a249999fe"
+              "uuid": "54a99916-42e7-5144-a39c-3d7f0586ac3c"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Set vars -> Check if destination IP is private",
+              "name": "Set vars -> Check destination is a public IP",
               "targetStep": "/api/3/workflow_steps/fce3f166-b126-4694-b961-2a2fd6bead00",
               "sourceStep": "/api/3/workflow_steps/aa3ab962-54ee-4f0d-a397-505cc41a0477",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "4d47a5b4-1833-42b3-886f-0114706859dc"
+              "uuid": "274b7130-fbf4-5c68-8db1-40c7b1f28dc2"
             },
             {
               "@type": "WorkflowRoute",
@@ -1003,7 +1109,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "dbf31f73-93ef-4705-b5c3-cd9c8add938e"
+              "uuid": "6268d8e9-b504-501c-bb7b-2d707dbce0f9"
             }
           ],
           "groups": [
@@ -1066,21 +1172,21 @@
             },
             {
               "@type": "WorkflowStep",
-              "name": "Check if destination IP is private",
+              "name": "Check destination is a public IP",
               "description": null,
               "arguments": {
                 "conditions": [
                   {
-                    "option": "Private IP identified",
-                    "step_iri": "/api/3/workflow_steps/9a3af1f0-deaa-477c-b917-94469831a6db",
-                    "condition": "{{ vars.destination_ip | ipaddr('private') is not none }}",
-                    "step_name": "No operation"
-                  },
-                  {
                     "option": "Destination is Public",
-                    "default": true,
+                    "condition": "{{ (vars.destination_ip | ipaddr('public')) is string and '/' not in vars.destination_ip }}",
                     "step_iri": "/api/3/workflow_steps/f7b376a3-bf1c-4c75-979c-5cd0be6eeb75",
                     "step_name": "Create IOC for destination"
+                  },
+                  {
+                    "option": "Not a public IP",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/9a3af1f0-deaa-477c-b917-94469831a6db",
+                    "step_name": "No operation"
                   }
                 ],
                 "step_variables": []
@@ -1099,7 +1205,7 @@
               "arguments": {
                 "resource": {
                   "tlp": "/api/3/picklists/7bff95b7-6438-4b01-b23a-0fe8cb5b33d3",
-                  "value": "{{vars.input.records[0].destinationIp}}",
+                  "value": "{{ vars.destination_ip }}",
                   "alerts": "{{vars.input.records[0]['@id']}}",
                   "__replace": "true",
                   "reputation": "/api/3/picklists/7074e547-7785-4979-be32-c6d0c863e4bd",
@@ -1133,7 +1239,7 @@
                   "type": "/api/3/picklists/ff599189-3eeb-4c86-acb0-a7915e85ac3b",
                   "tenant": "",
                   "thread": false,
-                  "content": "<p>Destination IP {{vars.destination_ip}} is Private, Skipping adding the IP to the threat feed</p>",
+                  "content": "<p>Destination {{ vars.destination_ip | e }} is not a public IP address, so it was not added to the threat feed.</p>",
                   "records": ""
                 },
                 "version": "3.4.0",
@@ -1154,7 +1260,7 @@
               "name": "Set vars",
               "description": null,
               "arguments": {
-                "destination_ip": "{{vars.input.records[0].destinationIp}}"
+                "destination_ip": "{{ vars.input.records[0].destinationIp | default('', true) | string | trim }}"
               },
               "status": null,
               "top": "220",
@@ -1223,23 +1329,23 @@
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "Check if destination IP is private -> Create IOC for destination",
+              "name": "Check destination is a public IP -> Create IOC for destination",
               "targetStep": "/api/3/workflow_steps/f7b376a3-bf1c-4c75-979c-5cd0be6eeb75",
               "sourceStep": "/api/3/workflow_steps/051af045-4c5f-495e-b316-8d19b4c2cd67",
               "label": "Destination is Public",
               "isExecuted": false,
               "group": null,
-              "uuid": "724ac404-25cf-4edf-9ab6-f2a212a48566"
+              "uuid": "d52d4435-f999-544b-b6f2-a1ed4cd3e6b3"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Check if destination IP is private -> No operation",
+              "name": "Check destination is a public IP -> No operation",
               "targetStep": "/api/3/workflow_steps/9a3af1f0-deaa-477c-b917-94469831a6db",
               "sourceStep": "/api/3/workflow_steps/051af045-4c5f-495e-b316-8d19b4c2cd67",
-              "label": "Private IP identified",
+              "label": "Not a public IP",
               "isExecuted": false,
               "group": null,
-              "uuid": "1224c56b-d68c-4569-8ab4-c0d5f8cd56d4"
+              "uuid": "07356375-f91b-587e-8215-456e08eb5359"
             },
             {
               "@type": "WorkflowRoute",
@@ -1249,17 +1355,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "028d15cc-06ab-45fa-a248-71bafbd6104e"
+              "uuid": "0ab77a87-409c-51b8-87cf-01a3af980233"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Set vars -> Check if destination IP is private",
+              "name": "Set vars -> Check destination is a public IP",
               "targetStep": "/api/3/workflow_steps/051af045-4c5f-495e-b316-8d19b4c2cd67",
               "sourceStep": "/api/3/workflow_steps/92aceb67-b42a-4cdf-b6ed-4b2f6a4c8272",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "fdb3b267-b031-4e14-80b0-6cab42efa7ee"
+              "uuid": "aff2b019-0513-5e65-ab44-e44c7b6fd48d"
             },
             {
               "@type": "WorkflowRoute",
@@ -1269,7 +1375,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "c84d395b-4b97-4091-ac16-441bb25fa62b"
+              "uuid": "75724834-a8a3-53bf-b8b8-3f7b21d4f54a"
             }
           ],
           "groups": [

@@ -32,8 +32,17 @@ tags:
 - fortimanager
 - api
 author: ftnt-dspille
-version: 1.0.0
+version: 1.0.1
 min_version: 7.4.0
 license: MIT
 published: '2026-10-06'
 author_id: 99558074
+updated: '2026-10-06'
+changelog:
+- version: 1.0.1
+  date: '2026-10-06'
+  notes: The api-user code step receives its inputs as escaped literals instead of pasted text, and debug
+    logging is off on every helper so passwords stay out of run logs.
+- version: 1.0.0
+  date: '2026-10-06'
+  notes: First published.

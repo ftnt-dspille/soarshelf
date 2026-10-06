@@ -20,8 +20,18 @@ tags:
 - threat-feed
 - block
 author: ftnt-dspille
-version: 1.0.0
+version: 1.0.1
 min_version: 7.4.0
 license: MIT
 published: '2026-10-06'
 author_id: 99558074
+updated: '2026-10-06'
+changelog:
+- version: 1.0.1
+  date: '2026-10-06'
+  notes: 'Only a single valid public IP is added to the feed: the FortiEDR trigger now has the same check
+    as the FortiNDR ones, the feed update keeps IP indicators only and drops private, invalid and CIDR
+    values, and the feed file body is built as JSON instead of by string pasting.'
+- version: 1.0.0
+  date: '2026-10-06'
+  notes: First published.
