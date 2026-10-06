@@ -1,6 +1,6 @@
 export type Theme = 'light' | 'dark';
-/** Colour palette, independent of light/dark. 'docs' matches the FortiSOAR API docs. */
-export type Palette = 'default' | 'docs';
+/** Colour palette, independent of light/dark. 'docs' (the default) matches the FortiSOAR API docs. */
+export type Palette = 'docs' | 'classic';
 
 const KEY = 'soarshelf-theme';
 const PALETTE_KEY = 'soarshelf-palette';
@@ -33,11 +33,11 @@ function system(): Theme {
 
 class ThemeState {
   current = $state<Theme>('light');
-  palette = $state<Palette>('default');
+  palette = $state<Palette>('docs');
 
   init() {
     this.current = (document.documentElement.dataset.theme as Theme) || stored() || system();
-    this.palette = document.documentElement.dataset.palette === 'docs' ? 'docs' : 'default';
+    this.palette = document.documentElement.dataset.palette === 'classic' ? 'classic' : 'docs';
     matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
       if (!stored()) this.apply(system(), false);
     });
@@ -53,9 +53,9 @@ class ThemeState {
 
   setPalette(p: Palette) {
     this.palette = p;
-    if (p === 'default') delete document.documentElement.dataset.palette;
+    if (p === 'docs') delete document.documentElement.dataset.palette;
     else document.documentElement.dataset.palette = p;
-    write(PALETTE_KEY, p === 'default' ? null : p);
+    write(PALETTE_KEY, p === 'docs' ? null : p);
   }
 
   private apply(t: Theme, persist: boolean) {

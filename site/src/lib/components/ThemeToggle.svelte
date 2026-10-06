@@ -6,8 +6,8 @@
 
   // Swatches show each palette's own colours, whatever palette is active.
   const PALETTES: { id: Palette; label: string; note: string; swatch: [string, string, string] }[] = [
-    { id: 'default', label: 'Default', note: 'Teal on neutral', swatch: ['#fbfbfa', '#0f766e', '#18181b'] },
-    { id: 'docs', label: 'API docs', note: 'FortiSOAR API docs', swatch: ['#111728', '#f06292', '#a5d6ff'] }
+    { id: 'docs', label: 'API docs', note: 'FortiSOAR API docs', swatch: ['#111728', '#f06292', '#a5d6ff'] },
+    { id: 'classic', label: 'Classic', note: 'Teal on neutral', swatch: ['#fbfbfa', '#0f766e', '#18181b'] }
   ];
   const MODES: { id: Theme; label: string }[] = [
     { id: 'light', label: 'Light' },

@@ -31,7 +31,7 @@
 <svelte:head>
   <meta name="description" content={SITE.description} />
   <meta property="og:site_name" content={SITE.name} />
-  <meta name="theme-color" content={theme.palette === 'docs' ? '#f06292' : '#0f766e'} />
+  <meta name="theme-color" content={theme.palette === 'classic' ? '#0f766e' : '#f06292'} />
 </svelte:head>
 
 <a
