@@ -152,7 +152,8 @@ def clean_images(files: dict[str, bytes]) -> dict[str, bytes]:
     Image.MAX_IMAGE_PIXELS = config.MAX_IMAGE_PIXELS
     out = dict(files)
     for name, raw in files.items():
-        if not name.lower().endswith(IMAGE_SUFFIXES):
+        # Junk is dropped later anyway; macOS tar adds a ._name.png beside every image.
+        if not name.lower().endswith(IMAGE_SUFFIXES) or _is_junk(name):
             continue
         try:
             with Image.open(io.BytesIO(raw)) as im:
