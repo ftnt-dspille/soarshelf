@@ -75,7 +75,7 @@ export function checkFile(name: string, bytes: ArrayBuffer): Result<FileKind> {
       return { ok: false, error: 'This file is not a zip archive' };
     return { ok: true, value: 'zip' };
   }
-  return { ok: false, error: 'Upload a playbook export (.json) or a solution pack (.zip)' };
+  return { ok: false, error: 'Upload a playbook export or a connector/widget manifest (.json), or a solution pack (.zip)' };
 }
 
 /** Stored filename: keep it boring. */

@@ -154,6 +154,7 @@ jobs:
             playbook) dir=playbooks; payload=playbook.json ;;
             solution-pack) dir=solution-packs; payload=pack.zip ;;
             connector) dir=connectors; payload=info.json ;;
+            widget) dir=widgets; payload=info.json ;;
             *) echo "invalid type"; exit 1 ;;
           esac
           # Exactly one item folder holding exactly meta.yaml + the payload, nothing else.

@@ -28,8 +28,8 @@ def decide(results: list[CheckResult], *, trust: str, kind: str, has_code: bool)
         trust = "new"
 
     reasons = []
-    if kind == "connector":
-        reasons.append("Connectors are always reviewed")
+    if kind in ("connector", "widget"):
+        reasons.append(f"{kind.capitalize()}s are always reviewed")
     if has_code:
         reasons.append("Contains steps that run code")
     if trust == "maintainer":

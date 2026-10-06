@@ -26,7 +26,7 @@ from . import config
 from .hubindex import HubIndex
 from .process import Processed, process
 
-TYPE_DIRS = {"playbooks": "playbook", "solution-packs": "solution-pack", "connectors": "connector"}
+TYPE_DIRS = {"playbooks": "playbook", "solution-packs": "solution-pack", "connectors": "connector", "widgets": "widget"}
 SUMMARY_KEYS = ("slug", "type", "title", "summary", "useCases", "tags", "connectors", "triggers",
                 "playbookCount", "stepCount", "hubStatus", "hasCode", "author", "version",
                 "minVersion", "published", "updated")

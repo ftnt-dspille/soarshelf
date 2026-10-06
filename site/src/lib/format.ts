@@ -3,7 +3,8 @@ import type { HubStatus, ItemType, NodeFamily, Severity, Trust } from './types';
 export const TYPE_LABEL: Record<ItemType, string> = {
   playbook: 'Playbook',
   'solution-pack': 'Solution pack',
-  connector: 'Connector'
+  connector: 'Connector',
+  widget: 'Widget'
 };
 
 export const HUB_LABEL: Record<HubStatus, string> = {
@@ -79,4 +80,7 @@ export const FAMILY_KEY: Record<NodeFamily, string> = {
 };
 
 /** Connectors every installation ships with; listing them tells a visitor nothing. */
+/** Types whose code runs on the platform: listed by manifest, linked to source, never hosted. */
+export const CODE_TYPES: ReadonlySet<ItemType> = new Set(['connector', 'widget']);
+
 export const BUILTIN_CONNECTORS = new Set(['code-snippet', 'cyops_utilities']);

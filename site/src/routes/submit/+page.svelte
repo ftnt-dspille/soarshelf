@@ -203,7 +203,7 @@
 <div class="mx-auto max-w-6xl px-4 pt-12 pb-8 sm:px-6">
   <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Share a playbook</h1>
   <p class="mt-2 max-w-2xl text-muted">
-    Upload a playbook collection, solution pack or connector manifest you wrote. It's checked automatically and published once it passes.
+    Upload a playbook collection, solution pack, or a connector or widget manifest (info.json) you wrote. It's checked automatically and published once it passes.
   </p>
 </div>
 
@@ -393,9 +393,9 @@
             {@render fieldError('minVersion')}
           </div>
           <div class="sm:col-span-2">
-            <label for="f-source" class="text-sm font-medium">Source repository <span class="font-normal text-faint">(required for connectors)</span></label>
+            <label for="f-source" class="text-sm font-medium">Source repository <span class="font-normal text-faint">(required for connectors and widgets)</span></label>
             <input id="f-source" type="url" bind:value={draft.source} class="{inputCls} {border('source')}" placeholder="https://github.com/you/your-connector" aria-describedby="h-source {shown.source ? 'e-source' : ''}" />
-            <p id="h-source" class="mt-1 text-xs text-faint">We list a connector's manifest and link here. We never host connector code.</p>
+            <p id="h-source" class="mt-1 text-xs text-faint">Connectors and widgets are listed by manifest with a link here. We never host their code.</p>
             {@render fieldError('source')}
           </div>
         </div>

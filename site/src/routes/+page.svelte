@@ -91,7 +91,7 @@
 
   <div class="relative border-t border-line bg-surface/50">
     <dl class="mx-auto grid max-w-5xl grid-cols-2 divide-line px-4 sm:grid-cols-4 sm:divide-x sm:px-6">
-      {#each [{ k: 'Playbooks', v: index.counts.playbook }, { k: 'Solution packs', v: index.counts['solution-pack'] }, { k: 'Connectors', v: index.counts.connector }, { k: 'Ready from Content Hub', v: total ? `${Math.round((complete / total) * 100)}%` : '-' }] as s (s.k)}
+      {#each [{ k: 'Playbooks', v: index.counts.playbook }, { k: 'Solution packs', v: index.counts['solution-pack'] }, { k: 'Connectors & widgets', v: index.counts.connector + (index.counts.widget ?? 0) }, { k: 'Ready from Content Hub', v: total ? `${Math.round((complete / total) * 100)}%` : '-' }] as s (s.k)}
         <div class="px-2 py-5 text-center">
           <dt class="text-xs text-faint">{s.k}</dt>
           <dd class="mt-1 text-2xl font-semibold tracking-tight tabular-nums">{s.v}</dd>

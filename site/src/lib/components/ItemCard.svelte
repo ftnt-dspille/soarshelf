@@ -40,7 +40,7 @@
 
   <div class="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-1 pt-5 text-xs text-faint">
     <span>
-      {#if item.type === 'connector'}v{item.version}{:else}{plural(item.playbookCount, 'playbook')} · {plural(item.stepCount, 'step')}{/if}
+      {#if item.type === 'connector' || item.type === 'widget'}v{item.version}{:else}{plural(item.playbookCount, 'playbook')} · {plural(item.stepCount, 'step')}{/if}
     </span>
     <span>@{item.author.github} · {formatDate(item.published)}</span>
   </div>

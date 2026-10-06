@@ -55,9 +55,9 @@ def _meta_checks(meta: dict[str, Any], kind: str) -> list[CheckResult]:
         out.append(CheckResult("meta.summary", Severity.WARN, "Summary is longer than 160 characters"))
     if (meta.get("license") or "MIT") != "MIT":
         out.append(CheckResult("meta.license", Severity.BLOCK, "Content must be shared under the MIT licence"))
-    if kind == "connector" and not str(meta.get("source") or "").startswith("https://"):
-        out.append(CheckResult("meta.source", Severity.BLOCK, "Connectors need a public source URL",
-                               "Set 'source' to the https URL of the connector's repository."))
+    if kind in CODE_KINDS and not str(meta.get("source") or "").startswith("https://"):
+        out.append(CheckResult("meta.source", Severity.BLOCK, f"{kind.capitalize()}s need a public source URL",
+                               f"Set 'source' to the https URL of the {kind}'s repository."))
     return out + brand.listing(meta)
 
 
@@ -73,6 +73,10 @@ def _uuids_of(doc_collections: list[dict[str, Any]]) -> dict[str, str]:
 
 
 # --- per-type handlers ---------------------------------------------------------
+
+# Item types whose payload is code that runs on the platform: listed by
+# manifest with a source link, never hosted, always reviewed.
+CODE_KINDS = ("connector", "widget")
 
 def _playbook(up: Upload) -> tuple[list[ParsedCollection], dict[str, str], list[CheckResult], bytes, Any]:
     clean, results = sanitize_collections(up.data)
@@ -154,6 +158,36 @@ def _connector(up: Upload, hub: HubIndex) -> tuple[list[CheckResult], bytes, lis
     return results, json.dumps(keep, indent=2, ensure_ascii=False).encode() + b"\n", ops
 
 
+def _widget(up: Upload, hub: HubIndex) -> tuple[list[CheckResult], bytes, dict[str, Any]]:
+    """Widgets run in the platform's UI with the viewer's session, so like
+    connectors only the manifest is listed; the code stays in its repository."""
+    m = up.data
+    results = secrets.scan(m, "info.json") + brand.content(m)
+    name = str(m.get("name") or "")
+    if name in hub.widgets:
+        results.append(CheckResult("widget.on-hub", Severity.WARN,
+                                   "A widget with this name is on the Content Hub",
+                                   "Rename it if it is a fork, so it can't be confused with the hub version."))
+    md = m.get("metadata") if isinstance(m.get("metadata"), dict) else {}
+
+    def strs(v: Any) -> list[str]:
+        return [str(x)[:60] for x in v][:10] if isinstance(v, list) else []
+
+    info = {
+        "name": name[:80],
+        "title": str(m.get("title") or "")[:120],
+        "subTitle": str(m.get("subTitle") or "")[:200],
+        "version": str(m.get("version") or "")[:20],
+        "description": str(md.get("description") or "")[:2000],
+        "publisher": str(md.get("publisher") or "")[:80],
+        "pages": strs(md.get("pages")),
+        "compatibility": strs(md.get("compatibility")),
+    }
+    results.append(CheckResult("widget.review", Severity.INFO, "Widget code is reviewed by a maintainer",
+                               "Only the manifest is published here; the code stays in the linked repository."))
+    return results, json.dumps(info, indent=2, ensure_ascii=False).encode() + b"\n", info
+
+
 def collections_of(payload: Path) -> list[ParsedCollection]:
     """Parse a published payload's playbooks without re-running the checks."""
     up = read_upload(payload)
@@ -189,19 +223,22 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
     uuids: dict[str, str] = {}
     macros = None
     connector_ops: list[dict[str, Any]] = []
+    widget: dict[str, Any] | None = None
 
     if kind == "playbook":
         collections, uuids, res, body, macros = _playbook(up)
     elif kind == "solution-pack":
         collections, uuids, res, body, macros = _pack(up)
-    else:
+    elif kind == "connector":
         res, body, connector_ops = _connector(up, hub)
+    elif kind == "widget":
+        res, body, widget = _widget(up, hub)
     results += res
 
     rows: list[dict[str, Any]] = []
     pack_rows: list[dict[str, Any]] = []
     deps = deps_mod.Dependencies()
-    if kind != "connector":
+    if kind not in CODE_KINDS:
         results += structure.run(collections)
         results += brand.provenance(collections, uuids, hub)
         known = {pb_id for pb_id in uuids}
@@ -250,6 +287,7 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
             "modules": [{"name": m, "stock": m in config.CORE_MODULES} for m in sorted(deps.modules)],
         },
         "operations": connector_ops,
+        "widget": widget,
         "checks": [r.to_dict() for r in sorted(results, key=_order)],
         "collections": graph.collections_graph(collections),
         "download": {"path": f"/downloads/{slug}/{filename}", "filename": filename,

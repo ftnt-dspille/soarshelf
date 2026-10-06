@@ -20,8 +20,8 @@ from .hubindex import HubIndex
 from .model import CheckResult, ParsedCollection, Severity
 from .process import process
 
-PAYLOAD_NAMES = {"playbook": "playbook.json", "solution-pack": "pack.zip", "connector": "info.json"}
-TYPE_DIRS = {"playbook": "playbooks", "solution-pack": "solution-packs", "connector": "connectors"}
+PAYLOAD_NAMES = {"playbook": "playbook.json", "solution-pack": "pack.zip", "connector": "info.json", "widget": "info.json"}
+TYPE_DIRS = {"playbook": "playbooks", "solution-pack": "solution-packs", "connector": "connectors", "widget": "widgets"}
 
 # Findings that cost the uploader a strike: they mean someone tried to
 # publish a credential or somebody else's content.

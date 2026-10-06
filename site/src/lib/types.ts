@@ -1,6 +1,6 @@
 // Mirrors docs/data-contract.md. The pipeline writes these shapes; the site only reads them.
 
-export type ItemType = 'playbook' | 'solution-pack' | 'connector';
+export type ItemType = 'playbook' | 'solution-pack' | 'connector' | 'widget';
 export type HubStatus = 'complete' | 'needs-custom' | 'version-mismatch';
 export type Trust = 'new' | 'contributor' | 'trusted' | 'maintainer';
 
@@ -59,12 +59,31 @@ export interface ItemDetail extends ItemSummary {
   checks: CheckResult[];
   collections: Collection[];
   download: { path: string; filename: string; sha256: string; bytes: number };
+  /** Repository of a connector or widget; their code is never hosted here. */
+  source?: string | null;
+  /** Connector manifests: the operations it offers. */
+  operations?: { operation: string; title: string | null }[];
+  /** Widget manifests. */
+  widget?: WidgetInfo | null;
+}
+
+export interface WidgetInfo {
+  name: string;
+  title: string;
+  subTitle: string;
+  version: string;
+  description: string;
+  publisher: string;
+  pages: string[];
+  compatibility: string[];
 }
 
 export interface SetupStep {
   kind:
     | 'install-connector'
     | 'configure-connector'
+    | 'install-widget'
+    | 'place-widget'
     | 'install-pack'
     | 'custom-module'
     | 'import'

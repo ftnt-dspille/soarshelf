@@ -1,5 +1,5 @@
 {
- "snapshot": "2026-10-05",
+ "snapshot": "2026-10-06",
  "source": "https://repo.fortisoar.fortinet.com/content-hub/content-hub.json",
  "connectors": {
   "abnormal-security": {
@@ -15975,6 +15975,248 @@
     "2.1.0",
     "2.2.0"
    ]
+  }
+ },
+ "widgets": {
+  "accessControl": {
+   "label": "Access Control",
+   "version": "2.1.0"
+  },
+  "aiAssistant": {
+   "label": "AI Assistant",
+   "version": "5.0.0"
+  },
+  "besImpactEvaluation": {
+   "label": "BES Impact Evaluation",
+   "version": "1.0.0"
+  },
+  "c3Charts": {
+   "label": "C3 Charts",
+   "version": "1.1.0"
+  },
+  "cardTiles": {
+   "label": "Card Tiles",
+   "version": "1.0.0"
+  },
+  "cardView": {
+   "label": "Card View",
+   "version": "1.0.0"
+  },
+  "categoricalInsights": {
+   "label": "Catergorical Insights",
+   "version": "1.0.0"
+  },
+  "cicdConfiguration": {
+   "label": "CICD Configuration Wizard",
+   "version": "1.1.1"
+  },
+  "cicdContentImport": {
+   "label": "CICD Content Import",
+   "version": "1.0.0"
+  },
+  "configureIndicatorExtraction": {
+   "label": "Indicator Extraction Configuration",
+   "version": "2.0.0"
+  },
+  "connectorHealthMonitor": {
+   "label": "Connector Health Monitor",
+   "version": "1.0.0"
+  },
+  "customPicklistMessage": {
+   "label": "Custom Picklist Message",
+   "version": "1.1.2"
+  },
+  "customTags": {
+   "label": "Custom Tags",
+   "version": "1.1.0"
+  },
+  "cyberThreatWorldMap": {
+   "label": "Cyber Threat World Map",
+   "version": "1.0.0"
+  },
+  "dataVisualization": {
+   "label": "Data Visualization",
+   "version": "1.0.0"
+  },
+  "exportTemplateWizard": {
+   "label": "Export Template Wizard",
+   "version": "1.0.0"
+  },
+  "feedConfigurationSettings": {
+   "label": "Feed Configuration Settings",
+   "version": "2.0.0"
+  },
+  "fieldsOfInterest": {
+   "label": "Fields Of Interest",
+   "version": "1.0.2"
+  },
+  "fortiAIConfiguration": {
+   "label": "FortiAI Configuration",
+   "version": "4.0.0"
+  },
+  "fortiguardIocSearch": {
+   "label": "FortiGuard IOC Search",
+   "version": "1.0.0"
+  },
+  "funnelChart": {
+   "label": "Funnel Chart",
+   "version": "1.0.2"
+  },
+  "globalVisibilityConfiguration": {
+   "label": "Global Visibility Configuration",
+   "version": "1.0.0"
+  },
+  "gridSummary": {
+   "label": "Summary Grid",
+   "version": "1.0.0"
+  },
+  "happinessQuotient": {
+   "label": "Happiness Quotient",
+   "version": "1.0.0"
+  },
+  "incidentCorrelations": {
+   "label": "Incident Correlations",
+   "version": "2.1.1"
+  },
+  "incidentTimeline": {
+   "label": "Incident Timeline",
+   "version": "1.0.1"
+  },
+  "jsonToGrid": {
+   "label": "JSON to Grid",
+   "version": "1.2.0"
+  },
+  "killchainphases": {
+   "label": "Kill Chain Phases",
+   "version": "2.0.0"
+  },
+  "languagePack": {
+   "label": "Language Pack",
+   "version": "3.0.0"
+  },
+  "manageDatasets": {
+   "label": "Manage Datasets",
+   "version": "1.1.0"
+  },
+  "mitreAttackSpread": {
+   "label": "MITRE ATT&CK Alert Incident Spread",
+   "version": "1.0.2"
+  },
+  "mobileSettings": {
+   "label": "Mobile Settings",
+   "version": "2.0.1"
+  },
+  "multiTableView": {
+   "label": "Multi Table View",
+   "version": "1.0.0"
+  },
+  "outbreakAlertConfiguration": {
+   "label": "Outbreak Response Framework Configuration Wizard",
+   "version": "2.2.1"
+  },
+  "picklistAsPhases": {
+   "label": "Picklist as Phases",
+   "version": "1.1.0"
+  },
+  "playbookButtons": {
+   "label": "Playbook Buttons",
+   "version": "1.1.1"
+  },
+  "playbookDeveloperAssistant": {
+   "label": "Playbook Developer Assistant",
+   "version": "1.1.0"
+  },
+  "playbookExecutionWizard": {
+   "label": "Playbook Execution Wizard",
+   "version": "1.0.1"
+  },
+  "recordCard": {
+   "label": "Record Card",
+   "version": "1.0.1"
+  },
+  "recordCtaBlock": {
+   "label": "Record CTA Tile",
+   "version": "1.0.1"
+  },
+  "recordDistribution": {
+   "label": "Record Distribution",
+   "version": "1.0.5"
+  },
+  "recordSummary": {
+   "label": "Record Summary",
+   "version": "2.0.0"
+  },
+  "recordSummaryCard": {
+   "label": "Record Summary Card",
+   "version": "1.0.0"
+  },
+  "recordSummaryTile": {
+   "label": "Record Summary Tile",
+   "version": "1.0.0"
+  },
+  "roiCalculator": {
+   "label": "ROI Calculator",
+   "version": "1.0.1"
+  },
+  "securityPosture": {
+   "label": "Security Posture",
+   "version": "1.0.0"
+  },
+  "setupGuide": {
+   "label": "Setup Guide",
+   "version": "1.3.0"
+  },
+  "slaCountDownClock": {
+   "label": "SLA Count Down Timer",
+   "version": "2.0.2"
+  },
+  "socManagement": {
+   "label": "SOC Management",
+   "version": "2.1.2"
+  },
+  "socOverviewSankey": {
+   "label": "Sankey",
+   "version": "2.1.1"
+  },
+  "speedometer": {
+   "label": "Speedometer",
+   "version": "1.1.0"
+  },
+  "submitContentForm": {
+   "label": "Submit Content Form",
+   "version": "1.0.0"
+  },
+  "taskManagement": {
+   "label": "Task Management",
+   "version": "2.0.0"
+  },
+  "taskStatus": {
+   "label": "Task Status",
+   "version": "1.0.0"
+  },
+  "taxiiServerConfiguration": {
+   "label": "TAXII Server Configuration",
+   "version": "1.1.0"
+  },
+  "threatIntelManagementConfiguration": {
+   "label": "Threat Intel Management Configuration",
+   "version": "1.2.0"
+  },
+  "timeSeriesCharts": {
+   "label": "Time Series Charts",
+   "version": "1.0.0"
+  },
+  "topX": {
+   "label": "Top X",
+   "version": "1.0.0"
+  },
+  "userAssignments": {
+   "label": "User Tile",
+   "version": "2.1.2"
+  },
+  "vtAugment": {
+   "label": "VirusTotal Augment",
+   "version": "1.0.0"
   }
  }
 }

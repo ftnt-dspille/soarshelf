@@ -82,7 +82,7 @@ def _hub_index(args: argparse.Namespace) -> int:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     hub = build_hub_index(fetch_catalog(args.catalog) if args.catalog else fetch_catalog())
     HUB_INDEX.write_text(json.dumps(hub, indent=1, ensure_ascii=False) + "\n")
-    print(f"hub index: {len(hub['connectors'])} connectors, {len(hub['solutionPacks'])} packs → {HUB_INDEX}")
+    print(f"hub index: {len(hub['connectors'])} connectors, {len(hub['solutionPacks'])} packs, {len(hub['widgets'])} widgets → {HUB_INDEX}")
     if args.packs_dir:
         packs = [p for p in args.packs_dir.iterdir() if p.is_dir() and not p.name.startswith("_")]
         fp = build_fingerprints(packs)

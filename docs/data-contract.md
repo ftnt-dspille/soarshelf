@@ -13,7 +13,7 @@ All types below are mirrored in `site/src/lib/types.ts`.
 interface SiteIndex {
   generated: string;               // ISO timestamp
   hubSnapshot: string;             // ISO date of the Content Hub index used
-  counts: { playbook: number; 'solution-pack': number; connector: number };
+  counts: { playbook: number; 'solution-pack': number; connector: number; widget: number };
   useCases: UseCase[];             // fixed taxonomy, in display order
   connectors: ConnectorFacet[];    // every connector referenced by any item
   items: ItemSummary[];
@@ -29,7 +29,7 @@ interface ConnectorFacet {
   count: number;                   // items using it
 }
 
-type ItemType = 'playbook' | 'solution-pack' | 'connector';
+type ItemType = 'playbook' | 'solution-pack' | 'connector' | 'widget';
 type HubStatus = 'complete' | 'needs-custom' | 'version-mismatch';
 type Trust = 'new' | 'contributor' | 'trusted' | 'maintainer';
 
@@ -68,11 +68,17 @@ interface ItemDetail extends ItemSummary {
   checks: CheckResult[];           // every check that ran, incl. passes
   collections: Collection[];       // graph for the viewer
   download: { path: string; filename: string; sha256: string; bytes: number };
+  source: string | null;           // repository; required for connectors and widgets
+  operations: { operation: string; title: string | null }[];  // connectors only
+  widget: WidgetInfo | null;       // widgets only: name, title, subTitle, version,
+                                   // description, publisher, pages[], compatibility[]
 }
+// Connectors and widgets are code: only their manifest is published (download
+// is the cleaned info.json) and the item links to `source`.
 
 interface SetupStep {
-  kind: 'install-connector' | 'configure-connector' | 'install-pack'
-      | 'custom-module' | 'import' | 'activate' | 'note';
+  kind: 'install-connector' | 'configure-connector' | 'install-widget' | 'place-widget'
+      | 'install-pack' | 'custom-module' | 'import' | 'activate' | 'note';
   title: string;
   detail: string;                  // markdown
 }

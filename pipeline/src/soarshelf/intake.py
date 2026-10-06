@@ -21,7 +21,7 @@ from .model import CheckResult, RejectedUpload, Severity
 
 @dataclass
 class Upload:
-    kind: str                        # "playbook" | "solution-pack" | "connector"
+    kind: str                        # "playbook" | "solution-pack" | "connector" | "widget"
     filename: str
     raw: bytes
     data: Any = None                 # parsed JSON (playbook / connector manifest)
@@ -97,6 +97,12 @@ def _safe_members(raw: bytes) -> dict[str, bytes]:
     return out
 
 
+def is_widget_manifest(data: Any) -> bool:
+    """A widget's info.json: name, title and a metadata block, and no connector operations."""
+    return (isinstance(data, dict) and isinstance(data.get("name"), str) and isinstance(data.get("title"), str)
+            and isinstance(data.get("metadata"), dict) and "operations" not in data)
+
+
 def read_upload(path: Path) -> Upload:
     """Classify and safely load one uploaded file."""
     raw = path.read_bytes()
@@ -112,9 +118,11 @@ def read_upload(path: Path) -> Upload:
         if isinstance(data, dict) and data.get("type") == "connector" or (
                 isinstance(data, dict) and "operations" in data and "configuration" in data):
             return Upload("connector", path.name, raw, data=data)
+        if is_widget_manifest(data):
+            return Upload("widget", path.name, raw, data=data)
         raise _reject("type", "Unrecognised JSON file",
-                      "Expected a playbook collection export (type: workflow_collections) "
-                      "or a connector manifest (info.json).")
+                      "Expected a playbook collection export (type: workflow_collections), "
+                      "a connector manifest or a widget manifest (info.json).")
 
     if suffix == ".zip":
         if len(raw) > config.MAX_PACK_BYTES:

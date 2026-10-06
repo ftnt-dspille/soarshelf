@@ -39,6 +39,7 @@ class HubIndex:
     snapshot: str
     connectors: dict[str, dict[str, Any]]
     packs: dict[str, dict[str, Any]]
+    widgets: dict[str, dict[str, Any]] = field(default_factory=dict)
     official_uuids: set[str] = field(default_factory=set)
     official_structures: dict[str, str] = field(default_factory=dict)  # hash -> pack label
 
@@ -50,6 +51,7 @@ class HubIndex:
             snapshot=hub["snapshot"],
             connectors=hub["connectors"],
             packs=hub["solutionPacks"],
+            widgets=hub.get("widgets") or {},
             official_uuids=set(fp.get("uuids", [])),
             official_structures=fp.get("structures", {}),
         )
@@ -73,6 +75,7 @@ def build_hub_index(catalog: list[dict[str, Any]]) -> dict[str, Any]:
     """Reduce the public Content Hub catalog to names, versions and operations."""
     connectors: dict[str, Any] = {}
     packs: dict[str, Any] = {}
+    widgets: dict[str, Any] = {}
     for e in catalog:
         if not isinstance(e, dict) or not e.get("name"):
             continue
@@ -89,8 +92,11 @@ def build_hub_index(catalog: list[dict[str, Any]]) -> dict[str, Any]:
         elif e.get("type") == "solutionpack":
             packs[name] = {"label": e.get("label") or name, "version": e.get("version"),
                            "versions": list(e.get("availableVersions") or [])}
+        elif e.get("type") == "widget":
+            widgets[name] = {"label": e.get("label") or name, "version": e.get("version")}
     return {"snapshot": date.today().isoformat(), "source": CATALOG_URL,
-            "connectors": dict(sorted(connectors.items())), "solutionPacks": dict(sorted(packs.items()))}
+            "connectors": dict(sorted(connectors.items())), "solutionPacks": dict(sorted(packs.items())),
+            "widgets": dict(sorted(widgets.items()))}
 
 
 def fetch_catalog(source: str = CATALOG_URL) -> list[dict[str, Any]]:

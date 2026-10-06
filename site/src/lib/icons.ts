@@ -25,6 +25,7 @@ import Circle from '@lucide/svelte/icons/circle';
 import Workflow from '@lucide/svelte/icons/workflow';
 import Package from '@lucide/svelte/icons/package';
 import Puzzle from '@lucide/svelte/icons/puzzle';
+import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
 import type { ItemType, NodeFamily } from './types';
 
 // Generic icons only: no product logos or Content Hub artwork.
@@ -79,5 +80,6 @@ export const FAMILY_LABEL: Record<NodeFamily, string> = {
 export const TYPE_ICON: Record<ItemType, Component> = {
   playbook: Workflow,
   'solution-pack': Package,
-  connector: Puzzle
+  connector: Puzzle,
+  widget: LayoutDashboard
 };

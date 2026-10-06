@@ -28,7 +28,7 @@ export const EMPTY_FILTERS: FilterState = {
   sort: 'relevance'
 };
 
-const ITEM_TYPES: ItemType[] = ['playbook', 'solution-pack', 'connector'];
+const ITEM_TYPES: ItemType[] = ['playbook', 'solution-pack', 'connector', 'widget'];
 const HUB: HubStatus[] = ['complete', 'version-mismatch', 'needs-custom'];
 const SORTS: SortKey[] = ['relevance', 'newest', 'name'];
 

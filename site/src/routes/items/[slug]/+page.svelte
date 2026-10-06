@@ -2,7 +2,7 @@
   import { browser } from '$app/environment';
   import { SITE } from '$lib/config';
   import { connectorLabels } from '$lib/data';
-  import { TYPE_LABEL, formatBytes, formatDate } from '$lib/format';
+  import { CODE_TYPES, TYPE_LABEL, formatBytes, formatDate } from '$lib/format';
   import type { SetupStep } from '$lib/types';
   import TypePill from '$lib/components/TypePill.svelte';
   import HubBadge from '$lib/components/HubBadge.svelte';
@@ -22,6 +22,10 @@
   import Database from '@lucide/svelte/icons/database';
   import Upload from '@lucide/svelte/icons/upload';
   import Zap from '@lucide/svelte/icons/zap';
+  import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
+  import SquarePlus from '@lucide/svelte/icons/square-plus';
+  import ExternalLink from '@lucide/svelte/icons/external-link';
+  import FileJson from '@lucide/svelte/icons/file-json';
   import type { Component } from 'svelte';
 
   let { data } = $props();
@@ -83,10 +87,15 @@
 
   const missing = $derived(item.dependencies.connectors.filter((c) => c.hub === 'missing'));
   const ext = $derived(item.download.filename.split('.').pop()?.toUpperCase() ?? '');
+  // Connectors and widgets: the site lists their manifest; the code lives at the source.
+  const isCode = $derived(CODE_TYPES.has(item.type));
+  const source = $derived(item.source && /^https:\/\//.test(item.source) ? item.source : null);
 
   const STEP_ICON: Record<SetupStep['kind'], Component> = {
     'install-connector': Plug,
     'configure-connector': SlidersHorizontal,
+    'install-widget': LayoutDashboard,
+    'place-widget': SquarePlus,
     'install-pack': Package,
     'custom-module': Database,
     import: Upload,
@@ -137,22 +146,44 @@
       </div>
 
       <div class="rounded-xl border border-line bg-surface p-5 shadow-card">
-        <a
-          href={item.download.path}
-          download={item.download.filename}
-          class="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent text-sm font-medium text-accent-fg transition hover:bg-accent-hover"
-        >
-          <Download size={17} aria-hidden="true" />Download {ext} · {formatBytes(item.download.bytes)}
-        </a>
-        <p class="mt-3 truncate font-mono text-xs text-faint" title={item.download.filename}>{item.download.filename}</p>
-        <div class="mt-1 flex items-center gap-1">
-          <span class="min-w-0 flex-1 truncate font-mono text-xs text-faint" title="SHA-256 {item.download.sha256}">sha256:{item.download.sha256}</span>
-          <CopyButton value={item.download.sha256} label="Copy SHA-256" />
-        </div>
-        <p class="mt-3 border-t border-line pt-3 text-xs leading-relaxed text-muted">
-          Sanitized by the pipeline and shipped <strong class="font-medium text-fg">inactive</strong>. Follow the
-          <button type="button" class="font-medium text-accent-text hover:underline" onclick={() => pick('setup')}>setup steps</button> before turning it on.
-        </p>
+        {#if isCode}
+          {#if source}
+            <a
+              href={source}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              class="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent text-sm font-medium text-accent-fg transition hover:bg-accent-hover"
+            >
+              <ExternalLink size={17} aria-hidden="true" />View source
+            </a>
+            <p class="mt-3 truncate font-mono text-xs text-faint" title={source}>{source.replace(/^https:\/\//, '')}</p>
+          {/if}
+          <a href={item.download.path} download={item.download.filename} class="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-accent-text hover:underline">
+            <FileJson size={13} aria-hidden="true" />Manifest (info.json) · {formatBytes(item.download.bytes)}
+          </a>
+          <p class="mt-3 border-t border-line pt-3 text-xs leading-relaxed text-muted">
+            {TYPE_LABEL[item.type]} code runs on your platform and is <strong class="font-medium text-fg">not hosted here</strong>. Review it at the
+            source, then follow the
+            <button type="button" class="font-medium text-accent-text hover:underline" onclick={() => pick('setup')}>setup steps</button>.
+          </p>
+        {:else}
+          <a
+            href={item.download.path}
+            download={item.download.filename}
+            class="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent text-sm font-medium text-accent-fg transition hover:bg-accent-hover"
+          >
+            <Download size={17} aria-hidden="true" />Download {ext} · {formatBytes(item.download.bytes)}
+          </a>
+          <p class="mt-3 truncate font-mono text-xs text-faint" title={item.download.filename}>{item.download.filename}</p>
+          <div class="mt-1 flex items-center gap-1">
+            <span class="min-w-0 flex-1 truncate font-mono text-xs text-faint" title="SHA-256 {item.download.sha256}">sha256:{item.download.sha256}</span>
+            <CopyButton value={item.download.sha256} label="Copy SHA-256" />
+          </div>
+          <p class="mt-3 border-t border-line pt-3 text-xs leading-relaxed text-muted">
+            Sanitized by the pipeline and shipped <strong class="font-medium text-fg">inactive</strong>. Follow the
+            <button type="button" class="font-medium text-accent-text hover:underline" onclick={() => pick('setup')}>setup steps</button> before turning it on.
+          </p>
+        {/if}
       </div>
     </div>
   </div>
@@ -199,6 +230,41 @@
           </div>
         {/if}
         <Markdown source={item.description} />
+        {#if item.widget}
+          <div class="rounded-xl border border-line p-5">
+            <h2 class="text-sm font-semibold">{item.widget.title}</h2>
+            {#if item.widget.subTitle}<p class="mt-1 text-sm text-muted">{item.widget.subTitle}</p>{/if}
+            <dl class="mt-4 grid gap-4 text-sm sm:grid-cols-2">
+              {#if item.widget.pages.length}
+                <div>
+                  <dt class="text-xs text-faint">Works on</dt>
+                  <dd class="mt-1.5 flex flex-wrap gap-1.5">{#each item.widget.pages as pg (pg)}<span class="rounded-md bg-surface-2 px-2 py-0.5 text-xs text-muted">{pg}</span>{/each}</dd>
+                </div>
+              {/if}
+              {#if item.widget.compatibility.length}
+                <div>
+                  <dt class="text-xs text-faint">Tested on platform</dt>
+                  <dd class="mt-1.5 flex flex-wrap gap-1.5">{#each item.widget.compatibility as v (v)}<span class="rounded-md bg-surface-2 px-2 py-0.5 font-mono text-xs text-muted">{v}</span>{/each}</dd>
+                </div>
+              {/if}
+              <div><dt class="text-xs text-faint">Widget name</dt><dd class="mt-1 font-mono text-xs">{item.widget.name}</dd></div>
+              <div><dt class="text-xs text-faint">Version</dt><dd class="mt-1 font-mono text-xs">{item.widget.version}</dd></div>
+            </dl>
+          </div>
+        {/if}
+        {#if item.type === 'connector' && item.operations?.length}
+          <div class="rounded-xl border border-line">
+            <h2 class="border-b border-line px-5 py-3 text-sm font-semibold">Operations <span class="font-normal text-faint">· {item.operations.length}</span></h2>
+            <ul class="divide-y divide-line">
+              {#each item.operations as op (op.operation)}
+                <li class="flex items-baseline justify-between gap-4 px-5 py-2.5 text-sm">
+                  <span class="min-w-0 truncate">{op.title ?? op.operation}</span>
+                  <code class="shrink-0 font-mono text-xs text-faint">{op.operation}</code>
+                </li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
       </div>
       <aside class="space-y-6 text-sm">
         {#if item.connectors.length}
@@ -236,8 +302,16 @@
           </div>
         {/if}
         <dl class="grid grid-cols-2 gap-3 rounded-xl border border-line p-4">
-          <div><dt class="text-xs text-faint">Playbooks</dt><dd class="mt-0.5 font-semibold tabular-nums">{item.playbookCount}</dd></div>
-          <div><dt class="text-xs text-faint">Steps</dt><dd class="mt-0.5 font-semibold tabular-nums">{item.stepCount}</dd></div>
+          {#if item.type === 'connector'}
+            <div><dt class="text-xs text-faint">Operations</dt><dd class="mt-0.5 font-semibold tabular-nums">{item.operations?.length ?? 0}</dd></div>
+            <div><dt class="text-xs text-faint">Version</dt><dd class="mt-0.5 font-semibold tabular-nums">{item.version}</dd></div>
+          {:else if item.type === 'widget'}
+            <div><dt class="text-xs text-faint">Pages</dt><dd class="mt-0.5 font-semibold tabular-nums">{item.widget?.pages.length ?? 0}</dd></div>
+            <div><dt class="text-xs text-faint">Version</dt><dd class="mt-0.5 font-semibold tabular-nums">{item.version}</dd></div>
+          {:else}
+            <div><dt class="text-xs text-faint">Playbooks</dt><dd class="mt-0.5 font-semibold tabular-nums">{item.playbookCount}</dd></div>
+            <div><dt class="text-xs text-faint">Steps</dt><dd class="mt-0.5 font-semibold tabular-nums">{item.stepCount}</dd></div>
+          {/if}
           <div><dt class="text-xs text-faint">Checks</dt><dd class="mt-0.5 font-semibold tabular-nums">{item.checks.length}</dd></div>
           <div><dt class="text-xs text-faint">To review</dt><dd class="mt-0.5 font-semibold tabular-nums">{issues}</dd></div>
         </dl>

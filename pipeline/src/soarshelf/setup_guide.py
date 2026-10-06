@@ -12,6 +12,16 @@ def _step(kind: str, title: str, detail: str = "") -> dict[str, str]:
 
 def steps(kind: str, connectors: list[dict[str, Any]], packs: list[dict[str, Any]], deps: Any,
           macros: Any, playbooks: list[Any], has_code: bool, meta: dict[str, Any]) -> list[dict[str, str]]:
+    if kind == "widget":
+        return [
+            _step("note", "Review the source first",
+                  f"Read the code at [{meta.get('source')}]({meta.get('source')}) before installing. "
+                  "Widgets run in the platform's UI with the viewer's session."),
+            _step("install-widget", "Install the widget",
+                  "Build the package from the repository, then upload it from **Content Hub › Manage › Widgets**."),
+            _step("place-widget", "Add it to a page",
+                  "Edit a dashboard, report or record view and add the widget from the widget list."),
+        ]
     if kind == "connector":
         return [
             _step("note", "Review the source first",

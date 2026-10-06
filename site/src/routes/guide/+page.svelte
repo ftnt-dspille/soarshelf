@@ -16,14 +16,14 @@
   ];
 
   const checks = [
-    ['Format', 'The file must be a playbook collection export, a solution pack zip or a connector archive. Anything else is rejected.', 'Block'],
+    ['Format', 'The file must be a playbook collection export, a solution pack zip, or a connector or widget manifest (info.json). Anything else is rejected.', 'Block'],
     ['Size', `Playbook JSON up to ${formatBytes(LIMITS.playbookBytes)}, solution pack zip up to ${formatBytes(LIMITS.packBytes)}. Zips are checked for path traversal, symlinks, nested archives and decompression bombs.`, 'Block'],
     ['Secrets', 'API keys, tokens, passwords, private keys, JWTs and credentials in URLs.', 'Block'],
     ['Private network details', 'RFC 1918 and other internal IP addresses, internal hostnames, and real email addresses. Documentation ranges and example.com are fine.', 'Review'],
     ['Ownership references', 'Users, teams, owners and connector configuration IDs are stripped automatically. You don’t need to clean them yourself.', 'Auto-fixed'],
     ['Official content', 'Exports that match published solution pack content are rejected: only share what you wrote.', 'Block'],
     ['Trademarks', 'Titles and descriptions can name products to describe compatibility, but can’t claim to be official or endorsed.', 'Review'],
-    ['Code', 'Code-snippet steps and connector code are flagged and always reviewed by a person.', 'Review'],
+    ['Code', 'Code-snippet steps, connectors and widgets are flagged and always reviewed by a person. Connector and widget code is never hosted here: items link to their source.', 'Review'],
     ['Content Hub dependencies', 'Each connector and operation is checked against the current Content Hub index so users see what they need before importing.', 'Info']
   ];
 
@@ -101,7 +101,7 @@
       <blockquote>Pay particular attention to items marked <em>Contains code</em>. A maintainer reviewed them, but read code steps yourself before turning them on.</blockquote>
 
       <h2 id="contributing">Contributing</h2>
-      <p>You can share playbook collections, solution packs and connectors you wrote yourself. The easiest way is the <a href="/submit">upload page</a>:</p>
+      <p>You can share playbook collections, solution packs, connectors and widgets you wrote yourself. The easiest way is the <a href="/submit">upload page</a>:</p>
       <ol>
         <li><a href="/submit">Sign in with GitHub</a>. Only your public profile is used, to credit you and to limit spam.</li>
         <li>Drop in your export, give it a title, a one-line summary and a use case or two.</li>
