@@ -34,7 +34,7 @@
   );
 </script>
 
-<fieldset class="border-b border-line py-4 last:border-b-0">
+<fieldset class="min-w-0 border-b border-line py-4 last:border-b-0">
   <legend class="contents">
     <button
       type="button"
@@ -62,16 +62,16 @@
         {@const on = selected.includes(o.value)}
         <li>
           <label
-            class="flex cursor-pointer items-center gap-2.5 rounded-md px-1.5 py-1.5 text-sm transition hover:bg-surface-2 {on ? 'text-fg' : 'text-muted'}"
+            class="flex cursor-pointer items-start gap-2.5 rounded-md px-1.5 py-1.5 text-sm transition hover:bg-surface-2 {on ? 'text-fg' : 'text-muted'}"
           >
             <input
               type="checkbox"
               checked={on}
               onchange={() => onToggle(o.value)}
-              class="size-4 shrink-0 rounded border-line-strong accent-[var(--accent)]"
+              class="mt-0.5 size-4 shrink-0 rounded border-line-strong accent-[var(--accent)]"
             />
-            <span class="min-w-0 flex-1 truncate">{o.label}</span>
-            <span class="text-xs tabular-nums text-faint">{o.count}</span>
+            <span class="min-w-0 flex-1 leading-snug break-words">{o.label}</span>
+            <span class="w-6 shrink-0 pt-px text-right text-xs leading-5 tabular-nums text-faint">{o.count}</span>
           </label>
         </li>
       {:else}
