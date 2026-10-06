@@ -226,3 +226,16 @@ def test_long_parameter_text_is_cut_at_a_word():
     from soarshelf.process import _text
     out = _text("word " * 200, 50)
     assert len(out) <= 50 and out.endswith("word…")
+
+
+@pytest.mark.parametrize("field", [
+    {"name": "pw", "title": "Pw", "type": "Password", "value": "x1"},
+    {"name": "api_key", "title": "Key", "type": "text", "value": "x2"},
+    {"name": "x", "title": "Client Secret", "type": "text", "value": "x3"},
+    {"name": "x", "title": "X", "type": "secretbox", "value": "x4"},
+])
+def test_secret_like_defaults_are_never_published(field):
+    from soarshelf.process import _params
+    out = _params([{**field, "visible": True}, {"name": "m", "title": "Mode", "type": "select", "value": "A",
+                                                "onchange": {"A": [{**field, "visible": True}]}}])
+    assert "value" not in out[0] and "value" not in out[1]["onchange"]["A"][0] and out[1]["value"] == "A"

@@ -225,6 +225,17 @@ def _text(v: Any, limit: int) -> str:
     return s if len(s) <= limit else s[:limit - 1].rsplit(" ", 1)[0].rstrip(",;:.") + "…"
 
 
+# A default is shown only for types that can't hold a credential, and never for
+# a field whose name or title looks like one, whatever its declared type.
+_PLAIN_TYPES = {"select", "multiselect", "checkbox", "integer", "decimal", "datetime", "text", "textarea", "json"}
+_SECRETISH = re.compile(r"pass|secret|token|api.?key|apikey|credential|auth|private|cert", re.I)
+
+
+def _secret_field(p: dict[str, Any], kind: str) -> bool:
+    return (kind.lower() not in _PLAIN_TYPES
+            or bool(_SECRETISH.search(f"{p.get('name') or ''} {p.get('title') or ''}")))
+
+
 def _params(raw: Any, depth: int = 0) -> list[dict[str, Any]]:
     """Operation or configuration parameters, trimmed to what a reader needs.
 
@@ -243,7 +254,7 @@ def _params(raw: Any, depth: int = 0) -> list[dict[str, Any]]:
         if desc:
             q["description"] = desc
         val = p.get("value")
-        if kind != "password" and val not in (None, "", [], {}):
+        if not _secret_field(p, kind) and val not in (None, "", [], {}):
             q["value"] = val if isinstance(val, bool) else _text(val if isinstance(val, (str, int, float)) else json.dumps(val), 160)
         opts = [_text(o, 80) for o in p.get("options") or [] if isinstance(o, (str, int, float))] if isinstance(p.get("options"), list) else []
         if opts:
