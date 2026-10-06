@@ -26,7 +26,7 @@ GITHUB_APP_INSTALLATION_ID = ""
 [[d1_databases]]
 binding = "DB"
 database_name = "soarshelf"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "1f6d197e-4116-4589-8970-bc0244b9f051"
 migrations_dir = "migrations"
 
 [[r2_buckets]]
