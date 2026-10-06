@@ -61,6 +61,16 @@ soarshelf add https://github.com/you/kit/tree/main/widgets/x --use-case reportin
 
 Add `--dry-run` to see the report without writing anything.
 
+## Updating your item
+
+Upload the new version on the upload page, the same way as the first time.
+If it's the same playbook, pack, connector or widget (matched by its playbooks'
+ids and steps, or by the connector/widget manifest `name`) and you uploaded the
+original, it replaces your item in place: same page and link, a higher version,
+and a changelog entry from "What changed". Updates go through the same checks
+and review as new items. Items a maintainer added for you are updated by a
+maintainer.
+
 ## Rules
 
 - Share only what you have the rights to share. No re-uploads of official

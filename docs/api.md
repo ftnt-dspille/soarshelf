@@ -59,7 +59,9 @@ interface SubmissionMeta {
   description: string;             // markdown, ≤ 5000 chars
   useCases: string[];              // 1-3 ids from index.useCases
   tags: string[];                  // ≤ 8, each [a-z0-9-]{2,24}
-  version: string;                 // semver-ish
+  version: string;                 // semver-ish, or '' (the package's own version; an update
+                                   // without one gets the next patch number)
+  changes: string;                 // ≤ 500 chars: changelog note when this updates your item
   minVersion: string | null;
   source: string | null;           // https URL, required for connectors
   rightsConfirmed: true;           // "I wrote this or have the right to share it under MIT"

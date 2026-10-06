@@ -3,7 +3,7 @@
   import { SITE } from '$lib/config';
   import { connectorLabels } from '$lib/data';
   import { CODE_TYPES, TYPE_LABEL, formatBytes, formatDate } from '$lib/format';
-  import type { SetupStep } from '$lib/types';
+  import type { ChangelogEntry, SetupStep } from '$lib/types';
   import TypePill from '$lib/components/TypePill.svelte';
   import HubBadge from '$lib/components/HubBadge.svelte';
   import TrustBadge from '$lib/components/TrustBadge.svelte';
@@ -348,6 +348,28 @@
           <div><dt class="text-xs text-faint">Checks</dt><dd class="mt-0.5 font-semibold tabular-nums">{item.checks.length}</dd></div>
           <div><dt class="text-xs text-faint">To review</dt><dd class="mt-0.5 font-semibold tabular-nums">{issues}</dd></div>
         </dl>
+        {#if item.changelog?.length}
+          <div>
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-faint">Changelog</h2>
+            {#snippet entry(e: ChangelogEntry)}
+              <li>
+                <p class="flex items-baseline justify-between gap-2"><span class="font-mono text-xs font-semibold">v{e.version}</span>{#if e.date}<span class="text-xs text-faint">{formatDate(e.date)}</span>{/if}</p>
+                <p class="mt-0.5 text-muted">{e.notes}</p>
+              </li>
+            {/snippet}
+            <ol class="mt-2.5 space-y-2.5 text-sm">
+              {#each item.changelog.slice(0, 5) as e (e.version)}{@render entry(e)}{/each}
+            </ol>
+            {#if item.changelog.length > 5}
+              <details class="mt-2.5 text-sm">
+                <summary class="cursor-pointer text-xs text-accent-text">Older versions ({item.changelog.length - 5})</summary>
+                <ol class="mt-2.5 space-y-2.5">
+                  {#each item.changelog.slice(5) as e (e.version)}{@render entry(e)}{/each}
+                </ol>
+              </details>
+            {/if}
+          </div>
+        {/if}
       </aside>
     </div>
   {:else if tab === 'playbooks'}

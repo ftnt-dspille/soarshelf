@@ -83,6 +83,19 @@ def _pr_body(args: argparse.Namespace) -> int:
     return 0
 
 
+def _owns(args: argparse.Namespace) -> int:
+    """Exit 0 when the item exists and was uploaded from this GitHub account."""
+    import yaml
+
+    meta_path = args.item / "meta.yaml"
+    if not meta_path.is_file():
+        return 1
+    meta = yaml.safe_load(meta_path.read_text()) or {}
+    same = (str(meta.get("author") or "").lower() == args.login.lower()
+            and isinstance(meta.get("author_id"), int) and meta["author_id"] == args.id)
+    return 0 if same else 1
+
+
 def _verify_authors(args: argparse.Namespace) -> int:
     from .authors import git_reader, verify
 
@@ -172,6 +185,12 @@ def main(argv: list[str] | None = None) -> int:
     b2.add_argument("--login", required=True)
     b2.add_argument("--id", required=True)
     b2.set_defaults(fn=_pr_body)
+
+    o = sub.add_parser("owns", help="exit 0 if the item was uploaded by this account (submission Action)")
+    o.add_argument("--item", type=Path, required=True)
+    o.add_argument("--login", required=True)
+    o.add_argument("--id", type=int, required=True)
+    o.set_defaults(fn=_owns)
 
     v = sub.add_parser("verify-authors", help="PR gate: changed items must be credited to the PR author")
     v.add_argument("--pr-author", required=True)

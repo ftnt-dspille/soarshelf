@@ -13,7 +13,8 @@ export interface SubmissionMeta {
   description: string;
   useCases: string[];
   tags: string[];
-  version: string;
+  version: string;          // '' = keep the package's own version, or bump an update's patch number
+  changes: string;          // what changed, for a new version of the uploader's own item
   minVersion: string | null;
   source: string | null;
   rightsConfirmed: true;
@@ -29,7 +30,8 @@ export function validateMeta(raw: unknown): Result<SubmissionMeta> {
   const title = str(m.title);
   const summary = str(m.summary);
   const description = str(m.description);
-  const version = str(m.version) || '1.0.0';
+  const version = str(m.version);
+  const changes = str(m.changes).replace(/\s+/g, ' ');
   const minVersion = str(m.minVersion) || null;
   const source = str(m.source) || null;
   const useCases = Array.isArray(m.useCases) ? m.useCases.map(str) : [];
@@ -42,16 +44,17 @@ export function validateMeta(raw: unknown): Result<SubmissionMeta> {
     return { ok: false, error: 'Pick 1-3 use cases' };
   if (tags.length > 8 || !tags.every((t) => /^[a-z0-9-]{2,24}$/.test(t)))
     return { ok: false, error: 'Up to 8 tags: lowercase letters, digits and dashes' };
-  if (!/^\d+(\.\d+){0,3}([-+][\w.]+)?$/.test(version)) return { ok: false, error: 'Version must look like 1.0.0' };
+  if (version && !/^\d+(\.\d+){0,3}([-+][\w.]+)?$/.test(version)) return { ok: false, error: 'Version must look like 1.0.0' };
   if (minVersion && !/^\d+(\.\d+){0,3}$/.test(minVersion))
     return { ok: false, error: 'Minimum platform version must look like 7.4.0' };
   if (source && (!/^https:\/\/[^\s]+$/.test(source) || source.length > 300))
     return { ok: false, error: 'Source must be an https URL' };
+  if (changes.length > 500) return { ok: false, error: 'What changed is longer than 500 characters' };
   if (m.rightsConfirmed !== true) return { ok: false, error: 'Confirm you have the right to share this' };
 
   return {
     ok: true,
-    value: { title, summary, description, useCases, tags, version, minVersion, source, rightsConfirmed: true }
+    value: { title, summary, description, useCases, tags, version, changes, minVersion, source, rightsConfirmed: true }
   };
 }
 

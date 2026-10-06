@@ -70,6 +70,14 @@ export interface ItemDetail extends ItemSummary {
   operations?: { operation: string; title: string | null }[];
   /** Widget manifests. */
   widget?: WidgetInfo | null;
+  /** Newest first; empty until the item's first update. */
+  changelog?: ChangelogEntry[];
+}
+
+export interface ChangelogEntry {
+  version: string;
+  date: string;
+  notes: string;
 }
 
 export interface WidgetInfo {

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
@@ -85,7 +86,7 @@ def to_meta(form: dict[str, Any], author: str) -> dict[str, Any]:
         "use_cases": [str(u) for u in (form.get("useCases") or [])][:3],
         "tags": [t for t in (str(x).lower() for x in (form.get("tags") or [])) if re.fullmatch(r"[a-z0-9-]{2,24}", t)][:8],
         "author": author,
-        "version": text("version", 20) or "1.0.0",
+        "version": text("version", 20),
         "min_version": text("minVersion", 20) or None,
         "license": "MIT",
         "published": date.today().isoformat(),
@@ -105,10 +106,16 @@ class IntakeResult:
     kind: str | None
     strike: bool
     written: Path | None
+    update: bool = False
+    previous_version: str | None = None
+    version: str | None = None
+    changes: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {"decision": self.decision, "reasons": self.reasons, "checks": self.checks,
-                "slug": self.slug, "type": self.kind, "strike": self.strike}
+                "slug": self.slug, "type": self.kind, "strike": self.strike,
+                "update": self.update, "previousVersion": self.previous_version,
+                "version": self.version, "changes": self.changes}
 
 
 def intake(file: Path, form: dict[str, Any], author: str, content: Path,
@@ -125,21 +132,38 @@ def intake(file: Path, form: dict[str, Any], author: str, content: Path,
     trust = tier_for(load_trust(content), author, author_id) if author_id is not None else "new"
 
     res = process(meta, file, trust, hub)
-    results = res.detail["_results"]
-    dupes = _already_published(res.detail.get("_collections") or [], content, author) if res.decision != "reject" else []
-    if dupes:
-        results.extend(dupes)
-        res.decision, res.reasons = "reject", [r.title for r in dupes]
-        res.detail["checks"] = [r.to_dict() for r in dupes] + res.detail["checks"]
-    strike = any(r.severity is Severity.BLOCK and r.id.startswith(STRIKE_PREFIXES)
-                 and r.id != "provenance.duplicate-item" for r in results)
     kind = res.detail.get("type")
+    target, blocks = (None, [])
+    if res.decision != "reject":
+        target, blocks = _existing(res.detail, kind, content, author, author_id)
+    previous = None
+    if target is not None and not blocks:
+        old = yaml.safe_load((target / "meta.yaml").read_text()) or {}
+        previous = str(old.get("version") or "")
+        own_version = "" if kind == "playbook" else str(res.detail.get("version") or "")   # packs/packages carry one
+        meta, problem = _updated_meta(old, meta, own_version, form, previous)
+        if problem:
+            blocks = [problem]
+        else:
+            slug = meta["slug"] = target.name
+            res = process(meta, file, trust, hub)   # again, so download paths use the item's slug
+    results = res.detail["_results"]
+    if blocks:
+        results.extend(blocks)
+        res.decision, res.reasons = "reject", [r.title for r in blocks]
+        res.detail["checks"] = [r.to_dict() for r in blocks] + res.detail["checks"]
+    strike = any(r.severity is Severity.BLOCK and r.id.startswith(STRIKE_PREFIXES)
+                 and r.id not in _NO_STRIKE for r in results)
+    update = target is not None and not blocks
 
     written = None
     if res.decision != "reject" and res.download is not None and kind in TYPE_DIRS:
         written = content / TYPE_DIRS[kind] / slug
+        if update:
+            shutil.rmtree(written)
         written.mkdir(parents=True)
         meta.pop("slug")
+        meta["version"] = meta.get("version") or res.detail.get("version") or "1.0.0"
         (written / "meta.yaml").write_text(yaml.safe_dump(meta, sort_keys=False, allow_unicode=True, width=100))
         if res.files:
             # Package source, committed file by file so the reviewer reads it in the pull request.
@@ -151,24 +175,121 @@ def intake(file: Path, form: dict[str, Any], author: str, content: Path,
             (written / PAYLOAD_NAMES[kind]).write_bytes(res.download)
 
     return IntakeResult(res.decision, res.reasons, res.detail["checks"], slug if written else None,
-                        kind, strike, written)
+                        kind, strike, written, update=bool(update and written),
+                        previous_version=previous if update else None,
+                        version=meta.get("version") if written else None,
+                        changes=(meta.get("changelog") or [{}])[0].get("notes") if update and written else None)
 
 
-def _already_published(collections: list[ParsedCollection], content: Path, author: str) -> list[CheckResult]:
-    """Playbooks that are already on the site, whatever the upload's type."""
-    keys = fingerprints(collections)
-    if not keys:
-        return []
-    known = published_playbooks(content)
-    hits = {known[k] for k in keys if k in known}
-    out = []
-    for slug, owner in sorted(hits):
-        if owner.lower() == author.lower():
-            detail = f"You already published this as '{slug}'. Updating an existing item from the upload page is coming soon; for now open a pull request that changes it."
+# Re-uploading or updating something already listed is not an attempt to pass off content.
+_NO_STRIKE = {"provenance.duplicate-item", "provenance.update"}
+
+
+def _block(id_: str, title: str, detail: str) -> CheckResult:
+    return CheckResult(id_, Severity.BLOCK, title, detail)
+
+
+def _existing(detail: dict[str, Any], kind: str | None, content: Path, author: str,
+              author_id: int | None) -> tuple[Path | None, list[CheckResult]]:
+    """The uploader's own item this upload is a new version of, or why it can't be published.
+
+    Playbooks and packs are matched by their playbooks (uuids and step structure),
+    connectors and widgets by their manifest name. Someone else's item is never
+    replaced; an item without a recorded GitHub id can only be changed by a maintainer.
+    """
+    from .build import item_dirs
+
+    items = item_dirs(content)
+    hits: dict[Path, str] = {}
+    if kind in ("connector", "widget"):
+        name = detail.get("_name") or ""
+        if name:
+            hits = {item: k for k, item in items if k == kind and _manifest_name(item) == name}
+    else:
+        keys = fingerprints(detail.get("_collections") or [])
+        known = published_playbooks(content) if keys else {}
+        slugs = {known[k][0] for k in keys if k in known}
+        hits = {item: k for k, item in items if item.name in slugs}
+    if not hits:
+        return None, []
+
+    out: list[CheckResult] = []
+    own: list[Path] = []
+    for item, k in sorted(hits.items()):
+        meta = yaml.safe_load((item / "meta.yaml").read_text()) or {}
+        if str(meta.get("author") or "").lower() != author.lower():
+            out.append(_block("provenance.duplicate-item", "Already published",
+                              f"This is already on the site as '{item.name}' by another contributor."))
+        elif not (isinstance(meta.get("author_id"), int) and meta["author_id"] == author_id):
+            out.append(_block("provenance.update", "Can't update this item",
+                              f"'{item.name}' is listed under your name but wasn't uploaded from your account. "
+                              "Ask a maintainer to update it."))
+        elif k != kind:
+            out.append(_block("provenance.update", "Already published",
+                              f"Part of this is already on the site as your {k} '{item.name}'. "
+                              f"Upload a new version of that {k} instead."))
         else:
-            detail = f"This is already on the site as '{slug}' by another contributor."
-        out.append(CheckResult("provenance.duplicate-item", Severity.BLOCK, "Already published", detail))
-    return out
+            own.append(item)
+    if out:
+        return None, out
+    if len(own) > 1:
+        names = ", ".join(f"'{i.name}'" for i in own)
+        return None, [_block("provenance.update", "Matches more than one of your items",
+                             f"This upload matches {names}. Update them one at a time.")]
+    return own[0], []
+
+
+def _manifest_name(item: Path) -> str:
+    pkg = item / "package"
+    paths = sorted(pkg.glob("*/info.json")) if pkg.is_dir() else [item / "info.json"]
+    for p in paths:
+        try:
+            return str(json.loads(p.read_text()).get("name") or "")
+        except (OSError, ValueError, AttributeError):
+            continue
+    return ""
+
+
+def _version_key(v: str) -> tuple[int, ...] | None:
+    m = re.match(r"^(\d+(?:\.\d+){0,3})", v)
+    return tuple(int(x) for x in m.group(1).split(".")) if m else None
+
+
+def _bump(v: str) -> str:
+    key = _version_key(v)
+    if key is None:
+        return ""
+    parts = list(key) + [0] * (3 - len(key))
+    parts[-1] += 1
+    return ".".join(str(x) for x in parts)
+
+
+def _updated_meta(old: dict[str, Any], new: dict[str, Any], upload_version: str, form: dict[str, Any],
+                  previous: str) -> tuple[dict[str, Any], CheckResult | None]:
+    """meta.yaml for a new version: the form's values over the old ones, the first
+    publish date kept, and a changelog entry for this version."""
+    version = new.get("version") or ""
+    if not version:
+        # A package carries its own version; a playbook without one gets the next patch number.
+        version = upload_version if upload_version and upload_version != previous else _bump(previous)
+    a, b = _version_key(version), _version_key(previous)
+    if not version or version == previous or (a is not None and b is not None and a <= b):
+        return old, _block("provenance.update", "Version must go up",
+                           f"Your item is at version {previous or 'unknown'}. Upload it with a higher version.")
+
+    meta = dict(old)
+    for k, v in new.items():
+        if v not in (None, "", []):
+            meta[k] = v
+    meta["version"] = version
+    meta["published"] = old.get("published") or new.get("published")
+    meta["updated"] = date.today().isoformat()
+    log = [e for e in (old.get("changelog") or []) if isinstance(e, dict)]
+    if not log and previous:
+        log = [{"version": previous, "date": str(old.get("published") or ""), "notes": "First published."}]
+    notes = re.sub(r"\s+", " ", str(form.get("changes") or "")).strip()[:500] or "Updated."
+    meta["changelog"] = [{"version": version, "date": meta["updated"], "notes": notes}, *log][:50]
+    return meta, None
 
 
 _ZW = "\u200b"
@@ -198,6 +319,9 @@ def pr_body(report: dict[str, Any], login: str, submission_id: str) -> str:
         if decision == "publish" else "**Needs review**",
         "",
     ]
+    if report.get("update"):
+        lines[1:1] = ["", f"**Update** of the uploader's own item: version {_inert(report.get('previousVersion') or '?', 20)}"
+                          f" → {_inert(report.get('version') or '?', 20)}. Changes: {_inert(report.get('changes') or '')}"]
     for r in report.get("reasons") or []:
         lines.append(f"- {_inert(r)}")
     lines += ["", "<details><summary>Check results</summary>", ""]

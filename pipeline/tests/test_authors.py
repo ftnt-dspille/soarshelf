@@ -129,3 +129,16 @@ def test_cli_against_real_git(tmp_path):
     finally:
         sys.stdin = sys.__stdin__
     assert rc == 1
+
+
+def test_owns_needs_login_and_account_id(tmp_path):
+    from soarshelf.cli import main
+    item = tmp_path / "x"
+    item.mkdir()
+    (item / "meta.yaml").write_text("author: Alice\nauthor_id: 2\n")
+    assert main(["owns", "--item", str(item), "--login", "alice", "--id", "2"]) == 0
+    assert main(["owns", "--item", str(item), "--login", "alice", "--id", "3"]) == 1
+    assert main(["owns", "--item", str(item), "--login", "bob", "--id", "2"]) == 1
+    assert main(["owns", "--item", str(tmp_path / "missing"), "--login", "alice", "--id", "2"]) == 1
+    (item / "meta.yaml").write_text("author: alice\n")          # added by a maintainer
+    assert main(["owns", "--item", str(item), "--login", "alice", "--id", "2"]) == 1

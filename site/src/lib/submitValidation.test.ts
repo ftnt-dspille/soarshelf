@@ -8,6 +8,7 @@ const good: SubmitDraft = {
   useCases: ['containment'],
   tags: ['ip', 'block'],
   version: '1.0.0',
+  changes: '',
   minVersion: '',
   source: '',
   rightsConfirmed: true

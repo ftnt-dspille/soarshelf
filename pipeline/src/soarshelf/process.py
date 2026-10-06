@@ -366,6 +366,7 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
         "published": str(meta.get("published") or ""),
         "updated": str(meta.get("updated") or meta.get("published") or ""),
         "source": meta.get("source"),
+        "changelog": _changelog(meta.get("changelog")),
         "setup": setup_guide.steps(kind, rows, pack_rows, deps, macros, playbooks, bool(code), meta, packaged),
         "dependencies": {
             "connectors": rows,
@@ -381,12 +382,23 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
         "screenshots": [{**s_, "path": f"/downloads/{slug}/{s_['file']}"} for s_ in shots],
         "_results": results,
         "_collections": collections,
+        "_name": str(up.data.get("name") or "") if kind in CODE_KINDS else "",
     }
     decision, reasons = policy.decide(results, trust=trust, kind=kind, has_code=bool(code))
     # A manifest-only listing still returns its trimmed info.json (what gets committed),
     # but detail["download"] is None, so the build does not offer it as a download.
     return Processed(detail, body, filename, decision, reasons,
                      files=dict(up.members or {}) if packaged else None, assets=assets or None)
+
+
+def _changelog(raw: Any) -> list[dict[str, str]]:
+    """meta.yaml ``changelog`` entries, newest first, as plain strings."""
+    out = []
+    for e in raw if isinstance(raw, list) else []:
+        if isinstance(e, dict) and e.get("version"):
+            out.append({"version": str(e["version"])[:20], "date": str(e.get("date") or "")[:10],
+                        "notes": str(e.get("notes") or "")[:500]})
+    return out[:50]
 
 
 _SEV_ORDER = {"block": 0, "warn": 1, "info": 2, "pass": 3}

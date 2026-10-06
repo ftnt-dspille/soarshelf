@@ -23,6 +23,7 @@ export interface SubmissionMeta {
   version: string;
   minVersion: string | null;
   source: string | null;
+  changes: string;
   rightsConfirmed: true;
 }
 

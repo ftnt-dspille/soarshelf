@@ -37,7 +37,8 @@
     description: '',
     useCases: [],
     tags: [],
-    version: '1.0.0',
+    version: '',
+    changes: '',
     minVersion: '',
     source: '',
     rightsConfirmed: false
@@ -121,7 +122,7 @@
     detected = p;
     for (const k of ['title', 'summary', 'version'] as const) {
       const v = p?.[k];
-      const untouched = !draft[k].trim() || draft[k] === filled[k] || (k === 'version' && draft.version === '1.0.0');
+      const untouched = !draft[k].trim() || draft[k] === filled[k];
       if (v && untouched) {
         draft[k] = v;
         filled[k] = v;
@@ -181,6 +182,7 @@
           useCases: draft.useCases,
           tags: draft.tags,
           version: draft.version.trim(),
+          changes: draft.changes.trim(),
           minVersion: draft.minVersion.trim() || null,
           source: draft.source.trim() || null,
           rightsConfirmed: true
@@ -410,14 +412,21 @@
         <h2 class="text-sm font-semibold">Details</h2>
         <div class="mt-3 grid gap-5 sm:grid-cols-2">
           <div>
-            <label for="f-version" class="text-sm font-medium">Version</label>
-            <input id="f-version" bind:value={draft.version} class="{inputCls} {border('version')} font-mono" aria-describedby={shown.version ? 'e-version' : undefined} />
+            <label for="f-version" class="text-sm font-medium">Version <span class="font-normal text-faint">(optional)</span></label>
+            <input id="f-version" bind:value={draft.version} class="{inputCls} {border('version')} font-mono" placeholder="1.0.0" aria-describedby="h-version {shown.version ? 'e-version' : ''}" />
+            <p id="h-version" class="mt-1 text-xs text-faint">Empty uses the file's own version; for an update, the next patch number.</p>
             {@render fieldError('version')}
           </div>
           <div>
             <label for="f-minVersion" class="text-sm font-medium">Minimum platform version <span class="font-normal text-faint">(optional)</span></label>
             <input id="f-minVersion" bind:value={draft.minVersion} class="{inputCls} {border('minVersion')} font-mono" placeholder="7.4.0" aria-describedby={shown.minVersion ? 'e-minVersion' : undefined} />
             {@render fieldError('minVersion')}
+          </div>
+          <div class="sm:col-span-2">
+            <label for="f-changes" class="text-sm font-medium">What changed <span class="font-normal text-faint">(updates only)</span></label>
+            <textarea id="f-changes" bind:value={draft.changes} rows="2" maxlength="500" class="{inputCls} {border('changes')}" placeholder="Handles IPv6 addresses; fixes the retry step." aria-describedby="h-changes {shown.changes ? 'e-changes' : ''}"></textarea>
+            <p id="h-changes" class="mt-1 text-xs text-faint">Uploading a new version of something you've published updates it in place. This goes in its changelog.</p>
+            {@render fieldError('changes')}
           </div>
           <div class="sm:col-span-2">
             <label for="f-source" class="text-sm font-medium">Source repository <span class="font-normal text-faint">(optional)</span></label>

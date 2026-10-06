@@ -104,10 +104,10 @@ structures from official solution packs. Built locally from unpacked packs
 - [x] Status sync when a submission PR is merged or closed
 - [x] Upload page, my-submissions pages, report button (`site/`)
 - [ ] Deploy: GitHub App, OAuth app, D1, R2, Worker route, Pages ([deploy.md](deploy.md))
-- [ ] Updating your own item from the upload page (today: a PR)
+- [x] Updating your own item from the upload page (version bump + changelog)
 
 ### Phase 3 - community features
-- [ ] Versions per item and changelog
+- [x] Versions per item and changelog (current version only; older downloads aren't kept)
 - [ ] "Works on my box" confirmations (signed-in, per platform version)
 - [ ] Collections / curated lists
 - [ ] Optional: pull an item straight into a platform instance via its API (client-side, user's own credentials, never sent to us)

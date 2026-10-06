@@ -97,12 +97,12 @@ jobs:
           mkdir -p /tmp/out/content
           /tmp/p/bin/soarshelf intake-submission --file "$UPLOAD" --meta /tmp/sub/meta.json \
             --author "$LOGIN" --author-id "$GITHUB_UID" --content content --report /tmp/out/report.json
-          echo "$LOGIN" > /tmp/out/login
           decision=$(jq -r .decision /tmp/out/report.json)
           if [ "$decision" != reject ]; then
-            # Hand only the new item folder to the publish job.
-            item=$(git status --porcelain --untracked-files=all content | awk '{print $2}' | cut -d/ -f1-3 | sort -u)
-            [ "$(echo "$item" | wc -l)" -eq 1 ] || { echo "expected one new item: $item"; exit 1; }
+            # Hand only the new or updated item folder to the publish job. NUL-separated,
+            # so file names with spaces or quotes can't split a path.
+            item=$(git status --porcelain=v1 -z --untracked-files=all content | tr '\0' '\n' | cut -c4- | cut -d/ -f1-3 | sort -u)
+            [ -n "$item" ] && [ "$(echo "$item" | wc -l)" -eq 1 ] || { echo "expected one item: $item"; exit 1; }
             mkdir -p "/tmp/out/$(dirname "$item")"
             cp -R "$item" "/tmp/out/$item"
           fi
@@ -155,11 +155,22 @@ jobs:
           name: item
           path: /tmp/out
 
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - name: Install pipeline
+        run: |
+          uv venv /tmp/p
+          uv pip install --python /tmp/p/bin/python -e pipeline
+
       - name: Validate and place the item
         run: |
           [[ "$ID" =~ ^[0-9a-f]{32}$ ]] || { echo "invalid id"; exit 1; }
-          login=$(cat /tmp/out/login)
+          # Who uploaded it comes from the Worker, not from the check job's artifact:
+          # that job handled the upload, so nothing it wrote decides ownership.
+          curl -fsS -H "Authorization: Bearer $INTERNAL_TOKEN" "$API/$ID" -o /tmp/sub.json
+          login=$(jq -r .login /tmp/sub.json)
           [[ "$login" =~ ^[A-Za-z0-9-]{1,39}$ ]] || { echo "invalid login"; exit 1; }
+          uid=$(jq -r .githubId /tmp/sub.json)
+          [[ "$uid" =~ ^[0-9]{1,12}$ ]] || { echo "invalid github id"; exit 1; }
           slug=$(jq -r .slug /tmp/out/report.json)
           type=$(jq -r .type /tmp/out/report.json)
           [[ "$slug" =~ ^[a-z0-9][a-z0-9-]{0,80}$ ]] || { echo "invalid slug"; exit 1; }
@@ -184,30 +195,39 @@ jobs:
           fi
           [ -z "$extra" ] || { echo "unexpected files: $extra"; exit 1; }
           cd - >/dev/null
-          [ ! -e "content/$dir/$slug" ] || { echo "slug already exists"; exit 1; }
+          # A new item needs a free slug. An update replaces an item only when this
+          # account uploaded it and the new meta.yaml still credits the same account.
+          if [ "$(jq -r .update /tmp/out/report.json)" = true ]; then
+            /tmp/p/bin/soarshelf owns --item "content/$dir/$slug" --login "$login" --id "$uid" \
+              || { echo "not the uploader's item"; exit 1; }
+            /tmp/p/bin/soarshelf owns --item "/tmp/out/content/$dir/$slug" --login "$login" --id "$uid" \
+              || { echo "updated item is credited to someone else"; exit 1; }
+            rm -rf "content/$dir/$slug"
+            action=Update
+          else
+            [ ! -e "content/$dir/$slug" ] || { echo "slug already exists"; exit 1; }
+            action=Add
+          fi
           mkdir -p "content/$dir"
           cp -R "/tmp/out/content/$dir/$slug" "content/$dir/$slug"
-          { echo "LOGIN=$login"; echo "SLUG=$slug"; } >> "$GITHUB_ENV"
+          { echo "LOGIN=$login"; echo "SLUG=$slug"; echo "ACTION=$action"; } >> "$GITHUB_ENV"
 
-      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
       - name: Open the pull request
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           BOT: ${{ steps.app.outputs.app-slug }}[bot]
         run: |
-          uv venv /tmp/p
-          uv pip install --python /tmp/p/bin/python -e pipeline
           branch="submission/$ID"
           git config user.name "$BOT"
           git config user.email "$BOT@users.noreply.github.com"
           git checkout -b "$branch"
-          git add content
-          git commit -m "Add $SLUG (submitted by $LOGIN)"
+          git add -A content
+          git commit -m "$ACTION $SLUG (submitted by $LOGIN)"
           git push origin "$branch"
 
           /tmp/p/bin/soarshelf pr-body --report /tmp/out/report.json --login "$LOGIN" --id "$ID" > /tmp/body.md
           label=$([ "$DECISION" = publish ] && echo auto-publish || echo needs-review)
-          pr=$(gh pr create --base main --head "$branch" --title "Add $SLUG" --body-file /tmp/body.md --label "$label")
+          pr=$(gh pr create --base main --head "$branch" --title "$ACTION $SLUG" --body-file /tmp/body.md --label "$label")
 
           status=in-review
           if [ "$DECISION" = publish ] && gh pr merge --auto --squash "$pr"; then status=publishing; fi

@@ -21,7 +21,9 @@ def _pack(path, doc):
     import zipfile
     coll = doc["data"][0]
     with zipfile.ZipFile(path, "w") as zf:
-        zf.writestr("pk/info.json", json.dumps({"name": "pk", "version": "1.0.0"}))
+        zf.writestr("pk/info.json", json.dumps({"name": "pk", "label": "Pk", "version": "1.0.0", "type": "solutionpack"}))
+        zf.writestr(f"pk/playbooks/{coll['name']}/collection.metadata.json",
+                    json.dumps({"name": coll["name"], "uuid": coll["uuid"]}))
         for wf in coll["workflows"]:
             zf.writestr(f"pk/playbooks/{coll['name']}/{wf['name']}.json", json.dumps({**wf, "@type": "Workflow"}))
     return path
@@ -110,13 +112,69 @@ def test_duplicate_found_inside_published_pack(tmp_path, doc, hub, write_json):
     assert any(c["id"] == "provenance.duplicate-item" and "some-pack" in c["detail"] for c in res.checks)
 
 
-def test_duplicate_check_covers_pack_uploads(tmp_path, doc, hub, write_json):
-    from soarshelf.process import collections_of
-    from soarshelf.submission import _already_published
+def test_pack_upload_holding_someone_elses_playbook_is_rejected(tmp_path, doc, hub, write_json):
     content = _content(tmp_path)
     assert intake(write_json(doc), FORM, "alice", content, hub, author_id=2).written
-    found = _already_published(collections_of(_pack(tmp_path / "up.zip", doc)), content, "mallory")
-    assert found and "another contributor" in found[0].detail
+    res = intake(_pack(tmp_path / "up.zip", doc), {**FORM, "title": "My pack"}, "mallory", content, hub, author_id=3)
+    assert res.decision == "reject" and not res.strike
+    assert any(c["id"] == "provenance.duplicate-item" and "another contributor" in c["detail"] for c in res.checks)
+
+
+def _changed(doc):
+    """The same playbook (same uuid), edited."""
+    d = json.loads(json.dumps(doc))
+    d["data"][0]["workflows"][0]["steps"][0]["name"] += " (edited)"
+    return d
+
+
+def test_new_version_of_own_item_updates_it_in_place(tmp_path, doc, hub, write_json):
+    content = _content(tmp_path)
+    first = intake(write_json(doc), FORM, "alice", content, hub, author_id=2)
+    before = yaml.safe_load((first.written / "meta.yaml").read_text())
+    form = {**FORM, "title": "A brand new title", "description": "", "version": "1.3.0", "changes": "Handles IPv6."}
+    res = intake(write_json(_changed(doc)), form, "Alice", content, hub, author_id=2)
+    assert res.update and res.previous_version == "1.2.0" and res.slug == first.slug
+    assert res.to_dict()["update"] is True
+    assert [p.name for p in (content / "playbooks").iterdir()] == [first.slug]
+    meta = yaml.safe_load((res.written / "meta.yaml").read_text())
+    assert meta["version"] == "1.3.0" and meta["title"] == "A brand new title"
+    assert meta["description"] == before["description"] == "x"      # a blank field keeps the old value
+    assert meta["published"] == before["published"] and meta["updated"]
+    assert [(e["version"], e["notes"]) for e in meta["changelog"]] == [("1.3.0", "Handles IPv6."),
+                                                                       ("1.2.0", "First published.")]
+    stored = json.loads((res.written / "playbook.json").read_text())
+    assert stored["data"][0]["workflows"][0]["steps"][0]["name"].endswith("(edited)")
+
+
+def test_update_needs_a_higher_version(tmp_path, doc, hub, write_json):
+    content = _content(tmp_path)
+    intake(write_json(doc), FORM, "alice", content, hub, author_id=2)
+    for v in ("1.2.0", "1.1.9"):
+        res = intake(write_json(_changed(doc)), {**FORM, "version": v}, "alice", content, hub, author_id=2)
+        assert res.decision == "reject" and not res.strike and res.written is None
+        assert any(c["title"] == "Version must go up" for c in res.checks)
+
+
+def test_update_without_a_version_bumps_the_patch(tmp_path, doc, hub, write_json):
+    content = _content(tmp_path)
+    intake(write_json(doc), FORM, "alice", content, hub, author_id=2)
+    res = intake(write_json(_changed(doc)), {**FORM, "version": ""}, "alice", content, hub, author_id=2)
+    assert res.update and yaml.safe_load((res.written / "meta.yaml").read_text())["version"] == "1.2.1"
+
+
+def test_item_added_by_a_maintainer_cant_be_updated_by_upload(tmp_path, doc, hub, write_json):
+    content = _content(tmp_path)
+    first = intake(write_json(doc), FORM, "alice", content, hub)          # no author_id recorded
+    res = intake(write_json(_changed(doc)), {**FORM, "version": "2.0.0"}, "alice", content, hub, author_id=2)
+    assert res.decision == "reject" and not res.strike
+    assert any(c["id"] == "provenance.update" and first.slug in c["detail"] for c in res.checks)
+
+
+def test_same_login_other_account_cant_update(tmp_path, doc, hub, write_json):
+    content = _content(tmp_path)
+    intake(write_json(doc), FORM, "alice", content, hub, author_id=2)
+    res = intake(write_json(_changed(doc)), {**FORM, "version": "2.0.0"}, "alice", content, hub, author_id=99)
+    assert res.decision == "reject" and not res.update
 
 
 def test_inert_breaks_links():
@@ -126,3 +184,10 @@ def test_inert_breaks_links():
         out = _inert(raw)
         for bad in ["://", "www.", "evil.example", "@evil", "](", "#12"]:
             assert bad not in out, (raw, out)
+
+
+def test_pr_body_marks_updates():
+    from soarshelf.submission import pr_body
+    body = pr_body({"decision": "review", "update": True, "previousVersion": "1.2.0", "version": "1.3.0",
+                    "changes": "see https://evil.example"}, "alice", "a" * 32)
+    assert "**Update**" in body and "1​.​2​.​0" in body and "evil.example" not in body

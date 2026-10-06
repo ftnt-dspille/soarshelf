@@ -9,6 +9,7 @@ export interface SubmitDraft {
   useCases: string[];
   tags: string[];
   version: string;
+  changes: string;
   minVersion: string;
   source: string;
   rightsConfirmed: boolean;
@@ -52,7 +53,8 @@ export function validateDraft(d: SubmitDraft, file: File | null): FieldErrors {
   if (d.tags.length > 8) e.tags = 'Use at most 8 tags.';
   else if (d.tags.some((t) => !TAG_RE.test(t))) e.tags = 'Tags use a-z, 0-9 and hyphens, 2 to 24 characters.';
 
-  if (!VERSION_RE.test(d.version.trim())) e.version = 'Use a version like 1.0.0.';
+  if (d.version.trim() && !VERSION_RE.test(d.version.trim())) e.version = 'Use a version like 1.0.0, or leave it empty.';
+  if (d.changes.trim().length > 500) e.changes = 'Keep this under 500 characters.';
   if (d.minVersion.trim() && !VERSION_RE.test(d.minVersion.trim())) e.minVersion = 'Use a version like 7.4.0, or leave it empty.';
 
   const src = d.source.trim();

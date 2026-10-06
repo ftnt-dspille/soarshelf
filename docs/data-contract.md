@@ -72,6 +72,8 @@ interface ItemDetail extends ItemSummary {
   operations: { operation: string; title: string | null }[];  // connectors only
   widget: WidgetInfo | null;       // widgets only: name, title, subTitle, version,
                                    // description, publisher, pages[], compatibility[]
+  changelog: { version: string; date: string; notes: string }[];  // newest first; from
+                                   // meta.yaml `changelog`, empty until the first update
 }
 // Connectors and widgets are code. Uploaded as a .tgz, their source is committed
 // under package/ and the download is a .tgz rebuilt from it (screenshots[] holds

@@ -182,6 +182,10 @@ describe('pure helpers', () => {
     expect(validateMeta({ ...META, tags: ['Has Space'] }).ok).toBe(false);
     expect(validateMeta({ ...META, source: 'http://insecure.example' }).ok).toBe(false);
     expect(validateMeta({ ...META, useCases: [] }).ok).toBe(false);
+    const blank = validateMeta({ ...META, version: '' });
+    expect(blank.ok && blank.value.version).toBe('');
+    expect(validateMeta({ ...META, version: 'latest' }).ok).toBe(false);
+    expect(validateMeta({ ...META, changes: 'x'.repeat(501) }).ok).toBe(false);
   });
 
   it('checks file type by extension and content', () => {

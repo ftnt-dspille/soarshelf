@@ -89,6 +89,31 @@ def test_download_is_rebuilt_from_the_committed_source(tmp_path):
     assert yaml.safe_load((res.written / "meta.yaml").read_text())["author_id"] == 7
 
 
+def test_macos_tar_metadata_files_are_dropped_not_read(tmp_path):
+    files = _conn_files(**{"my-conn/images/icon.png": _png(32, 32),
+                           "my-conn/images/._icon.png": b"\x00\x05\x16\x07AppleDouble"})
+    res = process(dict(META), _write(tmp_path, files), "maintainer", HUB)
+    assert res.decision == "review" and "my-conn/images/._icon.png" not in res.files
+
+
+def test_connector_update_matches_on_manifest_name(tmp_path):
+    content = tmp_path / "content"
+    (content / "connectors").mkdir(parents=True)
+    (content / "contributors.yaml").write_text("{}\n")
+    form = {"title": "Look things up", "summary": "Looks things up somewhere.", "useCases": ["utility"],
+            "rightsConfirmed": True}
+    first = intake(_write(tmp_path, _conn_files()), form, "me", content, author_id=7)
+    newer = {**CONNECTOR, "version": "1.3.0"}
+    files = _conn_files(**{"my-conn/info.json": json.dumps(newer).encode()})
+    res = intake(_write(tmp_path, files, "my-conn_1.3.0.tgz"), {**form, "title": "Renamed"}, "me", content, author_id=7)
+    assert res.update and res.slug == first.slug and res.previous_version == "1.2.0"
+    assert yaml.safe_load((res.written / "meta.yaml").read_text())["version"] == "1.3.0"
+    assert json.loads((res.written / "package/my-conn/info.json").read_text())["version"] == "1.3.0"
+    # the same name from someone else is refused, not listed twice
+    other = intake(_write(tmp_path, files, "x.tgz"), form, "you", content, author_id=8)
+    assert other.decision == "reject" and len(list((content / "connectors").iterdir())) == 1
+
+
 @pytest.mark.parametrize("files,links,why", [
     ({"my-conn/info.json": json.dumps(CONNECTOR).encode(), "my-conn/lib.so": b"\x7fELF"}, (), "package.file-types"),
     ({"my-conn/info.json": json.dumps(CONNECTOR).encode(), "../evil.py": b"x"}, (), "package.path"),
