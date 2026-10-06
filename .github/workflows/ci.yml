@@ -8,6 +8,12 @@ on:
 permissions:
   contents: read
 
+# One run per branch at a time, newest wins: without this, two quick pushes to
+# main can finish out of order and the older build overwrites the newer site.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
