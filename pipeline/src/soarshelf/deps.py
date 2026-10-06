@@ -115,6 +115,13 @@ def checks(deps: Dependencies, rows: list[dict[str, Any]]) -> list[CheckResult]:
 
 
 def hub_status(rows: list[dict[str, Any]]) -> str:
+    """Whether the connectors an item USES can be had from the Content Hub.
+
+    "none" when it uses no connectors (a connector or widget listing itself,
+    or a playbook of built-in steps): there is nothing to say, so no badge.
+    """
+    if not rows:
+        return "none"
     if any(r["hub"] == "missing" for r in rows):
         return "needs-custom"
     if any(r["hub"] == "version-mismatch" for r in rows):

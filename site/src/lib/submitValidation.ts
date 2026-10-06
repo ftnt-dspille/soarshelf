@@ -28,7 +28,10 @@ export function fileError(file: File | null): string | null {
   if (name.endsWith('.zip')) {
     return file.size > LIMITS.packBytes ? 'Solution packs can be up to 20 MB.' : null;
   }
-  return 'Upload a playbook export (.json) or a solution pack (.zip).';
+  if (name.endsWith('.tgz') || name.endsWith('.tar.gz')) {
+    return file.size > LIMITS.packageBytes ? 'Connectors and widgets can be up to 10 MB.' : null;
+  }
+  return 'Upload a playbook export (.json), a connector or widget (.tgz), or a solution pack (.zip).';
 }
 
 export function validateDraft(d: SubmitDraft, file: File | null): FieldErrors {

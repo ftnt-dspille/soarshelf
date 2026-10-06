@@ -16,14 +16,14 @@
   ];
 
   const checks = [
-    ['Format', 'The file must be a playbook collection export, a solution pack zip, or a connector or widget manifest (info.json). Anything else is rejected.', 'Block'],
+    ['Format', 'The file must be a playbook collection export, a connector or widget .tgz, or a solution pack zip. Anything else is rejected.', 'Block'],
     ['Size', `Playbook JSON up to ${formatBytes(LIMITS.playbookBytes)}, solution pack zip up to ${formatBytes(LIMITS.packBytes)}. Zips are checked for path traversal, symlinks, nested archives and decompression bombs.`, 'Block'],
     ['Secrets', 'API keys, tokens, passwords, private keys, JWTs and credentials in URLs.', 'Block'],
     ['Private network details', 'RFC 1918 and other internal IP addresses, internal hostnames, and real email addresses. Documentation ranges and example.com are fine.', 'Review'],
     ['Ownership references', 'Users, teams, owners and connector configuration IDs are stripped automatically. You don’t need to clean them yourself.', 'Auto-fixed'],
     ['Official content', 'Exports that match published solution pack content are rejected: only share what you wrote.', 'Block'],
     ['Trademarks', 'Titles and descriptions can name products to describe compatibility, but can’t claim to be official or endorsed.', 'Review'],
-    ['Code', 'Code-snippet steps, connectors and widgets are flagged and always reviewed by a person. Connector and widget code is never hosted here: items link to their source.', 'Review'],
+    ['Code', 'Code-snippet steps, connectors and widgets are always reviewed by a person. Connector and widget packages are unpacked so every file is read, and the download is rebuilt from that reviewed source.', 'Review'],
     ['Content Hub dependencies', 'Each connector and operation is checked against the current Content Hub index so users see what they need before importing.', 'Info']
   ];
 

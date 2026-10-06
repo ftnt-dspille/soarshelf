@@ -6,7 +6,7 @@ Layout::
       contributors.yaml            # github handle -> trust tier
       playbooks/<slug>/meta.yaml + one .json payload
       solution-packs/<slug>/meta.yaml + one .zip payload
-      connectors/<slug>/meta.yaml + info.json
+      connectors/<slug>/meta.yaml + info.json, or + package/<folder>/... (the source, rebuilt into the .tgz)
 
 Content on the main branch has been approved (merged), so the build publishes
 everything that has no blocking finding, and fails if anything does.
@@ -27,7 +27,7 @@ from .hubindex import HubIndex
 from .process import Processed, process
 
 TYPE_DIRS = {"playbooks": "playbook", "solution-packs": "solution-pack", "connectors": "connector", "widgets": "widget"}
-SUMMARY_KEYS = ("slug", "type", "title", "summary", "useCases", "tags", "connectors", "triggers",
+SUMMARY_KEYS = ("slug", "type", "title", "displayName", "summary", "useCases", "tags", "connectors", "triggers",
                 "playbookCount", "stepCount", "hubStatus", "hasCode", "author", "version",
                 "minVersion", "published", "updated")
 
@@ -68,6 +68,9 @@ def item_dirs(content: Path) -> list[tuple[str, Path]]:
 
 
 def payload_of(item: Path) -> Path:
+    """The item's one payload file, or its ``package/`` folder (connector/widget source)."""
+    if (item / "package").is_dir():
+        return item / "package"
     files = [p for p in item.iterdir() if p.is_file() and p.name != "meta.yaml" and not p.name.startswith(".")]
     if len(files) != 1:
         raise SystemExit(f"{item}: expected exactly one payload file next to meta.yaml, found {len(files)}")
@@ -166,7 +169,11 @@ def build(content: Path, out: Path) -> int:
         detail = {k: v for k, v in res.detail.items() if not k.startswith("_")}
         (data_dir / "items" / f"{item.name}.json").write_text(json.dumps(detail, indent=1, ensure_ascii=False))
         (dl_dir / item.name).mkdir(parents=True)
-        (dl_dir / item.name / res.filename).write_bytes(res.download)
+        if res.detail.get("download"):
+            (dl_dir / item.name / res.filename).write_bytes(res.download)
+        for rel, raw in (res.assets or {}).items():
+            (dl_dir / item.name / rel).parent.mkdir(parents=True, exist_ok=True)
+            (dl_dir / item.name / rel).write_bytes(raw)
         summaries.append({k: detail[k] for k in SUMMARY_KEYS})
         published.append((detail, yaml.safe_load((item / "meta.yaml").read_text()) or {}))
         print(f"✓ {item.relative_to(content)}")

@@ -24,12 +24,20 @@
     {/if}
   </div>
 
-  <h3 class="mt-3.5 text-[15px] font-semibold leading-snug tracking-tight text-fg group-hover:text-accent-text">
-    {item.title}
-  </h3>
+  {#if item.displayName}
+    <!-- Connectors and widgets are looked for by name, so the name leads. -->
+    <h3 class="mt-3.5 truncate text-base font-semibold tracking-tight text-fg group-hover:text-accent-text">
+      {item.displayName}
+    </h3>
+    {#if item.title !== item.displayName}<p class="mt-0.5 text-sm leading-snug text-fg">{item.title}</p>{/if}
+  {:else}
+    <h3 class="mt-3.5 text-[15px] font-semibold leading-snug tracking-tight text-fg group-hover:text-accent-text">
+      {item.title}
+    </h3>
+  {/if}
   <p class="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">{item.summary}</p>
 
-  {#if item.connectors.length}
+  {#if item.connectors.length && !item.displayName}
     <div class="mt-4 flex flex-wrap gap-1.5">
       {#each shown as c (c)}
         <span class="rounded-full border border-line px-2 py-0.5 text-xs text-muted">{labels.get(c) ?? c}</span>

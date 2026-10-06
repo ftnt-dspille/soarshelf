@@ -69,6 +69,7 @@ jobs:
           case "$(jq -r .filename /tmp/sub/info.json)" in
             *.json|*.JSON) ext=json ;;
             *.zip|*.ZIP)   ext=zip ;;
+            *.tgz|*.TGZ|*.tar.gz|*.TAR.GZ) ext=tgz ;;
             *) echo "unexpected file type"; exit 1 ;;
           esac
           jq .meta /tmp/sub/info.json > /tmp/sub/meta.json
@@ -157,10 +158,20 @@ jobs:
             widget) dir=widgets; payload=info.json ;;
             *) echo "invalid type"; exit 1 ;;
           esac
-          # Exactly one item folder holding exactly meta.yaml + the payload, nothing else.
-          found=$(cd /tmp/out/content && find . -type f | sort | tr '\n' ' ')
-          want=$(printf '%s\n' "./$dir/$slug/meta.yaml" "./$dir/$slug/$payload" | sort | tr '\n' ' ')
-          [ "$found" = "$want" ] || { echo "unexpected files: $found"; exit 1; }
+          # Exactly one item folder: meta.yaml plus either the payload file or, for a
+          # connector/widget .tgz, its source under package/. Nothing else, no links.
+          [ -z "$(find /tmp/out/content ! -type f ! -type d)" ] || { echo "unexpected links"; exit 1; }
+          cd /tmp/out/content
+          [ -f "./$dir/$slug/meta.yaml" ] || { echo "missing meta.yaml"; exit 1; }
+          if [ -d "./$dir/$slug/package" ]; then
+            [[ "$type" = connector || "$type" = widget ]] || { echo "package/ on a $type"; exit 1; }
+            extra=$(find . -type f ! -path "./$dir/$slug/meta.yaml" ! -path "./$dir/$slug/package/*")
+          else
+            extra=$(find . -type f ! -path "./$dir/$slug/meta.yaml" ! -path "./$dir/$slug/$payload")
+            [ -f "./$dir/$slug/$payload" ] || { echo "missing $payload"; exit 1; }
+          fi
+          [ -z "$extra" ] || { echo "unexpected files: $extra"; exit 1; }
+          cd - >/dev/null
           [ ! -e "content/$dir/$slug" ] || { echo "slug already exists"; exit 1; }
           mkdir -p "content/$dir"
           cp -R "/tmp/out/content/$dir/$slug" "content/$dir/$slug"

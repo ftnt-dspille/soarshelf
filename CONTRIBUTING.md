@@ -1,6 +1,6 @@
 # Contributing
 
-In-browser uploads are coming. Until then, contribute with a pull request.
+The easiest way is the upload page (`/submit` on the site): drop the file, pick a use case, submit. You can also open a pull request as below.
 
 ## 1. Export
 
@@ -8,8 +8,10 @@ In-browser uploads are coming. Until then, contribute with a pull request.
 - **Solution packs:** export as a solution pack zip. Configuration exports are
   not accepted: they can carry environment data. Packs must not bundle
   connector or widget installers; list those separately.
-- **Connectors:** we list the manifest (`info.json`) and link to your public
-  source repository. We don't host connector code.
+- **Connectors and widgets:** upload the `.tgz` you install on your platform.
+  A maintainer reviews the source, and the download is rebuilt from it. No
+  compiled code or bundled archives: list Python dependencies in
+  `requirements.txt`. Images in the package (e.g. `images/`) become screenshots.
 
 ## 2. Check and clean
 
@@ -53,7 +55,7 @@ upload page and writes the folder, crediting your `gh` login:
 
 ```bash
 soarshelf add export.json --title "..." --summary "..." --use-case triage
-soarshelf add https://github.com/you/your-connector --use-case utility      # fetches info.json
+soarshelf add https://github.com/you/your-connector --use-case utility      # packages the repo
 soarshelf add https://github.com/you/kit/tree/main/widgets/x --use-case reporting
 ```
 

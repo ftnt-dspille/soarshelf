@@ -14,5 +14,6 @@ export const SITE = {
 
 export const LIMITS = {
   playbookBytes: 2 * 1024 * 1024,
-  packBytes: 20 * 1024 * 1024
+  packBytes: 20 * 1024 * 1024,
+  packageBytes: 10 * 1024 * 1024
 } as const;

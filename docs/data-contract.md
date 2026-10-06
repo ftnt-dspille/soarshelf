@@ -30,7 +30,7 @@ interface ConnectorFacet {
 }
 
 type ItemType = 'playbook' | 'solution-pack' | 'connector' | 'widget';
-type HubStatus = 'complete' | 'needs-custom' | 'version-mismatch';
+type HubStatus = 'complete' | 'needs-custom' | 'version-mismatch' | 'none';   // about the connectors an item USES; 'none' = uses none (no badge)
 type Trust = 'new' | 'contributor' | 'trusted' | 'maintainer';
 
 interface ItemSummary {
@@ -73,8 +73,10 @@ interface ItemDetail extends ItemSummary {
   widget: WidgetInfo | null;       // widgets only: name, title, subTitle, version,
                                    // description, publisher, pages[], compatibility[]
 }
-// Connectors and widgets are code: only their manifest is published (download
-// is the cleaned info.json) and the item links to `source`.
+// Connectors and widgets are code. Uploaded as a .tgz, their source is committed
+// under package/ and the download is a .tgz rebuilt from it (screenshots[] holds
+// re-encoded images from the package). Listed by manifest only, download is null
+// and the item links to `source`. displayName is the manifest's label/title.
 
 interface SetupStep {
   kind: 'install-connector' | 'configure-connector' | 'install-widget' | 'place-widget'

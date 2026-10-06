@@ -11,6 +11,8 @@
   import { session } from '$lib/session.svelte';
   import { normaliseTag, validateDraft, type FieldErrors, type SubmitDraft } from '$lib/submitValidation';
   import Markdown from '$lib/components/Markdown.svelte';
+  import { readListing, type Prefill } from '$lib/prefill';
+  import { TYPE_LABEL } from '$lib/format';
   import CloudUpload from '@lucide/svelte/icons/cloud-upload';
   import FileBraces from '@lucide/svelte/icons/file-braces';
   import FileArchive from '@lucide/svelte/icons/file-archive';
@@ -105,10 +107,27 @@
     reset(id?: string): void;
   }
 
-  function pickFile(f: File | null | undefined) {
+  // What the dropped file told us, and the values we filled from it: a field is
+  // only refilled from the next file if the uploader hasn't changed it since.
+  let detected = $state<Prefill | null>(null);
+  let filled: Partial<Record<'title' | 'summary' | 'version', string>> = {};
+
+  async function pickFile(f: File | null | undefined) {
     if (!f) return;
     file = f;
     serverError = null;
+    const p = await readListing(f);
+    if (file !== f) return; // another file was picked meanwhile
+    detected = p;
+    for (const k of ['title', 'summary', 'version'] as const) {
+      const v = p?.[k];
+      const untouched = !draft[k].trim() || draft[k] === filled[k] || (k === 'version' && draft.version === '1.0.0');
+      if (v && untouched) {
+        draft[k] = v;
+        filled[k] = v;
+      }
+    }
+    if (p?.useCases?.length && !draft.useCases.length) draft.useCases = p.useCases;
   }
 
   function onDrop(e: DragEvent) {
@@ -203,7 +222,7 @@
 <div class="mx-auto max-w-6xl px-4 pt-12 pb-8 sm:px-6">
   <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Share your work</h1>
   <p class="mt-2 max-w-2xl text-muted">
-    Upload a playbook collection, solution pack, or a connector or widget manifest (info.json) you wrote. It's checked automatically and published once it passes.
+    Drop a playbook export, a connector or widget .tgz, or a solution pack. We fill in the details from the file; pick a use case and submit.
   </p>
 </div>
 
@@ -251,9 +270,9 @@
         <input
           id="f-file"
           type="file"
-          accept=".json,.zip,application/json,application/zip"
+          accept=".json,.zip,.tgz,.gz,application/json,application/zip,application/gzip"
           class="peer sr-only"
-          aria-label="Choose a playbook export, solution pack, or connector or widget manifest"
+          aria-label="Choose a playbook export, a connector or widget package, or a solution pack"
           aria-describedby="file-hint {shown.file ? 'e-file' : ''}"
           onchange={(e) => pickFile((e.currentTarget as HTMLInputElement).files?.[0])}
         />
@@ -272,14 +291,20 @@
               : 'border-line-strong bg-surface hover:border-accent/60'}"
         >
           {#if file}
-            {@const Icon = file.name.toLowerCase().endsWith('.zip') ? FileArchive : FileBraces}
+            {@const Icon = /\.(zip|tgz|gz)$/i.test(file.name) ? FileArchive : FileBraces}
             <Icon size={28} class="text-accent-text" aria-hidden="true" />
             <span class="max-w-full truncate text-sm font-medium">{file.name}</span>
+            {#if detected}
+              <span class="text-xs text-muted">
+                {TYPE_LABEL[detected.kind]}{#if detected.name}: <span class="font-medium text-fg">{detected.name}</span>{/if}{#if detected.version} v{detected.version}{/if}
+                {#if detected.title}· details filled in below{/if}
+              </span>
+            {/if}
             <span class="text-xs text-faint">{formatBytes(file.size)} · click or drop to replace</span>
           {:else}
             <CloudUpload size={28} class="text-faint" aria-hidden="true" />
             <span class="text-sm font-medium">Drop your file here, or <span class="text-accent-text">browse</span></span>
-            <span id="file-hint" class="text-xs text-faint">Playbook collection or info.json manifest (up to 2 MB), or solution pack .zip (up to 20 MB)</span>
+            <span id="file-hint" class="text-xs text-faint">Playbook export .json (up to 2 MB), connector or widget .tgz (up to 10 MB), or solution pack .zip (up to 20 MB)</span>
           {/if}
         </label>
         {@render fieldError('file')}
@@ -393,9 +418,9 @@
             {@render fieldError('minVersion')}
           </div>
           <div class="sm:col-span-2">
-            <label for="f-source" class="text-sm font-medium">Source repository <span class="font-normal text-faint">(required for connectors and widgets)</span></label>
+            <label for="f-source" class="text-sm font-medium">Source repository <span class="font-normal text-faint">(optional)</span></label>
             <input id="f-source" type="url" bind:value={draft.source} class="{inputCls} {border('source')}" placeholder="https://github.com/you/your-connector" aria-describedby="h-source {shown.source ? 'e-source' : ''}" />
-            <p id="h-source" class="mt-1 text-xs text-faint">Connectors and widgets are listed by manifest with a link here. We never host their code.</p>
+            <p id="h-source" class="mt-1 text-xs text-faint">Link your repository if it's public. A maintainer reviews connector and widget code before it's published.</p>
             {@render fieldError('source')}
           </div>
         </div>

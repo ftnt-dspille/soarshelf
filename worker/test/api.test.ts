@@ -188,6 +188,9 @@ describe('pure helpers', () => {
     expect(checkFile('a.json', new TextEncoder().encode('{}').buffer as ArrayBuffer)).toEqual({ ok: true, value: 'json' });
     expect(checkFile('a.zip', new Uint8Array([0x50, 0x4b, 3, 4, 0]).buffer).ok).toBe(true);
     expect(checkFile('a.svg', new ArrayBuffer(4)).ok).toBe(false);
+    expect(checkFile('c_1.0.0.tgz', new Uint8Array([0x1f, 0x8b, 8, 0]).buffer)).toEqual({ ok: true, value: 'tgz' });
+    expect(checkFile('c.tar.gz', new Uint8Array([0x1f, 0x8b, 8, 0]).buffer).ok).toBe(true);
+    expect(checkFile('c.tgz', new Uint8Array([0x50, 0x4b, 3, 4]).buffer).ok).toBe(false);
   });
 
   it('parses contributors.yaml entries and ignores junk and id-less tiers', () => {

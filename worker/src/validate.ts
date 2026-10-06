@@ -5,6 +5,7 @@
 
 export const MAX_JSON = 2 * 1024 * 1024;
 export const MAX_ZIP = 20 * 1024 * 1024;
+export const MAX_TGZ = 10 * 1024 * 1024;
 
 export interface SubmissionMeta {
   title: string;
@@ -54,7 +55,7 @@ export function validateMeta(raw: unknown): Result<SubmissionMeta> {
   };
 }
 
-export type FileKind = 'json' | 'zip';
+export type FileKind = 'json' | 'zip' | 'tgz';
 
 /** Extension, size and magic bytes; JSON must at least parse. */
 export function checkFile(name: string, bytes: ArrayBuffer): Result<FileKind> {
@@ -75,7 +76,15 @@ export function checkFile(name: string, bytes: ArrayBuffer): Result<FileKind> {
       return { ok: false, error: 'This file is not a zip archive' };
     return { ok: true, value: 'zip' };
   }
-  return { ok: false, error: 'Upload a playbook export or a connector/widget manifest (.json), or a solution pack (.zip)' };
+  if (lower.endsWith('.tgz') || lower.endsWith('.tar.gz')) {
+    if (bytes.byteLength > MAX_TGZ) return { ok: false, error: 'Connectors and widgets can be up to 10 MB' };
+    if (!(u8[0] === 0x1f && u8[1] === 0x8b)) return { ok: false, error: 'This file is not a .tgz archive' };
+    return { ok: true, value: 'tgz' };
+  }
+  return {
+    ok: false,
+    error: 'Upload a playbook export (.json), a connector or widget (.tgz), or a solution pack (.zip)'
+  };
 }
 
 /** Stored filename: keep it boring. */

@@ -25,7 +25,6 @@
   import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
   import SquarePlus from '@lucide/svelte/icons/square-plus';
   import ExternalLink from '@lucide/svelte/icons/external-link';
-  import FileJson from '@lucide/svelte/icons/file-json';
   import type { Component } from 'svelte';
 
   let { data } = $props();
@@ -86,7 +85,7 @@
   }
 
   const missing = $derived(item.dependencies.connectors.filter((c) => c.hub === 'missing'));
-  const ext = $derived(item.download.filename.split('.').pop()?.toUpperCase() ?? '');
+  const ext = $derived(item.download?.filename.split('.').pop()?.toUpperCase() ?? '');
   // Connectors and widgets: the site lists their manifest; the code lives at the source.
   const isCode = $derived(CODE_TYPES.has(item.type));
   const source = $derived(item.source && /^https:\/\//.test(item.source) ? item.source : null);
@@ -134,7 +133,12 @@
             <span class="inline-flex items-center gap-1 rounded-md bg-surface-2 px-2 py-0.5 text-xs font-medium text-muted"><Code size={13} aria-hidden="true" />Contains code</span>
           {/if}
         </div>
-        <h1 class="mt-4 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{item.title}</h1>
+        {#if item.displayName && item.displayName !== item.title}
+          <p class="mt-4 text-lg font-semibold tracking-tight text-accent-text">{item.displayName}</p>
+          <h1 class="mt-1 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{item.title}</h1>
+        {:else}
+          <h1 class="mt-4 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{item.title}</h1>
+        {/if}
         <p class="mt-3 max-w-2xl text-base text-muted sm:text-lg">{item.summary}</p>
         <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted">
           <span class="inline-flex items-center gap-2"><span class="font-medium text-fg">@{item.author.github}</span><TrustBadge trust={item.author.trust} /></span>
@@ -146,7 +150,30 @@
       </div>
 
       <div class="rounded-xl border border-line bg-surface p-5 shadow-card">
-        {#if isCode}
+        {#if isCode && item.download}
+          <a
+            href={item.download.path}
+            download={item.download.filename}
+            class="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent text-sm font-medium text-accent-fg transition hover:bg-accent-hover"
+          >
+            <Download size={17} aria-hidden="true" />Download .tgz · {formatBytes(item.download.bytes)}
+          </a>
+          <p class="mt-3 truncate font-mono text-xs text-faint" title={item.download.filename}>{item.download.filename}</p>
+          <div class="mt-1 flex items-center gap-1">
+            <span class="min-w-0 flex-1 truncate font-mono text-xs text-faint" title="SHA-256 {item.download.sha256}">sha256:{item.download.sha256}</span>
+            <CopyButton value={item.download.sha256} label="Copy SHA-256" />
+          </div>
+          {#if source}
+            <a href={source} target="_blank" rel="noopener noreferrer nofollow" class="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-accent-text hover:underline">
+              <ExternalLink size={13} aria-hidden="true" />Source repository
+            </a>
+          {/if}
+          <p class="mt-3 border-t border-line pt-3 text-xs leading-relaxed text-muted">
+            Community code that runs on your platform. A maintainer reviewed this exact source; the download is rebuilt from it.
+            Follow the
+            <button type="button" class="font-medium text-accent-text hover:underline" onclick={() => pick('setup')}>setup steps</button> to install it.
+          </p>
+        {:else if isCode}
           {#if source}
             <a
               href={source}
@@ -158,15 +185,12 @@
             </a>
             <p class="mt-3 truncate font-mono text-xs text-faint" title={source}>{source.replace(/^https:\/\//, '')}</p>
           {/if}
-          <a href={item.download.path} download={item.download.filename} class="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-accent-text hover:underline">
-            <FileJson size={13} aria-hidden="true" />Manifest (info.json) · {formatBytes(item.download.bytes)}
-          </a>
           <p class="mt-3 border-t border-line pt-3 text-xs leading-relaxed text-muted">
             {TYPE_LABEL[item.type]} code runs on your platform and is <strong class="font-medium text-fg">not hosted here</strong>. Review it at the
             source, then follow the
             <button type="button" class="font-medium text-accent-text hover:underline" onclick={() => pick('setup')}>setup steps</button>.
           </p>
-        {:else}
+        {:else if item.download}
           <a
             href={item.download.path}
             download={item.download.filename}
@@ -227,6 +251,15 @@
                 - you'll need to obtain this custom connector (or build an equivalent) before it will run.
               </p>
             </div>
+          </div>
+        {/if}
+        {#if item.screenshots?.length}
+          <div class="grid gap-3 {item.screenshots.length > 1 ? 'sm:grid-cols-2' : ''}">
+            {#each item.screenshots as shot (shot.path)}
+              <a href={shot.path} target="_blank" rel="noopener" class="block overflow-hidden rounded-xl border border-line bg-surface-2">
+                <img src={shot.path} alt="Screenshot: {shot.name}" width={shot.width} height={shot.height} loading="lazy" class="h-auto w-full" />
+              </a>
+            {/each}
           </div>
         {/if}
         <Markdown source={item.description} />

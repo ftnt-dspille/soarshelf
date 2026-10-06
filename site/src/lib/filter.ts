@@ -88,9 +88,9 @@ export function createSearch(items: ItemSummary[], connectors: ConnectorFacet[],
   const ucLabel = new Map(useCases.map((u) => [u.id, u.label]));
   const ms = new MiniSearch<Record<string, string>>({
     idField: 'slug',
-    fields: ['title', 'summary', 'tags', 'connectors', 'triggers', 'useCases'],
+    fields: ['title', 'displayName', 'summary', 'tags', 'connectors', 'triggers', 'useCases'],
     searchOptions: {
-      boost: { title: 3, connectors: 2, tags: 1.5 },
+      boost: { title: 3, displayName: 3, connectors: 2, tags: 1.5 },
       prefix: true,
       fuzzy: 0.2,
       combineWith: 'AND'
@@ -100,6 +100,7 @@ export function createSearch(items: ItemSummary[], connectors: ConnectorFacet[],
     items.map((i) => ({
       slug: i.slug,
       title: i.title,
+      displayName: i.displayName ?? '',
       summary: i.summary,
       tags: i.tags.join(' '),
       connectors: i.connectors.map((c) => `${c} ${connLabel.get(c) ?? ''}`).join(' '),

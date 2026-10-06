@@ -5,6 +5,10 @@ from __future__ import annotations
 
 MAX_PLAYBOOK_BYTES = 2 * 1024 * 1024
 MAX_PACK_BYTES = 20 * 1024 * 1024
+MAX_PACKAGE_BYTES = 10 * 1024 * 1024        # connector / widget .tgz
+MAX_PACKAGE_UNCOMPRESSED = 40 * 1024 * 1024
+MAX_PACKAGE_FILES = 600
+MAX_IMAGE_PIXELS = 4096 * 4096
 MAX_ZIP_ENTRIES = 2000
 MAX_ZIP_UNCOMPRESSED = 100 * 1024 * 1024
 MAX_ZIP_RATIO = 100            # per member; higher looks like a zip bomb

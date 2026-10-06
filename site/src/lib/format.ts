@@ -8,15 +8,17 @@ export const TYPE_LABEL: Record<ItemType, string> = {
 };
 
 export const HUB_LABEL: Record<HubStatus, string> = {
-  complete: 'All on Content Hub',
+  complete: 'Connectors on Content Hub',
   'version-mismatch': 'Version differs',
-  'needs-custom': 'Needs custom connector'
+  'needs-custom': 'Needs custom connector',
+  none: ''
 };
 
 export const HUB_HINT: Record<HubStatus, string> = {
   complete: 'Every connector it uses is available on the Content Hub.',
   'version-mismatch': 'Built against a connector version that differs from the Content Hub.',
-  'needs-custom': 'Uses a connector that is not on the Content Hub.'
+  'needs-custom': 'Uses a connector that is not on the Content Hub.',
+  none: ''
 };
 
 export const TRUST_LABEL: Record<Trust, string> = {

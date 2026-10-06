@@ -11,7 +11,24 @@ def _step(kind: str, title: str, detail: str = "") -> dict[str, str]:
 
 
 def steps(kind: str, connectors: list[dict[str, Any]], packs: list[dict[str, Any]], deps: Any,
-          macros: Any, playbooks: list[Any], has_code: bool, meta: dict[str, Any]) -> list[dict[str, str]]:
+          macros: Any, playbooks: list[Any], has_code: bool, meta: dict[str, Any],
+          packaged: bool = False) -> list[dict[str, str]]:
+    if kind in ("widget", "connector") and packaged:
+        what = "widget" if kind == "widget" else "connector"
+        runs = ("Widgets run in the platform's UI with the viewer's session." if kind == "widget"
+                else "Connectors run with the platform's privileges.")
+        out = [
+            _step("note", "Know what you're installing",
+                  f"This is community code. A maintainer reviewed it before it was published. {runs}"),
+            _step(f"install-{what}", f"Install the {what}",
+                  "Upload the downloaded `.tgz` from **Content Hub › Manage**."),
+        ]
+        out.append(_step("place-widget", "Add it to a page",
+                         "Edit a dashboard, report or record view and add the widget from the widget list.")
+                   if kind == "widget" else
+                   _step("configure-connector", "Add a configuration",
+                         "Enter the credentials for your environment and run the health check."))
+        return out
     if kind == "widget":
         return [
             _step("note", "Review the source first",

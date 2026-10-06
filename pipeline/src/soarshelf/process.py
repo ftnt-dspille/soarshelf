@@ -36,13 +36,15 @@ class Processed:
     filename: str | None
     decision: str                  # "publish" | "review" | "reject"
     reasons: list[str]
+    files: dict[str, bytes] | None = None     # package source to commit (connector/widget .tgz)
+    assets: dict[str, bytes] | None = None    # extra files next to the download (screenshots)
 
     @property
     def checks(self) -> list[CheckResult]:
         return self.detail["_results"]
 
 
-def _meta_checks(meta: dict[str, Any], kind: str) -> list[CheckResult]:
+def _meta_checks(meta: dict[str, Any], kind: str, packaged: bool = False) -> list[CheckResult]:
     out = []
     for key in ("title", "summary", "use_cases"):
         if not meta.get(key):
@@ -55,9 +57,9 @@ def _meta_checks(meta: dict[str, Any], kind: str) -> list[CheckResult]:
         out.append(CheckResult("meta.summary", Severity.WARN, "Summary is longer than 160 characters"))
     if (meta.get("license") or "MIT") != "MIT":
         out.append(CheckResult("meta.license", Severity.BLOCK, "Content must be shared under the MIT licence"))
-    if kind in CODE_KINDS and not str(meta.get("source") or "").startswith("https://"):
-        out.append(CheckResult("meta.source", Severity.BLOCK, f"{kind.capitalize()}s need a public source URL",
-                               f"Set 'source' to the https URL of the {kind}'s repository."))
+    if kind in CODE_KINDS and not packaged and not str(meta.get("source") or "").startswith("https://"):
+        out.append(CheckResult("meta.source", Severity.BLOCK, f"A {kind} manifest on its own needs a source URL",
+                               f"Upload the {kind}'s .tgz instead, or set 'source' to its public repository."))
     return out + brand.listing(meta)
 
 
@@ -77,6 +79,30 @@ def _uuids_of(doc_collections: list[dict[str, Any]]) -> dict[str, str]:
 # Item types whose payload is code that runs on the platform: listed by
 # manifest with a source link, never hosted, always reviewed.
 CODE_KINDS = ("connector", "widget")
+_REVIEW_NOTE = {
+    False: "Only the manifest is published here; the code stays in the linked repository.",
+    True: "The download is rebuilt from the reviewed source, so it is exactly what the reviewer read.",
+}
+
+
+def _package_checks(up: Upload) -> list[CheckResult]:
+    from . import package
+
+    files = up.members or {}
+    results: list[CheckResult] = []
+    for name, raw in sorted(files.items()):
+        if not package.is_text(name) or name == f"{up.package_top}/info.json":   # the manifest is scanned already
+            continue
+        found = secrets.scan({name: raw.decode("utf-8", "replace")})
+        # Bundled libraries are full of long strings and sample addresses; only hard hits count there.
+        if package._vendored(name) or not name.endswith(".py") and not name.endswith(".json"):
+            found = [r for r in found if r.severity is Severity.BLOCK or r.id != "secrets.high-entropy"]
+        results += found
+    results += package.review_hints(files)
+    if up.dropped:
+        results.append(CheckResult("package.dropped", Severity.INFO, "Build leftovers were left out",
+                                   ", ".join(up.dropped[:5]) + (f" and {len(up.dropped) - 5} more" if len(up.dropped) > 5 else "")))
+    return results
 
 def _playbook(up: Upload) -> tuple[list[ParsedCollection], dict[str, str], list[CheckResult], bytes, Any]:
     clean, results = sanitize_collections(up.data)
@@ -183,7 +209,7 @@ def _connector(up: Upload, hub: HubIndex) -> tuple[list[CheckResult], bytes, lis
     keep = {"type": "connector", **{k: m.get(k) for k in ("name", "label", "version", "description", "category", "publisher")}}
     keep["operations"] = ops
     results.append(CheckResult("connector.review", Severity.INFO, "Connector code is reviewed by a maintainer",
-                               "Only the manifest is published here; the code stays in the linked repository."))
+                               _REVIEW_NOTE[bool(up.package_top)]))
     return results, json.dumps(keep, indent=2, ensure_ascii=False).encode() + b"\n", ops
 
 
@@ -213,7 +239,7 @@ def _widget(up: Upload, hub: HubIndex) -> tuple[list[CheckResult], bytes, dict[s
         "compatibility": strs(md.get("compatibility")),
     }
     results.append(CheckResult("widget.review", Severity.INFO, "Widget code is reviewed by a maintainer",
-                               "Only the manifest is published here; the code stays in the linked repository."))
+                               _REVIEW_NOTE[bool(up.package_top)]))
     # Published in the widget's own shape (plus "type"), so the build reads it back the same way.
     published = {"type": "widget", "name": info["name"], "title": info["title"], "subTitle": info["subTitle"],
                  "version": info["version"],
@@ -251,7 +277,8 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
                          "reject", [exc.result.title])
 
     kind = up.kind
-    results = _meta_checks(meta, kind)
+    packaged = bool(up.package_top)
+    results = _meta_checks(meta, kind, packaged)
     collections: list[ParsedCollection] = []
     uuids: dict[str, str] = {}
     macros = None
@@ -267,6 +294,16 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
     elif kind == "widget":
         res, body, widget = _widget(up, hub)
     results += res
+    shots: list[dict[str, Any]] = []
+    assets: dict[str, bytes] = {}
+    if packaged:
+        from . import package
+        results += _package_checks(up)
+        body = package.build_tgz(up.members or {})
+        for i, (name, raw, w, h) in enumerate(package.screenshots(up.members or {}, up.package_top or "")):
+            ext = posixpath.splitext(name)[1].lower()
+            assets[f"shots/{i + 1}{ext}"] = raw
+            shots.append({"file": f"shots/{i + 1}{ext}", "width": w, "height": h, "name": name})
 
     rows: list[dict[str, Any]] = []
     pack_rows: list[dict[str, Any]] = []
@@ -292,11 +329,20 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
     slug = str(meta.get("slug") or "")
     ext = ".zip" if kind == "solution-pack" else ".json"
     filename = f"{slug or 'download'}{ext}"
+    if packaged:
+        filename = f"{up.data.get('name') or slug}_{up.data.get('version') or '1.0.0'}.tgz"
+    hosted = kind not in CODE_KINDS or packaged
+    display = None
+    if kind == "connector":
+        display = str(up.data.get("label") or up.data.get("name") or "")[:80]
+    elif kind == "widget":
+        display = str(up.data.get("title") or up.data.get("name") or "")[:80]
 
     detail: dict[str, Any] = {
         "slug": slug,
         "type": kind,
         "title": meta.get("title", ""),
+        "displayName": display,
         "summary": meta.get("summary", ""),
         "description": meta.get("description", ""),
         "useCases": list(meta.get("use_cases") or []),
@@ -313,7 +359,7 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
         "published": str(meta.get("published") or ""),
         "updated": str(meta.get("updated") or meta.get("published") or ""),
         "source": meta.get("source"),
-        "setup": setup_guide.steps(kind, rows, pack_rows, deps, macros, playbooks, bool(code), meta),
+        "setup": setup_guide.steps(kind, rows, pack_rows, deps, macros, playbooks, bool(code), meta, packaged),
         "dependencies": {
             "connectors": rows,
             "solutionPacks": pack_rows,
@@ -324,12 +370,16 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
         "checks": [r.to_dict() for r in sorted(results, key=_order)],
         "collections": graph.collections_graph(collections),
         "download": {"path": f"/downloads/{slug}/{filename}", "filename": filename,
-                     "sha256": hashlib.sha256(body).hexdigest(), "bytes": len(body)},
+                     "sha256": hashlib.sha256(body).hexdigest(), "bytes": len(body)} if hosted else None,
+        "screenshots": [{**s_, "path": f"/downloads/{slug}/{s_['file']}"} for s_ in shots],
         "_results": results,
         "_collections": collections,
     }
     decision, reasons = policy.decide(results, trust=trust, kind=kind, has_code=bool(code))
-    return Processed(detail, body, filename, decision, reasons)
+    # A manifest-only listing still returns its trimmed info.json (what gets committed),
+    # but detail["download"] is None, so the build does not offer it as a download.
+    return Processed(detail, body, filename, decision, reasons,
+                     files=dict(up.members or {}) if packaged else None, assets=assets or None)
 
 
 _SEV_ORDER = {"block": 0, "warn": 1, "info": 2, "pass": 3}

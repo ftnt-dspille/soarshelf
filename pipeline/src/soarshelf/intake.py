@@ -25,7 +25,9 @@ class Upload:
     filename: str
     raw: bytes
     data: Any = None                 # parsed JSON (playbook / connector manifest)
-    members: dict[str, bytes] | None = None   # pack: path -> bytes, all safe
+    members: dict[str, bytes] | None = None   # pack / package: path -> bytes, all safe
+    package_top: str | None = None   # connector/widget package: its one top folder
+    dropped: list[str] | None = None  # package: build leftovers left out
 
 
 def _reject(id_: str, title: str, detail: str = "") -> RejectedUpload:
@@ -105,10 +107,35 @@ def is_widget_manifest(data: Any) -> bool:
         isinstance(data.get("name"), str) and isinstance(data.get("title"), str) and isinstance(data.get("metadata"), dict))
 
 
+def _package_upload(name: str, files: dict[str, bytes]) -> Upload:
+    from . import package
+
+    top, kept, dropped = package.normalise(files)
+    manifest = load_json(kept[f"{top}/info.json"], "info.json")
+    if isinstance(manifest, dict) and "operations" in manifest:
+        kind = "connector"
+    elif is_widget_manifest(manifest):
+        kind = "widget"
+    else:
+        raise _reject("type", "Package is neither a connector nor a widget",
+                      "Its info.json has no connector operations and no widget metadata.")
+    return Upload(kind, name, b"", data=manifest, members=kept, package_top=top, dropped=dropped)
+
+
 def read_upload(path: Path) -> Upload:
-    """Classify and safely load one uploaded file."""
+    """Classify and safely load one uploaded file (or a committed package folder)."""
+    from . import package
+
+    if path.is_dir():
+        return _package_upload(path.name, package.read_dir(path))
     raw = path.read_bytes()
     suffix = path.suffix.lower()
+
+    if suffix in (".tgz", ".gz"):
+        if len(raw) > config.MAX_PACKAGE_BYTES:
+            raise _reject("size", "Package is too large", f"{len(raw)} bytes, limit {config.MAX_PACKAGE_BYTES}")
+        # Uploads only: committed packages were cleaned when they were added.
+        return _package_upload(path.name, package.clean_images(package.read_tgz(raw)))
 
     if suffix == ".json":
         if len(raw) > config.MAX_PLAYBOOK_BYTES:
@@ -142,4 +169,4 @@ def read_upload(path: Path) -> Upload:
         return Upload("solution-pack", path.name, raw, data=info, members=members)
 
     raise _reject("type", f"File type {suffix or '(none)'} is not accepted",
-                  "Upload a playbook export (.json) or a solution pack (.zip).")
+                  "Upload a playbook export (.json), a connector or widget (.tgz) or a solution pack (.zip).")

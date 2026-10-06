@@ -1,7 +1,7 @@
 // Mirrors docs/data-contract.md. The pipeline writes these shapes; the site only reads them.
 
 export type ItemType = 'playbook' | 'solution-pack' | 'connector' | 'widget';
-export type HubStatus = 'complete' | 'needs-custom' | 'version-mismatch';
+export type HubStatus = 'complete' | 'needs-custom' | 'version-mismatch' | 'none';
 export type Trust = 'new' | 'contributor' | 'trusted' | 'maintainer';
 
 export interface SiteIndex {
@@ -32,6 +32,8 @@ export interface ItemSummary {
   slug: string;
   type: ItemType;
   title: string;
+  /** Connectors and widgets: their own name from the manifest ("AWS EC2 (Extended)"). */
+  displayName?: string | null;
   summary: string;
   useCases: string[];
   tags: string[];
@@ -58,7 +60,10 @@ export interface ItemDetail extends ItemSummary {
   };
   checks: CheckResult[];
   collections: Collection[];
-  download: { path: string; filename: string; sha256: string; bytes: number };
+  /** Null for a connector or widget listed by manifest only (its code stays in the source repo). */
+  download: { path: string; filename: string; sha256: string; bytes: number } | null;
+  /** Images from a connector or widget package, re-encoded by the pipeline. */
+  screenshots?: { path: string; width: number; height: number; name: string }[];
   /** Repository of a connector or widget; their code is never hosted here. */
   source?: string | null;
   /** Connector manifests: the operations it offers. */

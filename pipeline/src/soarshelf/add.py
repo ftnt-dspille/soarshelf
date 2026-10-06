@@ -6,15 +6,15 @@ Turnstile check or the daily limit. The result goes to main through a pull
 request like any other change, so the author gate and CI still apply.
 
 The source is a local file (playbook export, solution pack zip, connector or
-widget ``info.json``) or a GitHub URL. For a URL the manifest is fetched from
-the repository and the URL becomes the item's ``source`` link:
+widget ``.tgz`` or ``info.json``) or a GitHub URL. For a URL the folder holding
+info.json is packaged like an uploaded .tgz (so the site offers a download),
+and the URL becomes the item's ``source`` link:
 
     https://github.com/OWNER/REPO                    info.json found in the repo
     https://github.com/OWNER/REPO/tree/BRANCH/PATH   info.json under PATH
 """
 from __future__ import annotations
 
-import base64
 import json
 import re
 import shutil
@@ -36,8 +36,17 @@ def github_identity() -> tuple[str, int]:
     return u["login"], int(u["id"])
 
 
-def fetch_manifest(url: str, dest: Path) -> tuple[Path, str]:
-    """Download the repository's info.json to ``dest``; returns (path, source url)."""
+def fetch_package(url: str, dest: Path) -> tuple[Path, str]:
+    """Package the folder holding the repository's info.json as a .tgz at ``dest``.
+
+    Returns (path, source url). The site rebuilds the download from this
+    source, the same as for an uploaded .tgz.
+    """
+    import io
+    import tarfile
+
+    from .package import build_tgz
+
     m = _REPO_URL.match(url)
     if not m:
         raise SystemExit(f"not a GitHub repository URL: {url}")
@@ -46,16 +55,24 @@ def fetch_manifest(url: str, dest: Path) -> tuple[Path, str]:
     if info["private"]:
         raise SystemExit(f"{owner}/{repo} is private: the source link must be public")
     branch = branch or info["default_branch"]
-    tree = json.loads(_gh("api", f"repos/{owner}/{repo}/git/trees/{branch}?recursive=1"))["tree"]
+    raw = subprocess.run(["gh", "api", f"repos/{owner}/{repo}/tarball/{branch}"], check=True, capture_output=True).stdout
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as tf:
+        files = {}
+        for i in tf.getmembers():
+            if i.isfile():
+                f = tf.extractfile(i)
+                files[i.name.split("/", 1)[1]] = f.read() if f else b""
     prefix = f"{sub.strip('/')}/" if sub else ""
-    found = sorted((t["path"] for t in tree
-                    if t["path"].startswith(prefix) and t["path"].endswith("info.json")
-                    and "node_modules/" not in t["path"] and "/dist/" not in f"/{t['path']}"),
-                   key=lambda p: p.count("/"))
+    found = sorted((n for n in files if n.startswith(prefix) and n.endswith("info.json")
+                    and "node_modules/" not in n and "/dist/" not in f"/{n}" and "test" not in n.lower()),
+                   key=lambda n: n.count("/"))
     if not found:
         raise SystemExit(f"no info.json in {owner}/{repo}{' under ' + sub if sub else ''}")
-    raw = json.loads(_gh("api", f"repos/{owner}/{repo}/contents/{found[0]}?ref={branch}"))["content"]
-    dest.write_bytes(base64.b64decode(raw))
+    folder = found[0][:-len("info.json")]
+    manifest = json.loads(files[found[0]])
+    top = str(manifest.get("name") or repo)
+    picked = {f"{top}/{n[len(folder):]}": b for n, b in files.items() if n.startswith(folder)}
+    dest.write_bytes(build_tgz(picked))
     return dest, url.rstrip("/")
 
 
@@ -79,25 +96,38 @@ def _first_sentence(text: str, limit: int = 160) -> str:
     return text[:limit - 1].rsplit(" ", 1)[0].rstrip(",;:") + "…"
 
 
+def _manifest_of(file: Path) -> Any:
+    """The connector/widget manifest in a .json or .tgz, if there is one."""
+    if file.name.endswith(".json"):
+        try:
+            return json.loads(file.read_text())
+        except ValueError:
+            return None
+    if file.name.endswith((".tgz", ".tar.gz")):
+        from .package import normalise, read_tgz
+        try:
+            top, files, _ = normalise(read_tgz(file.read_bytes()))
+            return json.loads(files[f"{top}/info.json"])
+        except Exception:      # the intake reports what is wrong with it
+            return None
+    return None
+
+
 def add(source: str, form: dict[str, Any], content: Path, *, dry_run: bool) -> tuple[Any, Path | None]:
     from .submission import intake
 
     login, uid = github_identity()
     with tempfile.TemporaryDirectory() as tmp:
         if source.startswith("https://"):
-            file, link = fetch_manifest(source, Path(tmp) / "info.json")
+            file, link = fetch_package(source, Path(tmp) / "package.tgz")
             form.setdefault("source", link)
         else:
             file = Path(source)
-        if file.name.endswith(".json"):
-            try:
-                manifest = json.loads(file.read_text())
-            except ValueError:
-                manifest = {}
-            if isinstance(manifest, dict) and ("operations" in manifest or "metadata" in manifest):
-                for k, v in form_defaults(manifest).items():
-                    if v and not form.get(k):
-                        form[k] = v
+        manifest = _manifest_of(file)
+        if isinstance(manifest, dict) and ("operations" in manifest or "metadata" in manifest):
+            for k, v in form_defaults(manifest).items():
+                if v and not form.get(k):
+                    form[k] = v
         form["rightsConfirmed"] = True
 
         target = content

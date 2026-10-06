@@ -141,7 +141,14 @@ def intake(file: Path, form: dict[str, Any], author: str, content: Path,
         written.mkdir(parents=True)
         meta.pop("slug")
         (written / "meta.yaml").write_text(yaml.safe_dump(meta, sort_keys=False, allow_unicode=True, width=100))
-        (written / PAYLOAD_NAMES[kind]).write_bytes(res.download)
+        if res.files:
+            # Package source, committed file by file so the reviewer reads it in the pull request.
+            for rel, raw in sorted(res.files.items()):
+                dest = written / "package" / rel
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_bytes(raw)
+        else:
+            (written / PAYLOAD_NAMES[kind]).write_bytes(res.download)
 
     return IntakeResult(res.decision, res.reasons, res.detail["checks"], slug if written else None,
                         kind, strike, written)
