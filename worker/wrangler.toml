@@ -11,7 +11,7 @@ preview_urls = false
 [vars]
 SITE_ORIGIN = "https://soarshelf.cse-fortisoar.com"
 REPO = "ftnt-dspille/soarshelf"
-GITHUB_CLIENT_ID = ""
+GITHUB_CLIENT_ID = "Ov23liXW2ndRUDViE7z3"
 GITHUB_APP_ID = ""
 GITHUB_APP_INSTALLATION_ID = ""
 
