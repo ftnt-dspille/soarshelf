@@ -1,2 +1,2 @@
 # Submission pages are client-rendered; serve the SPA shell with a 200.
-/me/*  /404.html  200
+/me/*  /404  200
