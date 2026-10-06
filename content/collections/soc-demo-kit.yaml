@@ -1,0 +1,14 @@
+title: SOC demo kit
+summary: Ten response playbooks plus the connectors and views they need to show a full SOC story.
+order: 4
+items:
+- slug: soc-demo-library
+  note: Phishing, triage, isolation, blocking, vulnerability and cloud containment playbooks.
+- slug: aws-extended
+  note: Needed by the cloud containment and restore playbooks.
+- slug: code-runner
+  note: Needed by several of the library's playbooks.
+- slug: ai-agent-examples
+  note: Ask the built-in AI agents about an alert and save the answers.
+- slug: chart-widget-for-dashboards-and-record-views
+  note: Charts for the dashboards you show alongside the playbooks.

@@ -1,0 +1,59 @@
+collection: Alert Summary
+description: Counts of recent alerts by severity, status and source, with an HTML table for a report or email.
+visible: true
+
+playbooks:
+  - name: Summarize Recent Alerts
+    description: >-
+      Counts the alerts created in the last hours (default 24) by severity, status and source, and
+      builds an HTML table you can put in an email, a comment or a report. Call it with hours, or
+      put it on a schedule behind a send-email step. Reads at most 2000 alerts.
+    parameters: [hours]
+    steps:
+      - name: Start
+        type: start
+        next: Window
+
+      - name: Window
+        type: set_variable
+        vars:
+          hours: "{{ vars.input.params.hours | default(24, true) | int }}"
+          since: "{{ arrow.utcnow().shift(hours=-(vars.input.params.hours | default(24, true) | int)).int_timestamp }}"
+        next: Find recent alerts
+
+      - name: Find recent alerts
+        type: find_record
+        module: alerts
+        filters:
+          - field: createDate
+            type: datetime   # date filters must say so, or the query API rejects them
+            operator: gte
+            value: "{{ vars.since }}"
+        select: [severity, status, source]
+        limit: 2000
+        next: Count
+
+      - name: Count
+        type: set_variable
+        vars:
+          rows: "{{ vars.steps.Find_recent_alerts | default([], true) }}"
+          severities: "{{ vars.steps.Find_recent_alerts | default([], true) | map(attribute='severity') | map('default', {}, true) | map(attribute='itemValue') | map('default', 'Not set') | list }}"
+          statuses: "{{ vars.steps.Find_recent_alerts | default([], true) | map(attribute='status') | map('default', {}, true) | map(attribute='itemValue') | map('default', 'Not set') | list }}"
+          sources: "{{ vars.steps.Find_recent_alerts | default([], true) | map(attribute='source') | map('default', 'Not set', true) | list }}"
+        next: Result
+
+      - name: Result
+        type: set_variable
+        vars:
+          window_hours: "{{ vars.hours }}"
+          total: "{{ vars.rows | length }}"
+          by_severity: >-
+            {%- set ns = namespace(p=[]) -%}{%- for v in vars.severities | unique | sort -%}{%- set ns.p = ns.p + [[v, vars.severities | select('equalto', v) | list | length]] -%}{%- endfor -%}{{ dict(ns.p) }}
+          by_status: >-
+            {%- set ns = namespace(p=[]) -%}{%- for v in vars.statuses | unique | sort -%}{%- set ns.p = ns.p + [[v, vars.statuses | select('equalto', v) | list | length]] -%}{%- endfor -%}{{ dict(ns.p) }}
+          top_sources: >-
+            {%- set ns = namespace(p=[]) -%}{%- for v in vars.sources | unique -%}{%- set ns.p = ns.p + [{'source': v, 'count': vars.sources | select('equalto', v) | list | length}] -%}{%- endfor -%}{{ (ns.p | sort(attribute='count', reverse=true))[:10] }}
+          html: >-
+            {%- set ns = namespace(p=[]) -%}{%- for v in vars.severities | unique | sort -%}{%- set ns.p = ns.p + [[v, vars.severities | select('equalto', v) | list | length]] -%}{%- endfor -%}
+            <p>{{ vars.rows | length }} alerts in the last {{ vars.hours }} hours.</p>
+            <table><tr><th>Severity</th><th>Alerts</th></tr>{% for s, n in ns.p %}<tr><td>{{ s | e }}</td><td>{{ n }}</td></tr>{% endfor %}</table>

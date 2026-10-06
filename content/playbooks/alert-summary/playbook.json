@@ -1,0 +1,187 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Alert Summary",
+      "description": "Counts of recent alerts by severity, status and source, with an HTML table for a report or email.",
+      "visible": true,
+      "image": null,
+      "uuid": "c7fa920e-7d44-502c-9426-94ed964334d3",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "Summarize Recent Alerts",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Counts the alerts created in the last hours (default 24) by severity, status and source, and builds an HTML table you can put in an email, a comment or a report. Call it with hours, or put it on a schedule behind a send-email step. Reads at most 2000 alerts.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "hours"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/f3b4292f-fe1a-5f09-86c9-a3213460e9ab",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "f3b4292f-fe1a-5f09-86c9-a3213460e9ab"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Window",
+              "description": null,
+              "arguments": {
+                "hours": "{{ vars.input.params.hours | default(24, true) | int }}",
+                "since": "{{ arrow.utcnow().shift(hours=-(vars.input.params.hours | default(24, true) | int)).int_timestamp }}"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "4f2ffc48-0fc1-5054-97a3-153e37e086fb"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Find recent alerts",
+              "description": null,
+              "arguments": {
+                "module": "alerts?$limit=2000",
+                "query": {
+                  "sort": [],
+                  "limit": 2000,
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "type": "datetime",
+                      "field": "createDate",
+                      "value": "{{ vars.since }}",
+                      "operator": "gte",
+                      "_operator": "gte"
+                    }
+                  ],
+                  "__selectFields": [
+                    "severity",
+                    "status",
+                    "source"
+                  ]
+                },
+                "checkboxFields": true
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
+              "group": null,
+              "uuid": "88375808-f24d-589e-be72-617a6f25b604"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Count",
+              "description": null,
+              "arguments": {
+                "rows": "{{ vars.steps.Find_recent_alerts | default([], true) }}",
+                "severities": "{{ vars.steps.Find_recent_alerts | default([], true) | map(attribute='severity') | map('default', {}, true) | map(attribute='itemValue') | map('default', 'Not set') | list }}",
+                "statuses": "{{ vars.steps.Find_recent_alerts | default([], true) | map(attribute='status') | map('default', {}, true) | map(attribute='itemValue') | map('default', 'Not set') | list }}",
+                "sources": "{{ vars.steps.Find_recent_alerts | default([], true) | map(attribute='source') | map('default', 'Not set', true) | list }}"
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "7ddaa316-b361-5a44-8f87-fe55d092020a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Result",
+              "description": null,
+              "arguments": {
+                "window_hours": "{{ vars.hours }}",
+                "total": "{{ vars.rows | length }}",
+                "by_severity": "{%- set ns = namespace(p=[]) -%}{%- for v in vars.severities | unique | sort -%}{%- set ns.p = ns.p + [[v, vars.severities | select('equalto', v) | list | length]] -%}{%- endfor -%}{{ dict(ns.p) }}",
+                "by_status": "{%- set ns = namespace(p=[]) -%}{%- for v in vars.statuses | unique | sort -%}{%- set ns.p = ns.p + [[v, vars.statuses | select('equalto', v) | list | length]] -%}{%- endfor -%}{{ dict(ns.p) }}",
+                "top_sources": "{%- set ns = namespace(p=[]) -%}{%- for v in vars.sources | unique -%}{%- set ns.p = ns.p + [{'source': v, 'count': vars.sources | select('equalto', v) | list | length}] -%}{%- endfor -%}{{ (ns.p | sort(attribute='count', reverse=true))[:10] }}",
+                "html": "{%- set ns = namespace(p=[]) -%}{%- for v in vars.severities | unique | sort -%}{%- set ns.p = ns.p + [[v, vars.severities | select('equalto', v) | list | length]] -%}{%- endfor -%} <p>{{ vars.rows | length }} alerts in the last {{ vars.hours }} hours.</p> <table><tr><th>Severity</th><th>Alerts</th></tr>{% for s, n in ns.p %}<tr><td>{{ s | e }}</td><td>{{ n }}</td></tr>{% endfor %}</table>"
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "ff039635-25e4-5543-97d7-819d1a797fa6"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Window",
+              "targetStep": "/api/3/workflow_steps/4f2ffc48-0fc1-5054-97a3-153e37e086fb",
+              "sourceStep": "/api/3/workflow_steps/f3b4292f-fe1a-5f09-86c9-a3213460e9ab",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "493c0fb0-a643-531b-ac49-008f72613137"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Window -> Find recent alerts",
+              "targetStep": "/api/3/workflow_steps/88375808-f24d-589e-be72-617a6f25b604",
+              "sourceStep": "/api/3/workflow_steps/4f2ffc48-0fc1-5054-97a3-153e37e086fb",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "3d7143c9-553b-57d9-ae73-7e1e8031031d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Find recent alerts -> Count",
+              "targetStep": "/api/3/workflow_steps/7ddaa316-b361-5a44-8f87-fe55d092020a",
+              "sourceStep": "/api/3/workflow_steps/88375808-f24d-589e-be72-617a6f25b604",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e8761a2f-9404-5925-b586-60c7c1f001b7"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Count -> Result",
+              "targetStep": "/api/3/workflow_steps/ff039635-25e4-5543-97d7-819d1a797fa6",
+              "sourceStep": "/api/3/workflow_steps/7ddaa316-b361-5a44-8f87-fe55d092020a",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9bfef1af-c202-5d73-8d3a-e9db94cb6592"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "61010838-51c5-5b70-81e7-c73ddcf4f8dc",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+title: Find related alerts by source IP
+summary: Lists other open alerts from the same source IP so you can work them together.
+description: 'When one source shows up in several alerts, you want to see them together before you work
+  any of them.
+
+  This playbook finds open alerts from the same source IP and hands back a short list.
+
+
+  Call it from a triage playbook with:
+
+
+  - `source_ip`: the IP to match
+
+  - `exclude_alert`: the `@id` of the alert you''re working, so it isn''t counted
+
+  - `lookback_days`: how far back to look (default 7)
+
+
+  It returns `related_count` and `related`, a list of the alerts'' id, name, severity and status. It only
+  reads.
+
+  What to do with the result is up to the caller: link the alerts, raise severity, or open a case.'
+use_cases:
+- triage
+- case-management
+tags:
+- correlation
+- deduplication
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.6.0
+license: MIT
+published: '2026-10-06'
+author_id: 99558074
+tested:
+- platform: 8.0.0
+  version: 1.0.0
+  result: ran
+  playbooks:
+  - Find Related Alerts by Source IP
+  notes: Called with a source IP shared by over a hundred open alerts from the last 7 days, excluding
+    one of them. The count matched a direct query minus the excluded alert.

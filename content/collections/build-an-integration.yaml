@@ -1,0 +1,18 @@
+title: Build your own integration
+summary: Connect a tool that has no connector yet, then turn its data into alerts or indicators.
+featured: true
+order: 3
+description: |
+  Most tools can be reached with a generic HTTP connector. When the data needs to land as records,
+  start from one of the ingestion templates instead of a blank playbook.
+items:
+- slug: generic-http
+  note: Call any REST API with auth set once and paging handled for you.
+- slug: data-ingestion-template
+  note: The fetch, create and ingest playbooks a data ingestion needs, ready to fill in.
+- slug: threat-feed-ingestion-template
+  note: The same idea for bulk threat intel indicators.
+- slug: code-runner
+  note: For the step the sandboxed code snippet can't do. Review its warnings before you install it.
+- slug: inoreader-feeds-and-article-streams
+  note: A finished example of a connector that ingests feeds.

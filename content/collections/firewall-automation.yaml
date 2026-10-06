@@ -1,0 +1,22 @@
+title: FortiGate and FortiManager automation
+summary: Call the firewall and manager APIs from playbooks, keep threat feeds filled, and recover devices that drop out of management.
+featured: true
+order: 2
+description: |
+  The API helpers come first because the other playbooks build on the same calls. Each item's setup tab
+  lists the global variables and connector configurations it expects.
+items:
+- slug: fortigate-fortimanager-api-helpers
+  note: Reusable sub-playbooks for the FortiGate REST and FortiManager JSON-RPC APIs.
+- slug: fortimanager-threat-feed-blocking
+  note: Turn malicious IPs from your detections into a threat feed your FortiGates block.
+- slug: ot-device-isolation
+  note: Move an OT or IoT device into an isolation group, and release it only after approval.
+- slug: fortimanager-down-detector
+  note: Find FortiGates that fell out of FortiManager and bring them back.
+- slug: fortigate-cloud
+  note: Manage devices, reports and backups through FortiGate Cloud.
+- slug: firewall-owner-dashboard
+  note: Device status and policy hit counts for the people who own the firewalls.
+- slug: soc-report
+  note: Show the FortiManager SOC report inside a record.

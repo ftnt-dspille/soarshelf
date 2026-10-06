@@ -1,0 +1,23 @@
+title: Tested triage building blocks
+summary: Small playbooks you call from your own triage flow. Every one ran end to end on a live FortiSOAR.
+featured: true
+order: 0
+description: |
+  Each of these takes a few inputs and hands back a result your playbook can branch on, so you can drop
+  them into an existing flow with a single **Reference a Playbook** step. They only read; what to do with
+  the answer stays in your playbook. Each item page lists exactly what it was tested with.
+items:
+- slug: fortiguard-indicator-verdict
+  note: One verdict for any IP, domain, URL or file hash.
+- slug: virustotal-ip-verdict
+  note: The same idea with VirusTotal, for IP addresses.
+- slug: cve-epss-priority
+  note: Rank vulnerabilities by how likely they are to be exploited, not just by CVSS.
+- slug: related-alerts-by-source-ip
+  note: See the other open alerts from the same source before you work this one.
+- slug: route-by-severity
+  note: Send high and low severity down different paths.
+- slug: approve-before-block
+  note: Ask an analyst before anything disruptive happens.
+- slug: alert-summary
+  note: Counts and an HTML table for a daily report.

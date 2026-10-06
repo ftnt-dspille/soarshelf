@@ -19,3 +19,10 @@ version: 1.0.0
 min_version: 7.4.0
 license: MIT
 published: '2026-09-02'
+tested:
+- platform: 8.0.0
+  version: 1.0.0
+  result: ran
+  playbooks:
+  - VT IP Reputation
+  notes: Called with 8.8.8.8 against a configured VirusTotal connector; verdict clean.

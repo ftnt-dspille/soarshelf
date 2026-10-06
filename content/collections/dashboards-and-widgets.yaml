@@ -1,0 +1,14 @@
+title: Dashboards and record views
+summary: Widgets that add charts, live Jinja, actions and reports to FortiSOAR pages.
+order: 6
+items:
+- slug: chart-widget-for-dashboards-and-record-views
+  note: Bar, line, pie and donut charts set up from the widget editor.
+- slug: action-renderer
+  note: Put a connector action or playbook behind a button on a record.
+- slug: jinja-editor
+  note: Write and check Jinja against live record data.
+- slug: firewall-owner-dashboard
+  note: A ready-made dashboard for firewall owners.
+- slug: soc-report
+  note: The FortiManager SOC report inside a record view.

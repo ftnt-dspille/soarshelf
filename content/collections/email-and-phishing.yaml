@@ -1,0 +1,14 @@
+title: Email and phishing response
+summary: Investigate suspicious mailbox rules, pull indicators out of attachments, and send mail from playbooks.
+order: 5
+items:
+- slug: m365-forwarding-rule-triage
+  note: Audit history, current forwarding rules and directory lookups for a suspicious rule.
+- slug: fortiguard-indicator-verdict
+  note: Check a sender domain, link or attachment hash in one step.
+- slug: ioc-attachment-extraction
+  note: Pull indicators out of attached files and send the approved ones to block.
+- slug: soc-demo-library
+  note: Its phishing playbook triages a reported email end to end.
+- slug: smtp-ng
+  note: Send mail from playbooks with a structured result you can branch on.

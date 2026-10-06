@@ -1,0 +1,49 @@
+title: Indicator verdict from FortiGuard
+summary: Checks an IP, domain, URL or file hash with FortiGuard and returns malicious, suspicious, clean
+  or unknown.
+description: 'One lookup and one answer for any indicator type. The playbook sends an IP, domain, URL
+  or file hash to the
+
+  FortiGuard IOC connector and turns the risk score into a verdict your playbooks can branch on.
+
+
+  Call it with `indicator`. It returns:
+
+
+  | Output | Meaning |
+
+  |---|---|
+
+  | `verdict` | malicious, suspicious, clean, or unknown when FortiGuard has nothing |
+
+  | `risk_score` | 0 to 100 |
+
+  | `risk_level`, `confidence` | FortiGuard''s own labels |
+
+  | `category` | antivirus, IOC or web filter category, whichever is set |
+
+  | `tags` | threat tags such as malware families and CVEs |
+
+
+  The default cut-offs are malicious at 80 and suspicious at 50. Change them in the **Thresholds** step.'
+use_cases:
+- enrichment
+- phishing
+- triage
+tags:
+- reputation
+- ioc
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.6.0
+license: MIT
+published: '2026-10-06'
+author_id: 99558074
+tested:
+- platform: 8.0.0
+  version: 1.0.0
+  result: ran
+  playbooks:
+  - FortiGuard Indicator Verdict
+  notes: Called with the EICAR test file hash (malicious, risk score 100) and a well-known clean domain
+    (clean).

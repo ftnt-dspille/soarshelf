@@ -11,7 +11,23 @@ tags:
 - routing
 author: ftnt-dspille
 author_id: 99558074
-version: 1.0.0
+version: 1.0.1
 min_version: 7.4.0
 license: MIT
 published: '2026-08-28'
+updated: '2026-10-06'
+changelog:
+- version: 1.0.1
+  date: '2026-10-06'
+  notes: Reads the severity label from the record. Before, it compared the whole severity object with
+    'critical' and 'high', so every record took the low-severity branch.
+- version: 1.0.0
+  date: '2026-08-28'
+  notes: First published.
+tested:
+- platform: 8.0.0
+  version: 1.0.1
+  result: ran
+  playbooks:
+  - Route By Severity
+  notes: Called with a Critical, a High and a Low alert; each took the right branch.

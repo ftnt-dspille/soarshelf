@@ -1,0 +1,46 @@
+title: Summarize recent alerts
+summary: Counts recent alerts by severity, status and source, with an HTML table for a report or email.
+description: 'A quick count of what came in. The playbook reads the alerts created in the last `hours`
+  (default 24) and
+
+  returns totals by severity, status and source, plus an HTML table ready for an email, a comment or a
+  report.
+
+
+  | Output | Meaning |
+
+  |---|---|
+
+  | `total` | alerts in the window |
+
+  | `by_severity`, `by_status` | counts per value |
+
+  | `top_sources` | the ten sources with the most alerts |
+
+  | `html` | a short paragraph and a severity table |
+
+
+  For a daily report, call it from a scheduled playbook and send `html` with your mail connector. It reads
+  up to
+
+  2000 alerts per run.'
+use_cases:
+- reporting
+- notification
+tags:
+- report
+- metrics
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.6.0
+license: MIT
+published: '2026-10-06'
+author_id: 99558074
+tested:
+- platform: 8.0.0
+  version: 1.0.0
+  result: ran
+  playbooks:
+  - Summarize Recent Alerts
+  notes: 'Summarized the last 24 hours of alerts on a lab box: totals, severity and status counts, and
+    the HTML table.'

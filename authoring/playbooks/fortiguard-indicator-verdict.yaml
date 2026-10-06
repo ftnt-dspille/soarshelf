@@ -1,0 +1,68 @@
+collection: FortiGuard Indicator Verdict
+description: One verdict for an IP, domain, URL or file hash from FortiGuard threat intelligence.
+visible: true
+
+playbooks:
+  - name: FortiGuard Indicator Verdict
+    description: >-
+      Looks up an IP, domain, URL or file hash with the FortiGuard IOC connector and returns a
+      verdict (malicious, suspicious, clean or unknown) with the risk score, risk level, confidence,
+      category and threat tags. Call it with indicator. Thresholds are in the first step.
+    parameters: [indicator]
+    steps:
+      - name: Start
+        type: start
+        next: Thresholds
+
+      - name: Thresholds
+        type: set_variable
+        vars:
+          malicious_at: 80    # FortiGuard risk score, 0-100
+          suspicious_at: 50
+          indicator: "{{ vars.input.params.indicator | default('', true) | string | trim }}"
+        next: Anything to look up
+
+      - name: Anything to look up
+        type: decision
+        conditions:
+          - display: Indicator given
+            when: "{{ vars.indicator | length > 0 }}"
+            next: Search FortiGuard
+        default: No indicator
+
+      - name: No indicator
+        type: set_variable
+        vars:
+          indicator: ""
+          verdict: unknown
+          reason: no indicator was given
+
+      - name: Search FortiGuard
+        type: connector
+        connector: fortinet-fortiguard-ioc
+        operation: ioc_search
+        params:
+          indicator: "{{ vars.indicator }}"
+        next: Read result
+
+      - name: Read result
+        type: set_variable
+        vars:
+          hit: "{{ (vars.steps.Search_FortiGuard.data | default([], true) | first) | default({}, true) }}"
+        next: Result
+
+      - name: Result
+        type: set_variable
+        vars:
+          indicator: "{{ vars.indicator }}"
+          risk_score: "{{ vars.hit.risk_score if vars.hit.risk_score is number else none }}"
+          risk_level: "{{ (vars.hit.risk_level or {}).itemValue | default('') }}"
+          confidence: "{{ (vars.hit.confidence or {}).itemValue | default('') }}"
+          category: "{{ vars.hit.av_cate or vars.hit.ioc_cate or vars.hit.wf_cate or '' }}"
+          tags: "{{ vars.hit.ioc_tags | default([], true) }}"
+          verdict: >-
+            {%- set s = vars.hit.risk_score -%}
+            {%- if s is not number -%}unknown
+            {%- elif s >= vars.malicious_at | int -%}malicious
+            {%- elif s >= vars.suspicious_at | int -%}suspicious
+            {%- else -%}clean{%- endif -%}

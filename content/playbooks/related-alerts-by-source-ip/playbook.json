@@ -1,0 +1,249 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Related Alerts",
+      "description": "Find other open alerts from the same source IP, to group or escalate them together.",
+      "visible": true,
+      "image": null,
+      "uuid": "de783a9e-d483-599c-b571-78dbf4c85dc0",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "Find Related Alerts by Source IP",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Finds alerts from the same source IP created in the last lookback_days (default 7) that are not closed, leaving out the alert you pass as exclude_alert. Returns the count and a short list. Call it from a triage playbook with source_ip and the alert's @id.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "source_ip",
+            "lookback_days",
+            "exclude_alert"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/146e57d5-fa66-586f-83fb-f45b604470df",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "146e57d5-fa66-586f-83fb-f45b604470df"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Inputs",
+              "description": null,
+              "arguments": {
+                "source_ip": "{{ vars.input.params.source_ip | default('', true) | string | trim }}",
+                "exclude_alert": "{{ vars.input.params.exclude_alert | default('', true) | string }}",
+                "since": "{{ arrow.utcnow().shift(days=-(vars.input.params.lookback_days | default(7, true) | int)).int_timestamp }}",
+                "lookback_days": "{{ vars.input.params.lookback_days | default(7, true) | int }}"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "715ed347-d632-54f1-96fb-cdaec9c2bae0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Have a source IP",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Source IP given",
+                    "condition": "{{ vars.source_ip | length > 0 }}",
+                    "step_iri": "/api/3/workflow_steps/df68c3a7-1371-5917-a392-64cfaeb5e37e",
+                    "step_name": "Find alerts from the same source"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/eb684446-4d9e-564c-949d-8ea732db3190",
+                    "step_name": "No source IP"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "00839aff-efa3-5db7-856f-6908994b19df"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "No source IP",
+              "description": null,
+              "arguments": {
+                "source_ip": "",
+                "related_count": 0,
+                "related": [],
+                "reason": "no source IP was given"
+              },
+              "status": null,
+              "top": "510",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "eb684446-4d9e-564c-949d-8ea732db3190"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Find alerts from the same source",
+              "description": null,
+              "arguments": {
+                "module": "alerts?$limit=200",
+                "query": {
+                  "sort": [
+                    {
+                      "field": "createDate",
+                      "direction": "DESC",
+                      "_fieldName": "createDate",
+                      "_fieldTitle": "createDate"
+                    }
+                  ],
+                  "limit": 200,
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "type": "primitive",
+                      "field": "sourceIp",
+                      "value": "{{ vars.source_ip }}",
+                      "operator": "eq",
+                      "_operator": "eq"
+                    },
+                    {
+                      "type": "datetime",
+                      "field": "createDate",
+                      "value": "{{ vars.since }}",
+                      "operator": "gte",
+                      "_operator": "gte"
+                    },
+                    {
+                      "type": "primitive",
+                      "field": "status.itemValue",
+                      "value": "Closed",
+                      "operator": "neq",
+                      "_operator": "neq"
+                    }
+                  ],
+                  "__selectFields": [
+                    "name",
+                    "severity",
+                    "status",
+                    "createDate",
+                    "sourceIp"
+                  ]
+                },
+                "checkboxFields": true
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
+              "group": null,
+              "uuid": "df68c3a7-1371-5917-a392-64cfaeb5e37e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Result",
+              "description": null,
+              "arguments": {
+                "source_ip": "{{ vars.source_ip }}",
+                "lookback_days": "{{ vars.lookback_days }}",
+                "related": "{{ vars.steps.Find_alerts_from_the_same_source | default([], true)\n   | rejectattr('@id', 'equalto', vars.exclude_alert)\n   | map('json_query', '{id: \"@id\", name: name, severity: severity.itemValue, status: status.itemValue}')\n   | list }}",
+                "related_count": "{{ vars.steps.Find_alerts_from_the_same_source | default([], true)\n   | rejectattr('@id', 'equalto', vars.exclude_alert) | list | length }}"
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "b8a36999-73cf-5264-b357-5e838982f50b"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Inputs",
+              "targetStep": "/api/3/workflow_steps/715ed347-d632-54f1-96fb-cdaec9c2bae0",
+              "sourceStep": "/api/3/workflow_steps/146e57d5-fa66-586f-83fb-f45b604470df",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0f79c89c-cb05-5428-876d-da2bd3f4ea6a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Inputs -> Have a source IP",
+              "targetStep": "/api/3/workflow_steps/00839aff-efa3-5db7-856f-6908994b19df",
+              "sourceStep": "/api/3/workflow_steps/715ed347-d632-54f1-96fb-cdaec9c2bae0",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e6f7c903-9490-5d06-8576-cf29406ff67b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Have a source IP -> Find alerts from the same source",
+              "targetStep": "/api/3/workflow_steps/df68c3a7-1371-5917-a392-64cfaeb5e37e",
+              "sourceStep": "/api/3/workflow_steps/00839aff-efa3-5db7-856f-6908994b19df",
+              "label": "Source IP given",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "dfaaaf74-befc-5085-9ba4-579a3b85691d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Have a source IP -> No source IP",
+              "targetStep": "/api/3/workflow_steps/eb684446-4d9e-564c-949d-8ea732db3190",
+              "sourceStep": "/api/3/workflow_steps/00839aff-efa3-5db7-856f-6908994b19df",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "337c9457-03ca-5bbe-b271-9c537d57127f"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Find alerts from the same source -> Result",
+              "targetStep": "/api/3/workflow_steps/b8a36999-73cf-5264-b357-5e838982f50b",
+              "sourceStep": "/api/3/workflow_steps/df68c3a7-1371-5917-a392-64cfaeb5e37e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "071db79c-f7f0-5911-b1c0-dac9d2707320"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "9f79f218-131a-5f0a-a15f-05ac1b24adc5",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}

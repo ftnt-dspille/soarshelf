@@ -14,3 +14,10 @@ version: 1.0.0
 min_version: 7.4.0
 license: MIT
 published: '2026-08-26'
+tested:
+- platform: 8.0.0
+  version: 1.0.0
+  result: ran
+  playbooks:
+  - FSRPB Parent Caller
+  notes: Called with base 7; the child returned 70 to the parent.

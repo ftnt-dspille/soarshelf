@@ -46,7 +46,32 @@ tags:
 - training
 author: righirr
 author_id: 171357650
-version: 1.0.0
+version: 1.0.1
 min_version: 8.0.0
 license: MIT
 published: '2026-10-06'
+updated: '2026-10-06'
+changelog:
+- version: 1.0.1
+  date: '2026-10-06'
+  notes: Example 8 used the datetime_modify filter, which FortiSOAR 8.0 doesn't have, so the playbook
+    failed. Its date step now uses arrow and shows the date two days ago.
+- version: 1.0.0
+  date: '2026-10-06'
+  notes: First published.
+tested:
+- platform: 8.0.0
+  version: 1.0.1
+  result: ran
+  playbooks:
+  - Example 1 - INTERNAL and EXTERNAL if and other functions
+  - Example 2 - Complex Data Types
+  - Example 3 - Data transformations
+  - Example 4 - Shuffle
+  - Example 5 - Working with IP addresses
+  - Example 6 - Interesting FOR with Jinja2
+  - Example 7 - URL Split
+  - Example 8 - Combination Filters
+  - FortiSOAR API call to itself
+  notes: The Jinja examples that don't write records, and the API self-call, ran to completion. Playbooks
+    that need other integrations were imported only.

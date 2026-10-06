@@ -1,0 +1,20 @@
+title: Learn playbooks by example
+summary: Small, working playbooks that each show one pattern, from Jinja basics to approvals and sub-playbooks.
+featured: true
+order: 1
+description: |
+  Start with the tutorial pack, then take the patterns one at a time. Each of these is short enough
+  to read in the playbook viewer before you import it.
+items:
+- slug: playbook-tutorial-pack
+  note: Thirty examples in three collections. The Jinja set is the best place to start.
+- slug: jinja-editor
+  note: Try Jinja against a real record and see the output as you type, before you put it in a step.
+- slug: route-by-severity
+  note: Branch on a field of the record that started the run.
+- slug: parent-child-pattern
+  note: Pass inputs to a child playbook and read its result back in the parent.
+- slug: approve-before-block
+  note: Stop for an analyst's decision and follow the answer.
+- slug: virustotal-ip-verdict
+  note: One connector call, then decide on its result.

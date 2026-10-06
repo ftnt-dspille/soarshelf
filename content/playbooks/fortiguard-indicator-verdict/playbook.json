@@ -1,0 +1,239 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "FortiGuard Indicator Verdict",
+      "description": "One verdict for an IP, domain, URL or file hash from FortiGuard threat intelligence.",
+      "visible": true,
+      "image": null,
+      "uuid": "1abc3d15-8db8-57a3-af6f-7c3d539d0bfd",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "FortiGuard Indicator Verdict",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Looks up an IP, domain, URL or file hash with the FortiGuard IOC connector and returns a verdict (malicious, suspicious, clean or unknown) with the risk score, risk level, confidence, category and threat tags. Call it with indicator. Thresholds are in the first step.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "indicator"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/72ff1906-3d47-5eb6-be3b-4c55e37b59eb",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "72ff1906-3d47-5eb6-be3b-4c55e37b59eb"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Thresholds",
+              "description": null,
+              "arguments": {
+                "malicious_at": 80,
+                "suspicious_at": 50,
+                "indicator": "{{ vars.input.params.indicator | default('', true) | string | trim }}"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "c9ebce09-7361-5b2d-942f-34f1a35c9b36"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Anything to look up",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Indicator given",
+                    "condition": "{{ vars.indicator | length > 0 }}",
+                    "step_iri": "/api/3/workflow_steps/18a1534f-e3d0-592d-a97c-c9157a78046f",
+                    "step_name": "Search FortiGuard"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/37f5b2c8-0305-5543-9a56-2e29ddee5ae2",
+                    "step_name": "No indicator"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "e6c6cf37-3f84-5965-98ac-dd66bb81a393"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "No indicator",
+              "description": null,
+              "arguments": {
+                "indicator": "",
+                "verdict": "unknown",
+                "reason": "no indicator was given"
+              },
+              "status": null,
+              "top": "510",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "37f5b2c8-0305-5543-9a56-2e29ddee5ae2"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Search FortiGuard",
+              "description": null,
+              "arguments": {
+                "connector": "fortinet-fortiguard-ioc",
+                "operation": "ioc_search",
+                "params": {
+                  "indicator": "{{ vars.indicator }}"
+                },
+                "version": "1.2.0",
+                "name": "Fortinet FortiGuard IOC",
+                "operationTitle": "IOC Search",
+                "step_variables": [],
+                "pickFromTenant": false,
+                "config": ""
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "18a1534f-e3d0-592d-a97c-c9157a78046f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Read result",
+              "description": null,
+              "arguments": {
+                "hit": "{{ (vars.steps.Search_FortiGuard.data | default([], true) | first) | default({}, true) }}"
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "d449b021-ee12-5247-9a7a-010cce99f8ba"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Result",
+              "description": null,
+              "arguments": {
+                "indicator": "{{ vars.indicator }}",
+                "risk_score": "{{ vars.hit.risk_score if vars.hit.risk_score is number else none }}",
+                "risk_level": "{{ (vars.hit.risk_level or {}).itemValue | default('') }}",
+                "confidence": "{{ (vars.hit.confidence or {}).itemValue | default('') }}",
+                "category": "{{ vars.hit.av_cate or vars.hit.ioc_cate or vars.hit.wf_cate or '' }}",
+                "tags": "{{ vars.hit.ioc_tags | default([], true) }}",
+                "verdict": "{%- set s = vars.hit.risk_score -%} {%- if s is not number -%}unknown {%- elif s >= vars.malicious_at | int -%}malicious {%- elif s >= vars.suspicious_at | int -%}suspicious {%- else -%}clean{%- endif -%}"
+              },
+              "status": null,
+              "top": "770",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "9ab006e4-c8e3-5e6a-9566-71f0ea4b0675"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Thresholds",
+              "targetStep": "/api/3/workflow_steps/c9ebce09-7361-5b2d-942f-34f1a35c9b36",
+              "sourceStep": "/api/3/workflow_steps/72ff1906-3d47-5eb6-be3b-4c55e37b59eb",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "bf320b8c-bebf-549a-b222-dc88dd83c40d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Thresholds -> Anything to look up",
+              "targetStep": "/api/3/workflow_steps/e6c6cf37-3f84-5965-98ac-dd66bb81a393",
+              "sourceStep": "/api/3/workflow_steps/c9ebce09-7361-5b2d-942f-34f1a35c9b36",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "3d91fe3d-8a59-5c16-b787-1f21d8757235"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Anything to look up -> Search FortiGuard",
+              "targetStep": "/api/3/workflow_steps/18a1534f-e3d0-592d-a97c-c9157a78046f",
+              "sourceStep": "/api/3/workflow_steps/e6c6cf37-3f84-5965-98ac-dd66bb81a393",
+              "label": "Indicator given",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "fb3e2d11-cfc1-507e-9666-49ceb8789cdf"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Anything to look up -> No indicator",
+              "targetStep": "/api/3/workflow_steps/37f5b2c8-0305-5543-9a56-2e29ddee5ae2",
+              "sourceStep": "/api/3/workflow_steps/e6c6cf37-3f84-5965-98ac-dd66bb81a393",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "2bcdf582-8d88-53f3-a89d-c0a7e2f87d1b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Search FortiGuard -> Read result",
+              "targetStep": "/api/3/workflow_steps/d449b021-ee12-5247-9a7a-010cce99f8ba",
+              "sourceStep": "/api/3/workflow_steps/18a1534f-e3d0-592d-a97c-c9157a78046f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "40342f6c-83b4-510f-9ee0-c6b4c116d41b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Read result -> Result",
+              "targetStep": "/api/3/workflow_steps/9ab006e4-c8e3-5e6a-9566-71f0ea4b0675",
+              "sourceStep": "/api/3/workflow_steps/d449b021-ee12-5247-9a7a-010cce99f8ba",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "40da387b-5156-5189-a075-1cb2865f2657"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "a4d17135-28ea-597c-ac8b-01a3a86ae843",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}

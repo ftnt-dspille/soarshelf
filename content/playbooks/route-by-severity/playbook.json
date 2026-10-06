@@ -50,7 +50,7 @@
               "name": "Read severity",
               "description": null,
               "arguments": {
-                "severity": "{{ vars.input.records[0].severity }}"
+                "severity": "{{ vars.input.records[0].severity.itemValue | default('', true) | lower }}"
               },
               "status": null,
               "top": "250",
@@ -124,7 +124,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "1b0fdbde-6e44-5dbe-a9dd-bf3fa9fe480d"
+              "uuid": "406cf89e-2746-5130-acad-1ef89e227b0b"
             },
             {
               "@type": "WorkflowRoute",
@@ -134,7 +134,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "6e12f87f-4540-5b2f-b201-11780b6fd8d5"
+              "uuid": "547f0c94-4740-51e6-82ff-06685a9c00e0"
             },
             {
               "@type": "WorkflowRoute",
@@ -144,7 +144,7 @@
               "label": "high",
               "isExecuted": false,
               "group": null,
-              "uuid": "0a84eb6e-a18b-52b0-bd90-2a78e2533955"
+              "uuid": "2b2477b5-947f-55d0-a03e-5902625fc086"
             },
             {
               "@type": "WorkflowRoute",
@@ -154,7 +154,7 @@
               "label": "Else",
               "isExecuted": false,
               "group": null,
-              "uuid": "d90442a7-fabc-5877-93b3-769cd5e19179"
+              "uuid": "8db21ac7-9160-5c41-805b-825661f15cf9"
             }
           ],
           "groups": [],

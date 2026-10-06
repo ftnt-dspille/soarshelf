@@ -1,0 +1,76 @@
+collection: Related Alerts
+description: Find other open alerts from the same source IP, to group or escalate them together.
+visible: true
+
+playbooks:
+  - name: Find Related Alerts by Source IP
+    description: >-
+      Finds alerts from the same source IP created in the last lookback_days (default 7) that are
+      not closed, leaving out the alert you pass as exclude_alert. Returns the count and a short
+      list. Call it from a triage playbook with source_ip and the alert's @id.
+    parameters: [source_ip, lookback_days, exclude_alert]
+    steps:
+      - name: Start
+        type: start
+        next: Inputs
+
+      - name: Inputs
+        type: set_variable
+        vars:
+          source_ip: "{{ vars.input.params.source_ip | default('', true) | string | trim }}"
+          exclude_alert: "{{ vars.input.params.exclude_alert | default('', true) | string }}"
+          since: "{{ arrow.utcnow().shift(days=-(vars.input.params.lookback_days | default(7, true) | int)).int_timestamp }}"
+          lookback_days: "{{ vars.input.params.lookback_days | default(7, true) | int }}"
+        next: Have a source IP
+
+      - name: Have a source IP
+        type: decision
+        conditions:
+          - display: Source IP given
+            when: "{{ vars.source_ip | length > 0 }}"
+            next: Find alerts from the same source
+        default: No source IP
+
+      - name: No source IP
+        type: set_variable
+        vars:
+          source_ip: ""
+          related_count: 0
+          related: []
+          reason: no source IP was given
+
+      - name: Find alerts from the same source
+        type: find_record
+        module: alerts
+        logic: AND
+        filters:
+          - field: sourceIp
+            operator: eq
+            value: "{{ vars.source_ip }}"
+          - field: createDate
+            type: datetime   # date filters must say so, or the query API rejects them
+            operator: gte
+            value: "{{ vars.since }}"
+          - field: status.itemValue
+            operator: neq
+            value: Closed
+        sort:
+          - field: createDate
+            direction: DESC
+        select: [name, severity, status, createDate, sourceIp]
+        limit: 200
+        next: Result
+
+      - name: Result
+        type: set_variable
+        vars:
+          source_ip: "{{ vars.source_ip }}"
+          lookback_days: "{{ vars.lookback_days }}"
+          related: >-
+            {{ vars.steps.Find_alerts_from_the_same_source | default([], true)
+               | rejectattr('@id', 'equalto', vars.exclude_alert)
+               | map('json_query', '{id: "@id", name: name, severity: severity.itemValue, status: status.itemValue}')
+               | list }}
+          related_count: >-
+            {{ vars.steps.Find_alerts_from_the_same_source | default([], true)
+               | rejectattr('@id', 'equalto', vars.exclude_alert) | list | length }}
