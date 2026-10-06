@@ -1,3 +1,4 @@
-import { applyD1Migrations, env } from 'cloudflare:test';
+import { applyD1Migrations, env, type D1Migration } from 'cloudflare:test';
 
-await applyD1Migrations(env.DB, (env as unknown as { TEST_MIGRATIONS: D1Migration[] }).TEST_MIGRATIONS);
+const t = env as unknown as { DB: D1Database; TEST_MIGRATIONS: D1Migration[] };
+await applyD1Migrations(t.DB, t.TEST_MIGRATIONS);
