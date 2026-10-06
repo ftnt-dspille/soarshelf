@@ -191,3 +191,23 @@ def test_pr_body_marks_updates():
     body = pr_body({"decision": "review", "update": True, "previousVersion": "1.2.0", "version": "1.3.0",
                     "changes": "see https://evil.example"}, "alice", "a" * 32)
     assert "**Update**" in body and "1​.​2​.​0" in body and "evil.example" not in body
+
+
+def test_pack_declares_hub_connectors_for_automatic_install(tmp_path, doc, hub):
+    import io
+    import zipfile
+    from soarshelf.process import process
+    meta = {"slug": "pk", "title": "A pack", "summary": "Does pack things.", "use_cases": ["enrichment"], "author": "a"}
+    res = process(meta, _pack(tmp_path / "up.zip", doc), "new", hub)
+    zf = zipfile.ZipFile(io.BytesIO(res.download))
+    info = json.loads(zf.read("pk/info.json"))
+    data = json.loads(zf.read("pk/connectors/data.json"))
+    assert {"name": "VirusTotal", "apiName": "virustotal"} in info["contents"]["connectors"]
+    assert [d["install_mode"] for d in data if d["name"] == "virustotal"] == ["rpm"]
+    assert not any(c["id"] == "pack.connectors.external_requirement" and "virustotal" in c["title"]
+                   for c in res.detail["checks"])
+    kinds = [s["kind"] for s in res.detail["setup"]]
+    titles = [s["title"] for s in res.detail["setup"]]
+    assert "Install the VirusTotal connector" not in titles
+    assert kinds.index("import") < kinds.index("configure-connector")
+    assert "VirusTotal" in next(s["detail"] for s in res.detail["setup"] if s["kind"] == "import")

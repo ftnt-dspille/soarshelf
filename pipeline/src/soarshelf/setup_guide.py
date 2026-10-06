@@ -60,9 +60,16 @@ def steps(kind: str, connectors: list[dict[str, Any]], packs: list[dict[str, Any
             out.append(_step("install-pack", f"Get the {p['name']} solution pack",
                              "It isn't on the Content Hub. Check the description for where to find it."))
 
+    # A pack declares its Content Hub connectors, so installing it installs them;
+    # only custom ones need a step first, and configuring waits until after the install.
+    pack = kind == "solution-pack"
+    bundled = [c for c in connectors if pack and c["hub"] != "missing" and c["name"] != "cyops_utilities"]
+    configure: list[dict[str, str]] = []
     for c in connectors:
         ops = ", ".join(f"`{o}`" for o in c["operations"]) or "none"
-        if c["hub"] == "missing":
+        if c in bundled:
+            pass
+        elif c["hub"] == "missing":
             out.append(_step("install-connector", f"Get the {c['label']} connector",
                              f"**Not on the Content Hub.** You'll need this custom connector "
                              f"(built with {c['version'] or 'an unknown version'}). Operations used: {ops}."))
@@ -74,9 +81,10 @@ def steps(kind: str, connectors: list[dict[str, Any]], packs: list[dict[str, Any
             out.append(_step("install-connector", f"Install the {c['label']} connector",
                              f"Find **{c['label']}** on the Content Hub and install it.{note} "
                              f"Operations used: {ops}."))
-        out.append(_step("configure-connector", f"Configure {c['label']} and set a default",
-                         "Connector configuration links are removed from downloads, so each step uses "
-                         "the connector's **default** configuration."))
+        (configure if pack else out).append(_step(
+            "configure-connector", f"Configure {c['label']} and set a default",
+            "Connector configuration links are removed from downloads, so each step uses "
+            "the connector's **default** configuration."))
 
     custom = sorted(m for m in deps.modules if m not in CORE_MODULES)
     if custom:
@@ -91,8 +99,11 @@ def steps(kind: str, connectors: list[dict[str, Any]], packs: list[dict[str, Any
                          "Values were cleared from the download. Set: " + ", ".join(f"`{n}`" for n in names)))
 
     if kind == "solution-pack":
+        with_it = (" Installing it also installs these connectors from the Content Hub: "
+                   + ", ".join(f"**{c['label']}**" for c in bundled) + ".") if bundled else ""
         out.append(_step("import", "Upload the solution pack",
-                         "Open **Content Hub › Manage**, upload the zip, then install it."))
+                         f"Open **Content Hub › Manage**, upload the zip, then install it.{with_it}"))
+        out += configure
     else:
         out.append(_step("import", "Import the playbook collection",
                          "Open **Settings › Import Wizard**, upload the JSON file and review "

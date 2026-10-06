@@ -7,7 +7,9 @@ The easiest way is the upload page (`/submit` on the site): drop the file, pick 
 - **Playbooks:** export the collection from the platform as JSON.
 - **Solution packs:** export as a solution pack zip. Configuration exports are
   not accepted: they can carry environment data. Packs must not bundle
-  connector or widget installers; list those separately.
+  connector or widget installers; list those separately. Content Hub
+  connectors your playbooks use are declared in the pack for you, so
+  installing it installs them.
 - **Connectors and widgets:** upload the `.tgz` you install on your platform.
   A maintainer reviews the source, and the download is rebuilt from it. No
   compiled code or bundled archives: list Python dependencies in

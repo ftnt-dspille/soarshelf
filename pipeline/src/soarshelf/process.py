@@ -131,7 +131,55 @@ def _is_repo_doc(name: str) -> bool:
             or base in _REPO_DOC_NAMES or base.split(".")[0] in _REPO_DOC_NAMES)
 
 
-def _pack(up: Upload) -> tuple[list[ParsedCollection], dict[str, str], list[CheckResult], bytes, Any]:
+# Part of every install, so never declared.
+_PREINSTALLED = {"cyops_utilities"}
+
+
+def _declare_connectors(rebuilt: dict[str, bytes], root: str, collections: list[ParsedCollection],
+                        hub: HubIndex) -> list[tuple[str, str]]:
+    """Declare the Content Hub connectors the playbooks call, the way exported packs do.
+
+    The importer installs every connector listed in ``info.json`` contents and
+    ``connectors/data.json`` with ``install_mode: rpm`` from the Content Hub, so
+    a pack that leaves one out imports playbooks whose steps can't run. Custom
+    connectors aren't on the hub and can't be fetched; the setup guide covers those.
+    """
+    used = sorted({s.arguments.get("connector") for c in collections for pb in c.playbooks for s in pb.steps
+                   if isinstance(s.arguments.get("connector"), str)} - _PREINSTALLED)
+    wanted = [c for c in used if c in hub.connectors]
+    info_name = f"{root}info.json"
+    info = json.loads(rebuilt[info_name]) if info_name in rebuilt else None
+    if not wanted or not isinstance(info, dict):
+        return []
+    data_name = f"{root}connectors/data.json"
+    data = json.loads(rebuilt[data_name]) if data_name in rebuilt else []
+    data = data if isinstance(data, list) else []
+    contents = info["contents"] if isinstance(info.get("contents"), dict) else {}
+    listed = contents["connectors"] if isinstance(contents.get("connectors"), list) else []
+    in_info = {e.get("apiName") for e in listed if isinstance(e, dict)}
+    in_data = {e.get("name") for e in data if isinstance(e, dict)}
+
+    added = []
+    for api in wanted:
+        h = hub.connectors[api]
+        label = str(h.get("label") or api)
+        if api not in in_info:
+            listed.append({"name": label, "apiName": api})
+        if api not in in_data:
+            data.append({"name": api, "label": label, "category": [h["category"]] if h.get("category") else None,
+                         "description": "", "publisher": None, "operation_roles": [], "configurations": [],
+                         "dataImports": [], "install_mode": "rpm"})
+        if api not in in_info or api not in in_data:
+            added.append((api, label))
+    if added:
+        contents["connectors"] = listed
+        info["contents"] = contents
+        rebuilt[info_name] = json.dumps(info, indent=2, ensure_ascii=False).encode() + b"\n"
+        rebuilt[data_name] = json.dumps(data, indent=2, ensure_ascii=False).encode() + b"\n"
+    return added
+
+
+def _pack(up: Upload, hub: HubIndex) -> tuple[list[ParsedCollection], dict[str, str], list[CheckResult], bytes, Any]:
     members = up.members or {}
     root = next(m for m in members if posixpath.basename(m) == "info.json" and m.count("/") <= 1)[:-len("info.json")]
     results: list[CheckResult] = []
@@ -187,6 +235,15 @@ def _pack(up: Upload) -> tuple[list[ParsedCollection], dict[str, str], list[Chec
         rebuilt[name] = json.dumps(doc, indent=2, ensure_ascii=False).encode() + b"\n"
 
     results += report_results(pack_report)
+    added = _declare_connectors(rebuilt, root, list(collections.values()), hub)
+    if added:
+        # The export check above ran on the upload; these are declared now.
+        results = [r for r in results if not (r.id == "pack.connectors.external_requirement"
+                                              and any(f"'{api}'" in r.title for api, _ in added))]
+        results.append(CheckResult("pack.connectors-declared", Severity.INFO,
+                                   "Connectors added to the pack for automatic install",
+                                   "Installing the pack fetches them from the Content Hub: "
+                                   + ", ".join(label for _, label in added)))
 
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -359,7 +416,7 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
     if kind == "playbook":
         collections, uuids, res, body, macros = _playbook(up)
     elif kind == "solution-pack":
-        collections, uuids, res, body, macros = _pack(up)
+        collections, uuids, res, body, macros = _pack(up, hub)
     elif kind == "connector":
         res, body, connector_ops = _connector(up, hub)
     elif kind == "widget":
