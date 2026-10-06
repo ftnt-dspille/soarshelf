@@ -201,7 +201,7 @@
 {/snippet}
 
 <div class="mx-auto max-w-6xl px-4 pt-12 pb-8 sm:px-6">
-  <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Share a playbook</h1>
+  <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Share your work</h1>
   <p class="mt-2 max-w-2xl text-muted">
     Upload a playbook collection, solution pack, or a connector or widget manifest (info.json) you wrote. It's checked automatically and published once it passes.
   </p>
