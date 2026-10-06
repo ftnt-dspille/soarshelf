@@ -1,0 +1,13 @@
+title: Chart widget for dashboards and record views
+summary: Bar, line, pie and donut charts built on C3.js, configurable from the widget editor.
+description: ''
+use_cases:
+- reporting
+tags: []
+author: ftnt-dspille
+version: 1.0.0
+min_version: null
+license: MIT
+published: '2026-10-06'
+source: https://github.com/ftnt-dspille/widget-c3-charts
+author_id: 99558074

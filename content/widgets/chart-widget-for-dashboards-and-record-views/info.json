@@ -1,0 +1,18 @@
+{
+  "type": "widget",
+  "name": "c3Charts",
+  "title": "C3 Charts",
+  "subTitle": "Render your own custom chart data",
+  "version": "1.0.0",
+  "metadata": {
+    "description": "Renders custom charts from C3 compatible JSON content in Module fields.",
+    "publisher": "Fortinet",
+    "pages": [
+      "Dashboard",
+      "Reports"
+    ],
+    "compatibility": [
+      "7.3.1"
+    ]
+  }
+}
