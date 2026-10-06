@@ -4,7 +4,7 @@ export const SITE = {
   tagline: 'Community playbooks, solution packs and connectors for your SOAR platform.',
   description:
     'Browse, inspect and download community-built SOAR playbooks, solution packs and connectors. Every upload is scanned, sanitized and checked against the Content Hub.',
-  repo: 'https://github.com/OWNER/soarshelf',
+  repo: 'https://github.com/ftnt-dspille/soarshelf',
   get issues() {
     return `${this.repo}/issues`;
   },

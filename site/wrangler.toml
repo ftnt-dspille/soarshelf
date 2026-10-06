@@ -1,0 +1,9 @@
+# Cloudflare Pages project. Only used for `wrangler pages deploy` and the
+# service binding that functions/api/[[path]].ts proxies through.
+name = "soarshelf"
+pages_build_output_dir = "build"
+compatibility_date = "2026-08-15"
+
+[[services]]
+binding = "API"
+service = "soarshelf-api"

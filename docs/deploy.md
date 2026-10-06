@@ -55,8 +55,8 @@ pnpm run migrate:remote
 ```
 
 `wrangler.toml` `[vars]`: `SITE_ORIGIN`, `REPO`, `GITHUB_CLIENT_ID`,
-`GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID`, and uncomment `routes` with
-`soarshelf.example/api/*`.
+`GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID`. The Worker has no public URL
+(`workers_dev = false`); the site reaches it through a service binding (below).
 
 ```bash
 for s in GITHUB_CLIENT_SECRET GITHUB_APP_PRIVATE_KEY SESSION_SECRET TURNSTILE_SECRET INTERNAL_TOKEN; do
@@ -74,8 +74,13 @@ secret goes to the Worker; the site key goes to the site build as
 
 **Pages:** create a Pages project named `soarshelf` with **direct upload**
 (no Git connection): CI builds and checks the site, then deploys that exact
-build. Add the custom domain to the project; the Worker route serves `/api/*`
-on the same domain.
+build. `site/wrangler.toml` binds the Worker as `API`, and
+`site/functions/api/[[path]].ts` forwards `/api/*` to it, so the API lives on
+the site's own origin. Static pages never invoke the function.
+
+**Domain:** the domain's DNS can stay where it is. Add the custom domain
+(e.g. `soarshelf.example.com`) to the Pages project, then create
+`CNAME soarshelf -> soarshelf.pages.dev` at your DNS provider.
 
 For CI, create an API token with *Cloudflare Pages: Edit* and add:
 secret `CLOUDFLARE_API_TOKEN`, variables `CLOUDFLARE_ACCOUNT_ID` and

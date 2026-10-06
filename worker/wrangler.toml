@@ -2,13 +2,15 @@ name = "soarshelf-api"
 main = "src/index.ts"
 compatibility_date = "2026-08-15"
 
-# Served on the site's own origin, e.g. route = "soarshelf.example/api/*".
-# Set it per deployment in the dashboard or here:
-# routes = [{ pattern = "soarshelf.example/api/*", zone_name = "soarshelf.example" }]
+# No public URL: the site's Pages Function (site/functions/api) forwards
+# /api/* here through a service binding, so the API only exists on the
+# site's own origin. Locally, `wrangler dev` and .dev.vars still work.
+workers_dev = false
+preview_urls = false
 
 [vars]
-SITE_ORIGIN = "http://localhost:5173"
-REPO = "OWNER/soarshelf"
+SITE_ORIGIN = "https://soarshelf.cse-fortisoar.com"
+REPO = "ftnt-dspille/soarshelf"
 GITHUB_CLIENT_ID = ""
 GITHUB_APP_ID = ""
 GITHUB_APP_INSTALLATION_ID = ""
