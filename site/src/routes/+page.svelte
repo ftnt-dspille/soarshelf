@@ -101,7 +101,7 @@
   </div>
 </section>
 
-<FeaturedGraphs featured={data.featured} />
+<FeaturedGraphs featured={data.featured} useCases={index.useCases} />
 
 <section class="mx-auto max-w-7xl px-4 pt-20 sm:px-6">
   <div class="flex items-end justify-between gap-4">

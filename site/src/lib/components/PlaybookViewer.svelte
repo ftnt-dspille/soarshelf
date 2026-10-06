@@ -5,8 +5,10 @@
   import type { Collection, PlaybookNode } from '$lib/types';
   import { theme } from '$lib/theme.svelte';
   import { NODE_H, NODE_W, autoLayout, fitZoom, type Layout } from '$lib/layout';
-  import { FAMILY_ICON, FAMILY_LABEL } from '$lib/icons';
+  import { FAMILY_ICON } from '$lib/icons';
+  import { FAMILY_KEY } from '$lib/format';
   import StepNode from './StepNode.svelte';
+  import JumpEdge from './JumpEdge.svelte';
   import StepInspector from './StepInspector.svelte';
 import MinimapNav from './MinimapNav.svelte';
   import Zap from '@lucide/svelte/icons/zap';
@@ -14,8 +16,9 @@ import MinimapNav from './MinimapNav.svelte';
   let {
     collections,
     labels,
-    initialKey = '0:0'
-  }: { collections: Collection[]; labels: Map<string, string>; initialKey?: string } = $props();
+    initialKey = '0:0',
+    initialStep = null
+  }: { collections: Collection[]; labels: Map<string, string>; initialKey?: string; initialStep?: string | null } = $props();
 
   // Flatten to one list so a single <select> can pick any playbook in any collection.
   const options = $derived(
@@ -37,6 +40,7 @@ import MinimapNav from './MinimapNav.svelte';
   const selected = $derived(playbook?.nodes.find((n) => n.id === selectedId) ?? null);
 
   const nodeTypes = { step: StepNode };
+  const edgeTypes = { jump: JumpEdge };
   let boxW = $state(0);
   let boxH = $state(0);
 
@@ -62,17 +66,32 @@ import MinimapNav from './MinimapNav.svelte';
 
   function buildEdges(): Edge[] {
     if (!playbook) return [];
-    return playbook.edges.map((e) => ({
+    const wrapped = layout?.wrapped ?? new Set<string>();
+    // Column jumps get lettered badges; one letter per target step.
+    const tags = new Map<string, string>();
+    const plain = playbook.edges.filter((e) => !wrapped.has(e.id));
+    const aside = NODE_W * 0.3;
+    return playbook.edges.map((e) => {
+      const jump = wrapped.has(e.id);
+      if (jump && !tags.has(e.target)) tags.set(e.target, String.fromCharCode(65 + (tags.size % 26)));
+      return {
       id: e.id,
       source: e.source,
       target: e.target,
-      // smoothstep also routes column-to-column jumps (wrapped layouts) up the gutter.
-      type: 'smoothstep',
-      label: e.label ?? undefined,
+      type: jump ? 'jump' : 'smoothstep',
+      data: jump
+        ? {
+            tag: tags.get(e.target),
+            out: plain.some((x) => x.source === e.source) ? aside : 0,
+            in: plain.some((x) => x.target === e.target) ? -aside : 0
+          }
+        : undefined,
+      label: jump ? undefined : (e.label ?? undefined),
       markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16 },
       deletable: false,
       selectable: false
-    }));
+      };
+    });
   }
 
   // Rebuilt (and the canvas re-keyed) only when the playbook changes or the
@@ -86,7 +105,8 @@ import MinimapNav from './MinimapNav.svelte';
   $effect(() => {
     void viewKey;
     untrack(() => {
-      selectedId = null;
+      // A deep link can open with one step selected (inspector showing).
+      selectedId = initialStep && playbook?.nodes.some((n) => n.id === initialStep) ? initialStep : null;
       nodes = buildNodes();
       edges = buildEdges();
       renderKey++;
@@ -97,7 +117,8 @@ import MinimapNav from './MinimapNav.svelte';
   // (capped so small playbooks don't look oversized).
   function initialViewport() {
     if (!layout || !boxW || !boxH) return { x: 0, y: 0, zoom: 1 };
-    const zoom = Math.max(Math.min(fitZoom(layout, boxW, boxH), 1), 0.2);
+    // Wrapped layouts need room above and below the columns for the jump badges.
+    const zoom = Math.max(Math.min(fitZoom(layout, boxW, boxH, layout.wrapped.size ? 72 : 32), 1), 0.2);
     return {
       x: (boxW - layout.width * zoom) / 2,
       y: (boxH - layout.height * zoom) / 2,
@@ -109,6 +130,15 @@ import MinimapNav from './MinimapNav.svelte';
     selectedId = n?.id ?? null;
     nodes = nodes.map((x) => ({ ...x, selected: x.id === selectedId }));
   }
+
+  // A later deep link to another step of the same playbook.
+  $effect(() => {
+    const id = initialStep;
+    untrack(() => {
+      const n = id ? playbook?.nodes.find((x) => x.id === id) : undefined;
+      if (n && n.id !== selectedId) selectNode(n);
+    });
+  });
 
   let flow: ReturnType<typeof useSvelteFlow> | null = null;
 
@@ -166,6 +196,7 @@ import MinimapNav from './MinimapNav.svelte';
             bind:nodes
             bind:edges
             {nodeTypes}
+            {edgeTypes}
             colorMode={theme.current}
             initialViewport={initialViewport()}
             minZoom={0.2}
@@ -208,7 +239,7 @@ import MinimapNav from './MinimapNav.svelte';
               {#each [...new Set(playbook.nodes.map((n) => n.family))] as fam (fam)}
                 {@const Icon = FAMILY_ICON[fam]}
                 <li class="flex items-center gap-1.5">
-                  <span style="color: var(--fam-{fam})" aria-hidden="true"><Icon size={13} /></span>{FAMILY_LABEL[fam]}
+                  <span style="color: var(--fam-{fam})" aria-hidden="true"><Icon size={13} /></span>{FAMILY_KEY[fam]}
                 </li>
               {/each}
             </ul>

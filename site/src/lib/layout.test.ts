@@ -37,6 +37,12 @@ describe('autoLayout', () => {
     expect(l.positions.get('s0')!.y).toBeLessThan(l.positions.get('s1')!.y);
   });
 
+  it('uses the frame: a 12-step chain in the front-page frame gets 3 columns, not 2', () => {
+    const { nodes, edges } = chain(12);
+    const l = autoLayout(nodes, edges, 1600, 1000);
+    expect(new Set([...l.positions.values()].map((p) => p.x)).size).toBe(3);
+  });
+
   it('never overlaps steps, branches included', () => {
     const nodes = ['t', 'd', 'a', 'b', 'c', 'end'].map(n);
     const e = (s: string, t: string): PlaybookEdge => ({ id: s + t, source: s, target: t, label: null });

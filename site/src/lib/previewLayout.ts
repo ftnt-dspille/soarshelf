@@ -25,12 +25,30 @@ export interface LaidOutPreview {
   height: number;
   nodes: (PreviewNode & { x: number; y: number; rank: number })[];
   edges: (PreviewEdge & { d: string; mid: { x: number; y: number }; rank: number })[];
+  /** Column jumps, drawn as a lettered badge under the source and above the target. */
+  jumps: Jump[];
 }
+
+export interface Jump {
+  id: string;
+  tag: string;
+  rank: number;
+  /** Stub from the source down to its badge, and from the target's badge into the target. */
+  out: { d: string; at: { x: number; y: number } };
+  in: { d: string; at: { x: number; y: number } };
+}
+
+/** Badge radius and the stub between a step and its badge. */
+export const JUMP_R = 11;
+const STUB = 14;
+/** Room above and below the columns for the badges. */
+const JUMP_PAD = STUB + JUMP_R * 2 + 4;
 
 /**
  * Lay a playbook out with the viewer's engine (top-down, sideways, or
  * wrapped into columns) for a frame of the given aspect, and turn its edges
- * into SVG paths.
+ * into SVG paths. Column jumps become lettered connector badges rather than
+ * long lines around the outside.
  */
 export function previewLayout(nodes: PreviewNode[], edges: PreviewEdge[], aspect = 16 / 10): LaidOutPreview {
   const asNodes = nodes.map((n) => ({ ...n, x: 0, y: 0, args: {} }) as PlaybookNode);
@@ -42,24 +60,45 @@ export function previewLayout(nodes: PreviewNode[], edges: PreviewEdge[], aspect
   const order = [...l.positions.values()].map(keyOf).sort((a, b) => a - b);
   const rankOf = (id: string) => order.indexOf(keyOf(l.positions.get(id)!));
 
-  const placed = nodes.map((n) => ({ ...n, ...l.positions.get(n.id)!, rank: rankOf(n.id) }));
+  const pad = l.wrapped.size ? JUMP_PAD : 0;
+  const placed = nodes.map((n) => {
+    const p = l.positions.get(n.id)!;
+    return { ...n, x: p.x, y: p.y + pad, rank: rankOf(n.id) };
+  });
   const at = new Map(placed.map((n) => [n.id, n]));
+  const valid = edges.filter((e) => at.has(e.source) && at.has(e.target) && e.source !== e.target);
 
-  const laid = edges
-    .filter((e) => at.has(e.source) && at.has(e.target) && e.source !== e.target)
+  // One letter per jump target, so several jumps into one step share it.
+  const tags = new Map<string, string>();
+  const jumps: Jump[] = [];
+  const sideOut = (id: string) => valid.some((e) => e.source === id && !l.wrapped.has(e.id));
+  const sideIn = (id: string) => valid.some((e) => e.target === id && !l.wrapped.has(e.id));
+  for (const e of valid.filter((e) => l.wrapped.has(e.id))) {
+    const s = at.get(e.source)!;
+    const t = at.get(e.target)!;
+    if (!tags.has(e.target)) tags.set(e.target, String.fromCharCode(65 + (tags.size % 26)));
+    // Step aside from an ordinary edge that leaves or enters the same side.
+    const sx = s.x + PV_W / 2 + (sideOut(e.source) ? PV_W * 0.3 : 0);
+    const tx = t.x + PV_W / 2 - (sideIn(e.target) ? PV_W * 0.3 : 0);
+    const sy = s.y + PV_H;
+    const ty = t.y;
+    jumps.push({
+      id: e.id,
+      tag: tags.get(e.target)!,
+      rank: s.rank,
+      out: { d: `M${sx},${sy} L${sx},${sy + STUB}`, at: { x: sx, y: sy + STUB + JUMP_R } },
+      in: { d: `M${tx},${ty - STUB} L${tx},${ty}`, at: { x: tx, y: ty - STUB - JUMP_R } }
+    });
+  }
+
+  const laid = valid
+    .filter((e) => !l.wrapped.has(e.id))
     .map((e) => {
       const s = at.get(e.source)!;
       const t = at.get(e.target)!;
       // Exit/enter on the sides that face the flow direction.
       const a = across ? { x: s.x + PV_W, y: s.y + PV_H / 2 } : { x: s.x + PV_W / 2, y: s.y + PV_H };
       const b = across ? { x: t.x, y: t.y + PV_H / 2 } : { x: t.x + PV_W / 2, y: t.y };
-      if (l.wrapped.has(e.id)) {
-        // Column jump: drop below the source, run up the gutter between the
-        // columns, and come down into the target - all inside the frame.
-        const gx = (s.x + PV_W + t.x) / 2;
-        const pts = [a, { x: a.x, y: a.y + 12 }, { x: gx, y: a.y + 12 }, { x: gx, y: b.y - 12 }, { x: b.x, y: b.y - 12 }, b];
-        return { ...e, d: rounded(pts), mid: { x: gx, y: (a.y + b.y) / 2 }, rank: s.rank };
-      }
       const bend = across ? Math.max(40, (b.x - a.x) / 2) : Math.max(40, Math.abs(b.y - a.y) / 2);
       const d = across
         ? `M${a.x},${a.y} C${a.x + bend},${a.y} ${b.x - bend},${b.y} ${b.x},${b.y}`
@@ -67,20 +106,5 @@ export function previewLayout(nodes: PreviewNode[], edges: PreviewEdge[], aspect
       return { ...e, d, mid: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, rank: s.rank };
     });
 
-  return { width: l.width, height: l.height, nodes: placed, edges: laid };
-}
-
-/** Orthogonal polyline with rounded corners. */
-function rounded(pts: { x: number; y: number }[], r = 10): string {
-  let d = `M${pts[0].x},${pts[0].y}`;
-  for (let i = 1; i < pts.length - 1; i++) {
-    const [p, c, n] = [pts[i - 1], pts[i], pts[i + 1]];
-    const into = Math.min(r, Math.hypot(c.x - p.x, c.y - p.y) / 2);
-    const out = Math.min(r, Math.hypot(n.x - c.x, n.y - c.y) / 2);
-    const ux = Math.sign(c.x - p.x), uy = Math.sign(c.y - p.y);
-    const vx = Math.sign(n.x - c.x), vy = Math.sign(n.y - c.y);
-    d += ` L${c.x - ux * into},${c.y - uy * into} Q${c.x},${c.y} ${c.x + vx * out},${c.y + vy * out}`;
-  }
-  const last = pts[pts.length - 1];
-  return `${d} L${last.x},${last.y}`;
+  return { width: l.width, height: l.height + pad * 2, nodes: placed, edges: laid, jumps };
 }

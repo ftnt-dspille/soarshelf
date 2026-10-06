@@ -1,18 +1,33 @@
 <script lang="ts">
   import { FAMILY_ICON } from '$lib/icons';
-  import { PV_H, PV_W, previewLayout, type PreviewEdge, type PreviewNode } from '$lib/previewLayout';
+  import { JUMP_R, PV_H, PV_W, previewLayout, type PreviewEdge, type PreviewNode } from '$lib/previewLayout';
+  import { fitText, fitWidth } from '$lib/textfit';
 
   // Read-only SVG drawing of a playbook. No canvas library, so it is cheap
   // enough to render on the home page and scales with its container.
+  // With `stepHref`, each step is a link (e.g. to that step on the item page).
   let {
     nodes,
     edges,
     labels = {},
-    aspect = 16 / 10
-  }: { nodes: PreviewNode[]; edges: PreviewEdge[]; labels?: Record<string, string>; aspect?: number } = $props();
+    aspect = 16 / 10,
+    stepHref
+  }: {
+    nodes: PreviewNode[];
+    edges: PreviewEdge[];
+    labels?: Record<string, string>;
+    aspect?: number;
+    stepHref?: (id: string) => string;
+  } = $props();
 
   const g = $derived(previewLayout(nodes, edges, aspect));
   const uid = $props.id();
+
+  // Text column inside a step card: from after the icon chip to the right padding.
+  const TEXT_X = 60;
+  const TEXT_W = PV_W - TEXT_X - 12;
+  const KIND = { size: 11, tracking: 0.05 };
+  const NAME = { size: 15, tracking: 0 };
 
   function fit(s: string, n: number): string {
     return s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s;
@@ -48,17 +63,44 @@
     </g>
   {/each}
 
+  {#each g.jumps as j (j.id)}
+    <g class="edge jump" style="--d: {j.rank * 90}ms">
+      <path d={j.out.d} class="wire" />
+      <path d={j.in.d} class="wire" marker-end="url(#{uid}-arrow)" />
+      {#each [j.out.at, j.in.at] as c, i (i)}
+        <g transform="translate({c.x} {c.y})">
+          <title>{i === 0 ? `Continues at ${j.tag}` : `Continued from ${j.tag}`}</title>
+          <circle r={JUMP_R} class="badge" />
+          <text text-anchor="middle" dy="4" class="badge-text">{j.tag}</text>
+        </g>
+      {/each}
+    </g>
+  {/each}
+
   {#each g.nodes as n (n.id)}
     {@const Icon = FAMILY_ICON[n.family]}
+    {@const kindText = kind(n).toUpperCase()}
     <g transform="translate({n.x} {n.y})">
-      <g class="node" style="--fam: var(--fam-{n.family}); --d: {n.rank * 90}ms">
+      <svelte:element
+        this={stepHref ? 'a' : 'g'}
+        href={stepHref?.(n.id)}
+        class="node"
+        class:link={!!stepHref}
+        style="--fam: var(--fam-{n.family}); --d: {n.rank * 90}ms"
+        role={stepHref ? undefined : 'presentation'}
+      >
+        <title>{n.name} - {kind(n)}</title>
         <rect width={PV_W} height={PV_H} rx="12" class="card" />
         <rect x="0" y="12" width="3.5" height={PV_H - 24} rx="1.75" class="bar" />
         <rect x="14" y={(PV_H - 34) / 2} width="34" height="34" rx="9" class="chip" />
         <Icon x={22} y={(PV_H - 18) / 2} size={18} class="ico" aria-hidden="true" />
-        <text x="60" y="28" class="kind">{fit(kind(n).toUpperCase(), 26)}</text>
-        <text x="60" y="47" class="name">{fit(n.name, 22)}</text>
-      </g>
+        <text x={TEXT_X} y="28" class="kind" use:fitText={{ text: kindText, max: TEXT_W }}
+          >{fitWidth(kindText, TEXT_W, KIND.size, KIND.tracking)}</text
+        >
+        <text x={TEXT_X} y="47" class="name" use:fitText={{ text: n.name, max: TEXT_W }}
+          >{fitWidth(n.name, TEXT_W, NAME.size, NAME.tracking)}</text
+        >
+      </svelte:element>
     </g>
   {/each}
 </svg>
@@ -104,6 +146,29 @@
   .pill {
     fill: var(--surface-2);
     stroke: var(--border);
+  }
+  .badge {
+    fill: var(--surface-2);
+    stroke: var(--accent);
+    stroke-width: 1.5;
+  }
+  .badge-text {
+    font-size: 11px;
+    font-weight: 700;
+    fill: var(--accent-text);
+  }
+  .link {
+    cursor: pointer;
+  }
+  .link .card {
+    transition: stroke 0.15s;
+  }
+  .link:hover .card,
+  .link:focus-visible .card {
+    stroke: var(--fam);
+  }
+  .link:focus-visible {
+    outline: none;
   }
   .pill-text {
     font-size: 12px;

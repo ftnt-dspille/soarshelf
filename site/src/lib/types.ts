@@ -163,6 +163,7 @@ export interface FeaturedItem {
   type: ItemType;
   useCases: string[];
   connectors: string[];
+  hubStatus?: HubStatus;
   /** "<collection>:<playbook>" index; deep-link with /items/<slug>#playbooks/<key>. */
   key: string;
   collection: string;

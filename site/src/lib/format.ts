@@ -1,4 +1,4 @@
-import type { HubStatus, ItemType, Severity, Trust } from './types';
+import type { HubStatus, ItemType, NodeFamily, Severity, Trust } from './types';
 
 export const TYPE_LABEL: Record<ItemType, string> = {
   playbook: 'Playbook',
@@ -47,3 +47,36 @@ export function formatDate(iso: string): string {
 export function plural(n: number, word: string, many = `${word}s`): string {
   return `${n} ${n === 1 ? word : many}`;
 }
+
+/** Trigger step labels from the pipeline, in words a visitor understands. */
+export const TRIGGER_PLAIN: Record<string, string> = {
+  'Manual trigger': 'Run manually',
+  'On create': 'When a record is created',
+  'On update': 'When a record is updated',
+  'On delete': 'When a record is deleted',
+  'Pre-create': 'Before a record is created',
+  'Pre-update': 'Before a record is updated',
+  'Pre-delete': 'Before a record is deleted',
+  'API endpoint': 'Called through the API',
+  Referenced: 'Called by another playbook',
+  'Trigger block': 'Called by another playbook'
+};
+
+export const triggerPlain = (t: string) => TRIGGER_PLAIN[t] ?? t;
+
+/** Step colours in words for a colour key (the inspector uses icons.ts FAMILY_LABEL). */
+export const FAMILY_KEY: Record<NodeFamily, string> = {
+  trigger: 'Trigger',
+  connector: 'Connector action',
+  decision: 'Decision',
+  record: 'Record',
+  code: 'Code (always reviewed)',
+  human: 'Human input',
+  reference: 'Calls a playbook',
+  utility: 'Utility',
+  end: 'End',
+  other: 'Other'
+};
+
+/** Connectors every installation ships with; listing them tells a visitor nothing. */
+export const BUILTIN_CONNECTORS = new Set(['code-snippet', 'cyops_utilities']);

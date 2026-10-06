@@ -45,15 +45,23 @@
   let tab = $state<Tab>('overview');
   // Which playbook the viewer opens on; set by links like #playbooks/0:2 (collection:playbook).
   let pbKey = $state('0:0');
+  // And which step it selects: #playbooks/0:2/<step id>.
+  let stepId = $state<string | null>(null);
   let done = $state<Record<number, boolean>>({});
 
   // Tab ↔ #hash so a tab can be linked directly.
   $effect(() => {
     if (!browser) return;
     const fromHash = () => {
-      const [h, key] = location.hash.slice(1).split('/') as [Tab, string | undefined];
+      const [h, key, step] = location.hash.slice(1).split('/') as [Tab, string | undefined, string | undefined];
       if (tabs.some((t) => t.id === h)) tab = h;
-      if (h === 'playbooks' && key && /^\d+:\d+$/.test(key)) pbKey = key;
+      if (h === 'playbooks' && key && /^\d+:\d+$/.test(key)) {
+        pbKey = key;
+        const id = step ? decodeURIComponent(step) : '';
+        stepId = /^[\w-]{1,80}$/.test(id) ? id : null;
+        // A link to one step should land on the graph, not the page header.
+        if (stepId) requestAnimationFrame(() => document.getElementById('panel')?.scrollIntoView({ block: 'start' }));
+      }
     };
     fromHash();
     addEventListener('hashchange', fromHash);
@@ -174,7 +182,7 @@
   </div>
 </div>
 
-<div id="panel" role="tabpanel" aria-labelledby="tab-{tab}" class="mx-auto max-w-7xl px-4 pt-8 sm:px-6">
+<div id="panel" role="tabpanel" aria-labelledby="tab-{tab}" class="mx-auto max-w-7xl scroll-mt-16 px-4 pt-8 sm:px-6">
   {#if tab === 'overview'}
     <div class="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div class="min-w-0 space-y-6">
@@ -237,7 +245,7 @@
     </div>
   {:else if tab === 'playbooks'}
     {#if browser}
-      <PlaybookViewer collections={item.collections} {labels} initialKey={pbKey} />
+      <PlaybookViewer collections={item.collections} {labels} initialKey={pbKey} initialStep={stepId} />
     {:else}
       <div class="grid h-[540px] place-items-center rounded-xl border border-line bg-surface text-sm text-faint">Loading viewer…</div>
     {/if}

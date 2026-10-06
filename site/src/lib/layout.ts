@@ -101,11 +101,13 @@ export function autoLayout(nodes: PlaybookNode[], edges: PlaybookEdge[], frameW 
   const lr = run(nodes, edges, 'LR');
   if (zoom(lr) > zoom(best) * 1.1) best = lr;
   // Wrapping costs some readability (edges jump between columns), so it has
-  // to show the steps clearly larger to be worth it.
+  // to show the steps clearly larger than an unwrapped layout. Once wrapped,
+  // another column costs little more, so it only has to be a bit larger.
   const ranks = new Set([...tb.positions.values()].map((p) => p.y)).size;
   for (let cols = 2; cols <= Math.min(6, Math.floor(ranks / 2)); cols++) {
     const w = wrap(tb, edges, cols);
-    if (zoom(w) > zoom(best) * 1.25) best = w;
+    const bar = best.wrapped.size ? 1.05 : 1.25;
+    if (zoom(w) > zoom(best) * bar) best = w;
   }
   return best;
 }

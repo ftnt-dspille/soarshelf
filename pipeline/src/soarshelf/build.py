@@ -119,7 +119,7 @@ def featured(details: list[tuple[dict[str, Any], dict[str, Any]]], hub: HubIndex
         picks.append((score + (100 if meta.get("featured") else 0), {
             "slug": detail["slug"], "title": detail["title"], "summary": detail["summary"],
             "type": detail["type"], "useCases": detail["useCases"], "connectors": detail["connectors"],
-            "key": f"{ci}:{pi}", "collection": coll["name"],
+            "hubStatus": detail["hubStatus"], "key": f"{ci}:{pi}", "collection": coll["name"],
             "playbook": {
                 "name": pb["name"], "description": pb["description"], "trigger": pb["trigger"],
                 # The front page only draws the graph; arguments stay on the item page.
@@ -130,6 +130,7 @@ def featured(details: list[tuple[dict[str, Any], dict[str, Any]]], hub: HubIndex
     picks.sort(key=lambda p: -p[0])
     chosen = [p for _, p in picks[:FEATURED_MAX]]
     names = {n["connector"] for f in chosen for n in f["playbook"]["nodes"] if n.get("connector")}
+    names |= {c for f in chosen for c in f["connectors"]}
     return {"items": chosen,
             "connectorLabels": {c: (hub.connectors.get(c) or {}).get("label") or c for c in sorted(names)}}
 
