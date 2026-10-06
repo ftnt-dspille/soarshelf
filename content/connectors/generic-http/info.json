@@ -1,0 +1,59 @@
+{
+  "type": "connector",
+  "name": "generic-http",
+  "label": "Generic HTTP",
+  "version": "3.0.2",
+  "description": "Versatile generic HTTP connector. Supports any REST API: configurable auth (None / Basic / Bearer / API Key Header / API Key Query Param / OAuth2 Client Credentials with token caching), per-call auth override, connection-level custom headers, query params, body shaping (json / form / multipart / raw), retry with backoff, follow-redirects toggle, response path plucking, RFC 5988 / next-URL / page-param pagination, and scheduled data ingestion.",
+  "category": "HTTP Requests",
+  "publisher": "Fortinet",
+  "operations": [
+    {
+      "operation": "http_request",
+      "title": "HTTP Request (Any Method)"
+    },
+    {
+      "operation": "http_get",
+      "title": "HTTP GET"
+    },
+    {
+      "operation": "http_post",
+      "title": "HTTP POST"
+    },
+    {
+      "operation": "http_put",
+      "title": "HTTP PUT"
+    },
+    {
+      "operation": "http_patch",
+      "title": "HTTP PATCH"
+    },
+    {
+      "operation": "http_delete",
+      "title": "HTTP DELETE"
+    },
+    {
+      "operation": "http_head",
+      "title": "HTTP HEAD"
+    },
+    {
+      "operation": "http_options",
+      "title": "HTTP OPTIONS"
+    },
+    {
+      "operation": "http_paginate",
+      "title": "HTTP Paginate"
+    },
+    {
+      "operation": "fetch_records",
+      "title": "Fetch Records (Ingestion)"
+    },
+    {
+      "operation": "upload_file",
+      "title": "Upload File"
+    },
+    {
+      "operation": "download_file",
+      "title": "Download File"
+    }
+  ]
+}

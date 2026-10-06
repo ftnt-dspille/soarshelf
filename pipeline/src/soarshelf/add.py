@@ -64,8 +64,19 @@ def form_defaults(manifest: dict[str, Any]) -> dict[str, str]:
     title = manifest.get("label") or manifest.get("title") or manifest.get("name") or ""
     md = manifest.get("metadata") if isinstance(manifest.get("metadata"), dict) else {}
     summary = manifest.get("description") or manifest.get("subTitle") or md.get("description") or ""
-    return {"title": str(title), "summary": str(summary).split("\n")[0][:160],
+    return {"title": str(title), "summary": _first_sentence(str(summary)),
             "version": str(manifest.get("version") or "")}
+
+
+def _first_sentence(text: str, limit: int = 160) -> str:
+    """The first sentence, or the text cut at a word boundary, within ``limit``."""
+    text = " ".join(text.split())
+    end = text.find(". ")
+    if 0 < end < limit:
+        return text[:end + 1]
+    if len(text) <= limit:
+        return text
+    return text[:limit - 1].rsplit(" ", 1)[0].rstrip(",;:") + "…"
 
 
 def add(source: str, form: dict[str, Any], content: Path, *, dry_run: bool) -> tuple[Any, Path | None]:

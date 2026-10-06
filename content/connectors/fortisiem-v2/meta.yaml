@@ -1,0 +1,16 @@
+title: Query, investigate and ingest SIEM incidents
+summary: Query events and the CMDB, investigate incidents asynchronously, and ingest incidents natively.
+description: ''
+use_cases:
+- triage
+- ingestion
+tags:
+- siem
+- incidents
+author: ftnt-dspille
+version: 6.1.7
+min_version: null
+license: MIT
+published: '2026-10-06'
+source: https://github.com/ftnt-dspille/fortinet-fortisiemv2
+author_id: 99558074

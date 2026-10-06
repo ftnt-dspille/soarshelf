@@ -1,0 +1,18 @@
+{
+  "type": "widget",
+  "name": "jinjaEditorWidget",
+  "title": "Jinja Editor",
+  "subTitle": "Write, evaluate, and debug Jinja templates from any dashboard or record detail page.",
+  "version": "1.2.2",
+  "metadata": {
+    "description": "Embeds the FortiSOAR Jinja editor as a widget. Provide an input JSON payload, write a Jinja template against it, and render the result. On the View Panel, optionally seed the input with the current record so you can debug templates against real data.",
+    "publisher": "Dylan Spille",
+    "pages": [
+      "Dashboard",
+      "View Panel"
+    ],
+    "compatibility": [
+      "7.6.0"
+    ]
+  }
+}

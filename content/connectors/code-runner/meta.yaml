@@ -1,0 +1,15 @@
+title: Run unrestricted Python from a playbook step
+summary: 'Execute Python snippets with no sandbox restrictions: top-level return works and open()/filesystem
+  access is available.'
+description: ''
+use_cases:
+- utility
+tags:
+- python
+author: ftnt-dspille
+version: 1.0.1
+min_version: null
+license: MIT
+published: '2026-10-06'
+source: https://github.com/ftnt-dspille/connector-code-runner
+author_id: 99558074

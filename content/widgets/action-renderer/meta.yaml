@@ -1,0 +1,15 @@
+title: Render playbook actions on a record view
+summary: Configure a connector action or playbook on the edit panel; the widget executes it on the view
+  panel against the current record (params can use Jinja for…
+description: ''
+use_cases:
+- utility
+tags:
+- playbooks
+author: ftnt-dspille
+version: 1.0.9
+min_version: null
+license: MIT
+published: '2026-10-06'
+source: https://github.com/ftnt-dspille/widget-playbook-and-action-renderer
+author_id: 99558074

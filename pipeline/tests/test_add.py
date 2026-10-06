@@ -16,6 +16,9 @@ def test_defaults_from_manifests():
     assert c == {"title": "X Tool", "summary": "Does x.", "version": "1.2.0"}
     w = form_defaults({"name": "w", "title": "W", "subTitle": "Shows w", "version": "1.0.0", "metadata": {}})
     assert w["title"] == "W" and w["summary"] == "Shows w"
+    long = form_defaults({"description": "word " * 60})["summary"]
+    assert len(long) <= 160 and long.endswith("word…")
+    assert form_defaults({"description": "First one. Second one."})["summary"] == "First one."
 
 
 def test_dry_run_writes_nothing(tmp_path, monkeypatch):

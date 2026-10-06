@@ -1,0 +1,35 @@
+{
+  "type": "connector",
+  "name": "smtp_ng",
+  "label": "SMTP (Next-Gen)",
+  "version": "1.0.0",
+  "description": "Send email via SMTP (stdlib smtplib, pydantic-validated, returns a structured result).",
+  "category": "utilities",
+  "publisher": "Community",
+  "operations": [
+    {
+      "operation": "send_email_new",
+      "title": "Send Email (Advanced)"
+    },
+    {
+      "operation": "send_email",
+      "title": "Send Email"
+    },
+    {
+      "operation": "send_richtext_email",
+      "title": "Send Rich Text Email (Deprecated)"
+    },
+    {
+      "operation": "get_users",
+      "title": "Get Users"
+    },
+    {
+      "operation": "get_teams",
+      "title": "Get Teams"
+    },
+    {
+      "operation": "get_email_templates",
+      "title": "Get Email Templates"
+    }
+  ]
+}

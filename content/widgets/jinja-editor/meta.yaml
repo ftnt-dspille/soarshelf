@@ -1,0 +1,15 @@
+title: Write and test Jinja templates in the browser
+summary: Write Jinja templates against live record data and see the rendered output as you type.
+description: ''
+use_cases:
+- utility
+tags:
+- jinja
+- templates
+author: ftnt-dspille
+version: 1.2.2
+min_version: null
+license: MIT
+published: '2026-10-06'
+source: https://github.com/ftnt-dspille/widget-jinja-editor
+author_id: 99558074

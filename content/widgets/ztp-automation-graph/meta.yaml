@@ -1,0 +1,16 @@
+title: Graph each device's automation steps
+summary: Renders a Cytoscape.js node graph of a ZTP device's automation-step run-group (ztpf_device_automation_steps),
+  ordered by step number ascending.
+description: ''
+use_cases:
+- reporting
+tags:
+- ztp
+- graph
+author: ftnt-dspille
+version: 1.0.40
+min_version: null
+license: MIT
+published: '2026-10-06'
+source: https://github.com/ftnt-dspille/widget-ztp-automation-graph
+author_id: 99558074

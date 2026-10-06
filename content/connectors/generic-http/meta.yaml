@@ -1,0 +1,15 @@
+title: Call any HTTP API with shared auth and paging
+summary: Call any REST API with absolute URLs, auth set once in the configuration, and automatic paging.
+description: ''
+use_cases:
+- utility
+tags:
+- http
+- rest
+author: ftnt-dspille
+version: 3.0.2
+min_version: null
+license: MIT
+published: '2026-10-06'
+source: https://github.com/ftnt-dspille/connector-generic-http
+author_id: 99558074

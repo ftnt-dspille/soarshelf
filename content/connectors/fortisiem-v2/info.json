@@ -1,0 +1,279 @@
+{
+  "type": "connector",
+  "name": "fortinet-fortisiemv2",
+  "label": "Fortinet FortiSIEM v2",
+  "version": "6.1.7",
+  "description": "FortiSIEM v2 provides integrations that allow you to query and make changes to the CMDB, query events, and send incident notifications. This revamped connector adds async operations, MCP (Model Context Protocol) investigation tools, and native ingestion support, along with actions like get incidents, comment incident, clear incident, get device details, get monitored organizations, report-related actions, and get all associated events for an incident from FortiSIEM.",
+  "category": "Analytics and SIEM",
+  "publisher": "Fortinet",
+  "operations": [
+    {
+      "operation": "async_get_incidents_rest",
+      "title": "Get Incident Details Async"
+    },
+    {
+      "operation": "get_incidents",
+      "title": "List Incidents"
+    },
+    {
+      "operation": "get_incident_details",
+      "title": "Get Incident Details"
+    },
+    {
+      "operation": "update_incident",
+      "title": "Update Incident"
+    },
+    {
+      "operation": "incident_comment",
+      "title": "Comment Incident"
+    },
+    {
+      "operation": "clear_incident",
+      "title": "Clear Incident With Reason"
+    },
+    {
+      "operation": "get_associated_events",
+      "title": "Get Events For Incident"
+    },
+    {
+      "operation": "search_events",
+      "title": "Search Events"
+    },
+    {
+      "operation": "get_event_details",
+      "title": "Get Event Details"
+    },
+    {
+      "operation": "get_devices_details",
+      "title": "Get All Devices"
+    },
+    {
+      "operation": "get_devices_details_in_address",
+      "title": "Get All Devices For Specified IP Address Range"
+    },
+    {
+      "operation": "get_device_info",
+      "title": "Get Device Information"
+    },
+    {
+      "operation": "get_monitored_devices",
+      "title": "List Monitored Devices and Attributes"
+    },
+    {
+      "operation": "get_monitored_organizations",
+      "title": "List Monitored Organizations"
+    },
+    {
+      "operation": "get_org_name_by_org_id",
+      "title": "Get Organization Details"
+    },
+    {
+      "operation": "run_report",
+      "title": "Run Advanced Search Query"
+    },
+    {
+      "operation": "get_incident_attributes",
+      "title": "Get Event Attributes"
+    },
+    {
+      "operation": "get_events_by_query_id",
+      "title": "Get Events Data By Query ID"
+    },
+    {
+      "operation": "create_watchlist_group",
+      "title": "Create Watch List"
+    },
+    {
+      "operation": "get_watch_lists",
+      "title": "Get Watch Lists"
+    },
+    {
+      "operation": "get_watch_list_entries_count",
+      "title": "Get Watch List Entries Count"
+    },
+    {
+      "operation": "get_watch_list_entry",
+      "title": "Get Watch List Entry"
+    },
+    {
+      "operation": "add_watch_list_entries_to_watch_list_groups",
+      "title": "Add Watch List Entries to Watch List"
+    },
+    {
+      "operation": "update_watch_list_entry",
+      "title": "Update Watch List Entry"
+    },
+    {
+      "operation": "delete_watch_list_entry",
+      "title": "Delete Watch List Entry"
+    },
+    {
+      "operation": "delete_watch_list",
+      "title": "Delete Watch List"
+    },
+    {
+      "operation": "create_lookup_table",
+      "title": "Create Lookup Table"
+    },
+    {
+      "operation": "get_all_lookup_tables",
+      "title": "Get All Lookup Table"
+    },
+    {
+      "operation": "delete_lookup_table",
+      "title": "Delete Lookup Table"
+    },
+    {
+      "operation": "import_lookup_table_data",
+      "title": "Import Lookup Table Data"
+    },
+    {
+      "operation": "check_import_task_status",
+      "title": "Check Import Task Status"
+    },
+    {
+      "operation": "get_lookup_table_data",
+      "title": "Get Lookup Table Data"
+    },
+    {
+      "operation": "update_lookup_table_data",
+      "title": "Update Lookup Table Data"
+    },
+    {
+      "operation": "delete_lookup_table_data",
+      "title": "Delete Lookup Table Data"
+    },
+    {
+      "operation": "get_ip_context",
+      "title": "Get IP Context"
+    },
+    {
+      "operation": "get_host_context",
+      "title": "Get Host Context"
+    },
+    {
+      "operation": "get_user_context",
+      "title": "Get User Context"
+    },
+    {
+      "operation": "get_incidents_by_entity",
+      "title": "Get Incidents By Entity"
+    },
+    {
+      "operation": "get_related_incidents",
+      "title": "Get Related Incidents"
+    },
+    {
+      "operation": "get_trigger_events",
+      "title": "Get Trigger Events"
+    },
+    {
+      "operation": "get_entity_context",
+      "title": "Get Entity Context"
+    },
+    {
+      "operation": "get_entity_reputation",
+      "title": "Get Entity Reputation"
+    },
+    {
+      "operation": "get_iocs_for_incidents",
+      "title": "Get IOCs For Incidents"
+    },
+    {
+      "operation": "get_top_risky_users",
+      "title": "Get Top Risky Users"
+    },
+    {
+      "operation": "get_top_risky_devices",
+      "title": "Get Top Risky Devices"
+    },
+    {
+      "operation": "query_postgres",
+      "title": "Query Postgres"
+    },
+    {
+      "operation": "query_clickhouse",
+      "title": "Query ClickHouse"
+    },
+    {
+      "operation": "get_postgres_prompts",
+      "title": "Get Postgres Prompts"
+    },
+    {
+      "operation": "get_clickhouse_prompts",
+      "title": "Get ClickHouse Prompts"
+    },
+    {
+      "operation": "update_incident_severity",
+      "title": "Update Incident Severity (MCP)"
+    },
+    {
+      "operation": "update_incident_resolution",
+      "title": "Update Incident Resolution (MCP)"
+    },
+    {
+      "operation": "append_incident_comment_mcp",
+      "title": "Append Incident Comment (MCP)"
+    },
+    {
+      "operation": "clear_incident_mcp",
+      "title": "Clear Incident (MCP)"
+    },
+    {
+      "operation": "list_oauth_credentials",
+      "title": "List OAuth Credentials"
+    },
+    {
+      "operation": "create_oauth_credential",
+      "title": "Create OAuth Credential"
+    },
+    {
+      "operation": "revoke_oauth_credential",
+      "title": "Revoke OAuth Credential"
+    },
+    {
+      "operation": "ingest_incidents",
+      "title": "Ingest Incidents"
+    },
+    {
+      "operation": "get_incident_with_events",
+      "title": "Get Incident With Events"
+    },
+    {
+      "operation": "get_associated_events_new",
+      "title": "Get Events For Incident"
+    },
+    {
+      "operation": "execute_api_request",
+      "title": "Execute an API Request"
+    },
+    {
+      "operation": "create_task",
+      "title": "Create Task"
+    },
+    {
+      "operation": "create_case",
+      "title": "Create Case"
+    },
+    {
+      "operation": "update_cases",
+      "title": "Update Case"
+    },
+    {
+      "operation": "get_case_analysts",
+      "title": "Get Case Analysts"
+    },
+    {
+      "operation": "upload_attachment_for_case",
+      "title": "Upload Attachment for Case"
+    },
+    {
+      "operation": "get_list_cases",
+      "title": "Get List Cases"
+    },
+    {
+      "operation": "get_case_field_schema",
+      "title": "Get Case Field Schema"
+    }
+  ]
+}

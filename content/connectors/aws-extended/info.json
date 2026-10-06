@@ -1,0 +1,147 @@
+{
+  "type": "connector",
+  "name": "aws-extended",
+  "label": "AWS EC2 (Extended)",
+  "version": "1.0.0",
+  "description": "A clone of the AWS EC2 connector that adds a generic boto3 passthrough operation, so any AWS API action can be called without waiting for a curated operation to exist. Also repairs security-group rule operations, where the platform's numeric-string coercion makes IpProtocol '-1' (all protocols) unreachable. Installs alongside the stock connector and needs its own configuration.",
+  "category": "AWS Service",
+  "publisher": "Community",
+  "operations": [
+    {
+      "operation": "get_details_for_all_images",
+      "title": "Get AMIs Detail"
+    },
+    {
+      "operation": "launch_instance",
+      "title": "Launch Instance"
+    },
+    {
+      "operation": "describe_instance",
+      "title": "Get Instance Details"
+    },
+    {
+      "operation": "start_instance",
+      "title": "Start Instance"
+    },
+    {
+      "operation": "stop_instance",
+      "title": "Stop Instance"
+    },
+    {
+      "operation": "reboot_instance",
+      "title": "Reboot Instance"
+    },
+    {
+      "operation": "add_tag_to_instance",
+      "title": "Add Instance Tag"
+    },
+    {
+      "operation": "register_instance_to_elb",
+      "title": "Register Instance To ELB"
+    },
+    {
+      "operation": "deregister_instance_from_elb",
+      "title": "Deregister Instance from ELB"
+    },
+    {
+      "operation": "attach_instance_to_auto_scaling_group",
+      "title": "Attach Instance To Auto Scaling Group"
+    },
+    {
+      "operation": "detach_instance_from_autoscaling_group",
+      "title": "Detach Instance From Auto Scaling Group"
+    },
+    {
+      "operation": "instance_api_termination",
+      "title": "Instance API Termination "
+    },
+    {
+      "operation": "terminate_instance",
+      "title": "Terminate Instance"
+    },
+    {
+      "operation": "attach_volume",
+      "title": "Attach Volume"
+    },
+    {
+      "operation": "snapshot_volume",
+      "title": "Capture Volume Snapshot"
+    },
+    {
+      "operation": "detach_volume",
+      "title": "Detach Volume"
+    },
+    {
+      "operation": "delete_volume",
+      "title": "Delete Volume"
+    },
+    {
+      "operation": "create_network_acl",
+      "title": "Create Network ACL"
+    },
+    {
+      "operation": "add_network_acl_rule",
+      "title": "Add Network ACL Rule"
+    },
+    {
+      "operation": "describe_network_acls",
+      "title": "Get Details of Network ACLs"
+    },
+    {
+      "operation": "delete_network_acl_rule",
+      "title": "Delete Network ACL Rule"
+    },
+    {
+      "operation": "delete_network_acl",
+      "title": "Delete Network ACL"
+    },
+    {
+      "operation": "describe_user",
+      "title": "Get User Details"
+    },
+    {
+      "operation": "create_security_group",
+      "title": "Create Security Groups"
+    },
+    {
+      "operation": "get_security_groups",
+      "title": "Get Security Groups"
+    },
+    {
+      "operation": "get_details_of_security_group",
+      "title": "Get Details of Security Group"
+    },
+    {
+      "operation": "add_security_group_to_instance",
+      "title": "Add Security Group To Instance"
+    },
+    {
+      "operation": "delete_security_group",
+      "title": "Delete Security Groups"
+    },
+    {
+      "operation": "authorize_ingress",
+      "title": "Authorize Ingress"
+    },
+    {
+      "operation": "authorize_egress",
+      "title": "Authorize Egress"
+    },
+    {
+      "operation": "revoke_egress",
+      "title": "Revoke Egress"
+    },
+    {
+      "operation": "revoke_ingress",
+      "title": "Revoke Ingress"
+    },
+    {
+      "operation": "generic_action",
+      "title": "Generic AWS API Action"
+    },
+    {
+      "operation": "generic_resource_action",
+      "title": "Generic AWS Resource Action"
+    }
+  ]
+}
