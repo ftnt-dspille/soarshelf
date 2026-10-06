@@ -1,0 +1,32 @@
+title: Isolate OT devices on a FortiGate
+summary: Moves an OT or IoT asset into an isolation address group on a FortiGate and releases it after
+  approval.
+description: 'Contains an OT or IoT device by moving it into an isolation address group on a FortiGate,
+  and releases it again. The policies on that group do the blocking.
+
+
+  - **Step 1. Prep Fortigate** (run once): creates address objects for your assets, the isolation address
+  group and the firewall policies for it. The policies are pushed over SSH.
+
+  - **Add device to OT Isolated Group**: after an analyst confirms, adds the asset''s address to the group
+  and marks the asset Isolated.
+
+  - **Remove device from OT Isolated Group**: asks an administrator to approve, removes the address and
+  marks the asset Active.
+
+
+  Needs the FortiGate connector. The SSH step reads the login from the global variables `FGT_SSH_Username`
+  and `FGT_SSH_Password`, so create them first. Review the policy script in the Set vars step against
+  your own interfaces and VDOM.'
+use_cases:
+- containment
+tags:
+- ot
+- fortigate
+- isolation
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.4.0
+license: MIT
+published: '2026-10-06'
+author_id: 99558074

@@ -1,0 +1,27 @@
+title: Fleet-wide IP blocking with a FortiManager threat feed
+summary: Creates an IP threat feed on FortiManager and keeps it filled with malicious indicators raised
+  by FortiNDR and FortiEDR alerts.
+description: "Blocks malicious IPs across every FortiGate that a FortiManager manages, using an IP threat\
+  \ feed that FortiManager hosts.\n\n1. **00 Setup - Create FMG IP Threat Feed** (run once): creates the\
+  \ resource file and the IP threat feed (external resource) in your ADOM, and stores the names in the\
+  \ global variable `FMG_Feed_Data`.\n2. **Add entries to IP Threat feed**: collects every indicator marked\
+  \ Malicious and writes the list into the feed file. FortiGates that reference the feed in a policy pick\
+  \ up the change on their next refresh.\n3. Triggers that feed it:\n   - **Automated Block FortiNDR Destination\
+  \ IP**: on a new FortiNDR Cloud alert, creates a malicious indicator for a public destination IP and\
+  \ updates the feed.\n   - **Manual Block FortiNDR Destination IP**: the same, from a button on the alert.\n\
+  \   - **Watch IOC's from FortiEDR**: on a new FortiEDR alert (the example filter matches `powershell.exe`,\
+  \ so adjust it), creates the indicator and updates the feed.\n\nNeeds the FortiManager JSON-RPC connector.\
+  \ Edit the ADOM, feed name and file name in the setup playbook's Set variables step, then reference\
+  \ the feed as an address in a FortiGate policy."
+use_cases:
+- containment
+tags:
+- fortimanager
+- threat-feed
+- block
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.4.0
+license: MIT
+published: '2026-10-06'
+author_id: 99558074

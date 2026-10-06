@@ -1,0 +1,29 @@
+title: 'Admin utilities: playbook references, connector audit, module clone'
+summary: Find which playbooks call a given playbook, list the connectors a playbook needs, and clone a
+  module with its fields and layouts.
+description: 'Three admin tools for keeping a FortiSOAR system in order.
+
+
+  - **Find which playbooks reference selected**: enter a playbook''s UUID to list every playbook that
+  calls it through a Reference step, with each one''s collection. Run it before you rename, move or delete
+  a shared sub-playbook.
+
+  - **Playbook-Audit**: lists the connectors a playbook uses, leaving out the system connectors, so you
+  can see what an environment needs before you move playbooks to it.
+
+  - **Clone FortiSOAR Module**: copies an existing module''s schema, lookup fields and view templates
+  into a new module, then publishes it or leaves publishing to you. It writes to the module schema, so
+  try it on a test system first.
+
+
+  The buttons appear on the Alerts module. Change the Start step''s module to put them somewhere else.'
+use_cases:
+- utility
+tags:
+- admin
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.4.0
+license: MIT
+published: '2026-10-06'
+author_id: 99558074

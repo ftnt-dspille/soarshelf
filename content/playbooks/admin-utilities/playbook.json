@@ -1,0 +1,1108 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Admin Utilities",
+      "description": "",
+      "visible": true,
+      "image": null,
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Find which playbooks reference selected",
+          "aliasName": null,
+          "tag": null,
+          "description": null,
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/4c1a2cb5-5e93-4c09-8b6d-ff19fccf63ee",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create collection mapping",
+              "description": null,
+              "arguments": {
+                "collection_dict": "{% set col_mapping = {}%}{% for collection in vars.steps.Get_Collections.data['hydra:member']%}{% do col_mapping.update({collection['@id']: collection.name})%}{%endfor%}{{col_mapping}}"
+              },
+              "status": null,
+              "top": "640",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "49572103-8db6-465a-9cf7-7ab76b7fa758"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Display results",
+              "description": null,
+              "arguments": {
+                "type": "InputBased",
+                "input": {
+                  "schema": {
+                    "title": "Found results",
+                    "description": "{{vars.found_matches}}",
+                    "inputVariables": []
+                  }
+                },
+                "record": "",
+                "agent_id": null,
+                "resources": "alerts",
+                "owner_detail": {
+                  "isAssigned": false
+                },
+                "isRecordLinked": false,
+                "step_variables": [],
+                "response_mapping": {
+                  "options": [
+                    {
+                      "option": "Done"
+                    }
+                  ],
+                  "duplicateOption": false
+                },
+                "inputExternalUser": true,
+                "email_notification": {
+                  "enabled": false,
+                  "smtpParameters": []
+                },
+                "inline_channel_list": [],
+                "external_channel_list": [
+                  "/api/3/picklists/afb18b7f-510b-471a-9b9c-7f4646edd4bb"
+                ],
+                "unauthenticated_input": false
+              },
+              "status": null,
+              "top": "880",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/fc04082a-d7dc-4299-96fb-6837b1baa0fe",
+              "group": null,
+              "uuid": "f5680c79-b784-49a7-aa02-92ebe1ac5a3c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Find workflows",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "iri": "/api/query/workflows",
+                  "body": "{\n   \"filters\":[\n      {\n         \"field\":\"steps.stepType.name\",\n         \"operator\":\"eq\",\n         \"value\":\"WorkflowReference\"\n      },\n      {\n         \"field\":\"steps.arguments.workflowReference\",\n         \"operator\":\"contains\",\n         \"value\":\"/api/3/workflows/{{vars.steps.Input_playbook_uuid.input.playbookUUID}}\"\n      }\n   ],\n   \"logic\":\"AND\"\n}",
+                  "method": "POST"
+                },
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "340",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "c6de73d5-b646-4e07-93f5-04582730a04c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Collections",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "iri": "/api/3/workflow_collections?&__selectFields=name&uuid$in={{vars.collection_uuids | join('|')}}",
+                  "body": "",
+                  "method": "GET"
+                },
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "540",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "ce33e5a1-7511-4302-85f5-2601f698c078"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Input playbook uuid",
+              "description": null,
+              "arguments": {
+                "type": "InputBased",
+                "input": {
+                  "schema": {
+                    "title": "Provide the uuid of the playbook you want to query",
+                    "description": "I will query the provided uuid against all playbooks to identify which other playbooks reference your uuid. ",
+                    "inputVariables": [
+                      {
+                        "name": "playbookUUID",
+                        "type": "string",
+                        "label": "Playbook UUID",
+                        "title": "Picklist",
+                        "usable": true,
+                        "tooltip": "",
+                        "dataType": "text",
+                        "formType": "text",
+                        "required": false,
+                        "_expanded": true,
+                        "mmdUpdate": true,
+                        "collection": false,
+                        "dataSource": [],
+                        "searchable": false,
+                        "templateUrl": "app/components/form/fields/typeahead.html",
+                        "defaultValue": null,
+                        "_previousName": "p",
+                        "playbookField": true,
+                        "displayTemplate": "%7B%7B%20itemValue%20%7D%7D",
+                        "lengthConstraint": false,
+                        "allowedEncryption": false,
+                        "allowedGridColumn": true,
+                        "jinjaExpressionView": true,
+                        "useRecordFieldDefault": false
+                      }
+                    ]
+                  }
+                },
+                "record": "",
+                "agent_id": null,
+                "resources": "alerts",
+                "owner_detail": {
+                  "isAssigned": false
+                },
+                "isRecordLinked": false,
+                "step_variables": [],
+                "response_mapping": {
+                  "options": [
+                    {
+                      "option": "Submit",
+                      "step_iri": "/api/3/workflow_steps/c6de73d5-b646-4e07-93f5-04582730a04c"
+                    }
+                  ],
+                  "duplicateOption": false
+                },
+                "email_notification": {
+                  "enabled": false,
+                  "smtpParameters": []
+                },
+                "inline_channel_list": [],
+                "external_channel_list": [],
+                "unauthenticated_input": false
+              },
+              "status": null,
+              "top": "200",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/fc04082a-d7dc-4299-96fb-6837b1baa0fe",
+              "group": null,
+              "uuid": "61f9560d-3ca2-4163-908d-c8c6403ab485"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set collection uuids and workflows",
+              "description": null,
+              "arguments": {
+                "workflows": "{{vars.steps.Find_workflows.data['hydra:member'] }}",
+                "collection_uuids": "{% set uuids = []%}{% for iri in vars.steps.Find_workflows.data['hydra:member'] | json_query('[].collection') %}{% do uuids.append(iri.split('/')[-1])%}{%endfor%}{{uuids}}"
+              },
+              "status": null,
+              "top": "440",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "4870349d-33d3-47a1-8ed3-71bbdafb7af7"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "baf3cb2a-4475-4c66-aad0-2a39dbc41b94",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "4c1a2cb5-5e93-4c09-8b6d-ff19fccf63ee"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update workflows found with collection name",
+              "description": null,
+              "arguments": {
+                "found_matches": "{% for workflow in vars.workflows%}{% do workflow.update({\"Playbook\": workflow.name, \"Collection\": vars.collection_dict.get(workflow.collection), 'Hyperlink': \"<a href ='https://\" + globalVars.Server_fqhn + \"/playbooks/\" + workflow.uuid + \"' target='_blank'> Link</a>\"}) %}{%endfor%}{{vars.workflows | json2html([\"Collection\", 'Playbook', 'Hyperlink' ])}}"
+              },
+              "status": null,
+              "top": "760",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "a8476453-513e-4e31-87a0-4c41879788b4"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create collection mapping -> Update workflows found with collection name",
+              "targetStep": "/api/3/workflow_steps/a8476453-513e-4e31-87a0-4c41879788b4",
+              "sourceStep": "/api/3/workflow_steps/49572103-8db6-465a-9cf7-7ab76b7fa758",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "44debc94-e809-49b5-85bd-8be22ef09140"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Find workflows -> Set collection uuids",
+              "targetStep": "/api/3/workflow_steps/4870349d-33d3-47a1-8ed3-71bbdafb7af7",
+              "sourceStep": "/api/3/workflow_steps/c6de73d5-b646-4e07-93f5-04582730a04c",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "62415aa3-ab90-49ca-9e38-2926bbd84eb2"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Collections -> Create collection mapping",
+              "targetStep": "/api/3/workflow_steps/49572103-8db6-465a-9cf7-7ab76b7fa758",
+              "sourceStep": "/api/3/workflow_steps/ce33e5a1-7511-4302-85f5-2601f698c078",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "7c6710ec-522f-4817-9fca-53d466b254f0"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Input playbook uuid -> Find workflows",
+              "targetStep": "/api/3/workflow_steps/c6de73d5-b646-4e07-93f5-04582730a04c",
+              "sourceStep": "/api/3/workflow_steps/61f9560d-3ca2-4163-908d-c8c6403ab485",
+              "label": "Submit",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "2565a881-2a97-4506-95ca-4cecdc31b404"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set collection uuids -> Get Collections",
+              "targetStep": "/api/3/workflow_steps/ce33e5a1-7511-4302-85f5-2601f698c078",
+              "sourceStep": "/api/3/workflow_steps/4870349d-33d3-47a1-8ed3-71bbdafb7af7",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "2c645259-3396-47d0-9815-2d458965f251"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Input playbook uuid",
+              "targetStep": "/api/3/workflow_steps/61f9560d-3ca2-4163-908d-c8c6403ab485",
+              "sourceStep": "/api/3/workflow_steps/4c1a2cb5-5e93-4c09-8b6d-ff19fccf63ee",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e865e452-134d-4033-aa01-6a940816dba3"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Update workflows found with collection name -> Display results",
+              "targetStep": "/api/3/workflow_steps/f5680c79-b784-49a7-aa02-92ebe1ac5a3c",
+              "sourceStep": "/api/3/workflow_steps/a8476453-513e-4e31-87a0-4c41879788b4",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "58aca785-b975-4667-9e47-3a4d6e25629d"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "b0acba13-bc8e-43dd-9a6e-08aeea736488",
+          "isPrivate": false,
+          "importedBy": [],
+          "recordTags": []
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Playbook-Audit",
+          "aliasName": null,
+          "tag": null,
+          "description": null,
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [
+            "playbookIRI"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/ea7752f7-e7d9-484d-8f04-5149ba49e6f8",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "extract_playbook_data",
+              "description": null,
+              "arguments": {
+                "playbook_data": "{{vars.steps.Get_Connector_Steps}}"
+              },
+              "status": null,
+              "top": "160",
+              "left": "340",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "7774bf14-8b87-4408-9684-9fb918f1717c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Connector Steps",
+              "description": "Note: Does not lookup referenced playbooks. Assumes that the primary enrichment connector is in the parent playbook",
+              "arguments": {
+                "params": {
+                  "iri": "/api/3/workflows/{{vars.input.params.playbookIRI}}?$relationships=true&$asJson=true",
+                  "body": "",
+                  "method": "GET"
+                },
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": {
+                  "connectorNames": "{{(vars.result.data | json_query(\"steps[?stepType=='/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671'].arguments.connector\")) |difference(vars.systemConnectors)}}"
+                }
+              },
+              "status": null,
+              "top": "40",
+              "left": "340",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "f92e8761-4b59-4253-84eb-736e56371cb7"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "ea7752f7-e7d9-484d-8f04-5149ba49e6f8"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Connector Steps -> extract_playbook_data",
+              "targetStep": "/api/3/workflow_steps/7774bf14-8b87-4408-9684-9fb918f1717c",
+              "sourceStep": "/api/3/workflow_steps/f92e8761-4b59-4253-84eb-736e56371cb7",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "bc993d20-4312-426a-adab-b52a19817cf2"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Connector Steps",
+              "targetStep": "/api/3/workflow_steps/f92e8761-4b59-4253-84eb-736e56371cb7",
+              "sourceStep": "/api/3/workflow_steps/ea7752f7-e7d9-484d-8f04-5149ba49e6f8",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "14e67363-752b-4e4b-b7de-f850f71027ca"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "f21de210-7b6c-4ed9-a585-e6a945f2dad6",
+          "isPrivate": false,
+          "recordTags": []
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Clone FortiSOAR Module",
+          "aliasName": null,
+          "tag": null,
+          "description": null,
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/09f9cc8a-750a-4cb3-9a23-0a9455f8ce0d",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Ask user for module to clone from",
+              "description": null,
+              "arguments": {
+                "type": "InputBased",
+                "input": {
+                  "schema": {
+                    "title": "Answer the following",
+                    "description": "Choose which module to clone from, and provide the name of the new module",
+                    "inputVariables": [
+                      {
+                        "name": "oldModule",
+                        "type": "array",
+                        "label": "Old Module",
+                        "title": "Dynamic List",
+                        "usable": true,
+                        "options": "{{vars.module_names}}",
+                        "tooltip": "",
+                        "dataType": "dynamicList",
+                        "formType": "dynamicList",
+                        "required": true,
+                        "_expanded": true,
+                        "mmdUpdate": true,
+                        "collection": false,
+                        "searchable": false,
+                        "templateUrl": "app/components/form/fields/dynamicList.html",
+                        "defaultValue": null,
+                        "_previousName": "",
+                        "playbookField": true,
+                        "lengthConstraint": true,
+                        "allowedGridColumn": false,
+                        "jinjaExpressionView": true,
+                        "useRecordFieldDefault": false
+                      },
+                      {
+                        "name": "newModule",
+                        "type": "string",
+                        "label": "New Module",
+                        "tooltip": "",
+                        "dataType": "text",
+                        "formType": "text",
+                        "required": true,
+                        "_expanded": true,
+                        "defaultValue": null,
+                        "_previousName": "",
+                        "jinjaExpressionView": true,
+                        "useRecordFieldDefault": false
+                      }
+                    ]
+                  }
+                },
+                "record": "",
+                "agent_id": null,
+                "resources": "alerts",
+                "owner_detail": {
+                  "isAssigned": false
+                },
+                "isRecordLinked": false,
+                "step_variables": [],
+                "response_mapping": {
+                  "options": [
+                    {
+                      "option": "Next",
+                      "step_iri": "/api/3/workflow_steps/d0df4adb-27c0-4edb-b9f1-4d9c157f4bcd"
+                    }
+                  ],
+                  "duplicateOption": false
+                },
+                "email_notification": {
+                  "enabled": false,
+                  "smtpParameters": []
+                },
+                "inline_channel_list": [],
+                "external_channel_list": [],
+                "unauthenticated_input": false
+              },
+              "status": null,
+              "top": "300",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/fc04082a-d7dc-4299-96fb-6837b1baa0fe",
+              "group": null,
+              "uuid": "9080eedc-c808-48d7-bc98-281591bb460a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Ask user to manuallly publish or allow system",
+              "description": null,
+              "arguments": {
+                "type": "InputBased",
+                "input": {
+                  "schema": {
+                    "title": "Manually review changes or Allow system publish",
+                    "description": "## Option 1\n\n* Click the `Publish` button to commit the changes and auto publish\n\n## Option 2\n\n* Click the `Manual Review` button\n* Go to `System > Modules` and review the changes and manually publish",
+                    "inputVariables": []
+                  }
+                },
+                "record": "",
+                "agent_id": null,
+                "resources": "alerts",
+                "owner_detail": {
+                  "isAssigned": false
+                },
+                "isRecordLinked": false,
+                "step_variables": [],
+                "response_mapping": {
+                  "options": [
+                    {
+                      "option": "Publish",
+                      "step_iri": "/api/3/workflow_steps/bf3a8963-a916-445e-b4bb-15a7890ad1bc"
+                    },
+                    {
+                      "option": "Manual Review",
+                      "step_iri": "/api/3/workflow_steps/282d76c5-4f71-47af-82aa-be0b8f1000ec"
+                    }
+                  ],
+                  "duplicateOption": false
+                },
+                "email_notification": {
+                  "enabled": false,
+                  "smtpParameters": []
+                },
+                "inline_channel_list": [],
+                "external_channel_list": [],
+                "unauthenticated_input": false
+              },
+              "status": null,
+              "top": "1515",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/fc04082a-d7dc-4299-96fb-6837b1baa0fe",
+              "group": null,
+              "uuid": "8c220159-7efa-456c-a8a1-bae1162e0c86"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Bulk field insert payload",
+              "description": null,
+              "arguments": {
+                "bulk_insert_payload": "{% set api_calls = [] %}{% for field in vars.lookup_fields_needed\n%}{% set json = {\n            \"ownsRelationship\": false,\n            \"visibility\": true,\n            \"writeable\": true,\n            \"gridColumn\": false,\n            \"defaultValue\": None,\n            \"bulkAction\": {\n                \"allow\": false,\n                \"buttonText\": \"\",\n                \"buttonIcon\": \"\",\n                \"buttonClass\": \"btn btn-default btn-sm\"\n            },\n            \"validation\": {\n                \"required\": false,\n                \"minlength\": 0,\n                \"maxlength\": 10485761\n            },\n            \"name\": vars.new_module_metadata.type,\n            \"descriptions\": {\n                \"singular\": vars.new_module_name\n            },\n            \"formType\": \"lookup\",\n            \"type\": vars.new_module_metadata.type,\n            \"orderIndex\": 1,\n            \"dataType\": \"lookup\",\n            \"title\": \"Lookup (One to Many or One to One)\",\n            \"dataSource\": {\n                \"model\": vars.new_module_metadata.type\n            },\n            \"usable\": true,\n            \"searchable\": false,\n            \"lengthConstraint\": false,\n            \"playbookField\": true,\n            \"collection\": false,\n            \"encrypted\": false,\n            \"displayName\": \"{{{{ {} }}}}\".format(vars.new_module_metadata.type),\n            \"sattrib\": \"/api/3/staging_model_metadatas/{}\".format(field.origin_module_uuid)\n        }%}\n{%- do api_calls.append(json)-%}{%endfor%}{ \"data\": {{api_calls}} }"
+              },
+              "status": null,
+              "top": "980",
+              "left": "640",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "5238de4e-ca0d-482d-a57c-fc51ca6b9a99"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create new Module",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "iri": "/api/3/staging_model_metadatas?$relationships=true",
+                  "body": "{{vars.new_module_schema}}",
+                  "method": "POST"
+                },
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": {
+                  "new_module_uuid": "{{vars.steps.Create_new_Module.data.uuid}}"
+                }
+              },
+              "status": null,
+              "top": "975",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "1f4c35d8-e2b7-49b0-8f12-dc60dcdad9be"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Reverse Mappings for Many to One fields",
+              "description": null,
+              "arguments": {
+                "when": "{{vars.bulk_insert_payload.data | length > 0}}",
+                "params": {
+                  "iri": "/api/3/insert/attribute_metadatas",
+                  "body": "{{vars.bulk_insert_payload}}",
+                  "method": "POST"
+                },
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "1380",
+              "left": "620",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "286eddca-c38c-4715-b223-7006cc685275"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create View Templates",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "iri": "/api/3/bulkupsert/system_view_templates",
+                  "body": "{{vars.new_module_templates}}",
+                  "method": "POST"
+                },
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "1110",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "802342b3-7ea9-4979-94ed-bc20947e4713"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Determine Module IDs",
+              "description": null,
+              "arguments": {
+                "new_module_name": "{{vars.steps.Ask_user_for_module_to_clone_from.input.newModule}}",
+                "old_module_name": "{{vars.steps.Ask_user_for_module_to_clone_from.input.oldModule}}",
+                "old_module_uuid": "{{vars.steps.Get_modules.data['hydra:member'] | json_query('[?descriptions.plural ==`{}`].uuid'.format(vars.steps.Ask_user_for_module_to_clone_from.input.oldModule)) | first}}",
+                "old_module_schema": "{{vars.steps.Get_modules.data['hydra:member'] | json_query('[?descriptions.plural ==`{}`]'.format(vars.steps.Ask_user_for_module_to_clone_from.input.oldModule)) | first}}",
+                "old_module_tablename": "{{vars.steps.Get_modules.data['hydra:member'] | json_query('[?descriptions.plural ==`{}`].tableName'.format(vars.steps.Ask_user_for_module_to_clone_from.input.oldModule)) | first}}"
+              },
+              "status": null,
+              "top": "435",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "d0df4adb-27c0-4edb-b9f1-4d9c157f4bcd"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Do nothing",
+              "description": null,
+              "arguments": {
+                "params": [],
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "1650",
+              "left": "475",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "282d76c5-4f71-47af-82aa-be0b8f1000ec"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get modules",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "iri": "/api/3/model_metadatas?$limit=2147483647&$orderby=type&$relationships=true",
+                  "body": "",
+                  "method": "GET"
+                },
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": {
+                  "all_modules": "{{vars.steps.Get_modules.data['hydra:member']}}",
+                  "module_names": "{{vars.steps.Get_modules.data['hydra:member'] | json_query('[].descriptions.plural')}}"
+                }
+              },
+              "status": null,
+              "top": "165",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "f3bc669e-6bf3-49c7-a499-69ab4686da4f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Old Module View Templates",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "iri": "/api/3/system_view_templates?uuid$in=modules-{{vars.old_module_tablename}}-form|modules-{{vars.old_module_tablename}}-list|modules-{{vars.old_module_tablename}}-detail",
+                  "body": "",
+                  "method": "GET"
+                },
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": {
+                  "module_names": "{{vars.steps.Get_modules.data['hydra:member'] | json_query('[].descriptions.plural')}}"
+                }
+              },
+              "status": null,
+              "top": "570",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "46e7fb47-bdc9-4ad7-b7ba-e3ec5a850996"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get singular and plural of New module Name",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "iri": "/api/module/moduleMetadata",
+                  "body": "{\"module\":\"{{vars.new_module_name}}\"}",
+                  "method": "POST"
+                },
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": {
+                  "new_module_metadata": "{{vars.steps.Get_singular_and_plural_of_New_module_Name.data}}"
+                }
+              },
+              "status": null,
+              "top": "705",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "1d39acf5-0ef0-4964-9bd5-971cdf478097"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Identify Lookup fields",
+              "description": null,
+              "arguments": {
+                "lookup_fields_needed": "{% set missing_lookup_fields = []%}{% set lookup_fields = vars.all_modules | json_query('[?descriptions.plural == `{}`].attributes[] | [?formType == `oneToMany`] '.format(vars.old_module_name)) %}{% for field in lookup_fields%}{% set reverse_module_uuid = vars.all_modules | json_query('[] | [?module == `{}`].uuid'.format(field.type)) | first %}{% do missing_lookup_fields.append({\"origin_module\": field.type, \"origin_module_uuid\":reverse_module_uuid, \"target_module\": vars.new_module_metadata.tableName }) %}{%endfor%}{{missing_lookup_fields }}"
+              },
+              "status": null,
+              "top": "840",
+              "left": "640",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "12568643-eca8-4597-bc2b-1e6a289f8969"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Publish Module",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "iri": "/api/publish",
+                  "body": "{}",
+                  "method": "PUT"
+                },
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "1650",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "bf3a8963-a916-445e-b4bb-15a7890ad1bc"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set New Module Schema",
+              "description": null,
+              "arguments": {
+                "new_module_schema": "{\n    \"descriptions\": {\n        \"singular\": \"{{vars.new_module_metadata.singular}}\",\n        \"plural\": \"{{vars.new_module_metadata.plural}}\"\n    },\n    \"attributes\": [],\n    \"type\": \"{{vars.new_module_metadata.type}}\",\n    \"tableName\": \"{{vars.new_module_metadata.type}}\",\n    \"ownable\": false,\n    \"trackable\": true,\n    \"taggable\": true,\n    \"defaultSort\": [],\n    \"uniqueConstraint\": [],\n    \"indexable\": true,\n    \"displayName\": null,\n    \"userOwnable\": false,\n    \"queueable\": false,\n    \"module\": \"{{vars.new_module_metadata.type}}\"\n}",
+                "new_module_templates": "{% set templates = vars.steps.Get_Old_Module_View_Templates.data['hydra:member'] %}\n{% for template in templates%}\n{% do template.update({\"uuid\": template.uuid | replace(vars.old_module_tablename, vars.new_module_metadata.type)})%}\n{% do template.pop(\"@id\")%}\n{%endfor%}\n{{(templates | string | replace(\"'resource': '{}'\".format(vars.old_module_tablename), \"'resource': '{}'\".format(vars.new_module_metadata.type)) | replace(\"'module': '{}'\".format(vars.old_module_tablename), \"'module': '{}'\".format(vars.new_module_metadata.type))) | toDict}}"
+              },
+              "status": null,
+              "top": "840",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "ed93eeec-5a47-41fd-b820-660de497a702"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "1f3d5916-3fe6-4a04-b9c6-c24e45159ee9",
+                "title": "Clone Module",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "09f9cc8a-750a-4cb3-9a23-0a9455f8ce0d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update module schema",
+              "description": null,
+              "arguments": {
+                "staging_module_schema": "{%- set staging_schema = vars.old_module_schema | replace(vars.old_module_uuid, vars.new_module_uuid) | toDict -%}\n{%- do staging_schema.update({\"type\": vars.new_module_metadata.type, \"tableName\": vars.new_module_metadata.type, \"module\": vars.new_module_metadata.type, \"descriptions\": {\"singular\": vars.new_module_metadata.singular, \"plural\": vars.new_module_metadata.plural}}) -%}\n{%- do staging_schema.pop('@id') -%}\n\n{%- set uniqueness = ( staging_schema | json_query('uniqueConstraint[].*[]') |first) -%}\n{%- set unique_columns= {(vars.new_module_metadata.type + \"_unique\") : uniqueness} -%}\n{%- do staging_schema.update({ \"uniqueConstraint\": [unique_columns] }) -%}\n\n{%- for attribute in staging_schema['attributes'] -%}\n\t{%- do attribute.pop('inversedField') -%}\n    {%- do attribute.pop('uuid') -%}\n    {%- do attribute.pop('@id') -%}\n    {%- do attribute.update({\"sattrib\": (\"/api/3/staging_model_metadatas/\" + vars.new_module_uuid )}) -%}\n  \n\t{%- if attribute.formType == \"manyToMany\"-%}\n\t\t{%- do attribute.update({\"dataType\": \"manyToMany\", \"displayTemplate\": \"{{title}}\",  \"isNew\": true, \"mmdUpdate\": true, \"title\": \"Many to Many\",  \"usable\": true }) -%}\n\t{%- elif attribute.formType == \"oneToMany\"-%}\n    \t{%- do attribute.update({\"dataType\": \"oneToMany\",  \"isNew\": true, \"mmdUpdate\": true, \"title\": \"Many to One\",  \"usable\": true, \"bulkAction\": {} }) -%}\n        {%- do staging_schema.update({\"_changed\": true}) -%}\n\t{%- endif -%}\n  \n{%- endfor -%}\n{{staging_schema}}"
+              },
+              "status": null,
+              "top": "1245",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "2edcc2b0-6888-446d-8cef-7b1bb3f41b2f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update staging schema with modified schema",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "iri": "/api/3/staging_model_metadatas/{{vars.new_module_uuid}}?$relationships=true",
+                  "body": "{{vars.staging_module_schema}}",
+                  "method": "PUT"
+                },
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "1380",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "d1c35add-65a1-4241-8dbd-133bbfa9649a"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Ask user for module to clone from -> Determine Module IDs",
+              "targetStep": "/api/3/workflow_steps/d0df4adb-27c0-4edb-b9f1-4d9c157f4bcd",
+              "sourceStep": "/api/3/workflow_steps/9080eedc-c808-48d7-bc98-281591bb460a",
+              "label": "Next",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "d14c26c8-fc85-4cac-8bfe-3d21c9e77e69"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Ask user to manuallly publish or allow system -> Copy of Get Old Module View Templates",
+              "targetStep": "/api/3/workflow_steps/bf3a8963-a916-445e-b4bb-15a7890ad1bc",
+              "sourceStep": "/api/3/workflow_steps/8c220159-7efa-456c-a8a1-bae1162e0c86",
+              "label": "Publish",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "69a0ac7c-b60b-41ce-b9ea-83cf9ae199cc"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Ask user to manuallly publish or allow system -> Do nothing",
+              "targetStep": "/api/3/workflow_steps/282d76c5-4f71-47af-82aa-be0b8f1000ec",
+              "sourceStep": "/api/3/workflow_steps/8c220159-7efa-456c-a8a1-bae1162e0c86",
+              "label": "Manual Review",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1a19d98e-da09-40af-bb99-06bf62aa8121"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Copy of Create new Module -> Update module schema",
+              "targetStep": "/api/3/workflow_steps/2edcc2b0-6888-446d-8cef-7b1bb3f41b2f",
+              "sourceStep": "/api/3/workflow_steps/802342b3-7ea9-4979-94ed-bc20947e4713",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "8f279456-a540-4b24-8545-a0f1321a0ecc"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create Bulk field insert payload -> Create new Module",
+              "targetStep": "/api/3/workflow_steps/1f4c35d8-e2b7-49b0-8f12-dc60dcdad9be",
+              "sourceStep": "/api/3/workflow_steps/5238de4e-ca0d-482d-a57c-fc51ca6b9a99",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "de58f852-7a8a-44a3-b9f1-5a6d5dcb1261"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create new Module -> Copy of Create new Module",
+              "targetStep": "/api/3/workflow_steps/802342b3-7ea9-4979-94ed-bc20947e4713",
+              "sourceStep": "/api/3/workflow_steps/1f4c35d8-e2b7-49b0-8f12-dc60dcdad9be",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b03faad4-b9fc-41e8-b9be-d4408aeab6ed"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create Reverse Mappings for Many to One fields -> Ask user to manuallly publish or allow system",
+              "targetStep": "/api/3/workflow_steps/8c220159-7efa-456c-a8a1-bae1162e0c86",
+              "sourceStep": "/api/3/workflow_steps/286eddca-c38c-4715-b223-7006cc685275",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "923ed2e4-25b3-479a-be21-86e17f67e0bb"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Determine Module IDs -> Get Old Module View Templates",
+              "targetStep": "/api/3/workflow_steps/46e7fb47-bdc9-4ad7-b7ba-e3ec5a850996",
+              "sourceStep": "/api/3/workflow_steps/d0df4adb-27c0-4edb-b9f1-4d9c157f4bcd",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1e941755-877d-4b2d-aa19-838dd8e279cc"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get modules -> Ask user for module to clone from",
+              "targetStep": "/api/3/workflow_steps/9080eedc-c808-48d7-bc98-281591bb460a",
+              "sourceStep": "/api/3/workflow_steps/f3bc669e-6bf3-49c7-a499-69ab4686da4f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "28027c55-fbfa-4de7-85e2-add06e1b1c80"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Old Module View Templates -> Get singular and plural of New module Name",
+              "targetStep": "/api/3/workflow_steps/1d39acf5-0ef0-4964-9bd5-971cdf478097",
+              "sourceStep": "/api/3/workflow_steps/46e7fb47-bdc9-4ad7-b7ba-e3ec5a850996",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "cd09353e-1a89-47f2-98a3-c160b9ecaace"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get singular and plural of New module Name -> Set New Module Schema",
+              "targetStep": "/api/3/workflow_steps/ed93eeec-5a47-41fd-b820-660de497a702",
+              "sourceStep": "/api/3/workflow_steps/1d39acf5-0ef0-4964-9bd5-971cdf478097",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9bf660e0-25ec-463c-8ac5-ea7903202a44"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Identify Lookup fields -> Create Bulk field insert payload",
+              "targetStep": "/api/3/workflow_steps/5238de4e-ca0d-482d-a57c-fc51ca6b9a99",
+              "sourceStep": "/api/3/workflow_steps/12568643-eca8-4597-bc2b-1e6a289f8969",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "898bbaf8-f200-46c5-82b5-34bce29b4c88"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set New Module Schema -> Identify Lookup fields",
+              "targetStep": "/api/3/workflow_steps/12568643-eca8-4597-bc2b-1e6a289f8969",
+              "sourceStep": "/api/3/workflow_steps/ed93eeec-5a47-41fd-b820-660de497a702",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4beaa711-2b1a-4a8f-80df-3f3e5e419a1e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get modules",
+              "targetStep": "/api/3/workflow_steps/f3bc669e-6bf3-49c7-a499-69ab4686da4f",
+              "sourceStep": "/api/3/workflow_steps/09f9cc8a-750a-4cb3-9a23-0a9455f8ce0d",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "53a82a09-fbf8-4469-86fb-66c39db6c4e5"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Update module schema -> Update staging schema with modified schema",
+              "targetStep": "/api/3/workflow_steps/d1c35add-65a1-4241-8dbd-133bbfa9649a",
+              "sourceStep": "/api/3/workflow_steps/2edcc2b0-6888-446d-8cef-7b1bb3f41b2f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "c29f2fc7-b7ec-4079-b13b-bd06bf4a1720"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Update staging schema with modified schema -> Create Reverse Mappings for Many to One fields",
+              "targetStep": "/api/3/workflow_steps/286eddca-c38c-4715-b223-7006cc685275",
+              "sourceStep": "/api/3/workflow_steps/d1c35add-65a1-4241-8dbd-133bbfa9649a",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "be1a2279-7484-4763-8587-99f9597630b7"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Next steps",
+              "description": "After running this playbook, you will need to add CRUD permissions to the new module, and add the module to the navigation pane.",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": false,
+              "metadata": [],
+              "reusable": false,
+              "top": "40",
+              "left": "620",
+              "height": "158",
+              "width": "383",
+              "uuid": "e75fc2e7-ad06-451e-8378-e3fb1335db6f",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "37f73a59-74cc-47f1-a9ba-4dbdc56be7ae",
+          "isPrivate": false,
+          "importedBy": [],
+          "recordTags": []
+        }
+      ]
+    }
+  ]
+}

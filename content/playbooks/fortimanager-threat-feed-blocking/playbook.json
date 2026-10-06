@@ -1,0 +1,1302 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "FortiManager Threat Feed Blocking",
+      "description": "",
+      "visible": true,
+      "image": null,
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "00 Setup - Create FMG IP Threat Feed",
+          "aliasName": null,
+          "tag": null,
+          "description": null,
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/55f9459b-d484-4a4a-ab4d-8e59afc62e9a",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create FGD Resource Txt file",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiManager JSON RPC",
+                "config": "",
+                "params": {
+                  "url": "/pm/config/global/_external/resource/{{vars.ioc_filename}}",
+                  "data": "{\n  \"content\": \"\\n\"\n}"
+                },
+                "version": "1.0.6",
+                "connector": "fortinet-fortimanager-json-rpc",
+                "operation": "json_rpc_set",
+                "operationTitle": "JSON RPC Set",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "300",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "ffe83ce5-8e26-4432-b1c3-06cdc02f97f2"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Global variable with names",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "macro": "{{\"FMG_Feed_Data\"}}",
+                  "value": "{{vars.data | toJSON }}"
+                },
+                "version": "3.4.0",
+                "connector": "cyops_utilities",
+                "operation": "updatemacro",
+                "operationTitle": "FSR: Create/Update Global Variables",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "740",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "ec878a47-1e78-4fe7-b4f0-62b83d78b2e0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create IP Threat Feed",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiManager JSON RPC",
+                "config": "",
+                "params": {
+                  "url": "/pm/config/adom/{{vars.fmg_adom}}/obj/system/external-resource",
+                  "data": "[  {    \"name\": \"{{vars.ip_feed_name}}\",    \"resource\": \"fmg://{{vars.ioc_filename}}\",    \"type\": 1, \"comments\": \"Created and Managed by FortiSOAR\"  }]"
+                },
+                "version": "1.0.6",
+                "connector": "fortinet-fortimanager-json-rpc",
+                "operation": "json_rpc_add",
+                "operationTitle": "JSON RPC Add",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "440",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "a44ee61a-f13d-41ab-8a22-be745e65febe"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set variables",
+              "description": null,
+              "arguments": {
+                "fmg_adom": "root",
+                "ioc_filename": "malicious_ips.txt",
+                "ip_feed_name": "Malicious IP Feed"
+              },
+              "status": null,
+              "top": "160",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "06734b22-2fe4-476d-a477-97b2e5451aae"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set variables names together",
+              "description": null,
+              "arguments": {
+                "data": "{\"ip_feed_name\":\"{{vars.ip_feed_name}}\",\n\n\"fmg_adom\": \"{{vars.fmg_adom}}\",\n\n\"ioc_filename\":\"{{vars.ioc_filename}}\"\n}"
+              },
+              "status": null,
+              "top": "580",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "966f876e-febb-4698-a51d-2e6d78f9f9d3"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "4b2e6f41-8bc4-453f-87f0-6b53930fe52b",
+                "title": "Create FMG IP Threat Feed",
+                "resources": [
+                  "indicators"
+                ],
+                "__triggerLimit": true,
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "triggerOnReplicate": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "55f9459b-d484-4a4a-ab4d-8e59afc62e9a"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create FGD Resource Txt file -> Copy of Create FGD Resource Txt file",
+              "targetStep": "/api/3/workflow_steps/a44ee61a-f13d-41ab-8a22-be745e65febe",
+              "sourceStep": "/api/3/workflow_steps/ffe83ce5-8e26-4432-b1c3-06cdc02f97f2",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "16c47571-7128-4d69-8949-b9009f4ffa5d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create IP Threat Feed -> Set variables names together",
+              "targetStep": "/api/3/workflow_steps/966f876e-febb-4698-a51d-2e6d78f9f9d3",
+              "sourceStep": "/api/3/workflow_steps/a44ee61a-f13d-41ab-8a22-be745e65febe",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4e1b07a1-79ba-4c96-8241-c09e72cec6c9"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set variables -> Create FGD Resource Txt file",
+              "targetStep": "/api/3/workflow_steps/ffe83ce5-8e26-4432-b1c3-06cdc02f97f2",
+              "sourceStep": "/api/3/workflow_steps/06734b22-2fe4-476d-a477-97b2e5451aae",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "572b5b8a-fcb3-4dea-9f0c-7b099fef533a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set variables names together -> Create Global variable with names",
+              "targetStep": "/api/3/workflow_steps/ec878a47-1e78-4fe7-b4f0-62b83d78b2e0",
+              "sourceStep": "/api/3/workflow_steps/966f876e-febb-4698-a51d-2e6d78f9f9d3",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "8a38560b-3acd-4400-a3d7-88af57ecef53"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Set variables",
+              "targetStep": "/api/3/workflow_steps/06734b22-2fe4-476d-a477-97b2e5451aae",
+              "sourceStep": "/api/3/workflow_steps/55f9459b-d484-4a4a-ab4d-8e59afc62e9a",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f20c8fcb-e188-45f9-b55f-96a78f79f7da"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note",
+              "description": "This step creates an empty txt file on FMG, which can later be used as the source for a IP threat feed",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "280",
+              "left": "320",
+              "height": "102",
+              "width": "415",
+              "uuid": "6b5c4e20-660c-420f-a888-69b71bf8e1e5",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note",
+              "description": "Create a Global variable so the update feed playbook knows what the names of things are in FMG",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "720",
+              "left": "320",
+              "height": "110",
+              "width": "358",
+              "uuid": "42b4e960-1b55-4dad-b946-556dd90c2d2f",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note",
+              "description": "Create threat feed using resource file",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "420",
+              "left": "320",
+              "height": "0",
+              "width": "300",
+              "uuid": "6ccce78d-88d5-422f-b7c5-945a88f6b417",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Notes",
+              "description": "Set variables for FMG Adom and ioc filename, and ip feed name",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "140",
+              "left": "320",
+              "height": "0",
+              "width": "300",
+              "uuid": "9edc6e74-b54a-4119-83a8-65f305a22d75",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Prerequisties",
+              "description": "1. Install and configure the FortiManager JSON RPC connector\n   - Make sure to set the configuration as default\n2. Run this playbook",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "20",
+              "left": "780",
+              "height": "137",
+              "width": "442",
+              "uuid": "c8f9eeb1-15ff-498c-ae76-e910cb0ae617",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "293c1134-58bc-417b-8641-af8b02ba15d3",
+          "isPrivate": false,
+          "recordTags": []
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Watch IOC's from FortiEDR",
+          "aliasName": null,
+          "tag": null,
+          "description": null,
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/2c477aed-380c-4687-b6cc-b9b423e1358e",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Add entry to threat feed",
+              "description": null,
+              "arguments": {
+                "arguments": [],
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/31d5ae35-dd05-4e2b-bbee-e8c2a92993c7"
+              },
+              "status": null,
+              "top": "507",
+              "left": "630",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "3776fdde-5844-4031-ab61-a758a4612d4b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create IOC for destination",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "tlp": "/api/3/picklists/7bff95b7-6438-4b01-b23a-0fe8cb5b33d3",
+                  "value": "{{vars.input.records[0].destinationIp}}",
+                  "alerts": "{{vars.input.records[0]['@id']}}",
+                  "__replace": "true",
+                  "reputation": "/api/3/picklists/7074e547-7785-4979-be32-c6d0c863e4bd",
+                  "indicatorStatus": "/api/3/picklists/fa29fe48-f01e-476f-bb33-c910f5795b57",
+                  "typeofindicator": "/api/3/picklists/c0beeda4-2c7a-4214-b7e5-53ba1649539c",
+                  "enrichmentStatus": "/api/3/picklists/a6d9da29-27b1-4b8a-965d-8d91518540d5"
+                },
+                "operation": "Overwrite",
+                "collection": "/api/3/upsert/indicators",
+                "__recommend": [],
+                "fieldOperation": {
+                  "recordTags": "Overwrite"
+                },
+                "step_variables": []
+              },
+              "status": null,
+              "top": "372",
+              "left": "630",
+              "stepType": "/api/3/workflow_step_types/2597053c-e718-44b4-8394-4d40fe26d357",
+              "group": null,
+              "uuid": "a9493f9f-41ac-4041-a863-5f4a9f7ce453"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Alert IOC Details",
+              "description": null,
+              "arguments": {
+                "query": {
+                  "sort": [],
+                  "limit": 30,
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "type": "primitive",
+                      "field": "alerts.id",
+                      "value": "{{vars.input.records[0].id}}",
+                      "operator": "eq",
+                      "_operator": "eq"
+                    },
+                    {
+                      "type": "array",
+                      "field": "reputation",
+                      "value": [
+                        "b19b42aa-aee4-47df-9cda-894537dacb2a",
+                        "ae98ebc6-beef-4882-9980-1d88fc6d87cd",
+                        "9a611980-1b5e-4ae9-8062-eb2c0c433cff"
+                      ],
+                      "module": "reputation",
+                      "display": "",
+                      "operator": "nin",
+                      "template": "multiselectpicklist",
+                      "enableJinja": true,
+                      "OPERATOR_KEY": "$",
+                      "previousOperator": "nin",
+                      "previousTemplate": "multiselectpicklist"
+                    }
+                  ],
+                  "__selectFields": [
+                    "typeofindicator",
+                    "description",
+                    "value",
+                    "reputation"
+                  ]
+                },
+                "module": "indicators?$limit=30&$relationships=true&$fsr_max_relation_count=10",
+                "checkboxFields": true,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "237",
+              "left": "630",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
+              "group": null,
+              "uuid": "00a2f387-1b7c-42a4-a780-271b25974763"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "resource": "alerts",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": [
+                      "{{vars.input.records[0]}}"
+                    ]
+                  }
+                },
+                "triggerOnSource": true,
+                "fieldbasedtrigger": {
+                  "sort": [],
+                  "limit": 30,
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "type": "primitive",
+                      "field": "source",
+                      "value": "Fortinet-FortiEDR",
+                      "operator": "eq",
+                      "_operator": "eq"
+                    },
+                    {
+                      "type": "primitive",
+                      "field": "processName",
+                      "value": "powershell.exe",
+                      "operator": "eq",
+                      "_operator": "eq"
+                    },
+                    {
+                      "type": "primitive",
+                      "field": "sourceIp",
+                      "value": "false",
+                      "operator": "isnull",
+                      "_operator": "isnull"
+                    }
+                  ]
+                },
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "66",
+              "left": "630",
+              "stepType": "/api/3/workflow_step_types/ea155646-3821-4542-9702-b246da430a8d",
+              "group": null,
+              "uuid": "2c477aed-380c-4687-b6cc-b9b423e1358e"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create IOC for destination -> Add entry to threat feed",
+              "targetStep": "/api/3/workflow_steps/3776fdde-5844-4031-ab61-a758a4612d4b",
+              "sourceStep": "/api/3/workflow_steps/a9493f9f-41ac-4041-a863-5f4a9f7ce453",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b7d537dc-11d4-4700-bbad-b74966e9e9af"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Alert IOC Details -> Create IOC for destination",
+              "targetStep": "/api/3/workflow_steps/a9493f9f-41ac-4041-a863-5f4a9f7ce453",
+              "sourceStep": "/api/3/workflow_steps/00a2f387-1b7c-42a4-a780-271b25974763",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "297e883f-f6ad-4db2-8f78-e37623e7d7c7"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Alert IOC Details",
+              "targetStep": "/api/3/workflow_steps/00a2f387-1b7c-42a4-a780-271b25974763",
+              "sourceStep": "/api/3/workflow_steps/2c477aed-380c-4687-b6cc-b9b423e1358e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "7ecb3638-f814-4456-802b-8a543242e477"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note",
+              "description": "Treat the destination IP field as malicious for EDR testing processing",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": false,
+              "metadata": [],
+              "reusable": false,
+              "top": "66",
+              "left": "203",
+              "height": "132",
+              "width": "405",
+              "uuid": "1bc69a63-9c13-4c40-a301-6c4e3419481c",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "d25d484a-1564-40a7-8e62-63b40717d190",
+          "isPrivate": false,
+          "recordTags": []
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Add entries to IP Threat feed",
+          "aliasName": null,
+          "tag": null,
+          "description": null,
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/9242b5e0-4665-4d30-ae31-5a8ada3f68f8",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Query Malicious IOCs in SOAR",
+              "description": null,
+              "arguments": {
+                "query": {
+                  "sort": [],
+                  "limit": 30,
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "type": "object",
+                      "field": "reputation",
+                      "value": [
+                        "7074e547-7785-4979-be32-c6d0c863e4bd"
+                      ],
+                      "module": "reputation",
+                      "display": "",
+                      "operator": "in",
+                      "template": "multiselectpicklist",
+                      "enableJinja": true,
+                      "OPERATOR_KEY": "$",
+                      "useInOperator": true,
+                      "displayTemplate": "",
+                      "previousOperator": "in",
+                      "previousTemplate": "multiselectpicklist"
+                    }
+                  ],
+                  "__selectFields": [
+                    "value"
+                  ]
+                },
+                "module": "indicators?$limit=5000",
+                "checkboxFields": true,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "320",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
+              "group": null,
+              "uuid": "0a9ac4e0-fa02-474d-b3c8-fa65f19dff9b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set config",
+              "description": null,
+              "arguments": {
+                "fmg_config": "{{globalVars.FMG_Feed_Data | toDict}}"
+              },
+              "status": null,
+              "top": "180",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "9c733ff0-e873-40dd-aacd-8b1b0c0f340f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set IPs from IOCs",
+              "description": null,
+              "arguments": {
+                "malicious_iocs": "{{vars.steps.Query_Malicious_IOCs_in_SOAR  | json_query('[].[value] | []')}}"
+              },
+              "status": null,
+              "top": "460",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "40115896-ebcb-4074-9f57-b37f2ef4b30f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "9242b5e0-4665-4d30-ae31-5a8ada3f68f8"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Resource file with Ips",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiManager JSON RPC",
+                "config": "",
+                "params": {
+                  "url": "/pm/config/global/_external/resource/{{vars.fmg_config.ioc_filename}}",
+                  "data": "{  \"content\": \"{{vars.malicious_iocs | join('\\n')}}\"}"
+                },
+                "version": "1.0.6",
+                "connector": "fortinet-fortimanager-json-rpc",
+                "operation": "json_rpc_set",
+                "operationTitle": "JSON RPC Set",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "600",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "25fa9ab5-e7dc-4f59-8ce0-a46305226695"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Query Malicious IOCs in SOAR -> test",
+              "targetStep": "/api/3/workflow_steps/40115896-ebcb-4074-9f57-b37f2ef4b30f",
+              "sourceStep": "/api/3/workflow_steps/0a9ac4e0-fa02-474d-b3c8-fa65f19dff9b",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "a9793f32-4266-43f1-8cbb-e98abe2e0b7a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set config -> Query Malicious IOCs in SOAR",
+              "targetStep": "/api/3/workflow_steps/0a9ac4e0-fa02-474d-b3c8-fa65f19dff9b",
+              "sourceStep": "/api/3/workflow_steps/9c733ff0-e873-40dd-aacd-8b1b0c0f340f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "220e2a97-3320-4fc8-a919-312e1a869e80"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set IPs from IOCs -> Update Resource file with Ips",
+              "targetStep": "/api/3/workflow_steps/25fa9ab5-e7dc-4f59-8ce0-a46305226695",
+              "sourceStep": "/api/3/workflow_steps/40115896-ebcb-4074-9f57-b37f2ef4b30f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b3748c2a-fa58-4364-a574-48b50e5de6d0"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Set config",
+              "targetStep": "/api/3/workflow_steps/9c733ff0-e873-40dd-aacd-8b1b0c0f340f",
+              "sourceStep": "/api/3/workflow_steps/9242b5e0-4665-4d30-ae31-5a8ada3f68f8",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4babf7dc-b907-4d11-8b19-35d8e04440a0"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note",
+              "description": "Query for Malicious IP IOC's",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "300",
+              "left": "340",
+              "height": "0",
+              "width": "300",
+              "uuid": "aaeccaf8-a7b0-417f-9445-9d5e07ecfc34",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note",
+              "description": "Create a variable that has just the ip address values of the IOC's",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "440",
+              "left": "340",
+              "height": "86",
+              "width": "332",
+              "uuid": "7dabda3c-9fbd-410c-8327-fb0e33b66050",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Prerequisites",
+              "description": "1. Run the playbook 'Create FMG IP Threat Feed'",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "20",
+              "left": "740",
+              "height": "93",
+              "width": "433",
+              "uuid": "7208fbfe-0e9a-446e-9a0a-7931bf881f8b",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "31d5ae35-dd05-4e2b-bbee-e8c2a92993c7",
+          "isPrivate": false,
+          "recordTags": []
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Manual Block FortiNDR Destination IP",
+          "aliasName": null,
+          "tag": null,
+          "description": null,
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/db20e32b-c3b7-4556-bc52-3e00e6ce43c8",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Add entry to threat feed",
+              "description": null,
+              "arguments": {
+                "arguments": [],
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/31d5ae35-dd05-4e2b-bbee-e8c2a92993c7"
+              },
+              "status": null,
+              "top": "720",
+              "left": "640",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "b968c445-2dbc-4738-87c0-bf9245ac27f3"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Check if destination IP is private",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Private IP identified",
+                    "step_iri": "/api/3/workflow_steps/afa14f68-8904-4026-81dd-c55706d57cda",
+                    "condition": "{{ vars.destination_ip | ipaddr('private') is not none }}",
+                    "step_name": "No operation"
+                  },
+                  {
+                    "option": "Destination is Public",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/bbef6cd1-affc-4fc4-8687-8b90b7d58a57",
+                    "step_name": "Create IOC for destination"
+                  }
+                ],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "360",
+              "left": "640",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "fce3f166-b126-4694-b961-2a2fd6bead00"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create IOC for destination",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "tlp": "/api/3/picklists/7bff95b7-6438-4b01-b23a-0fe8cb5b33d3",
+                  "value": "{{vars.input.records[0].destinationIp}}",
+                  "alerts": "{{vars.input.records[0]['@id']}}",
+                  "__replace": "true",
+                  "reputation": "/api/3/picklists/7074e547-7785-4979-be32-c6d0c863e4bd",
+                  "indicatorStatus": "/api/3/picklists/fa29fe48-f01e-476f-bb33-c910f5795b57",
+                  "typeofindicator": "/api/3/picklists/c0beeda4-2c7a-4214-b7e5-53ba1649539c",
+                  "enrichmentStatus": "/api/3/picklists/a6d9da29-27b1-4b8a-965d-8d91518540d5"
+                },
+                "operation": "Overwrite",
+                "collection": "/api/3/upsert/indicators",
+                "__recommend": [],
+                "fieldOperation": {
+                  "recordTags": "Overwrite"
+                },
+                "step_variables": []
+              },
+              "status": null,
+              "top": "500",
+              "left": "640",
+              "stepType": "/api/3/workflow_step_types/2597053c-e718-44b4-8394-4d40fe26d357",
+              "group": null,
+              "uuid": "bbef6cd1-affc-4fc4-8687-8b90b7d58a57"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "No operation",
+              "description": null,
+              "arguments": {
+                "params": [],
+                "message": {
+                  "tags": [],
+                  "type": "/api/3/picklists/ff599189-3eeb-4c86-acb0-a7915e85ac3b",
+                  "tenant": "",
+                  "thread": false,
+                  "content": "<p>Destination IP {{vars.destination_ip}} is Private, Skipping adding the IP to the threat feed</p>",
+                  "records": ""
+                },
+                "version": "3.4.0",
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "360",
+              "left": "1020",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "afa14f68-8904-4026-81dd-c55706d57cda"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set vars",
+              "description": null,
+              "arguments": {
+                "destination_ip": "{{vars.input.records[0].destinationIp}}"
+              },
+              "status": null,
+              "top": "220",
+              "left": "640",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "aa3ab962-54ee-4f0d-a397-505cc41a0477"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "a8d21edd-a50f-44e6-a9c1-dcdc1918699b",
+                "title": "Block Malicious Destination IP",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": [
+                      {
+                        "type": "primitive",
+                        "field": "source",
+                        "value": "FortiNDR Cloud",
+                        "operator": "eq",
+                        "_operator": "eq"
+                      }
+                    ]
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": false,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "triggerOnReplicate": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "60",
+              "left": "640",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "db20e32b-c3b7-4556-bc52-3e00e6ce43c8"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check if destination IP is private -> Create IOC for destination",
+              "targetStep": "/api/3/workflow_steps/bbef6cd1-affc-4fc4-8687-8b90b7d58a57",
+              "sourceStep": "/api/3/workflow_steps/fce3f166-b126-4694-b961-2a2fd6bead00",
+              "label": "Destination is Public",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "facbd56f-fa19-4855-b887-c2e59ff2418f"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check if destination IP is private -> No operation",
+              "targetStep": "/api/3/workflow_steps/afa14f68-8904-4026-81dd-c55706d57cda",
+              "sourceStep": "/api/3/workflow_steps/fce3f166-b126-4694-b961-2a2fd6bead00",
+              "label": "Private IP identified",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ac192cc7-e5d9-48e6-a59f-5f0d41f2ca1a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create IOC for destination -> Add entry to threat feed",
+              "targetStep": "/api/3/workflow_steps/b968c445-2dbc-4738-87c0-bf9245ac27f3",
+              "sourceStep": "/api/3/workflow_steps/bbef6cd1-affc-4fc4-8687-8b90b7d58a57",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "74dc57d7-a23e-4c5c-b71f-a84a249999fe"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set vars -> Check if destination IP is private",
+              "targetStep": "/api/3/workflow_steps/fce3f166-b126-4694-b961-2a2fd6bead00",
+              "sourceStep": "/api/3/workflow_steps/aa3ab962-54ee-4f0d-a397-505cc41a0477",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4d47a5b4-1833-42b3-886f-0114706859dc"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Set vars",
+              "targetStep": "/api/3/workflow_steps/aa3ab962-54ee-4f0d-a397-505cc41a0477",
+              "sourceStep": "/api/3/workflow_steps/db20e32b-c3b7-4556-bc52-3e00e6ce43c8",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "dbf31f73-93ef-4705-b5c3-cd9c8add938e"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note",
+              "description": "Treat the destination IP field on NDR alert records as malicious and mark it as blocked.\n\nThis playbook makes sure we don't block an RFC1918 IP Space \n\nThe reference playbook will query all malicious IOC's on SOAR, and set that on the FMG threat feed",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "60",
+              "left": "140",
+              "height": "202",
+              "width": "441",
+              "uuid": "a7da4891-22df-46eb-852d-c42e6fd592d4",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "89f29a16-0908-4ba9-b799-19df1f610035",
+          "isPrivate": false,
+          "recordTags": []
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Automated Block FortiNDR Destination IP",
+          "aliasName": null,
+          "tag": null,
+          "description": null,
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/b8758a55-f60e-4098-bf89-ad257e88dc12",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Add entry to threat feed",
+              "description": null,
+              "arguments": {
+                "arguments": [],
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/31d5ae35-dd05-4e2b-bbee-e8c2a92993c7"
+              },
+              "status": null,
+              "top": "720",
+              "left": "640",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "a76c37fb-53b2-4a6c-87b9-70063a9790cd"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Check if destination IP is private",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Private IP identified",
+                    "step_iri": "/api/3/workflow_steps/9a3af1f0-deaa-477c-b917-94469831a6db",
+                    "condition": "{{ vars.destination_ip | ipaddr('private') is not none }}",
+                    "step_name": "No operation"
+                  },
+                  {
+                    "option": "Destination is Public",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/f7b376a3-bf1c-4c75-979c-5cd0be6eeb75",
+                    "step_name": "Create IOC for destination"
+                  }
+                ],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "360",
+              "left": "640",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "051af045-4c5f-495e-b316-8d19b4c2cd67"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create IOC for destination",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "tlp": "/api/3/picklists/7bff95b7-6438-4b01-b23a-0fe8cb5b33d3",
+                  "value": "{{vars.input.records[0].destinationIp}}",
+                  "alerts": "{{vars.input.records[0]['@id']}}",
+                  "__replace": "true",
+                  "reputation": "/api/3/picklists/7074e547-7785-4979-be32-c6d0c863e4bd",
+                  "indicatorStatus": "/api/3/picklists/fa29fe48-f01e-476f-bb33-c910f5795b57",
+                  "typeofindicator": "/api/3/picklists/c0beeda4-2c7a-4214-b7e5-53ba1649539c",
+                  "enrichmentStatus": "/api/3/picklists/a6d9da29-27b1-4b8a-965d-8d91518540d5"
+                },
+                "operation": "Overwrite",
+                "collection": "/api/3/upsert/indicators",
+                "__recommend": [],
+                "fieldOperation": {
+                  "recordTags": "Overwrite"
+                },
+                "step_variables": []
+              },
+              "status": null,
+              "top": "500",
+              "left": "640",
+              "stepType": "/api/3/workflow_step_types/2597053c-e718-44b4-8394-4d40fe26d357",
+              "group": null,
+              "uuid": "f7b376a3-bf1c-4c75-979c-5cd0be6eeb75"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "No operation",
+              "description": null,
+              "arguments": {
+                "params": [],
+                "message": {
+                  "tags": [],
+                  "type": "/api/3/picklists/ff599189-3eeb-4c86-acb0-a7915e85ac3b",
+                  "tenant": "",
+                  "thread": false,
+                  "content": "<p>Destination IP {{vars.destination_ip}} is Private, Skipping adding the IP to the threat feed</p>",
+                  "records": ""
+                },
+                "version": "3.4.0",
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "360",
+              "left": "1020",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "9a3af1f0-deaa-477c-b917-94469831a6db"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set vars",
+              "description": null,
+              "arguments": {
+                "destination_ip": "{{vars.input.records[0].destinationIp}}"
+              },
+              "status": null,
+              "top": "220",
+              "left": "640",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "92aceb67-b42a-4cdf-b6ed-4b2f6a4c8272"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "resource": "alerts",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": [
+                      "{{vars.input.records[0]}}"
+                    ]
+                  }
+                },
+                "triggerOnSource": true,
+                "fieldbasedtrigger": {
+                  "sort": [],
+                  "limit": 30,
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "type": "primitive",
+                      "field": "source",
+                      "value": "FortiNDR Cloud",
+                      "operator": "eq",
+                      "_operator": "eq"
+                    },
+                    {
+                      "type": "primitive",
+                      "field": "destinationIp",
+                      "value": "false",
+                      "operator": "isnull",
+                      "_operator": "isnull"
+                    },
+                    {
+                      "type": "primitive",
+                      "field": "name",
+                      "value": "[Scenario 1]%",
+                      "operator": "notlike",
+                      "_operator": "notlike_pattern"
+                    }
+                  ]
+                },
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "60",
+              "left": "640",
+              "stepType": "/api/3/workflow_step_types/ea155646-3821-4542-9702-b246da430a8d",
+              "group": null,
+              "uuid": "b8758a55-f60e-4098-bf89-ad257e88dc12"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check if destination IP is private -> Create IOC for destination",
+              "targetStep": "/api/3/workflow_steps/f7b376a3-bf1c-4c75-979c-5cd0be6eeb75",
+              "sourceStep": "/api/3/workflow_steps/051af045-4c5f-495e-b316-8d19b4c2cd67",
+              "label": "Destination is Public",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "724ac404-25cf-4edf-9ab6-f2a212a48566"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check if destination IP is private -> No operation",
+              "targetStep": "/api/3/workflow_steps/9a3af1f0-deaa-477c-b917-94469831a6db",
+              "sourceStep": "/api/3/workflow_steps/051af045-4c5f-495e-b316-8d19b4c2cd67",
+              "label": "Private IP identified",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1224c56b-d68c-4569-8ab4-c0d5f8cd56d4"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create IOC for destination -> Add entry to threat feed",
+              "targetStep": "/api/3/workflow_steps/a76c37fb-53b2-4a6c-87b9-70063a9790cd",
+              "sourceStep": "/api/3/workflow_steps/f7b376a3-bf1c-4c75-979c-5cd0be6eeb75",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "028d15cc-06ab-45fa-a248-71bafbd6104e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set vars -> Check if destination IP is private",
+              "targetStep": "/api/3/workflow_steps/051af045-4c5f-495e-b316-8d19b4c2cd67",
+              "sourceStep": "/api/3/workflow_steps/92aceb67-b42a-4cdf-b6ed-4b2f6a4c8272",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "fdb3b267-b031-4e14-80b0-6cab42efa7ee"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Set vars",
+              "targetStep": "/api/3/workflow_steps/92aceb67-b42a-4cdf-b6ed-4b2f6a4c8272",
+              "sourceStep": "/api/3/workflow_steps/b8758a55-f60e-4098-bf89-ad257e88dc12",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "c84d395b-4b97-4091-ac16-441bb25fa62b"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note",
+              "description": "Treat the destination IP field on NDR alert records as malicious and mark it as blocked.\n\nThis playbook makes sure we don't block an RFC1918 IP Space \n\nThe reference playbook will query all malicious IOC's on SOAR, and set that on the FMG threat feed",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "60",
+              "left": "140",
+              "height": "202",
+              "width": "441",
+              "uuid": "88714b74-164d-49ef-8419-37553d41fdf0",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "dbb14a32-6216-4f44-8d66-97fce0c12088",
+          "isPrivate": false,
+          "recordTags": []
+        }
+      ]
+    }
+  ]
+}

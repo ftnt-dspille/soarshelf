@@ -1,0 +1,1264 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "OT Device Isolation",
+      "description": "",
+      "visible": true,
+      "image": null,
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Step 1. Prep Fortigate",
+          "aliasName": null,
+          "tag": null,
+          "description": "This playbook will prepare the fortigate by creating an Isolated asset address group, and creating the firewall policies used by the address group.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/2192a277-a176-434c-93c0-35e552cb3b67",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Add addresses to groups",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": "",
+                  "comment": "",
+                  "exclude": "",
+                  "add_member": "{{vars.address_objs}}",
+                  "group_name": "OT Assets",
+                  "allow-routing": "",
+                  "remove_member": "none",
+                  "new_group_name": "",
+                  "address_group_category": "IPv4 Group"
+                },
+                "version": "5.2.3",
+                "connector": "fortigate-firewall",
+                "operation": "update_address_group",
+                "operationTitle": "Update Address Group",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "400",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": "/api/3/workflow_groups/06e54090-7449-4031-9788-dc1b908465b3",
+              "uuid": "57612cae-8add-4472-b68d-97185ca58af1"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Address Group",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "type": "Group",
+                  "vdom": "",
+                  "member": "none",
+                  "comment": "{{vars.item.comments}}",
+                  "exclude": false,
+                  "group_name": "{{vars.item.name}}",
+                  "allow-routing": "Disable",
+                  "address_group_category": "IPv4 Group"
+                },
+                "version": "5.2.3",
+                "for_each": {
+                  "item": "{{vars.addr_groups}}",
+                  "parallel": false,
+                  "condition": ""
+                },
+                "connector": "fortigate-firewall",
+                "operation": "create_address_group",
+                "ignore_errors": true,
+                "operationTitle": "Create Address Group",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "60",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": "/api/3/workflow_groups/94ee4bce-d173-4467-84fa-5aef0162f860",
+              "uuid": "46156bdd-712e-43dd-9731-61e38a4ed44e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create address objects",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "IP-{{vars.item.ip}}",
+                  "type": "Subnet",
+                  "vdom": "",
+                  "subnet": "{{vars.item.ip}}/32",
+                  "comment": "Hostname: {{vars.item.hostname}}",
+                  "allow-routing": "",
+                  "address_category": "IPv4 Address"
+                },
+                "version": "5.2.3",
+                "for_each": {
+                  "item": "{{vars.steps.Query_Assets}}",
+                  "parallel": false,
+                  "condition": ""
+                },
+                "connector": "fortigate-firewall",
+                "operation": "create_address",
+                "operationTitle": "Create Address",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "160",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": "/api/3/workflow_groups/06e54090-7449-4031-9788-dc1b908465b3",
+              "uuid": "7402b461-6254-4d4c-8253-e12452fd322a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Policy via ssh",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "port": 22,
+                  "timeout": 10,
+                  "cmd_list": "{{vars.policy_script}}",
+                  "password": "{{globalVars.FGT_SSH_Password}}",
+                  "username": "{{globalVars.FGT_SSH_Username}}",
+                  "private_key": ""
+                },
+                "version": "5.2.3",
+                "connector": "fortigate-firewall",
+                "operation": "execute_command",
+                "operationTitle": "Execute Command",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "220",
+              "left": "60",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": "/api/3/workflow_groups/7ac5fdc1-7a4a-4446-93ed-0744dc86ec3f",
+              "uuid": "698114e4-e7fb-40e3-afef-65528cb06a61"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Filter out Address names",
+              "description": null,
+              "arguments": {
+                "address_objs": "{{vars.steps.Create_address_objects | json_query('[].data.mkey')}}"
+              },
+              "status": null,
+              "top": "280",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": "/api/3/workflow_groups/06e54090-7449-4031-9788-dc1b908465b3",
+              "uuid": "e8ef1707-5666-416a-a9cc-58b6d7b69a3e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Query Assets",
+              "description": null,
+              "arguments": {
+                "query": {
+                  "sort": [],
+                  "limit": 30,
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "type": "object",
+                      "field": "assetType",
+                      "value": [
+                        "f36137a5-aa8f-4532-aab5-e57a8d7420a1"
+                      ],
+                      "module": "assetType",
+                      "display": "",
+                      "operator": "in",
+                      "template": "multiselectpicklist",
+                      "enableJinja": true,
+                      "OPERATOR_KEY": "$",
+                      "displayTemplate": "",
+                      "previousOperator": "in",
+                      "previousTemplate": "multiselectpicklist"
+                    }
+                  ],
+                  "__selectFields": [
+                    "ip",
+                    "hostname"
+                  ]
+                },
+                "module": "assets?$limit=1000",
+                "checkboxFields": true,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
+              "group": "/api/3/workflow_groups/06e54090-7449-4031-9788-dc1b908465b3",
+              "uuid": "70d93d0e-87f9-4844-8625-4aeed393f7fd"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set Policy",
+              "description": null,
+              "arguments": {
+                "policy_script": "config firewall policy\nedit 1000\nset name \"Block OT isolated to non OT\"\nset srcintf \"any\"\nset dstintf \"any\"\nset srcaddr \"OT Isolated\"\nset dstaddr \"OT Assets\"\nset dstaddr-negate enable\nset schedule \"always\"\nset service \"ALL\"\nset logtraffic all\nset comments \"This policy will block all traffic originating from the OT Isolated Group\"\nnext\nmove 1000 before 7\nend"
+              },
+              "status": null,
+              "top": "80",
+              "left": "60",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": "/api/3/workflow_groups/7ac5fdc1-7a4a-4446-93ed-0744dc86ec3f",
+              "uuid": "f8b2c964-a13c-46b4-a583-c2cec950436b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set vars",
+              "description": null,
+              "arguments": {
+                "addr_groups": "[\n  {\n    \"name\": \"OT Isolated\",\n    \"comments\": \"This group contains hosts that have been isolated and are denied from talking to any Non-OT assets\"\n  },\n  {\n    \"name\": \"OT Assets\",\n    \"comments\": \"This group contains all OT assets\"\n  }\n]",
+                "policy_inbound_name": "Block_Inbound_to_OT_Isolated",
+                "policy_outbound_name": "Block_Outbound_from_OT_Isolated",
+                "isolate_addr_group_name": "OT Isolate Group",
+                "policy_inbound_description": "This policy will block all traffic  destined to the OT Isolated Group",
+                "isolate_addr_group_comments": "This group will hold OT assets suspected of malware infection",
+                "policy_outbound_description": "This policy will block all traffic  originating from the OT Isolated Group"
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "45f2628b-035e-448b-bfc5-222de26e1fa5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "9493b134-566e-4c77-80bf-19966867a613",
+                "title": "OT - Prepare Fortigate",
+                "resources": [
+                  "assets"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "assets": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "2192a277-a176-434c-93c0-35e552cb3b67"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Add addresses to groups -> Set Policy",
+              "targetStep": "/api/3/workflow_steps/f8b2c964-a13c-46b4-a583-c2cec950436b",
+              "sourceStep": "/api/3/workflow_steps/57612cae-8add-4472-b68d-97185ca58af1",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "2362a6ba-fbb0-4278-8975-0eb4f0fe5eb8"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create Address Group -> Query Assets",
+              "targetStep": "/api/3/workflow_steps/70d93d0e-87f9-4844-8625-4aeed393f7fd",
+              "sourceStep": "/api/3/workflow_steps/46156bdd-712e-43dd-9731-61e38a4ed44e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b269ddea-e381-40be-af9b-967497858fe2"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create address objects -> Filter out Address names",
+              "targetStep": "/api/3/workflow_steps/e8ef1707-5666-416a-a9cc-58b6d7b69a3e",
+              "sourceStep": "/api/3/workflow_steps/7402b461-6254-4d4c-8253-e12452fd322a",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "476203c4-6dd4-4f8c-8db4-b77b5f76a7b5"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Filter out Address names -> Add addresses to groups",
+              "targetStep": "/api/3/workflow_steps/57612cae-8add-4472-b68d-97185ca58af1",
+              "sourceStep": "/api/3/workflow_steps/e8ef1707-5666-416a-a9cc-58b6d7b69a3e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6ddcc1a1-295e-413b-bb77-80ee1824fdbc"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Query Assets -> Create address objects",
+              "targetStep": "/api/3/workflow_steps/7402b461-6254-4d4c-8253-e12452fd322a",
+              "sourceStep": "/api/3/workflow_steps/70d93d0e-87f9-4844-8625-4aeed393f7fd",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ce4565b2-1e94-4001-846a-2066d9a58374"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set Policy -> Create Policy via ssh",
+              "targetStep": "/api/3/workflow_steps/698114e4-e7fb-40e3-afef-65528cb06a61",
+              "sourceStep": "/api/3/workflow_steps/f8b2c964-a13c-46b4-a583-c2cec950436b",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4ee928d3-dcb0-406b-887f-132e95c7f2ac"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set vars -> Create Address Group",
+              "targetStep": "/api/3/workflow_steps/46156bdd-712e-43dd-9731-61e38a4ed44e",
+              "sourceStep": "/api/3/workflow_steps/45f2628b-035e-448b-bfc5-222de26e1fa5",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "05ac5933-51c5-42d3-b856-55a4d4fee779"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Set vars",
+              "targetStep": "/api/3/workflow_steps/45f2628b-035e-448b-bfc5-222de26e1fa5",
+              "sourceStep": "/api/3/workflow_steps/2192a277-a176-434c-93c0-35e552cb3b67",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1ba62aaa-833c-4c93-aadd-fab95bd95edd"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Create Address Groups",
+              "description": "",
+              "type": "block",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": false,
+              "metadata": [],
+              "reusable": false,
+              "top": "260",
+              "left": "80",
+              "height": "162",
+              "width": "386",
+              "uuid": "94ee4bce-d173-4467-84fa-5aef0162f860",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Create Address's",
+              "description": "",
+              "type": "block",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": false,
+              "metadata": [],
+              "reusable": false,
+              "top": "460",
+              "left": "80",
+              "height": "480",
+              "width": "384",
+              "uuid": "06e54090-7449-4031-9788-dc1b908465b3",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Create Policy",
+              "description": "",
+              "type": "block",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": false,
+              "metadata": [],
+              "reusable": false,
+              "top": "980",
+              "left": "60",
+              "height": "329",
+              "width": "429",
+              "uuid": "7ac5fdc1-7a4a-4446-93ed-0744dc86ec3f",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Playbook at a high level",
+              "description": "This playbook will\n\n- Create address Groups - `OT Assets` and `OT Isolated`\n- Create address objects from Assets records\n- Add assets to the newly created `OT Assets` group\n- Create a firewall policy for blocking OT isolated\n- Move the Policy to the top of the list",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "40",
+              "left": "540",
+              "height": "223",
+              "width": "461",
+              "uuid": "1394ac72-6e1c-47a2-8996-ab648388497c",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "53754b22-8080-4a78-8576-a5bbbcdb3084",
+          "isPrivate": false,
+          "importedBy": [],
+          "recordTags": []
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Add device to OT Isolated Group",
+          "aliasName": null,
+          "tag": null,
+          "description": null,
+          "isActive": false,
+          "debug": true,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/043f2e6d-db92-4d70-8f71-ac81eccbaa9e",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Ask for conformation",
+              "description": null,
+              "arguments": {
+                "type": "InputBased",
+                "input": {
+                  "schema": {
+                    "title": "Are you sure you want to Isolate",
+                    "description": "Click Yes to confirm isolating asset {{vars.input.records[0].hostname}} . **This will prevent the asset from talking to everything except for OT assets**\n\nClick No to cancel",
+                    "inputVariables": []
+                  }
+                },
+                "record": "{{ vars.input.records[0][\"@id\"] }}",
+                "agent_id": null,
+                "resources": "assets",
+                "is_approval": false,
+                "owner_detail": {
+                  "isAssigned": false,
+                  "assignedToRecord": false
+                },
+                "isRecordLinked": true,
+                "step_variables": [],
+                "response_mapping": {
+                  "options": [
+                    {
+                      "option": "Yes",
+                      "primary": true,
+                      "step_iri": "/api/3/workflow_steps/64a0747d-2951-4497-b48f-a1ec14a712dd"
+                    },
+                    {
+                      "option": "No",
+                      "step_iri": "/api/3/workflow_steps/f8aff5b3-8386-425b-871f-57a6be3dfd07"
+                    }
+                  ],
+                  "duplicateOption": false,
+                  "customSuccessMessage": "Awaiting Playbook resumed successfully."
+                },
+                "inputExternalUser": true,
+                "email_notification": {
+                  "enabled": false,
+                  "smtpParameters": []
+                },
+                "inline_channel_list": [],
+                "external_channel_list": [
+                  "/api/3/picklists/afb18b7f-510b-471a-9b9c-7f4646edd4bb"
+                ],
+                "unauthenticated_input": false
+              },
+              "status": null,
+              "top": "165",
+              "left": "525",
+              "stepType": "/api/3/workflow_step_types/fc04082a-d7dc-4299-96fb-6837b1baa0fe",
+              "group": null,
+              "uuid": "0648e652-34d8-493e-8063-71ecda0977ab"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Change State to Isolated",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "state": "/api/3/picklists/321ad354-42ce-42b6-8636-2fa184a7dcd5"
+                },
+                "operation": "Append",
+                "collection": "{{vars.input.records[0]['@id']}}",
+                "__recommend": [],
+                "collectionType": "/api/3/assets",
+                "fieldOperation": [],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "570",
+              "left": "525",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928722",
+              "group": null,
+              "uuid": "05c1f13e-c003-4ba4-b410-40f39e59d11f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Check update output",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "No address group",
+                    "step_iri": "/api/3/workflow_steps/62cfd29a-9b45-4297-a1ab-742003abbe7c",
+                    "condition": "{{ vars.steps.update_address_group['Error message'] is defined }}",
+                    "step_name": "Error Out if no address group"
+                  },
+                  {
+                    "option": "added member to group",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/05c1f13e-c003-4ba4-b410-40f39e59d11f",
+                    "step_name": "Change State to Isolated"
+                  }
+                ],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "435",
+              "left": "700",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "4715f750-a257-4b83-af2b-a78dec11e61c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Error Out if no address group",
+              "description": null,
+              "arguments": {
+                "type": "InputBased",
+                "input": {
+                  "schema": {
+                    "title": "You do not have an address group",
+                    "description": "Address group {{vars.input.params['address_group']}} does not exist",
+                    "inputVariables": []
+                  }
+                },
+                "record": "",
+                "owner_detail": {
+                  "isAssigned": false
+                },
+                "isRecordLinked": false,
+                "step_variables": [],
+                "response_mapping": {
+                  "options": [
+                    {
+                      "option": "Done",
+                      "step_iri": "/api/3/workflow_steps/undefined"
+                    }
+                  ],
+                  "duplicateOption": false
+                },
+                "email_notification": {
+                  "enabled": false,
+                  "smtpParameters": []
+                },
+                "inline_channel_list": [],
+                "external_channel_list": [],
+                "unauthenticated_input": false
+              },
+              "status": null,
+              "top": "570",
+              "left": "875",
+              "stepType": "/api/3/workflow_step_types/fc04082a-d7dc-4299-96fb-6837b1baa0fe",
+              "group": null,
+              "uuid": "62cfd29a-9b45-4297-a1ab-742003abbe7c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "69a01415-2445-436e-92b5-7a210688dd5b",
+                "title": "Isolate Device",
+                "resources": [
+                  "assets"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "assets": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": [
+                      {
+                        "type": "object",
+                        "field": "assetType",
+                        "value": "/api/3/picklists/f36137a5-aa8f-4532-aab5-e57a8d7420a1",
+                        "_value": {
+                          "@id": "/api/3/picklists/f36137a5-aa8f-4532-aab5-e57a8d7420a1",
+                          "display": "OT",
+                          "itemValue": "OT"
+                        },
+                        "operator": "eq"
+                      },
+                      {
+                        "type": "object",
+                        "field": "state",
+                        "value": "/api/3/picklists/321ad354-42ce-42b6-8636-2fa184a7dcd5",
+                        "_value": {
+                          "@id": "/api/3/picklists/321ad354-42ce-42b6-8636-2fa184a7dcd5",
+                          "display": "Isolated",
+                          "itemValue": "Isolated"
+                        },
+                        "operator": "neq"
+                      }
+                    ]
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": false,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "525",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "043f2e6d-db92-4d70-8f71-ac81eccbaa9e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Stop playbook",
+              "description": null,
+              "arguments": {
+                "params": [],
+                "version": "3.2.4",
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "300",
+              "left": "350",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "f8aff5b3-8386-425b-871f-57a6be3dfd07"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "update_address_group",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": "",
+                  "comment": "",
+                  "exclude": "",
+                  "add_member": "IP-{{vars.input.records[0].ip}}",
+                  "group_name": "OT Isolated",
+                  "allow-routing": "",
+                  "remove_member": "none",
+                  "new_group_name": "",
+                  "address_group_category": "IPv4 Group"
+                },
+                "version": "5.2.3",
+                "connector": "fortigate-firewall",
+                "operation": "update_address_group",
+                "ignore_errors": true,
+                "operationTitle": "Update Address Group",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "300",
+              "left": "700",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "64a0747d-2951-4497-b48f-a1ec14a712dd"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Ask for conformation -> Stop playbook",
+              "targetStep": "/api/3/workflow_steps/f8aff5b3-8386-425b-871f-57a6be3dfd07",
+              "sourceStep": "/api/3/workflow_steps/0648e652-34d8-493e-8063-71ecda0977ab",
+              "label": "No",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "8a348199-8959-4b43-882a-e2e09f3d06d9"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Ask for conformation -> update_address_group",
+              "targetStep": "/api/3/workflow_steps/64a0747d-2951-4497-b48f-a1ec14a712dd",
+              "sourceStep": "/api/3/workflow_steps/0648e652-34d8-493e-8063-71ecda0977ab",
+              "label": "Yes",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "17d578a3-4b82-4ebb-95dc-63a367c4473e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check update output -> Change State to Isolated",
+              "targetStep": "/api/3/workflow_steps/05c1f13e-c003-4ba4-b410-40f39e59d11f",
+              "sourceStep": "/api/3/workflow_steps/4715f750-a257-4b83-af2b-a78dec11e61c",
+              "label": "added member to group",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "952373ed-2389-45da-907a-a9d8602def96"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check update output -> Error Out if no address",
+              "targetStep": "/api/3/workflow_steps/62cfd29a-9b45-4297-a1ab-742003abbe7c",
+              "sourceStep": "/api/3/workflow_steps/4715f750-a257-4b83-af2b-a78dec11e61c",
+              "label": "No address group",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e5eb6085-4cdb-4e9f-8275-c865da6d9a5c"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Ask for conformation",
+              "targetStep": "/api/3/workflow_steps/0648e652-34d8-493e-8063-71ecda0977ab",
+              "sourceStep": "/api/3/workflow_steps/043f2e6d-db92-4d70-8f71-ac81eccbaa9e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ab0b7abb-db91-4c71-9886-e8fb3c0e5499"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "update_address_group -> Check update output",
+              "targetStep": "/api/3/workflow_steps/4715f750-a257-4b83-af2b-a78dec11e61c",
+              "sourceStep": "/api/3/workflow_steps/64a0747d-2951-4497-b48f-a1ec14a712dd",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "2b1faa8f-9e8d-4216-907d-dc293b85f6c9"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Requirements",
+              "description": "- Policy with Address Group Already Created on the FG",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "30",
+              "left": "150",
+              "height": "0",
+              "width": "300",
+              "uuid": "7b639f3d-4f95-44ee-9a08-6ef40b22071c",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "f51c440b-50aa-4c7f-8428-49f0407a8c2b",
+          "isPrivate": false,
+          "importedBy": [],
+          "recordTags": []
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Remove device from OT Isolated Group",
+          "aliasName": null,
+          "tag": null,
+          "description": null,
+          "isActive": false,
+          "debug": true,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/3df7a3ae-ca9e-45d9-8329-fbcdecf1676b",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Ask for conformation",
+              "description": null,
+              "arguments": {
+                "type": "InputBased",
+                "input": {
+                  "schema": {
+                    "title": "Are you sure you want to Un-Isolate?",
+                    "description": "Click Yes to confirm Un-isolating asset {{vars.input.records[0].hostname}} . **This will remove the asset from the restricted asset policy** (This action will request CS Admin for approval)\n\nClick No to cancel",
+                    "inputVariables": []
+                  }
+                },
+                "record": "{{ vars.input.records[0][\"@id\"] }}",
+                "agent_id": null,
+                "resources": "assets",
+                "is_approval": false,
+                "owner_detail": {
+                  "isAssigned": false,
+                  "assignedToRecord": false
+                },
+                "isRecordLinked": true,
+                "step_variables": [],
+                "response_mapping": {
+                  "options": [
+                    {
+                      "option": "Yes",
+                      "primary": true,
+                      "step_iri": "/api/3/workflow_steps/e325fcf8-d740-4b2c-a10e-42341a706e73"
+                    },
+                    {
+                      "option": "No",
+                      "step_iri": "/api/3/workflow_steps/eb2db934-725d-44f8-bbe0-11bbd24f7e7e"
+                    }
+                  ],
+                  "duplicateOption": false,
+                  "customSuccessMessage": "Awaiting Playbook resumed successfully."
+                },
+                "inputExternalUser": true,
+                "email_notification": {
+                  "enabled": false,
+                  "smtpParameters": []
+                },
+                "inline_channel_list": [],
+                "external_channel_list": [
+                  "/api/3/picklists/afb18b7f-510b-471a-9b9c-7f4646edd4bb"
+                ],
+                "unauthenticated_input": false
+              },
+              "status": null,
+              "top": "165",
+              "left": "525",
+              "stepType": "/api/3/workflow_step_types/fc04082a-d7dc-4299-96fb-6837b1baa0fe",
+              "group": null,
+              "uuid": "88b1c5fe-43eb-4ffc-8396-20442ba191ad"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Change State to Active",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "state": "/api/3/picklists/b31da3b9-6f87-469e-a1bf-2517c48a7001"
+                },
+                "operation": "Append",
+                "collection": "{{vars.input.records[0]['@id']}}",
+                "__recommend": [],
+                "collectionType": "/api/3/assets",
+                "fieldOperation": [],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "705",
+              "left": "525",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928722",
+              "group": null,
+              "uuid": "f32fca4c-bb82-4637-ae47-39efaff8c219"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Check update output",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "No address group",
+                    "step_iri": "/api/3/workflow_steps/c8595679-5826-453e-8146-d161fb845835",
+                    "condition": "{{ vars.steps.update_address_group['Error message'] is defined }}",
+                    "step_name": "Error Out if no address group"
+                  },
+                  {
+                    "option": "added member to group",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/f32fca4c-bb82-4637-ae47-39efaff8c219",
+                    "step_name": "Change State to Isolated"
+                  }
+                ],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "570",
+              "left": "700",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "892ff460-5c03-4930-a368-488d7c134077"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Error Out if no address group",
+              "description": null,
+              "arguments": {
+                "type": "InputBased",
+                "input": {
+                  "schema": {
+                    "title": "You do not have an address group",
+                    "description": "Address group {{vars.input.params['address_group']}} does not exist",
+                    "inputVariables": []
+                  }
+                },
+                "record": "",
+                "owner_detail": {
+                  "isAssigned": false
+                },
+                "isRecordLinked": false,
+                "step_variables": [],
+                "response_mapping": {
+                  "options": [
+                    {
+                      "option": "Done",
+                      "step_iri": "/api/3/workflow_steps/undefined"
+                    }
+                  ],
+                  "duplicateOption": false
+                },
+                "email_notification": {
+                  "enabled": false,
+                  "smtpParameters": []
+                },
+                "inline_channel_list": [],
+                "external_channel_list": [],
+                "unauthenticated_input": false
+              },
+              "status": null,
+              "top": "705",
+              "left": "875",
+              "stepType": "/api/3/workflow_step_types/fc04082a-d7dc-4299-96fb-6837b1baa0fe",
+              "group": null,
+              "uuid": "c8595679-5826-453e-8146-d161fb845835"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Request CSadmin for approval",
+              "description": null,
+              "arguments": {
+                "type": "InputBased",
+                "input": {
+                  "schema": {
+                    "title": "Do you approve?",
+                    "description": "Do you approve removing asset {{vars.input.records[0].hostname}} from the isolated OT group? ",
+                    "inputVariables": []
+                  }
+                },
+                "record": "{{ vars.input.records[0][\"@id\"] }}",
+                "agent_id": null,
+                "resources": "assets",
+                "is_approval": false,
+                "owner_detail": {
+                  "isAssigned": true,
+                  "assignedToTeam": [],
+                  "assignedToField": null,
+                  "assignedToPerson": [
+                    {
+                      "iri": "",
+                      "lastname": "Admin",
+                      "firstname": "CS"
+                    }
+                  ],
+                  "assignedToRecord": false
+                },
+                "isRecordLinked": true,
+                "step_variables": [],
+                "response_mapping": {
+                  "options": [
+                    {
+                      "option": "Approve",
+                      "step_iri": "/api/3/workflow_steps/d0f61761-1231-4f10-8358-6f02923bf562"
+                    },
+                    {
+                      "option": "Reject",
+                      "step_iri": "/api/3/workflow_steps/eb2db934-725d-44f8-bbe0-11bbd24f7e7e"
+                    }
+                  ],
+                  "duplicateOption": false,
+                  "customSuccessMessage": "Awaiting Playbook resumed successfully."
+                },
+                "email_notification": {
+                  "enabled": false,
+                  "smtpParameters": []
+                },
+                "inline_channel_list": [],
+                "external_channel_list": [],
+                "unauthenticated_input": false
+              },
+              "status": null,
+              "top": "280",
+              "left": "700",
+              "stepType": "/api/3/workflow_step_types/fc04082a-d7dc-4299-96fb-6837b1baa0fe",
+              "group": null,
+              "uuid": "e325fcf8-d740-4b2c-a10e-42341a706e73"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "15af9db2-753f-4341-9bdd-e3ff8d3b7301",
+                "title": "Unisolate Device",
+                "resources": [
+                  "assets"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "assets": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": [
+                      {
+                        "type": "object",
+                        "field": "assetType",
+                        "value": "/api/3/picklists/f36137a5-aa8f-4532-aab5-e57a8d7420a1",
+                        "_value": {
+                          "@id": "/api/3/picklists/f36137a5-aa8f-4532-aab5-e57a8d7420a1",
+                          "display": "OT",
+                          "itemValue": "OT"
+                        },
+                        "operator": "eq"
+                      },
+                      {
+                        "type": "object",
+                        "field": "state",
+                        "value": "/api/3/picklists/b31da3b9-6f87-469e-a1bf-2517c48a7001",
+                        "_value": {
+                          "@id": "/api/3/picklists/b31da3b9-6f87-469e-a1bf-2517c48a7001",
+                          "display": "Active",
+                          "itemValue": "Active"
+                        },
+                        "operator": "neq"
+                      }
+                    ]
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": false,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "525",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "3df7a3ae-ca9e-45d9-8329-fbcdecf1676b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Stop playbook",
+              "description": null,
+              "arguments": {
+                "params": [],
+                "version": "3.2.4",
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "320",
+              "left": "240",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "eb2db934-725d-44f8-bbe0-11bbd24f7e7e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "update_address_group",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": "",
+                  "comment": "",
+                  "exclude": "",
+                  "add_member": "",
+                  "group_name": "OT Isolated",
+                  "allow-routing": "",
+                  "remove_member": "IP-{{vars.input.records[0].ip}}",
+                  "new_group_name": "",
+                  "address_group_category": "IPv4 Group"
+                },
+                "version": "5.2.3",
+                "connector": "fortigate-firewall",
+                "operation": "update_address_group",
+                "ignore_errors": true,
+                "operationTitle": "Update Address Group",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "435",
+              "left": "700",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "d0f61761-1231-4f10-8358-6f02923bf562"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Ask for conformation -> Request CSadmin for approval",
+              "targetStep": "/api/3/workflow_steps/e325fcf8-d740-4b2c-a10e-42341a706e73",
+              "sourceStep": "/api/3/workflow_steps/88b1c5fe-43eb-4ffc-8396-20442ba191ad",
+              "label": "Yes",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9153f872-8e12-4c71-8068-b3364d86d309"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Ask for conformation -> Stop playbook",
+              "targetStep": "/api/3/workflow_steps/eb2db934-725d-44f8-bbe0-11bbd24f7e7e",
+              "sourceStep": "/api/3/workflow_steps/88b1c5fe-43eb-4ffc-8396-20442ba191ad",
+              "label": "No",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "84a7136e-c4a8-466e-9e2e-a73fa3ab62f1"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check update output -> Change State to Isolated",
+              "targetStep": "/api/3/workflow_steps/f32fca4c-bb82-4637-ae47-39efaff8c219",
+              "sourceStep": "/api/3/workflow_steps/892ff460-5c03-4930-a368-488d7c134077",
+              "label": "added member to group",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0e2bcfa1-9ba3-495c-8c60-9034cf9ef3a5"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check update output -> Error Out if no address",
+              "targetStep": "/api/3/workflow_steps/c8595679-5826-453e-8146-d161fb845835",
+              "sourceStep": "/api/3/workflow_steps/892ff460-5c03-4930-a368-488d7c134077",
+              "label": "No address group",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6ca1f636-6e4f-4878-af45-d9fb55c7eb3b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Request CSadmin for approval -> Stop playbook",
+              "targetStep": "/api/3/workflow_steps/eb2db934-725d-44f8-bbe0-11bbd24f7e7e",
+              "sourceStep": "/api/3/workflow_steps/e325fcf8-d740-4b2c-a10e-42341a706e73",
+              "label": "Reject",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b83b6106-463f-45cf-8094-b6a52664a25a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Request CSadmin for approval -> update_address_group",
+              "targetStep": "/api/3/workflow_steps/d0f61761-1231-4f10-8358-6f02923bf562",
+              "sourceStep": "/api/3/workflow_steps/e325fcf8-d740-4b2c-a10e-42341a706e73",
+              "label": "Approve",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "faf1ca5c-a5ab-4ddf-84a1-a4883277a8b8"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Ask for conformation",
+              "targetStep": "/api/3/workflow_steps/88b1c5fe-43eb-4ffc-8396-20442ba191ad",
+              "sourceStep": "/api/3/workflow_steps/3df7a3ae-ca9e-45d9-8329-fbcdecf1676b",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "645505b6-e6b8-439f-90f5-47fadd9673da"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "update_address_group -> Check update output",
+              "targetStep": "/api/3/workflow_steps/892ff460-5c03-4930-a368-488d7c134077",
+              "sourceStep": "/api/3/workflow_steps/d0f61761-1231-4f10-8358-6f02923bf562",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "2d140e97-914f-422b-8fe9-252f0192ddd9"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Requirements",
+              "description": "- Policy with Address Group Already Created on the FG",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "30",
+              "left": "150",
+              "height": "0",
+              "width": "300",
+              "uuid": "493e0b7e-fbac-4492-886c-13c771229bb9",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "f5c29b27-e548-4780-a39c-34ddf4c752ee",
+          "isPrivate": false,
+          "importedBy": [],
+          "recordTags": []
+        }
+      ]
+    }
+  ]
+}

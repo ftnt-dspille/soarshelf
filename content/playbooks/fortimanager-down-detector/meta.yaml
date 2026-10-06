@@ -1,0 +1,38 @@
+title: Recover FortiGates that drop off FortiManager
+summary: Finds FortiGates missing from FortiManager, re-adds deleted ones, authorizes pending ones and
+  reinstalls their policy package.
+description: 'A NOC check for FortiGates that have dropped off FortiManager. For each FortiManager record,
+  it compares the FortiManager device list against the FortiGates that should be managed. Devices that
+  were deleted are added back as model devices, and devices waiting for authorization are authorized.
+  Configuration is retrieved and the policy package is installed on the recovered devices.
+
+
+  - **00 - Start**: entry point. Synchronises the FortiManager records, then runs the per-FortiManager
+  handling.
+
+  - **01 - Per FortiManager Handling**: the comparison and recovery.
+
+  - FortiGate side: log in and out, read central management and status, and point the FortiGate at FortiManager
+  when its settings are wrong.
+
+
+  Requirements:
+
+  - The FortiManager ZTP solution pack from the Content Hub. It provides the Managers module and the FortiManager
+  sub-playbooks this calls (sync, get devices, delete device, retrieve config, install policy, variable
+  scope).
+
+  - Global variables `FGT_Username` and `FGT_Password` for the FortiGate logins.
+
+  - "00 - Start" looks up a manager record named `SecOps_FMG`. Change that name to match yours.'
+use_cases:
+- utility
+tags:
+- fortimanager
+- noc
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.4.0
+license: MIT
+published: '2026-10-06'
+author_id: 99558074

@@ -1,0 +1,35 @@
+title: Extract IOCs from alert attachments
+summary: Extracts indicators from files attached to an alert, creates indicator records and sends the
+  analyst-approved ones to block.
+description: 'Pulls indicators out of files attached to an alert, creates indicator records for them,
+  and lets an analyst decide whether to block them.
+
+
+  - **Auto Ingest IoCs > Extract Indicators from Attachment**: reads each attachment with the File Content
+  Extraction connector, then asks the analyst to review the indicators it found and pick TLP and an action
+  (block or don''t block). The chosen indicators are created and, if requested, sent to block.
+
+  - **Auto Ingest IoCs >> Create Indicator Records**: creates the indicator records and links them to
+  the alert.
+
+  - **Auto IOC Ingest- Review and Send IOC to Block**: the same review and block flow, started from a
+  button.
+
+  - **Scenario - Generating Alert with IOC attachments**: creates a test alert with a sample IOC file
+  (documentation IP ranges) so you can try the flow end to end.
+
+
+  The blocking step calls "Action (Type All) - Block Indicators" from the SOAR Framework solution pack
+  on the Content Hub. Install that pack, or point the reference step at your own block playbook.'
+use_cases:
+- ingestion
+- triage
+tags:
+- ioc
+- attachments
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.4.0
+license: MIT
+published: '2026-10-06'
+author_id: 99558074

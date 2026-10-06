@@ -1,0 +1,49 @@
+title: Example playbooks for each built-in AI agent
+summary: One playbook per built-in FortiSOAR 8.0 AI agent, each asking it a question about an alert and
+  saving the answer as a comment.
+description: 'One small playbook per built-in FortiSOAR 8.0 AI agent, showing how to call each agent from
+  a playbook and save its answer on the record as a comment.
+
+
+  | Playbook | Agent | Example question |
+
+  |---|---|---|
+
+  | 01 | Threat Intelligence Provider | is the alert''s source IP malicious? |
+
+  | 02 | Query SIEM | recent events from the source host |
+
+  | 03 | Identity Context Provider | a user''s roles and groups |
+
+  | 04 | ITSM Context Provider | open tickets about the indicators |
+
+  | 05 | Asset Context Provider | what is known about the source asset |
+
+  | 06 | Query Endpoint | endpoint telemetry for the host |
+
+  | 07 | Summary | summarize investigation findings |
+
+  | 08 | Impact Analysis | risk level of the alert |
+
+  | 09 | Metric Computation | alert counts by severity |
+
+  | 10 | Task Planner | break an investigation into steps |
+
+  | 11 | FortiSOAR Data Access | a natural-language question about records |
+
+
+  Each one runs from a button on an alert. Needs FortiSOAR 8.0 or later with the AI agents enabled and
+  configured. The agents that query other systems (SIEM, ITSM, endpoint, threat intelligence) also need
+  those integrations set up.'
+use_cases:
+- enrichment
+- triage
+tags:
+- ai
+- agents
+author: ftnt-dspille
+version: 1.0.0
+min_version: 8.0.0
+license: MIT
+published: '2026-10-06'
+author_id: 99558074

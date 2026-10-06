@@ -1,0 +1,2413 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "FortiManager Down Detector",
+      "description": "",
+      "visible": true,
+      "image": null,
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "00 - Start",
+          "aliasName": null,
+          "tag": null,
+          "description": null,
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/ee9e7349-213e-4b13-a761-3d5358afcf53",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Check result count",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Found FMG's",
+                    "step_iri": "/api/3/workflow_steps/74b26212-88ae-496a-a1cc-3c12284d2fed",
+                    "condition": "{{ vars.steps.Get_FSR_FMG_Records | length > 0 }}",
+                    "step_name": "synch_fmg_system"
+                  },
+                  {
+                    "option": "No FMG's found",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/ed214371-e0cd-4f7e-b370-6918fc475e87",
+                    "step_name": "No devices found"
+                  }
+                ],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "300",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "20d7b43c-99bc-42b2-b100-880326629c04"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get FSR FMG Records",
+              "description": null,
+              "arguments": {
+                "query": {
+                  "sort": [],
+                  "limit": 30,
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "type": "primitive",
+                      "field": "provisioningEnabled",
+                      "value": true,
+                      "operator": "eq",
+                      "_operator": "eq"
+                    },
+                    {
+                      "type": "primitive",
+                      "field": "provisioningComplete",
+                      "value": true,
+                      "operator": "neq",
+                      "_operator": "neq"
+                    }
+                  ]
+                },
+                "module": "managers?$limit=30",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
+              "group": null,
+              "uuid": "c422e357-68ef-41fa-a230-fe4379d0dd1c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "No devices found",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "msg": "No FMG Records found in FortiSOAR"
+                },
+                "version": "3.4.0",
+                "connector": "cyops_utilities",
+                "operation": "raise_exception",
+                "operationTitle": "Utils: Raise Exception",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "300",
+              "left": "740",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "ed214371-e0cd-4f7e-b370-6918fc475e87"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Obtain FMG Records again",
+              "description": null,
+              "arguments": {
+                "query": {
+                  "sort": [],
+                  "limit": 30,
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "type": "primitive",
+                      "field": "managerName",
+                      "value": "SecOps_FMG",
+                      "operator": "eq",
+                      "_operator": "eq"
+                    }
+                  ]
+                },
+                "module": "managers?$limit=30",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "580",
+              "left": "120",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
+              "group": null,
+              "uuid": "9777b53b-3f9a-4ae0-bf96-1e9a981469d7"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Per FMG handling",
+              "description": null,
+              "arguments": {
+                "arguments": {
+                  "fmg_record": "{{vars.steps.Obtain_FMG_Records_again[0]}}",
+                  "device_list": "{{vars.fgt_objects}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/abcbdcc1-725e-4371-9f6f-cee4fe082903"
+              },
+              "status": null,
+              "top": "740",
+              "left": "120",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "4acf8bc4-36b5-4315-8d22-5db47c5d8129"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "set Monitored FortiGates IPs",
+              "description": null,
+              "arguments": {
+                "fgt_objects": "[\n{\n\"fgt_name\": \"branch1\",\n\"fgt_ip\": \"192.0.2.2\",\n\"fmg_device_group\": \"Branches\",\n\"fmg_adom\": \"root\",\n\"fmg_policy_package\": \"Branch\"\n},\n{\n\"fgt_name\": \"branch2\",\n\"fgt_ip\": \"192.0.2.3\",\n\"fmg_device_group\": \"Branches\",\n\"fmg_adom\": \"root\",\n\"fmg_policy_package\": \"Branch\"\n},\n{\n\"fgt_name\": \"hub\",\n\"fgt_ip\": \"192.0.2.1\",\n\"fmg_device_group\": \"Hubs\",\n\"fmg_adom\": \"root\",\n\"fmg_policy_package\": \"Branch\"\n},\n]"
+              },
+              "status": null,
+              "top": "100",
+              "left": "680",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "739e29fe-3ca1-49fe-b8b6-66c29d825621"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "ee9e7349-213e-4b13-a761-3d5358afcf53"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "synch_fmg_system",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.steps.Get_FSR_FMG_Records}}",
+                  "parallel": false,
+                  "condition": ""
+                },
+                "arguments": {
+                  "connector_config": "{{vars.item.managerName}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/b165d6ba-da8e-47ce-88f6-65b24ae5fc53"
+              },
+              "status": null,
+              "top": "435",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "74b26212-88ae-496a-a1cc-3c12284d2fed"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check result count -> No devices found",
+              "targetStep": "/api/3/workflow_steps/ed214371-e0cd-4f7e-b370-6918fc475e87",
+              "sourceStep": "/api/3/workflow_steps/20d7b43c-99bc-42b2-b100-880326629c04",
+              "label": "No FMG's found",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "36b2a9e1-c659-4258-a94c-066965999c36"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check result count -> synch_fmg_system",
+              "targetStep": "/api/3/workflow_steps/74b26212-88ae-496a-a1cc-3c12284d2fed",
+              "sourceStep": "/api/3/workflow_steps/20d7b43c-99bc-42b2-b100-880326629c04",
+              "label": "Found FMG's",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6b61ad38-861f-473b-85d2-d6bb8f727046"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get FSR FMG Records -> Check result count",
+              "targetStep": "/api/3/workflow_steps/20d7b43c-99bc-42b2-b100-880326629c04",
+              "sourceStep": "/api/3/workflow_steps/c422e357-68ef-41fa-a230-fe4379d0dd1c",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "89d94030-2411-4923-8827-30aaf3a65f1b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Obtain FMG Records again -> Per FMG handling",
+              "targetStep": "/api/3/workflow_steps/4acf8bc4-36b5-4315-8d22-5db47c5d8129",
+              "sourceStep": "/api/3/workflow_steps/9777b53b-3f9a-4ae0-bf96-1e9a981469d7",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "94c3de5b-ebbc-4a28-b151-ee13dd01747e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "set Branch IPs -> Get FSR FMG Records",
+              "targetStep": "/api/3/workflow_steps/c422e357-68ef-41fa-a230-fe4379d0dd1c",
+              "sourceStep": "/api/3/workflow_steps/739e29fe-3ca1-49fe-b8b6-66c29d825621",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "27775e9d-9472-491d-8d9f-c426d8a0ec55"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> set Branch IPs",
+              "targetStep": "/api/3/workflow_steps/739e29fe-3ca1-49fe-b8b6-66c29d825621",
+              "sourceStep": "/api/3/workflow_steps/ee9e7349-213e-4b13-a761-3d5358afcf53",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4edc5649-72d9-4985-a8ad-7826f05608f9"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "synch_fmg_system -> Copy of Get FSR FMG Records",
+              "targetStep": "/api/3/workflow_steps/9777b53b-3f9a-4ae0-bf96-1e9a981469d7",
+              "sourceStep": "/api/3/workflow_steps/74b26212-88ae-496a-a1cc-3c12284d2fed",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "29e204ae-c323-4a57-8072-33010d5097be"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Notes",
+              "description": "Check if all devices are online, if a device isn't online we need to delete the device, add a model device of the same, and then tell the gate to check into the FMG",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "740",
+              "left": "540",
+              "height": "129",
+              "width": "498",
+              "uuid": "ebddf681-7f95-4f92-8873-a00260c584ad",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Notes",
+              "description": "Need to make sure that even if deletes succeed, but fmg add fails, we retry the add model device, and the call to tell the gates to check into FMG",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "540",
+              "left": "1020",
+              "height": "154",
+              "width": "458",
+              "uuid": "c29ebdb5-8a69-41e8-a959-b01337264a66",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Notes",
+              "description": "This step is needed because we may need the new FMG serials",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "540",
+              "left": "420",
+              "height": "134",
+              "width": "423",
+              "uuid": "d0349548-a1f1-47a7-8798-18e8c432b21e",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Prerequisties",
+              "description": "ZTPF SP installed\nManager record created in SOAR, with name of `SecOps_FMG`\nTarget Branch IP's identified\nFortiGate login in global variables FGT_Username / FGT_Password",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "20",
+              "left": "1040",
+              "height": "156",
+              "width": "395",
+              "uuid": "6777753d-049c-441e-97e2-57a69fc7628c",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "4b6a8596-90b1-4b13-99a7-7654e2ac60cf",
+          "isPrivate": false,
+          "recordTags": [],
+          "schedules": [
+            {
+              "crontab": {
+                "id": 17,
+                "minute": "*/10",
+                "hour": "*",
+                "day_of_week": "*",
+                "day_of_month": "*",
+                "month_of_year": "*",
+                "timezone": "UTC"
+              },
+              "interval": null,
+              "name": "Start FMG provisioning",
+              "task": "workflow.tasks.periodic_task",
+              "args": "[]",
+              "kwargs": {
+                "exit_if_running": true,
+                "wf_iri": "/api/3/workflows/4b6a8596-90b1-4b13-99a7-7654e2ac60cf",
+                "priority": {
+                  "@id": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+                  "@type": "Picklist",
+                  "itemValue": "Medium",
+                  "orderIndex": 1,
+                  "color": null,
+                  "icon": null,
+                  "listName": "/api/3/picklist_names/e104ef72-11b4-4d0c-be0e-e1cf3b87b5f2",
+                  "uuid": "2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+                  "id": 111,
+                  "importedBy": []
+                },
+                "createUser": "",
+                "name": "Start FMG provisioning",
+                "description": "Start FMG provisioning",
+                "auth": {
+                  "auth_method": "CS HMAC"
+                },
+                "referenceid": null,
+                "schedule_entry_name": "Start FMG provisioning",
+                "schedule_id": "6302351e-d6e5-4967-8fe1-4d31cdda135e"
+              },
+              "queue": null,
+              "exchange": null,
+              "routing_key": null,
+              "headers": "{}",
+              "priority": 3,
+              "expires": null,
+              "expire_seconds": null,
+              "one_off": false,
+              "start_time": null,
+              "enabled": true,
+              "last_run_at": "2025-01-11T22:40:00.093251Z",
+              "total_run_count": 2,
+              "date_changed": "2025-01-11T22:40:00.164155Z",
+              "description": "Start FMG provisioning",
+              "solar": null,
+              "clocked": null
+            }
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "> create model device - by payload",
+          "aliasName": null,
+          "tag": null,
+          "description": "Exec create model device by payload",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [
+            "connector_config",
+            "fmg_payload",
+            "create_variables"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/071d004d-53ff-41c7-93db-36f63280f677",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Check if create variables",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Create variables",
+                    "step_iri": "/api/3/workflow_steps/89dc1a67-0d34-4ebe-b6f5-e191952c53d9",
+                    "condition": "{{ vars.input.params['create_variables'] is in [\"t\", True, \"yes\", \"y\"] }}",
+                    "step_name": "Set variable payload"
+                  },
+                  {
+                    "option": "Return",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/c100011c-57c1-4a6c-960d-67b13aa0cd39",
+                    "step_name": "extract_fmg_data"
+                  }
+                ],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "260",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "2689b577-d6dc-44c4-a4f6-cac350abb69b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Model Device from Serial",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiManager JSON-RPC",
+                "config": "",
+                "params": {
+                  "url": "/dvm/cmd/add/device",
+                  "data": "{{vars.payload}}",
+                  "track_task": true,
+                  "task_timeout": 21600,
+                  "task_stale_timeout": 120,
+                  "zero_percent_timeout": 30,
+                  "delete_task_on_timeout": true
+                },
+                "version": "1.0.6",
+                "connector": "fortinet-fortimanager-json-rpc",
+                "operation": "json_rpc_execute",
+                "operationTitle": "JSON RPC Exec",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "140",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "2264f119-5c18-4eb0-8403-0ba39d3fc8bf"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create variables",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.variable_payload}}",
+                  "parallel": false,
+                  "condition": ""
+                },
+                "arguments": {
+                  "adom": "{{vars.item.adom}}",
+                  "vdom": "global",
+                  "value": "{{vars.item.value}}",
+                  "device": "{{vars.item.device}}",
+                  "variable": "{{vars.item.variable}}",
+                  "connector_config": "{{vars.item.connector_config}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/c81d4f29-d092-4218-9346-becb9d0d694c"
+              },
+              "status": null,
+              "top": "560",
+              "left": "360",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "53275abc-c079-470e-b244-bfa8e3cb0079"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "extract_fmg_data",
+              "description": null,
+              "arguments": {
+                "output": "{{vars.steps.Create_Model_Device_from_Serial}}"
+              },
+              "status": null,
+              "top": "140",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "c100011c-57c1-4a6c-960d-67b13aa0cd39"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Parse Version",
+              "description": null,
+              "arguments": {
+                "fos_ver_full": "{{(vars.input.params['fgt_version']| default(\"\", true)).split(\".\") }}"
+              },
+              "status": null,
+              "top": "180",
+              "left": "820",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "5d763d9d-b540-4800-a137-7b37ce046c91"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set script payload",
+              "description": null,
+              "arguments": {
+                "payload": "{{vars.input.params['fmg_payload']}}"
+              },
+              "status": null,
+              "top": "40",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "4132f5e6-31e0-41bd-b9d0-3736c270bdcc"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set variable payload",
+              "description": null,
+              "arguments": {
+                "variable_payload": "{% set model_details = vars.input.params.fmg_payload%}\n{% set variable_payloads = [] %}\n{%for key, value in model_details.device[\"meta variables\"].items() %}\n{% do variable_payloads.append(\n{ \"connector_config\": vars.input.params.connector_config,\n  \"adom\": model_details.adom,\n  \"variable\": key,\n   \"value\": value,\n   \"description\": \"Created by FortiSOAR\",\n \"device\": model_details.device.name,\n}\n)%}\n{% endfor %}\n{{variable_payloads}}"
+              },
+              "status": null,
+              "top": "400",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "89dc1a67-0d34-4ebe-b6f5-e191952c53d9"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set Varible Defaults",
+              "description": null,
+              "arguments": {
+                "deafult_patch": "0",
+                "default_fos_mr": "0",
+                "default_fos_ver": "7.2"
+              },
+              "status": null,
+              "top": "60",
+              "left": "820",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "1013e918-36b9-4f2a-b7ac-e38775750df2"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "071d004d-53ff-41c7-93db-36f63280f677"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check if create variables -> extract_fmg_data",
+              "targetStep": "/api/3/workflow_steps/c100011c-57c1-4a6c-960d-67b13aa0cd39",
+              "sourceStep": "/api/3/workflow_steps/2689b577-d6dc-44c4-a4f6-cac350abb69b",
+              "label": "Return",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "d5847f61-8346-4b65-9ada-814fc2a79625"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check if create variables -> Set variable payload",
+              "targetStep": "/api/3/workflow_steps/89dc1a67-0d34-4ebe-b6f5-e191952c53d9",
+              "sourceStep": "/api/3/workflow_steps/2689b577-d6dc-44c4-a4f6-cac350abb69b",
+              "label": "Create variables",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "dc3a78bf-b333-43b2-bad7-fae441eb9d0d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create Model Device from Serial -> Check if create variables",
+              "targetStep": "/api/3/workflow_steps/2689b577-d6dc-44c4-a4f6-cac350abb69b",
+              "sourceStep": "/api/3/workflow_steps/2264f119-5c18-4eb0-8403-0ba39d3fc8bf",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b0acc6ed-39fa-4ab7-87e6-7b9fed71ee0a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set script payload -> Create Model Device from Serial",
+              "targetStep": "/api/3/workflow_steps/2264f119-5c18-4eb0-8403-0ba39d3fc8bf",
+              "sourceStep": "/api/3/workflow_steps/4132f5e6-31e0-41bd-b9d0-3736c270bdcc",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9c434e83-f893-49cf-8aac-00dc5b83d71a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set variable payload -> Create variables",
+              "targetStep": "/api/3/workflow_steps/53275abc-c079-470e-b244-bfa8e3cb0079",
+              "sourceStep": "/api/3/workflow_steps/89dc1a67-0d34-4ebe-b6f5-e191952c53d9",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "dad660ca-ba58-4205-b22c-81ceb2a7162b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Set script payload",
+              "targetStep": "/api/3/workflow_steps/4132f5e6-31e0-41bd-b9d0-3736c270bdcc",
+              "sourceStep": "/api/3/workflow_steps/071d004d-53ff-41c7-93db-36f63280f677",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f64acf79-188a-4ec3-a550-ff6798f5ef95"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "e8d82c6f-e657-452f-8c99-952e06a706f1",
+          "isPrivate": false,
+          "recordTags": []
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get FMG devices sorted",
+          "aliasName": null,
+          "tag": null,
+          "description": null,
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [
+            "fmg_connector_config"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/f69039bc-c70a-4744-99b1-751176ea7568",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get FMG Devices",
+              "description": null,
+              "arguments": {
+                "arguments": {
+                  "connector_config": "{{vars.fmg_connector_config}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/e2da78d5-9c2d-41a6-bd90-c3607bfde1a9"
+              },
+              "status": null,
+              "top": "300",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "8481f56c-d932-41d1-aa23-fa24e2bd84c1"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set vars",
+              "description": null,
+              "arguments": {
+                "fmg_connector_config": "{{vars.input.params['fmg_connector_config']}}"
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "b285f030-aae7-4c77-8139-106b16a45009"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Sort FMG devices",
+              "description": null,
+              "arguments": {
+                "up_devices": "{{ vars.steps.Get_FMG_Devices.output | json_query('[?conn_status == `up`]') }}",
+                "down_devices": "{{ vars.steps.Get_FMG_Devices.output | json_query('[?conn_status == `down`]') }}",
+                "model_devices": "{{ vars.steps.Get_FMG_Devices.output | json_query('[?flags && contains(@.flags, `is_model`)]') }}"
+              },
+              "status": null,
+              "top": "435",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "702508de-4907-414a-b281-85248ddfa26d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "f69039bc-c70a-4744-99b1-751176ea7568"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get FMG Devices -> Sort FMG devices",
+              "targetStep": "/api/3/workflow_steps/702508de-4907-414a-b281-85248ddfa26d",
+              "sourceStep": "/api/3/workflow_steps/8481f56c-d932-41d1-aa23-fa24e2bd84c1",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b5bf36b2-205e-4198-a42d-b3fb9807c153"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set vars -> Get FMG Devices",
+              "targetStep": "/api/3/workflow_steps/8481f56c-d932-41d1-aa23-fa24e2bd84c1",
+              "sourceStep": "/api/3/workflow_steps/b285f030-aae7-4c77-8139-106b16a45009",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6546a02e-0a92-42d6-9fa4-665efd4a1e81"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Set vars",
+              "targetStep": "/api/3/workflow_steps/b285f030-aae7-4c77-8139-106b16a45009",
+              "sourceStep": "/api/3/workflow_steps/f69039bc-c70a-4744-99b1-751176ea7568",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e64b585c-b21f-4b23-ace9-029369062a38"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "b478726e-99a9-45b2-94f8-2aa32ed53f11",
+          "isPrivate": false,
+          "recordTags": []
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "01 - Per FortiManager Handling",
+          "aliasName": null,
+          "tag": null,
+          "description": "Look for deleted or missing devices, add the deleted and auth the missing",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [
+            "fmg_record",
+            "device_list"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/9e516ad1-53a5-4f86-b50c-4d03442d91e5",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create FMG Model Devices",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.model_device_payloads}}",
+                  "__bulk": false,
+                  "parallel": true,
+                  "condition": ""
+                },
+                "arguments": {
+                  "fmg_payload": "{{vars.item}}",
+                  "connector_config": "{{vars.fmg_connector_config}}",
+                  "create_variables": "True"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/e8d82c6f-e657-452f-8c99-952e06a706f1"
+              },
+              "status": null,
+              "top": "1100",
+              "left": "980",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "79d8f44d-7fd7-4424-809e-94150f8bdcaf"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Delete Down and model FMG Devices",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.down_devices + vars.model_devices}}",
+                  "parallel": false,
+                  "condition": "{{(vars.down_devices + vars.model_devices) | length > 0}}"
+                },
+                "arguments": {
+                  "adom": "{{vars.item.get('extra info', {}).adom}}",
+                  "device_name": "{{vars.item.name}}",
+                  "connector_config": "{{vars.fmg_connector_config}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/85d5bdcc-6ac1-4479-8f2f-48e9a413d9c7"
+              },
+              "status": null,
+              "top": "560",
+              "left": "1180",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "dda3931d-1dce-42c5-bf71-3c964459e8c0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Each Fortigate Status",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.input.params['device_list']}}",
+                  "__bulk": false,
+                  "parallel": true,
+                  "condition": ""
+                },
+                "arguments": {
+                  "fos_user": "{{globalVars.FGT_Username}}",
+                  "fortigate": "{{vars.item.fgt_ip}}",
+                  "fos_password": "{{globalVars.FGT_Password}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/3d5c1ee3-3406-437d-80d6-5679aad272cf"
+              },
+              "status": null,
+              "top": "420",
+              "left": "800",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "c771d65b-a593-4966-b5f0-fd3798286d6c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Sorted FMG Devices 1",
+              "description": null,
+              "arguments": {
+                "arguments": {
+                  "fmg_connector_config": "{{vars.fmg_connector_config}}"
+                },
+                "apply_async": false,
+                "step_variables": {
+                  "up_devices": "{{vars.steps.Get_Sorted_FMG_Devices_1.up_devices}}",
+                  "down_devices": "{{vars.steps.Get_Sorted_FMG_Devices_1.down_devices}}",
+                  "model_devices": "{{vars.steps.Get_Sorted_FMG_Devices_1.model_devices}}"
+                },
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/b478726e-99a9-45b2-94f8-2aa32ed53f11"
+              },
+              "status": null,
+              "top": "420",
+              "left": "1180",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "6ae35baa-92b9-44ed-9729-e3f93a1bb135"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Sorted FMG Devices 2",
+              "description": null,
+              "arguments": {
+                "arguments": {
+                  "fmg_connector_config": "{{vars.fmg_connector_config}}"
+                },
+                "apply_async": false,
+                "step_variables": {
+                  "up_devices": "{{vars.steps.Get_Sorted_FMG_Devices_2.up_devices}}",
+                  "down_devices": "{{vars.steps.Get_Sorted_FMG_Devices_2.down_devices}}",
+                  "model_devices": "{{vars.steps.Get_Sorted_FMG_Devices_2.model_devices}}"
+                },
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/b478726e-99a9-45b2-94f8-2aa32ed53f11"
+              },
+              "status": null,
+              "top": "700",
+              "left": "980",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "9537a4db-c98b-498a-8503-6af5b89464d0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Install policy",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.device_status}}",
+                  "__bulk": false,
+                  "parallel": true,
+                  "condition": ""
+                },
+                "arguments": {
+                  "adom": "{{vars.item.fmg_adom}}",
+                  "devices": "{{vars.item.fgt_name}}",
+                  "package": "{{vars.item.fmg_policy_package}}",
+                  "track_task_flag": "True",
+                  "connector_config": "{{vars.fmg_connector_config}}",
+                  "assign_device_flag": "False"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/ad544501-706a-48af-972e-e1035f81c021"
+              },
+              "status": null,
+              "top": "1480",
+              "left": "980",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "a80b12b7-ca71-48ea-bc15-4490415420a2"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Normalized Fortigate Output",
+              "description": null,
+              "arguments": {
+                "device_status": "{# this is the latest info retrieved directly from the gates #} \n{% set latest_fgt_devices_info = vars.steps.Get_Each_Fortigate_Status | json_query('[].output')%}\n\n{# contains info like fgt_ip/hostname, fmg adom, desired groups, etc #}\n{% set desired_fgt_devices_state = vars.input.params['device_list'] %}\n\n\n{# merge the two device dicts by device_ip #}\n{% set merged_devices = [] %}\n{% for latest in latest_fgt_devices_info %}\n    {% for desired in desired_fgt_devices_state %}\n        {% if latest.fgt_ip == desired.fgt_ip %}\n            {% set merged_device = latest.copy() %}\n            {% for key, value in desired.items() %}\n                {% do merged_device.update({key: value}) %}\n            {% endfor %}\n            {% do merged_devices.append(merged_device) %}\n            {% break %}\n        {% endif %}\n    {% endfor %}\n{% endfor %}\n\n{{ merged_devices }}"
+              },
+              "status": null,
+              "top": "560",
+              "left": "800",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "9324e734-0063-4575-a714-9a990d3626a5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Reset sorted devices",
+              "description": null,
+              "arguments": {
+                "new_up_devices": "{{ vars.steps.Get_FMG_Devices.output | json_query('[?conn_status == `up`]') }}",
+                "new_down_devices": "{{ vars.steps.Get_FMG_Devices.output | json_query('[?conn_status == `down`]') }}",
+                "new_model_devices": "{{ vars.steps.Get_FMG_Devices.output | json_query('[?flags && contains(@.flags, `is_model`)]') }}",
+                "new_up_device_names": "{{ vars.steps.Get_FMG_Devices.output | json_query('[?conn_status == `up`].name') }}"
+              },
+              "status": null,
+              "top": "840",
+              "left": "1240",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "31190123-71fd-41aa-aa20-4822fbd92abc"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Retrieve config",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.device_status}}",
+                  "__bulk": false,
+                  "parallel": true,
+                  "condition": ""
+                },
+                "arguments": {
+                  "tag": "",
+                  "adom": "{{vars.item.fmg_adom}}",
+                  "devices": "{{vars.item.fgt_name}}",
+                  "connector_config": "{{vars.fmg_connector_config}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/fcf7033d-7cb6-444d-8c4d-c5111fc97f05"
+              },
+              "status": null,
+              "top": "1360",
+              "left": "980",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "8b743ea6-296e-4d5d-b5a6-517d6dd07616"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set FMG Details",
+              "description": null,
+              "arguments": {
+                "fmg_ip": "{{vars.input.params['fmg_record'].managerIP}}",
+                "fmg_serial": "{{vars.input.params['fmg_record'].sN}}",
+                "fmg_connector_config": "{{vars.input.params['fmg_record'].managerName}}"
+              },
+              "status": null,
+              "top": "300",
+              "left": "980",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "d412a743-0154-456a-87f3-cb08f411ee9e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set FMG on FGTs",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.device_status}}",
+                  "__bulk": false,
+                  "parallel": true,
+                  "condition": "{{vars.item.fmg_status != \"up\"}}"
+                },
+                "arguments": {
+                  "fmg": "{{vars.fmg_ip}}",
+                  "fos_user": "{{vars.item.fgt_user}}",
+                  "fortigate": "{{vars.item.fgt_ip}}",
+                  "fmg_serial": "{{vars.fmg_serial}}",
+                  "fos_password": "{{vars.item.fgt_pass}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/4f645da5-9f4f-44f1-a8c0-13442b3bd4ff"
+              },
+              "status": null,
+              "top": "1240",
+              "left": "980",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "7e86ad10-981f-4f7d-ab40-c03a6bfe1981"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set Model config",
+              "description": null,
+              "arguments": {
+                "model_device_payloads": "{% set new_up_device_names = vars.up_devices | json_query('[].name') %}\n{% set model_list = [] %}\n{% for device in vars.device_status %}\n   {# Only create a model device config if the device is not up #}\n   {% if device.fgt_name not in new_up_device_names %}\n        {% do model_list.append({\n          \"adom\": device.fmg_adom,\n          \"device\": {\n              \"adm_usr\": device.fgt_user,\n              \"adm_pass\": device.fgt_pass,\n              \"device action\": \"add_model\",\n              \"mgmt_mode\": \"fmg\",\n              \"mr\": device.fgt_version.split('.') | json_query('[1]') | int ,\n              \"name\": device.fgt_name,\n              \"os_type\": \"fos\",\n              \"os_ver\": \"7.0\",\n              \"platform_str\": \"FortiGate-VM64-KVM\",\n              \"sn\": device.fgt_serial, \n              \"meta variables\": {\n                   \"branch_id\": device.fgt_name | regex_search('\\d+') | default(\"\", true)\n              }\n          },\n          \"groups\": [{\"name\": device.fmg_device_group}],\n          \"flags\": [ \"create_task\"],\n\t\t}) %}\n  {% endif %}\n{% endfor %}\n{{ model_list }}\n\n{# \n{% do model_list.append({\n    \"adom\": device.fmg_adom,\n    \"device\": {\n        \"adm_usr\": device.fgt_user,\n        \"adm_pass\": device.fgt_pass,\n        \"device action\": \"add_model\",\n        \"branch_pt\": device.fgt_build,\n        \"build\": device.fgt_build,\n        \"flags\": [\"is_model\", \"linked_to_model\", \"create_task\"],\n        \"extra commands\": [],\n        \"faz.perm\": 15,\n        \"faz.quota\": 0,\n        \"groups\": [{\"name\": device.fmg_device_group}],\n        \"mgmt_mode\": \"fmgfaz\",\n        \"mr\": 2,\n        \"name\": device.fgt_name,\n        \"os_type\": \"fos\",\n        \"os_ver\": \"7.0\",\n        \"platform_str\": \"FortiGate-VM64-KVM\",\n        \"prefer_img_ver\": device.fgt_version.lstrip(\"v\") ~ \"-b\" ~device.fgt_build, \n        \"sn\": device.fgt_serial, \n        \"version\": 700\n    }\n}) %}\n#}"
+              },
+              "status": null,
+              "top": "960",
+              "left": "980",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "b9438797-9278-4f82-8bf5-df068abfe544"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "60",
+              "left": "980",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "9e516ad1-53a5-4f86-b50c-4d03442d91e5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "update manager",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "provisioningComplete": true
+                },
+                "operation": "Append",
+                "collection": "{{vars.input.params['fmg_record']['@id']}}",
+                "__recommend": [],
+                "collectionType": "/api/3/managers",
+                "fieldOperation": {
+                  "recordTags": "Append"
+                },
+                "step_variables": []
+              },
+              "status": null,
+              "top": "1682",
+              "left": "1096",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928722",
+              "group": null,
+              "uuid": "64a60d9b-0383-457a-ad3f-25a188eb8aaa"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Copy of Sort FMG devices -> Set Model config",
+              "targetStep": "/api/3/workflow_steps/b9438797-9278-4f82-8bf5-df068abfe544",
+              "sourceStep": "/api/3/workflow_steps/31190123-71fd-41aa-aa20-4822fbd92abc",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "de520a1e-57b9-40ca-9d1a-3c1c98a6c3db"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create FMG Model Devices -> Copy of Create FMG Model Devices",
+              "targetStep": "/api/3/workflow_steps/7e86ad10-981f-4f7d-ab40-c03a6bfe1981",
+              "sourceStep": "/api/3/workflow_steps/79d8f44d-7fd7-4424-809e-94150f8bdcaf",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9578237d-55b4-4f21-ad42-705c6ec65651"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Delete Down and model FMG Devices -> Copy of Get Sorted FMG Devices 1",
+              "targetStep": "/api/3/workflow_steps/9537a4db-c98b-498a-8503-6af5b89464d0",
+              "sourceStep": "/api/3/workflow_steps/dda3931d-1dce-42c5-bf71-3c964459e8c0",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f4243093-99e0-4b5e-8fc9-ca5150117c07"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Each Fortigate Status -> Normal Device info",
+              "targetStep": "/api/3/workflow_steps/9324e734-0063-4575-a714-9a990d3626a5",
+              "sourceStep": "/api/3/workflow_steps/c771d65b-a593-4966-b5f0-fd3798286d6c",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0be6a4c8-cb91-4681-b532-b4af30eec507"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Sorted FMG Devices 1 -> Delete Down and model FMG Devices",
+              "targetStep": "/api/3/workflow_steps/dda3931d-1dce-42c5-bf71-3c964459e8c0",
+              "sourceStep": "/api/3/workflow_steps/6ae35baa-92b9-44ed-9729-e3f93a1bb135",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "5934ca43-04ca-47a1-856c-3bef46c72b4a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Sorted FMG Devices 2 -> Set Model config",
+              "targetStep": "/api/3/workflow_steps/b9438797-9278-4f82-8bf5-df068abfe544",
+              "sourceStep": "/api/3/workflow_steps/9537a4db-c98b-498a-8503-6af5b89464d0",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "31946f51-1c03-4d86-b223-704ea563d854"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Install policy -> update manager",
+              "targetStep": "/api/3/workflow_steps/64a60d9b-0383-457a-ad3f-25a188eb8aaa",
+              "sourceStep": "/api/3/workflow_steps/a80b12b7-ca71-48ea-bc15-4490415420a2",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4e7be58b-f252-4b0f-963f-11fc7760c566"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Normalized Fortigate Output -> Copy of Get Sorted FMG Devices 1",
+              "targetStep": "/api/3/workflow_steps/9537a4db-c98b-498a-8503-6af5b89464d0",
+              "sourceStep": "/api/3/workflow_steps/9324e734-0063-4575-a714-9a990d3626a5",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b612003e-aa7f-4eaa-819a-47c1eb85b243"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Retrieve config -> Install policy",
+              "targetStep": "/api/3/workflow_steps/a80b12b7-ca71-48ea-bc15-4490415420a2",
+              "sourceStep": "/api/3/workflow_steps/8b743ea6-296e-4d5d-b5a6-517d6dd07616",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "7d52db8a-bf7b-41c5-8438-d277d1dd87d3"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set FMG Details -> Get Each Fortigate Status",
+              "targetStep": "/api/3/workflow_steps/c771d65b-a593-4966-b5f0-fd3798286d6c",
+              "sourceStep": "/api/3/workflow_steps/d412a743-0154-456a-87f3-cb08f411ee9e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "34f11da4-f4a4-424c-b9dc-7684cb49c8b2"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set FMG Details -> Get Sorted FMG Devices 1",
+              "targetStep": "/api/3/workflow_steps/6ae35baa-92b9-44ed-9729-e3f93a1bb135",
+              "sourceStep": "/api/3/workflow_steps/d412a743-0154-456a-87f3-cb08f411ee9e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "eb288c28-34b2-4c75-98b8-04c760e21444"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set FMG on FGTs -> Retrieve config",
+              "targetStep": "/api/3/workflow_steps/8b743ea6-296e-4d5d-b5a6-517d6dd07616",
+              "sourceStep": "/api/3/workflow_steps/7e86ad10-981f-4f7d-ab40-c03a6bfe1981",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ad79819a-85c6-4070-ab8f-499ddb88d6ed"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set Model config -> Create FMG Model Devices",
+              "targetStep": "/api/3/workflow_steps/79d8f44d-7fd7-4424-809e-94150f8bdcaf",
+              "sourceStep": "/api/3/workflow_steps/b9438797-9278-4f82-8bf5-df068abfe544",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9158bb3f-f845-4e06-befc-249002667f6a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Set FMG Details",
+              "targetStep": "/api/3/workflow_steps/d412a743-0154-456a-87f3-cb08f411ee9e",
+              "sourceStep": "/api/3/workflow_steps/9e516ad1-53a5-4f86-b50c-4d03442d91e5",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "d431c2ed-092e-4f5e-8bae-7643defaf6d8"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Concerns",
+              "description": "Need to test what happens when a fgt is unreachable, or bad user/pass",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "117",
+              "left": "249",
+              "height": "138",
+              "width": "498",
+              "uuid": "5e6b6ca9-f0ba-4a90-97d7-fff5c2a5c1da",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note",
+              "description": "Only create a model device config if the device is not up in FMG",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1080",
+              "left": "1280",
+              "height": "0",
+              "width": "300",
+              "uuid": "d56d91bf-cdb5-4d71-9a5b-53e8e1cee241",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note",
+              "description": "Only need to set fmg if status is not good",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1220",
+              "left": "1280",
+              "height": "0",
+              "width": "300",
+              "uuid": "133d736f-c4d6-48d0-8b5a-30f5e131edb8",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note",
+              "description": "Only delete if model or down devices",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "560",
+              "left": "1480",
+              "height": "0",
+              "width": "300",
+              "uuid": "944f01ab-54a4-47a0-9483-5c68bc557b0b",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Notes",
+              "description": "On loop\n   - Lookup global var to know if provisioning has complete once. Need to DELETE GLOBAL VAR BEFORE SNAPSHOT\n   - Delete offline devices (not models)\n   - get latest fmg and system info from each fortigate\n   - create model device\n   - Not sure if i then need to set the central mgmt on the gate directly",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "300",
+              "left": "240",
+              "height": "234",
+              "width": "498",
+              "uuid": "6f552347-8686-4385-a661-b074e70d6c92",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "abcbdcc1-725e-4371-9f6f-cee4fe082903",
+          "isPrivate": false,
+          "recordTags": []
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "> logout session",
+          "aliasName": null,
+          "tag": null,
+          "description": "Logout a session",
+          "isActive": false,
+          "debug": true,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [
+            "fortigate",
+            "fos_session"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/6b9655ce-9e3b-4b4a-9748-1db0e66d6c77",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "extract_logout_util_data",
+              "description": null,
+              "arguments": {
+                "output": "{{vars.steps.logout_fg_util.data}}"
+              },
+              "status": null,
+              "top": "160",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "fd8dcb7f-2446-41cb-ba21-4f47006cf188"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "logout_fg_util",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "url": "https://{{vars.input.params.fortigate}}/api/v2/authentication",
+                  "body": "",
+                  "method": "DELETE",
+                  "params": "",
+                  "verify": false,
+                  "headers": "{  \"Content-Type\": \"json\",  \"accept\": \"application/json\",  \"Authorization\": \"Bearer {{vars.input.params['fos_session']}}\"}",
+                  "password": "",
+                  "username": "",
+                  "auth_config": ""
+                },
+                "version": "3.2.2",
+                "connector": "cyops_utilities",
+                "operation": "api_call",
+                "operationTitle": "Utils: Make REST API Call",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "60",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "5c606a6e-9289-4ae4-b020-fc42539f0e19"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "60",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "6b9655ce-9e3b-4b4a-9748-1db0e66d6c77"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "logout_fg_util -> extract_logout_util_data",
+              "targetStep": "/api/3/workflow_steps/fd8dcb7f-2446-41cb-ba21-4f47006cf188",
+              "sourceStep": "/api/3/workflow_steps/5c606a6e-9289-4ae4-b020-fc42539f0e19",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ad49078a-6b43-4607-9535-89d357b7b974"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> logout_fg_util",
+              "targetStep": "/api/3/workflow_steps/5c606a6e-9289-4ae4-b020-fc42539f0e19",
+              "sourceStep": "/api/3/workflow_steps/6b9655ce-9e3b-4b4a-9748-1db0e66d6c77",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4073ba1c-6f68-4554-8448-cf97029c41f9"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "b57cc8e9-1b06-434b-b18e-a4a6a9de985f",
+          "isPrivate": false,
+          "recordTags": [
+            "fortigate",
+            "fos_session",
+            "http_util",
+            "Subroutine"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "> login via username/password",
+          "aliasName": null,
+          "tag": null,
+          "description": "Authenticate via username/password and retrieve the token.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [
+            "fortigate",
+            "fos_user",
+            "fos_password"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/538ee366-5d92-478a-b2c8-ec5b0635fcd9",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "extract_login_util_data",
+              "description": null,
+              "arguments": {
+                "output": "{{vars.steps.login_fg_util.data}}"
+              },
+              "status": null,
+              "top": "260",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "59d2f290-ada2-4584-89dc-0bc509bcabe9"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "login_fg_util",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "url": "https://{{vars.input.params.fortigate}}/api/v2/authentication",
+                  "body": "{  \n  \"username\": \"{{vars.fos_user}}\", \n  \"secretkey\": \"{{vars.fos_password}}\",  \n  \"ack_post_disclaimer\": true,\n  \"request_key\": true\n}",
+                  "method": "POST",
+                  "params": "",
+                  "verify": false,
+                  "headers": "{\n  \"Content-Type\": \"json\",\n  \"accept\": \"application/json\"\n}",
+                  "password": "",
+                  "username": "",
+                  "auth_config": ""
+                },
+                "version": "3.2.2",
+                "connector": "cyops_utilities",
+                "operation": "api_call",
+                "operationTitle": "Utils: Make REST API Call",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "160",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "2d1fe770-483d-4c82-ac9e-8379305d415e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "setup_initial_vars",
+              "description": "Create default username/password",
+              "arguments": {
+                "fos_user": "{{vars.input.params['fos_user']|default('admin')}}",
+                "fos_password": "{{vars.input.params['fos_password']|default('fortinet')}}"
+              },
+              "status": null,
+              "top": "60",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "b85ef7e8-03ef-4511-8d32-63833a1a7ef0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "60",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "538ee366-5d92-478a-b2c8-ec5b0635fcd9"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "login_fg_util -> extract_login_data",
+              "targetStep": "/api/3/workflow_steps/59d2f290-ada2-4584-89dc-0bc509bcabe9",
+              "sourceStep": "/api/3/workflow_steps/2d1fe770-483d-4c82-ac9e-8379305d415e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "3fc1f466-483b-490a-83fe-3e414a19b895"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "setup_initial_vars -> login_fg_api",
+              "targetStep": "/api/3/workflow_steps/2d1fe770-483d-4c82-ac9e-8379305d415e",
+              "sourceStep": "/api/3/workflow_steps/b85ef7e8-03ef-4511-8d32-63833a1a7ef0",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0adf5354-c6d5-4fa2-93cb-8bd3fb125414"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> setup_initial_vars",
+              "targetStep": "/api/3/workflow_steps/b85ef7e8-03ef-4511-8d32-63833a1a7ef0",
+              "sourceStep": "/api/3/workflow_steps/538ee366-5d92-478a-b2c8-ec5b0635fcd9",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "7ce6a7dc-bb57-4c45-bd58-a4aa3d4cfe2f"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "77b30346-7f7e-4a46-90d3-8db0bf6861aa",
+          "isPrivate": false,
+          "recordTags": [
+            "fortigate",
+            "fos_password",
+            "fos_user",
+            "http_util",
+            "output",
+            "Subroutine"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "> get central management and fgt status",
+          "aliasName": null,
+          "tag": null,
+          "description": "Perform a FortiDeploy style API retrieval for fgt Central Management and status",
+          "isActive": false,
+          "debug": true,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [
+            "fortigate",
+            "fos_session",
+            "fmg"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/742e4fb2-79fc-4d16-b5ee-1057ebc8f733",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "extract_fos_util_results",
+              "description": null,
+              "arguments": {
+                "output": "{\"fmg\":{{vars.steps.get_fmg_status.data}}, \n\"status\":{{vars.steps.get_fgt_status.data}}\n}"
+              },
+              "status": null,
+              "top": "220",
+              "left": "680",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "23476153-f468-4b44-955f-77e102ccb723"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "get_fgt_status",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "url": "https://{{vars.input.params.fortigate}}/api/v2/monitor/system/status",
+                  "body": "",
+                  "method": "GET",
+                  "params": "",
+                  "verify": false,
+                  "headers": "{  \"Content-Type\": \"json\",  \"accept\": \"application/json\",  \"Authorization\": \"Bearer {{vars.input.params['fos_session']}}\"}",
+                  "password": "",
+                  "username": "",
+                  "auth_config": ""
+                },
+                "version": "3.4.0",
+                "connector": "cyops_utilities",
+                "operation": "api_call",
+                "operationTitle": "Utils: Make REST API Call",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "60",
+              "left": "680",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "7ead96f8-463e-4ac0-b624-1b87805855a4"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "get_fmg_status",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "url": "https://{{vars.input.params.fortigate}}/api/v2/monitor/system/central-management/status",
+                  "body": "",
+                  "method": "GET",
+                  "params": "",
+                  "verify": false,
+                  "headers": "{  \"Content-Type\": \"json\",  \"accept\": \"application/json\",  \"Authorization\": \"Bearer {{vars.input.params['fos_session']}}\"}",
+                  "password": "",
+                  "username": "",
+                  "auth_config": ""
+                },
+                "version": "3.4.0",
+                "connector": "cyops_utilities",
+                "operation": "api_call",
+                "operationTitle": "Utils: Make REST API Call",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "60",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "680596ef-f7e0-48c7-8d8d-e8a2af2d5772"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "60",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "742e4fb2-79fc-4d16-b5ee-1057ebc8f733"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "get_fgt_status -> extract_fos_util_results",
+              "targetStep": "/api/3/workflow_steps/23476153-f468-4b44-955f-77e102ccb723",
+              "sourceStep": "/api/3/workflow_steps/7ead96f8-463e-4ac0-b624-1b87805855a4",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "143bc53d-b4a4-442c-a19c-6a1ace9a8e85"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "get_fmg_status -> Copy of get_fgt_status",
+              "targetStep": "/api/3/workflow_steps/7ead96f8-463e-4ac0-b624-1b87805855a4",
+              "sourceStep": "/api/3/workflow_steps/680596ef-f7e0-48c7-8d8d-e8a2af2d5772",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "135ec859-8c21-48c0-ae8e-c55f1cbc4a5b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> set_fmg_util",
+              "targetStep": "/api/3/workflow_steps/680596ef-f7e0-48c7-8d8d-e8a2af2d5772",
+              "sourceStep": "/api/3/workflow_steps/742e4fb2-79fc-4d16-b5ee-1057ebc8f733",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0657fe48-0ae7-449c-9390-36d7a0096dc5"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "a3e3f7a2-4cc8-4149-b15b-e7515c742f41",
+          "isPrivate": false,
+          "recordTags": [
+            "fmg",
+            "fortigate",
+            "fos_session",
+            "http_util",
+            "Subroutine"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Set FMG on FGT",
+          "aliasName": null,
+          "tag": null,
+          "description": "Login to FGT, Get FMG Status, and Logout",
+          "isActive": false,
+          "debug": true,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [
+            "fortigate",
+            "fos_user",
+            "fos_password",
+            "fmg",
+            "fmg_serial"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/22f2c608-70f3-4753-a51d-a13f615892b6",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "extract_fos_login_data",
+              "description": null,
+              "arguments": {
+                "fos_login_data": "{{vars.steps.fos_login.output}}"
+              },
+              "status": null,
+              "top": "180",
+              "left": "420",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "f649687e-62c1-40d4-ab28-1e49351e5aa7"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "extract_fos_logout_data",
+              "description": null,
+              "arguments": {
+                "fos_logout_data": "{{vars.steps.fos_logout.output}}"
+              },
+              "status": null,
+              "top": "440",
+              "left": "60",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "abdc9b33-9957-4a68-be3e-e50d1b3c4cb5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "extract_fos_set_fmg",
+              "description": null,
+              "arguments": {
+                "fos_set_fmg_data": "{{vars.steps.fos_set_fmg.output}}"
+              },
+              "status": null,
+              "top": "380",
+              "left": "820",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "eb6239c7-d118-4e18-aded-829e9e05bbdc"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "fos_login",
+              "description": null,
+              "arguments": {
+                "arguments": {
+                  "fos_user": "{{vars.input.params['fos_user']}}",
+                  "fortigate": "{{vars.input.params.fortigate}}",
+                  "fos_password": "{{vars.input.params['fos_password']}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/77b30346-7f7e-4a46-90d3-8db0bf6861aa"
+              },
+              "status": null,
+              "top": "60",
+              "left": "420",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "f8ef9b01-8246-4e2d-93c7-5f2ae9c9d03c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "fos_logout",
+              "description": null,
+              "arguments": {
+                "arguments": {
+                  "fortigate": "{{vars.input.params.fortigate}}",
+                  "fos_session": "{{vars.fos_login_data.session_key}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/b57cc8e9-1b06-434b-b18e-a4a6a9de985f"
+              },
+              "status": null,
+              "top": "340",
+              "left": "60",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "f7204f8b-242d-4134-a564-a821d2fa01c1"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "fos_set_fmg",
+              "description": null,
+              "arguments": {
+                "arguments": {
+                  "fmg": "{{vars.input.params.fmg}}",
+                  "fortigate": "{{vars.input.params.fortigate}}",
+                  "fmg_serial": "{{vars.input.params['fmg_serial']}}",
+                  "fos_session": "{{vars.fos_login_data.session_key}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/3c7b88e6-3b6e-43ca-a502-b86dce5067a4"
+              },
+              "status": null,
+              "top": "260",
+              "left": "820",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "23f59ed3-538c-4157-afa2-79f279e0bb72"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "60",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "22f2c608-70f3-4753-a51d-a13f615892b6"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "extract_fos_login_data -> fos_set_fmg",
+              "targetStep": "/api/3/workflow_steps/23f59ed3-538c-4157-afa2-79f279e0bb72",
+              "sourceStep": "/api/3/workflow_steps/f649687e-62c1-40d4-ab28-1e49351e5aa7",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "13fac1f8-1e3d-4b77-825c-7f66d633e07e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "extract_fos_set_fmg -> fos_logout",
+              "targetStep": "/api/3/workflow_steps/f7204f8b-242d-4134-a564-a821d2fa01c1",
+              "sourceStep": "/api/3/workflow_steps/eb6239c7-d118-4e18-aded-829e9e05bbdc",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "5f36865c-9d17-461c-a7b5-3bce0aafa904"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "fos_login -> extract_fos_login_data",
+              "targetStep": "/api/3/workflow_steps/f649687e-62c1-40d4-ab28-1e49351e5aa7",
+              "sourceStep": "/api/3/workflow_steps/f8ef9b01-8246-4e2d-93c7-5f2ae9c9d03c",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "46955d99-d628-4ce0-b595-05a2a3be674e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "fos_logout -> extract_fos_logout_data",
+              "targetStep": "/api/3/workflow_steps/abdc9b33-9957-4a68-be3e-e50d1b3c4cb5",
+              "sourceStep": "/api/3/workflow_steps/f7204f8b-242d-4134-a564-a821d2fa01c1",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "708322b1-a7a0-46cd-86c8-1bd44f1f76da"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "fos_set_fmg -> extract_fos_set_fmg",
+              "targetStep": "/api/3/workflow_steps/eb6239c7-d118-4e18-aded-829e9e05bbdc",
+              "sourceStep": "/api/3/workflow_steps/23f59ed3-538c-4157-afa2-79f279e0bb72",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "70bc7bcb-9430-4099-a4b6-418568e17eb3"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> fos_login",
+              "targetStep": "/api/3/workflow_steps/f8ef9b01-8246-4e2d-93c7-5f2ae9c9d03c",
+              "sourceStep": "/api/3/workflow_steps/22f2c608-70f3-4753-a51d-a13f615892b6",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "8878e35d-10c1-4435-b542-3613bbfe6b65"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Inputs",
+              "description": "fmg: the ip/hostname of the FMG\nfos_user: username to login to the FGT\nfos_password: password to login to the FGT\nfortigate: the ip/hostname of the FGT",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": false,
+              "metadata": [],
+              "reusable": false,
+              "top": "20",
+              "left": "1060",
+              "height": "187",
+              "width": "485",
+              "uuid": "a7b7e564-ef7e-4fff-b049-c8c4dadcb83b",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "4f645da5-9f4f-44f1-a8c0-13442b3bd4ff",
+          "isPrivate": false,
+          "recordTags": [
+            "fmg",
+            "fortigate",
+            "fos_password",
+            "fos_session",
+            "Subroutine"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "> bootstrap fortimanager",
+          "aliasName": null,
+          "tag": null,
+          "description": "Perform a FortiDeploy style API change to the Central Management",
+          "isActive": false,
+          "debug": true,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [
+            "fortigate",
+            "fos_session",
+            "fmg",
+            "fmg_serial"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/841f64d8-d45f-440b-99b3-9a7f1c832783",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "extract_fos_util_results",
+              "description": null,
+              "arguments": {
+                "output": "{{vars.steps.set_fmg_http.data }}"
+              },
+              "status": null,
+              "top": "160",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "77a22027-67be-466d-bb45-ff7f3bc7dce0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "set_fmg_util",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "url": "https://{{vars.input.params.fortigate}}/api/v2/cmdb/system/central-management",
+                  "body": "{ \"fmg\": \"{{vars.input.params['fmg']}}\", \"serial-number\": \"{{vars.input.params['fmg_serial']}}\", \"mode\": \"normal\", \"type\": \"fortimanager\"  }",
+                  "method": "PUT",
+                  "params": "",
+                  "verify": false,
+                  "headers": "{  \"Content-Type\": \"json\",  \"accept\": \"application/json\",  \"Authorization\": \"Bearer {{vars.input.params['fos_session']}}\"}",
+                  "password": "",
+                  "username": "",
+                  "auth_config": ""
+                },
+                "version": "3.4.0",
+                "connector": "cyops_utilities",
+                "operation": "api_call",
+                "operationTitle": "Utils: Make REST API Call",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "60",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "4b144464-7876-4d9c-a512-825482d9e078"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "60",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "841f64d8-d45f-440b-99b3-9a7f1c832783"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "set_fmg_util -> Copy of extract_fos_http_results",
+              "targetStep": "/api/3/workflow_steps/77a22027-67be-466d-bb45-ff7f3bc7dce0",
+              "sourceStep": "/api/3/workflow_steps/4b144464-7876-4d9c-a512-825482d9e078",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "d8ad7556-2a48-4c63-ad49-edda4ad7629a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> set_fmg_util",
+              "targetStep": "/api/3/workflow_steps/4b144464-7876-4d9c-a512-825482d9e078",
+              "sourceStep": "/api/3/workflow_steps/841f64d8-d45f-440b-99b3-9a7f1c832783",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1051dc07-94b8-48b6-9a1c-2343022524c8"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "3c7b88e6-3b6e-43ca-a502-b86dce5067a4",
+          "isPrivate": false,
+          "recordTags": [
+            "fmg",
+            "fortigate",
+            "fos_session",
+            "http_util",
+            "Subroutine"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get FMG Status on FGT",
+          "aliasName": null,
+          "tag": null,
+          "description": "Login to FGT, Get FMG Status, and Logout",
+          "isActive": false,
+          "debug": true,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [
+            "fortigate",
+            "fos_user",
+            "fos_password"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/12988683-c5e1-49ae-8a14-bb253ae79618",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "extract_fos_login_data",
+              "description": null,
+              "arguments": {
+                "fos_login_data": "{{vars.steps.fos_login.output}}"
+              },
+              "status": null,
+              "top": "140",
+              "left": "420",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "24215000-66ae-4813-b83c-3e77f0e4369f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "extract_fos_logout_data",
+              "description": null,
+              "arguments": {
+                "fos_logout_data": "{{vars.steps.fos_logout.output}}"
+              },
+              "status": null,
+              "top": "440",
+              "left": "60",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "9fad93a9-934d-49c3-be12-4ac8e5b76cb5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "fos_get_fmg_and_sys_status",
+              "description": null,
+              "arguments": {
+                "arguments": {
+                  "fmg": "{{vars.input.params.fmg}}",
+                  "fortigate": "{{vars.input.params.fortigate}}",
+                  "fos_session": "{{vars.fos_login_data.session_key}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/a3e3f7a2-4cc8-4149-b15b-e7515c742f41"
+              },
+              "status": null,
+              "top": "280",
+              "left": "800",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "c9669388-0e5f-4e8a-813f-c4ae4f3620ae"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "fos_login",
+              "description": null,
+              "arguments": {
+                "arguments": {
+                  "fos_user": "{{vars.input.params['fos_user']}}",
+                  "fortigate": "{{vars.input.params.fortigate}}",
+                  "fos_password": "{{vars.input.params['fos_password']}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/77b30346-7f7e-4a46-90d3-8db0bf6861aa"
+              },
+              "status": null,
+              "top": "60",
+              "left": "420",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "5997db37-a120-4d0d-ab54-d2f145e2a177"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "fos_logout",
+              "description": null,
+              "arguments": {
+                "arguments": {
+                  "fortigate": "{{vars.input.params.fortigate}}",
+                  "fos_session": "{{vars.fos_login_data.session_key}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/b57cc8e9-1b06-434b-b18e-a4a6a9de985f"
+              },
+              "status": null,
+              "top": "340",
+              "left": "60",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "5297866e-9eae-4d1d-854c-3d17f25505cb"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Return output",
+              "description": null,
+              "arguments": {
+                "output": "{% set data = vars.steps.fos_get_fmg_and_sys_status.output %}\n{% set output = {\n    \"fmg_vdom\": data.fmg.vdom | default(\"\", True),\n    \"fgt_serial\": data.fmg.serial,\n    \"fmg_status\": data.fmg.results.status | default(\"\", True),\n    \"fmg_mgmt_ip\": data.fmg.results.mgmt_ip | default(\"\", True),\n    \"fmg_pending_fortimanager\": data.fmg.results.pending_fortimanager | default(\"\", True) ,\n    \"fgt_hostname\": data.status.results.hostname,\n    \"fgt_model\": data.status.results.model,\n    \"status_model_number\": data.status.results.model_number,\n    \"fgt_build\": data.status.build,\n    \"fgt_version\": data.status.version,\n    \"status_log_disk_status\": data.status.results.log_disk_status,\n    \"fgt_ip\": vars.input.params.fortigate,\n    \"fgt_user\": vars.input.params.fos_user,\n    \"fgt_pass\": vars.input.params.fos_password\n} %}\n{{output}}"
+              },
+              "status": null,
+              "top": "420",
+              "left": "800",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "98947338-f606-4ecd-97a9-b8653a95b11a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "60",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "12988683-c5e1-49ae-8a14-bb253ae79618"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "extract_fos_login_data -> fos_get_fmg",
+              "targetStep": "/api/3/workflow_steps/c9669388-0e5f-4e8a-813f-c4ae4f3620ae",
+              "sourceStep": "/api/3/workflow_steps/24215000-66ae-4813-b83c-3e77f0e4369f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e93b03de-d6c0-4c54-8ca4-eb636b4637f8"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "fos_get_fmg_and_sys_status -> fos_logout",
+              "targetStep": "/api/3/workflow_steps/5297866e-9eae-4d1d-854c-3d17f25505cb",
+              "sourceStep": "/api/3/workflow_steps/c9669388-0e5f-4e8a-813f-c4ae4f3620ae",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1882c55f-9090-49d0-b2a0-b33e8c4a3da4"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "fos_login -> extract_fos_login_data",
+              "targetStep": "/api/3/workflow_steps/24215000-66ae-4813-b83c-3e77f0e4369f",
+              "sourceStep": "/api/3/workflow_steps/5997db37-a120-4d0d-ab54-d2f145e2a177",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "91018e8e-de9f-4020-bd52-79476fb1c215"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "fos_logout -> Return output",
+              "targetStep": "/api/3/workflow_steps/98947338-f606-4ecd-97a9-b8653a95b11a",
+              "sourceStep": "/api/3/workflow_steps/5297866e-9eae-4d1d-854c-3d17f25505cb",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0f81ad66-b463-4900-8c9e-df12f971d3dd"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> fos_login",
+              "targetStep": "/api/3/workflow_steps/5997db37-a120-4d0d-ab54-d2f145e2a177",
+              "sourceStep": "/api/3/workflow_steps/12988683-c5e1-49ae-8a14-bb253ae79618",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b3c332b1-d48a-4060-acd6-6a90684860c1"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Inputs",
+              "description": "fos_user: username to login to the FGT\nfos_password: password to login to the FGT\nfortigate: the ip/hostname of the FGT",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": false,
+              "metadata": [],
+              "reusable": false,
+              "top": "20",
+              "left": "1060",
+              "height": "187",
+              "width": "485",
+              "uuid": "0d700777-bd20-4764-b77b-34e615ecc3e1",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "3d5c1ee3-3406-437d-80d6-5679aad272cf",
+          "isPrivate": false,
+          "recordTags": [
+            "fmg",
+            "fortigate",
+            "fos_password",
+            "fos_session",
+            "Subroutine"
+          ]
+        }
+      ]
+    }
+  ]
+}
