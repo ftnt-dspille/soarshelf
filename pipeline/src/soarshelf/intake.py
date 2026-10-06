@@ -99,8 +99,10 @@ def _safe_members(raw: bytes) -> dict[str, bytes]:
 
 def is_widget_manifest(data: Any) -> bool:
     """A widget's info.json: name, title and a metadata block, and no connector operations."""
-    return (isinstance(data, dict) and isinstance(data.get("name"), str) and isinstance(data.get("title"), str)
-            and isinstance(data.get("metadata"), dict) and "operations" not in data)
+    if not isinstance(data, dict) or "operations" in data or data.get("type") == "connector":
+        return False
+    return data.get("type") == "widget" or (
+        isinstance(data.get("name"), str) and isinstance(data.get("title"), str) and isinstance(data.get("metadata"), dict))
 
 
 def read_upload(path: Path) -> Upload:

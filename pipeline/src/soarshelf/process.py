@@ -151,7 +151,8 @@ def _connector(up: Upload, hub: HubIndex) -> tuple[list[CheckResult], bytes, lis
                                    "Rename it if it is a fork, so it can't be confused with the hub version."))
     ops = [{"operation": o.get("operation"), "title": o.get("title")}
            for o in m.get("operations") or [] if isinstance(o, dict)]
-    keep = {k: m.get(k) for k in ("name", "label", "version", "description", "category", "publisher")}
+    # "type" marks the trimmed manifest as a connector when the build re-reads it.
+    keep = {"type": "connector", **{k: m.get(k) for k in ("name", "label", "version", "description", "category", "publisher")}}
     keep["operations"] = ops
     results.append(CheckResult("connector.review", Severity.INFO, "Connector code is reviewed by a maintainer",
                                "Only the manifest is published here; the code stays in the linked repository."))
@@ -185,7 +186,11 @@ def _widget(up: Upload, hub: HubIndex) -> tuple[list[CheckResult], bytes, dict[s
     }
     results.append(CheckResult("widget.review", Severity.INFO, "Widget code is reviewed by a maintainer",
                                "Only the manifest is published here; the code stays in the linked repository."))
-    return results, json.dumps(info, indent=2, ensure_ascii=False).encode() + b"\n", info
+    # Published in the widget's own shape (plus "type"), so the build reads it back the same way.
+    published = {"type": "widget", "name": info["name"], "title": info["title"], "subTitle": info["subTitle"],
+                 "version": info["version"],
+                 "metadata": {k: info[k] for k in ("description", "publisher", "pages", "compatibility")}}
+    return results, json.dumps(published, indent=2, ensure_ascii=False).encode() + b"\n", info
 
 
 def collections_of(payload: Path) -> list[ParsedCollection]:

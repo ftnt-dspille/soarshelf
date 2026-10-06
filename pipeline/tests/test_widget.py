@@ -39,3 +39,36 @@ def test_widget_named_like_hub_widget_warns(write_json):
 def test_connector_manifest_is_not_a_widget(hub, write_json):
     conn = {"name": "x", "title": "X", "metadata": {}, "operations": [], "configuration": {}}
     assert process({**META, "source": "https://e.example/x"}, write_json(conn, "info.json"), "new", hub).detail["type"] == "connector"
+
+
+CONNECTOR = {"name": "feedreader", "label": "Feed Reader", "version": "1.0.4", "description": "Reads feeds.",
+             "category": "Threat Intelligence", "publisher": "Community", "configuration": {"fields": []},
+             "operations": [{"operation": "list_feeds", "title": "List feeds"}, {"operation": "get_items", "title": "Get items"}]}
+
+
+def _roundtrip(manifest, meta, hub, tmp_path):
+    """Publish, then read the published manifest back the way the site build does."""
+    first = process(meta, _write(tmp_path / "up.json", manifest), "maintainer", hub)
+    published = tmp_path / "published" / "info.json"
+    published.parent.mkdir()
+    published.write_bytes(first.download)
+    return first, process(meta, published, "maintainer", hub)
+
+
+def _write(path, obj):
+    import json
+    path.write_text(json.dumps(obj))
+    return path
+
+
+def test_published_widget_manifest_reads_back_the_same(hub, tmp_path):
+    first, again = _roundtrip(WIDGET, META, hub, tmp_path)
+    assert again.detail["type"] == "widget" and again.detail["widget"] == first.detail["widget"]
+    assert again.decision == first.decision
+
+
+def test_published_connector_manifest_reads_back_the_same(hub, tmp_path):
+    meta = {**META, "source": "https://github.com/someone/connector-feedreader"}
+    first, again = _roundtrip(CONNECTOR, meta, hub, tmp_path)
+    assert again.detail["type"] == "connector" and again.detail["operations"] == first.detail["operations"]
+    assert [o["operation"] for o in again.detail["operations"]] == ["list_feeds", "get_items"]
