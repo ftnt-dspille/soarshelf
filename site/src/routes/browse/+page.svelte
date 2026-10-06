@@ -57,7 +57,10 @@
 
   const typeOpts = $derived(opts('types', (Object.keys(TYPE_LABEL) as ItemType[]).map((t) => ({ value: t, label: TYPE_LABEL[t] }))));
   const ucOpts = $derived(opts('useCases', index.useCases.map((u) => ({ value: u.id, label: u.label }))));
-  const hubOpts = $derived(opts('hub', (Object.keys(HUB_LABEL) as HubStatus[]).map((h) => ({ value: h, label: HUB_LABEL[h] }))));
+  // 'none' (uses no connectors) has no label and is not something to filter on.
+  const hubOpts = $derived(
+    opts('hub', (Object.keys(HUB_LABEL) as HubStatus[]).filter((h) => HUB_LABEL[h]).map((h) => ({ value: h, label: HUB_LABEL[h] })))
+  );
   const triggerOpts = $derived(
     opts('triggers', [...new Set(index.items.flatMap((i) => i.triggers))].sort().map((t) => ({ value: t, label: t })))
   );
@@ -89,7 +92,7 @@
 {#snippet rail()}
   <FacetGroup title="Type" options={typeOpts} selected={f.types} onToggle={(v) => flip('types', v)} />
   <FacetGroup title="Use case" options={ucOpts} selected={f.useCases} onToggle={(v) => flip('useCases', v)} limit={10} />
-  <FacetGroup title="Content Hub" options={hubOpts} selected={f.hub} onToggle={(v) => flip('hub', v)} />
+  <FacetGroup title="Connector availability" options={hubOpts} selected={f.hub} onToggle={(v) => flip('hub', v)} />
   <FacetGroup title="Trigger" options={triggerOpts} selected={f.triggers} onToggle={(v) => flip('triggers', v)} />
   <FacetGroup title="Connector" options={connOpts} selected={f.connectors} onToggle={(v) => flip('connectors', v)} searchable />
   <div class="py-4">
