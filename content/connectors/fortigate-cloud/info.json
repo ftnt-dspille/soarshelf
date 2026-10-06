@@ -1,0 +1,59 @@
+{
+  "type": "connector",
+  "name": "fortigate-cloud",
+  "label": "FortiGate Cloud",
+  "version": "1.0.0",
+  "description": "FortiGate Cloud is a cloud-based management platform for FortiGate devices. This connector facilitates automated operations to retrieve and add devices provisioned to FortiGate Cloud, manage their configuration backup and report schedules, and proxy FortiOS API calls to a managed FortiGate through FortiGate Cloud.",
+  "category": "Network Security",
+  "publisher": "Fortinet CSE",
+  "operations": [
+    {
+      "operation": "get_devices",
+      "title": "Get Devices"
+    },
+    {
+      "operation": "get_device",
+      "title": "Get Device"
+    },
+    {
+      "operation": "add_device",
+      "title": "Add Device"
+    },
+    {
+      "operation": "update_device_management",
+      "title": "Update Device Management"
+    },
+    {
+      "operation": "get_report_schedules",
+      "title": "Get Report Schedules"
+    },
+    {
+      "operation": "get_report_schedule",
+      "title": "Get Report Schedule"
+    },
+    {
+      "operation": "add_report_schedule",
+      "title": "Add or Update Report Schedule"
+    },
+    {
+      "operation": "delete_report_schedule",
+      "title": "Delete Report Schedule"
+    },
+    {
+      "operation": "get_auto_backup_setting",
+      "title": "Get Config Auto Backup Setting"
+    },
+    {
+      "operation": "update_auto_backup_setting",
+      "title": "Update Config Auto Backup Setting"
+    },
+    {
+      "operation": "fos_api_call",
+      "title": "Call FortiOS API"
+    },
+    {
+      "operation": "generic_api_call",
+      "title": "Generic API Call"
+    }
+  ]
+}
