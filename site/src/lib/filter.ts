@@ -1,8 +1,9 @@
 // Pure search + facet logic for /browse. No Svelte, no DOM: unit-tested in filter.test.ts.
 import MiniSearch from 'minisearch';
+import { byLastChange } from './format';
 import type { ConnectorFacet, HubStatus, ItemSummary, ItemType, UseCase } from './types';
 
-export type SortKey = 'relevance' | 'newest' | 'name';
+export type SortKey = 'relevance' | 'newest' | 'updated' | 'name';
 
 export interface FilterState {
   q: string;
@@ -30,7 +31,7 @@ export const EMPTY_FILTERS: FilterState = {
 
 const ITEM_TYPES: ItemType[] = ['playbook', 'solution-pack', 'connector', 'widget'];
 const HUB: HubStatus[] = ['complete', 'version-mismatch', 'needs-custom'];
-const SORTS: SortKey[] = ['relevance', 'newest', 'name'];
+const SORTS: SortKey[] = ['relevance', 'newest', 'updated', 'name'];
 
 // URL param names are short so shared links stay readable.
 const PARAM: Record<FacetKey, string> = {
@@ -152,7 +153,9 @@ export function applyFilters(items: ItemSummary[], f: FilterState, search: Searc
   const out = items.filter((i) => matches(i, f, scores));
   const byName = (a: ItemSummary, b: ItemSummary) => a.title.localeCompare(b.title);
   const byNewest = (a: ItemSummary, b: ItemSummary) => b.published.localeCompare(a.published) || byName(a, b);
+  const byUpdated = (a: ItemSummary, b: ItemSummary) => byLastChange(a, b) || byNewest(a, b);
   if (f.sort === 'name') return out.sort(byName);
+  if (f.sort === 'updated') return out.sort(byUpdated);
   if (f.sort === 'newest' || !scores) return out.sort(byNewest);
   return out.sort((a, b) => scores.get(b.slug)! - scores.get(a.slug)! || byName(a, b));
 }

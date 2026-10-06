@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import type { Featured, ItemDetail, SiteIndex } from './types';
+import type { Activity, Featured, ItemDetail, SiteIndex } from './types';
 
 type Fetch = typeof fetch;
 
@@ -21,6 +21,12 @@ export async function loadItem(fetch: Fetch, slug: string): Promise<ItemDetail> 
 /** Map of connector machine name → display label from the index. */
 export function connectorLabels(index: SiteIndex): Map<string, string> {
   return new Map(index.connectors.map((c) => [c.name, c.label]));
+}
+
+/** Site-wide change log. Optional like featured: an older build just shows nothing. */
+export async function loadActivity(fetch: Fetch): Promise<Activity> {
+  const res = await fetch('/data/activity.json');
+  return res.ok ? res.json() : { generated: '', events: [] };
 }
 
 /** Home-page graphs. Optional: an older build without the file just shows none. */

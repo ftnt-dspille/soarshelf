@@ -456,7 +456,10 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
     playbooks = [pb for c in collections for pb in c.playbooks]
     slug = str(meta.get("slug") or "")
     ext = ".zip" if kind == "solution-pack" else ".json"
-    filename = f"{slug or 'download'}{ext}"
+    # The version is in the file name, so a saved file says which version it is and a
+    # page left open never hands out a newer file under the old name.
+    version = str(meta.get("version") or "1.0.0")
+    filename = f"{slug or 'download'}-{version}{ext}" if _SAFE_PART.fullmatch(version) else f"{slug or 'download'}{ext}"
     if packaged:
         # Manifest values name a file on disk: only plain characters, else fall back to the slug.
         name, ver = str(up.data.get("name") or ""), str(up.data.get("version") or "")
@@ -491,6 +494,7 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
         "updated": str(meta.get("updated") or meta.get("published") or ""),
         "source": meta.get("source"),
         "changelog": _changelog(meta.get("changelog")),
+        "lastChange": _last_change(meta),
         "setup": setup_guide.steps(kind, rows, pack_rows, deps, macros, playbooks, bool(code), meta, packaged),
         "dependencies": {
             "connectors": rows,
@@ -525,6 +529,17 @@ def _changelog(raw: Any) -> list[dict[str, str]]:
             out.append({"version": str(e["version"])[:20], "date": str(e.get("date") or "")[:10],
                         "notes": str(e.get("notes") or "")[:500]})
     return out[:50]
+
+
+def _last_change(meta: dict[str, Any]) -> dict[str, str]:
+    """What happened to the item most recently: added, or updated to a version."""
+    log = _changelog(meta.get("changelog"))
+    published = str(meta.get("published") or "")
+    if len(log) > 1:
+        top = log[0]
+        return {"kind": "updated", "version": top["version"],
+                "date": top["date"] or str(meta.get("updated") or published), "notes": top["notes"]}
+    return {"kind": "added", "version": str(meta.get("version") or "1.0.0"), "date": published, "notes": ""}
 
 
 _SEV_ORDER = {"block": 0, "warn": 1, "info": 2, "pass": 3}

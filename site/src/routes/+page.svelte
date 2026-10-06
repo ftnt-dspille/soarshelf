@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
   import { SITE } from '$lib/config';
   import { connectorLabels } from '$lib/data';
+  import { byLastChange } from '$lib/format';
   import { useCaseIcon } from '$lib/icons';
   import ItemCard from '$lib/components/ItemCard.svelte';
   import FeaturedGraphs from '$lib/components/FeaturedGraphs.svelte';
@@ -15,7 +16,11 @@
   let { data } = $props();
   const index = $derived(data.index);
   const labels = $derived(connectorLabels(index));
-  const recent = $derived([...index.items].sort((a, b) => b.published.localeCompare(a.published)).slice(0, 6));
+  const recent = $derived(
+    [...index.items]
+      .sort((a, b) => byLastChange(a, b) || b.published.localeCompare(a.published))
+      .slice(0, 6)
+  );
   const ucCounts = $derived(
     new Map(index.useCases.map((u) => [u.id, index.items.filter((i) => i.useCases.includes(u.id)).length]))
   );
@@ -132,10 +137,10 @@
 <section class="mx-auto max-w-7xl px-4 pt-20 sm:px-6">
   <div class="flex items-end justify-between gap-4">
     <div>
-      <h2 class="text-2xl font-semibold tracking-tight">Recently published</h2>
-      <p class="mt-1 text-muted">Fresh from contributors, checked and sanitized.</p>
+      <h2 class="text-2xl font-semibold tracking-tight">New and updated</h2>
+      <p class="mt-1 text-muted">The latest from contributors, checked and sanitized.</p>
     </div>
-    <a href="/browse?sort=newest" class="hidden items-center gap-1 text-sm font-medium text-accent-text hover:underline sm:inline-flex">See all <ArrowRight size={14} /></a>
+    <a href="/changes" class="hidden items-center gap-1 text-sm font-medium text-accent-text hover:underline sm:inline-flex">All changes <ArrowRight size={14} /></a>
   </div>
   <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
     {#each recent as item (item.slug)}

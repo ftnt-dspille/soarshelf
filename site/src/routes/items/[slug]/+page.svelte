@@ -2,8 +2,8 @@
   import { browser } from '$app/environment';
   import { SITE } from '$lib/config';
   import { connectorLabels } from '$lib/data';
-  import { CODE_TYPES, TYPE_LABEL, formatBytes, formatDate } from '$lib/format';
-  import type { ChangelogEntry, SetupStep } from '$lib/types';
+  import { CODE_TYPES, TYPE_LABEL, formatBytes, formatDate, lastChange } from '$lib/format';
+  import type { ChangelogEntry, ItemDetail, SetupStep } from '$lib/types';
   import ParamList from '$lib/components/ParamList.svelte';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import TypePill from '$lib/components/TypePill.svelte';
@@ -31,6 +31,50 @@
 
   let { data } = $props();
   const item = $derived(data.item);
+
+  // Downloads always serve the current version, and only it: older files are not kept,
+  // because an update may have replaced a version that had a problem. So before saving,
+  // check the live version, and if it moved on since this page was opened, say so
+  // instead of handing over a file that differs from what the page shows.
+  let newer = $state<ItemDetail | null>(null);
+  let gone = $state(false);
+  let checking = $state(false);
+  $effect(() => {
+    void item.slug;
+    newer = null;
+    gone = false;
+  });
+
+  function save(d: NonNullable<ItemDetail['download']>) {
+    const a = document.createElement('a');
+    a.href = d.path;
+    a.download = d.filename;
+    document.body.append(a);
+    a.click();
+    a.remove();
+  }
+
+  async function download(e: MouseEvent) {
+    if (!item.download || checking) return;
+    e.preventDefault();
+    checking = true;
+    let latest: ItemDetail | null = null;
+    try {
+      const res = await fetch(`/data/items/${item.slug}.json`, { cache: 'no-store' });
+      if (res.status === 404) gone = true;
+      else if (res.ok) latest = await res.json();
+    } catch {
+      // Offline or blocked: fall back to the file this page lists.
+    } finally {
+      checking = false;
+    }
+    if (gone) return;
+    if (latest && latest.version !== item.version) {
+      newer = latest;
+      return;
+    }
+    save(item.download);
+  }
   const labels = $derived(connectorLabels(data.index));
   const useCases = $derived(data.index.useCases.filter((u) => item.useCases.includes(u.id)));
 
@@ -161,7 +205,7 @@
           <span>v{item.version}</span>
           {#if item.minVersion}<span>Platform {item.minVersion}+</span>{/if}
           <span>Published {formatDate(item.published)}</span>
-          {#if item.updated !== item.published}<span>Updated {formatDate(item.updated)}</span>{/if}
+          {#if lastChange(item).kind === 'updated'}<span>Updated {formatDate(lastChange(item).date)}</span>{/if}
         </div>
       </div>
 
@@ -170,6 +214,8 @@
           <a
             href={item.download.path}
             download={item.download.filename}
+            onclick={download}
+            aria-busy={checking}
             class="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent text-sm font-medium text-accent-fg transition hover:bg-accent-hover"
           >
             <Download size={17} aria-hidden="true" />Download .tgz · {formatBytes(item.download.bytes)}
@@ -210,6 +256,8 @@
           <a
             href={item.download.path}
             download={item.download.filename}
+            onclick={download}
+            aria-busy={checking}
             class="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent text-sm font-medium text-accent-fg transition hover:bg-accent-hover"
           >
             <Download size={17} aria-hidden="true" />Download {ext} · {formatBytes(item.download.bytes)}
@@ -223,6 +271,23 @@
             Sanitized by the pipeline and shipped <strong class="font-medium text-fg">inactive</strong>. Follow the
             <button type="button" class="font-medium text-accent-text hover:underline" onclick={() => pick('setup')}>setup steps</button> before turning it on.
           </p>
+        {/if}
+        {#if newer}
+          <div role="status" class="mt-3 rounded-lg bg-info-soft p-3 text-xs leading-relaxed text-fg">
+            <p>
+              <strong class="font-semibold">v{newer.version}</strong> was published after you opened this page{#if newer.lastChange?.notes}:
+                <span class="text-muted">{newer.lastChange.notes}</span>{:else}.{/if}
+            </p>
+            <p class="mt-1 text-muted">Only the latest version is available. v{item.version} is no longer offered.</p>
+            <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+              {#if newer.download}
+                <button type="button" class="font-medium text-accent-text hover:underline" onclick={() => newer?.download && save(newer.download)}>Download v{newer.version}</button>
+              {/if}
+              <button type="button" class="font-medium text-accent-text hover:underline" onclick={() => location.reload()}>Reload this page</button>
+            </div>
+          </div>
+        {:else if gone}
+          <p role="status" class="mt-3 rounded-lg bg-surface-2 p-3 text-xs text-muted">This item was removed after you opened the page, so it can no longer be downloaded.</p>
         {/if}
       </div>
     </div>

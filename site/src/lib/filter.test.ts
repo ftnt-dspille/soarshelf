@@ -25,6 +25,16 @@ describe('search', () => {
     expect([...dates].sort().reverse()).toEqual(dates);
   });
 
+  it('sorts by the latest change, updates first on the same day', () => {
+    const oldest = [...idx.items].sort((a, b) => a.published.localeCompare(b.published))[0];
+    const items = idx.items.map((i) =>
+      i.slug === oldest.slug ? { ...i, lastChange: { kind: 'updated' as const, version: '9.9.9', date: '2999-01-01', notes: '' } } : i
+    );
+    const sorted = applyFilters(items, { ...EMPTY_FILTERS, sort: 'updated' }, createSearch(items, idx.connectors, idx.useCases));
+    expect(sorted[0].slug).toBe(oldest.slug);
+    expect(parseFilters(new URLSearchParams('sort=updated')).sort).toBe('updated');
+  });
+
   it('matches connector labels and ranks title hits first', () => {
     expect(run({ q: 'virustotal' })[0]).toBe('vt-ip-enrichment');
     expect(run({ q: 'abuseipdb' })).toContain('abuseipdb-feed-ingest');

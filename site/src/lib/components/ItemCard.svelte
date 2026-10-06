@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ItemSummary } from '$lib/types';
-  import { formatDate, plural } from '$lib/format';
+  import { formatDate, lastChange, plural } from '$lib/format';
   import TypePill from './TypePill.svelte';
   import HubBadge from './HubBadge.svelte';
   import Code from '@lucide/svelte/icons/code';
@@ -8,6 +8,7 @@
   let { item, labels }: { item: ItemSummary; labels: Map<string, string> } = $props();
   const shown = $derived(item.connectors.slice(0, 3));
   const more = $derived(item.connectors.length - shown.length);
+  const change = $derived(lastChange(item));
 </script>
 
 <a
@@ -21,6 +22,9 @@
       <span class="inline-flex items-center gap-1 rounded-md bg-surface-2 px-2 py-0.5 text-xs font-medium text-muted" title="Contains code steps">
         <Code size={13} aria-hidden="true" />Code
       </span>
+    {/if}
+    {#if change.kind === 'updated'}
+      <span class="rounded-md bg-info-soft px-2 py-0.5 text-xs font-medium text-info" title={change.notes || undefined}>Updated · v{change.version}</span>
     {/if}
   </div>
 
@@ -50,6 +54,6 @@
     <span>
       {#if item.type === 'connector' || item.type === 'widget'}v{item.version}{:else}{plural(item.playbookCount, 'playbook')} · {plural(item.stepCount, 'step')}{/if}
     </span>
-    <span>@{item.author.github} · {formatDate(item.published)}</span>
+    <span>@{item.author.github} · {change.kind === 'updated' ? 'updated ' : ''}{formatDate(change.date)}</span>
   </div>
 </a>

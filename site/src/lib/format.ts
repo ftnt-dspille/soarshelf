@@ -1,4 +1,4 @@
-import type { HubStatus, ItemType, NodeFamily, Severity, Trust } from './types';
+import type { HubStatus, ItemSummary, ItemType, LastChange, NodeFamily, Severity, Trust } from './types';
 
 export const TYPE_LABEL: Record<ItemType, string> = {
   playbook: 'Playbook',
@@ -45,6 +45,17 @@ export function formatDate(iso: string): string {
   const d = new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+}
+
+/** An item's latest change, falling back to its publish date for older builds. */
+export function lastChange(item: ItemSummary): LastChange {
+  return item.lastChange ?? { kind: 'added', version: item.version, date: item.published, notes: '' };
+}
+
+/** Most recent change first; on the same day, updates before additions. */
+export function byLastChange(a: ItemSummary, b: ItemSummary): number {
+  const x = lastChange(a), y = lastChange(b);
+  return y.date.localeCompare(x.date) || Number(y.kind === 'updated') - Number(x.kind === 'updated');
 }
 
 export function plural(n: number, word: string, many = `${word}s`): string {

@@ -22,14 +22,16 @@ from typing import Any
 
 import yaml
 
-from . import config
+from . import SITE_NAME, SITE_URL, config
 from .hubindex import HubIndex
 from .process import Processed, process
 
 TYPE_DIRS = {"playbooks": "playbook", "solution-packs": "solution-pack", "connectors": "connector", "widgets": "widget"}
 SUMMARY_KEYS = ("slug", "type", "title", "displayName", "summary", "useCases", "tags", "connectors", "triggers",
                 "playbookCount", "stepCount", "hubStatus", "hasCode", "author", "version",
-                "minVersion", "published", "updated")
+                "minVersion", "published", "updated", "lastChange")
+ACTIVITY_MAX = 300
+FEED_MAX = 50
 
 
 TIERS = ("new", "contributor", "trusted", "maintainer")
@@ -138,6 +140,55 @@ def featured(details: list[tuple[dict[str, Any], dict[str, Any]]], hub: HubIndex
             "connectorLabels": {c: (hub.connectors.get(c) or {}).get("label") or c for c in sorted(names)}}
 
 
+def activity(details: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Every addition and update across the catalog, newest first.
+
+    An item's changelog is newest first and its last entry is the first release, so
+    that one becomes "added" and the rest become "updated". Items without a changelog
+    have one "added" event on their publish date."""
+    events: list[dict[str, Any]] = []
+    for d in details:
+        base = {"slug": d["slug"], "type": d["type"], "title": d["displayName"] or d["title"]}
+        log = d.get("changelog") or []
+        first = log[-1]["version"] if log else d["version"]
+        events.append({**base, "kind": "added", "date": d["published"], "version": first, "notes": ""})
+        for e in log[:-1]:
+            events.append({**base, "kind": "updated", "date": e["date"] or d["updated"],
+                           "version": e["version"], "notes": e["notes"]})
+    # Same day: updates above additions, then by title, so the order is stable.
+    events.sort(key=lambda e: (e["kind"] != "updated", e["title"].lower()))
+    events.sort(key=lambda e: e["date"], reverse=True)
+    return events[:ACTIVITY_MAX]
+
+
+def atom_feed(events: list[dict[str, Any]], generated: str) -> str:
+    """The activity log as an Atom feed, for feed readers."""
+    from xml.sax.saxutils import escape
+
+    base = SITE_URL.rstrip("/")
+    entries = []
+    for e in events:
+        what = "Added" if e["kind"] == "added" else f"Updated to v{e['version']}"
+        url = f"{base}/items/{e['slug']}"
+        body = e["notes"] or f"{what}."
+        entries.append(
+            "  <entry>\n"
+            f"    <id>{escape(url)}#{e['kind']}-{escape(e['version'])}</id>\n"
+            f"    <title>{escape(e['title'])}: {escape(what)}</title>\n"
+            f"    <link href=\"{escape(url)}\"/>\n"
+            f"    <updated>{escape(e['date'])}T00:00:00Z</updated>\n"
+            f"    <summary>{escape(body)}</summary>\n"
+            "  </entry>")
+    return ('<?xml version="1.0" encoding="utf-8"?>\n'
+            '<feed xmlns="http://www.w3.org/2005/Atom">\n'
+            f"  <title>{escape(SITE_NAME)}: new and updated</title>\n"
+            f"  <id>{escape(base)}/changes</id>\n"
+            f"  <link href=\"{escape(base)}/changes\"/>\n"
+            f"  <link rel=\"self\" href=\"{escape(base)}/feed.xml\"/>\n"
+            f"  <updated>{escape(generated)}</updated>\n"
+            + "\n".join(entries) + "\n</feed>\n")
+
+
 def build(content: Path, out: Path) -> int:
     hub = HubIndex.load()
     trust_map = load_trust(content)
@@ -205,6 +256,10 @@ def build(content: Path, out: Path) -> int:
         "items": summaries,
     }
     (data_dir / "index.json").write_text(json.dumps(index, indent=1, ensure_ascii=False))
+    events = activity([d for d, _ in published])
+    (data_dir / "activity.json").write_text(json.dumps(
+        {"generated": index["generated"], "events": events}, indent=1, ensure_ascii=False))
+    (out / "feed.xml").write_text(atom_feed(events[:FEED_MAX], index["generated"]))
     (data_dir / "featured.json").write_text(json.dumps(featured(published, hub), indent=1, ensure_ascii=False))
     print(f"\n{len(summaries)} published, {failures} failed → {out}")
     return 1 if failures else 0

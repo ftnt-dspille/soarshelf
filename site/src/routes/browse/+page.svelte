@@ -156,6 +156,7 @@
           <select bind:value={f.sort} class="h-9 rounded-lg border border-line bg-surface px-2.5 text-sm text-fg">
             <option value="relevance">Relevance</option>
             <option value="newest">Newest</option>
+            <option value="updated">Recently updated</option>
             <option value="name">Name</option>
           </select>
         </label>

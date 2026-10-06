@@ -48,6 +48,27 @@ export interface ItemSummary {
   minVersion: string | null;
   published: string;
   updated: string;
+  /** Most recent change. Optional: builds before it existed don't carry it. */
+  lastChange?: LastChange;
+}
+
+export interface LastChange {
+  kind: 'added' | 'updated';
+  version: string;
+  date: string;
+  notes: string;
+}
+
+/** One line of the site-wide change log (data/activity.json), newest first. */
+export interface ActivityEvent extends LastChange {
+  slug: string;
+  type: ItemType;
+  title: string;
+}
+
+export interface Activity {
+  generated: string;
+  events: ActivityEvent[];
 }
 
 export interface ItemDetail extends ItemSummary {

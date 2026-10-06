@@ -15,6 +15,8 @@
         <li><a class="text-muted hover:text-fg" href="/browse?type=playbook">Playbooks</a></li>
         <li><a class="text-muted hover:text-fg" href="/browse?type=solution-pack">Solution packs</a></li>
         <li><a class="text-muted hover:text-fg" href="/browse?type=connector">Connectors</a></li>
+        <li><a class="text-muted hover:text-fg" href="/changes">Changes</a></li>
+        <li><a class="text-muted hover:text-fg" href="/feed.xml">Atom feed</a></li>
       </ul>
     </div>
     <div>
