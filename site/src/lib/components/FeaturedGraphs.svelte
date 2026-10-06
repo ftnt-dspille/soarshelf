@@ -52,14 +52,16 @@
     goto(href);
   }
 
-  // Rotation pauses while the pointer or focus is inside, while the tab is
-  // hidden, when the visitor pressed pause, and always under reduced motion.
+  // Rotation pauses while the pointer or keyboard focus is inside, while the tab
+  // is hidden, and when the visitor pressed pause. Reduced motion keeps the
+  // rotation (the Pause button is the control for that) but drops the fade and
+  // the progress animation.
   let hovering = $state(false);
   let focused = $state(false);
   let userPaused = $state(false);
   let hidden = $state(false);
   let reduced = $state(false);
-  const paused = $derived(hovering || focused || userPaused || hidden || reduced);
+  const paused = $derived(hovering || focused || userPaused || hidden);
 
   $effect(() => {
     const mq = matchMedia('(prefers-reduced-motion: reduce)');
@@ -101,7 +103,7 @@
     aria-label="Featured playbooks"
     onmouseenter={() => (hovering = true)}
     onmouseleave={() => (hovering = false)}
-    onfocusin={() => (focused = true)}
+    onfocusin={(e) => (focused = (e.target as Element).matches(':focus-visible'))}
     onfocusout={() => (focused = false)}
   >
     <div class="flex items-end justify-between gap-4">
@@ -109,7 +111,7 @@
         <h2 class="text-2xl font-semibold tracking-tight">Look inside</h2>
         <p class="mt-1 text-muted">Every playbook opens as a graph. Click one to explore it step by step.</p>
       </div>
-      {#if items.length > 1 && !reduced}
+      {#if items.length > 1}
         <button
           type="button"
           onclick={() => (userPaused = !userPaused)}
@@ -136,7 +138,7 @@
           >
             <span class="block truncate text-sm font-semibold {i === active ? 'text-fg' : 'text-muted'}">{f.title}</span>
             <span class="mt-0.5 block truncate text-xs text-faint">{subtitle(i)}</span>
-            {#if i === active && items.length > 1}
+            {#if i === active && items.length > 1 && !reduced}
               {#key active}
                 <span class="absolute inset-x-0 bottom-0 h-0.5 bg-line" aria-hidden="true">
                   <span class="progress block h-full bg-accent" class:paused style="--ms: {ROTATE_MS}ms"></span>
@@ -160,7 +162,7 @@
         ></div>
         <div class="relative grid">
           {#key active}
-            <div class="col-start-1 row-start-1" in:fade={{ duration: 300, delay: 120 }} out:fade={{ duration: 150 }}>
+            <div class="col-start-1 row-start-1" in:fade={{ duration: reduced ? 0 : 300, delay: reduced ? 0 : 120 }} out:fade={{ duration: reduced ? 0 : 150 }}>
               <div class="border-b border-line bg-surface/80 px-5 py-3.5 backdrop-blur">
                 <a {href} class="block truncate text-sm font-semibold hover:text-accent-text">{current.title}</a>
                 <!-- One line, so every slide's header is the same height and the page doesn't jump. -->
