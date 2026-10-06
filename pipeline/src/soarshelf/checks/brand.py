@@ -48,24 +48,41 @@ def content(doc: Any) -> list[CheckResult]:
     return []
 
 
+def _listing(where: list[str], limit: int = 5) -> str:
+    shown = "; ".join(where[:limit])
+    return shown if len(where) <= limit else f"{shown}; and {len(where) - limit} more"
+
+
 def provenance(collections: list[ParsedCollection], uuids: dict[str, str], hub: HubIndex) -> list[CheckResult]:
-    """``uuids`` maps playbook/collection uuid -> display path."""
+    """``uuids`` maps playbook/collection uuid -> display path.
+
+    One finding per check, naming the first few playbooks, so a copied pack
+    doesn't produce one entry for each of its hundreds of playbooks.
+    """
     out: list[CheckResult] = []
-    for uuid, where in uuids.items():
-        if hub.is_official_uuid(uuid):
-            out.append(CheckResult("provenance.official-uuid", Severity.BLOCK,
-                                   "Official Content Hub content",
-                                   "This is a copy of published vendor content. Link to it on the "
-                                   "Content Hub instead of re-uploading it.", where))
+    copied = [where for uuid, where in uuids.items() if hub.is_official_uuid(uuid)]
+    if copied:
+        out.append(CheckResult("provenance.official-uuid", Severity.BLOCK,
+                               "Official Content Hub content",
+                               f"{len(copied)} item(s) are copies of published vendor content. Link to it on "
+                               "the Content Hub instead of re-uploading it.", _listing(copied)))
+    # Playbooks already caught by uuid aren't reported again by structure.
+    seen = set(copied)
+    matched: list[str] = []
+    packs: dict[str, None] = {}
     for c in collections:
         for pb in c.playbooks:
-            if len(pb.steps) < 3:
+            where = f"{c.name} › {pb.name}"
+            if len(pb.steps) < 3 or where in seen:
                 continue
-            key = structure_key([(s.name, s.type_uuid) for s in pb.steps])
-            pack = hub.official_structures.get(key)
+            pack = hub.official_structures.get(structure_key([(s.name, s.type_uuid) for s in pb.steps]))
             if pack:
-                out.append(CheckResult("provenance.official-structure", Severity.BLOCK,
-                                       "Matches an official playbook",
-                                       f"Same steps as a playbook in the '{pack}' solution pack.",
-                                       f"{c.name} › {pb.name}"))
+                matched.append(where)
+                packs[pack] = None
+    if matched:
+        names = ", ".join(f"'{p}'" for p in packs)
+        out.append(CheckResult("provenance.official-structure", Severity.BLOCK,
+                               "Matches an official playbook",
+                               f"{len(matched)} playbook(s) have the same steps as playbooks in {names}.",
+                               _listing(matched)))
     return out

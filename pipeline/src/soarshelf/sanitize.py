@@ -96,11 +96,24 @@ def sanitize_collections(doc: dict[str, Any]) -> tuple[dict[str, Any], list[Chec
     return out, _results(rep)
 
 
-def sanitize_workflow(wf: dict[str, Any]) -> tuple[dict[str, Any], list[CheckResult]]:
-    """Same as :func:`sanitize_collections` for one pack playbook file."""
-    rep = _Report()
+def sanitize_workflow(wf: dict[str, Any], rep: _Report | None = None) -> tuple[dict[str, Any], list[CheckResult]]:
+    """Same as :func:`sanitize_collections` for one pack playbook file.
+
+    Pass a shared ``rep`` (from :func:`new_report`) to tally a whole pack, then
+    read it once with :func:`report_results`; the per-file results are then empty.
+    """
+    own = rep is None
+    rep = rep or _Report()
     out = _scrub_iris(_workflow(copy.deepcopy(wf), rep), rep)
-    return out, _results(rep)
+    return out, _results(rep) if own else []
+
+
+def new_report() -> _Report:
+    return _Report()
+
+
+def report_results(rep: _Report) -> list[CheckResult]:
+    return _results(rep)
 
 
 _MESSAGES = {

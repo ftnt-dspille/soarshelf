@@ -26,7 +26,7 @@ from .hubindex import HubIndex
 from .intake import Upload, load_json, read_upload
 from .model import CheckResult, ParsedCollection, RejectedUpload, Severity, worst
 from .parse import parse_collections, parse_workflow
-from .sanitize import sanitize_collections, sanitize_workflow
+from .sanitize import new_report, report_results, sanitize_collections, sanitize_workflow
 
 
 @dataclass
@@ -86,16 +86,41 @@ def _playbook(up: Upload) -> tuple[list[ParsedCollection], dict[str, str], list[
     return parse_collections(clean), _uuids_of(up.data.get("data") or []), results, body, clean.get("macros")
 
 
+_REPO_DOC_SUFFIXES = (".md", ".txt", ".rst", ".png", ".jpg", ".jpeg", ".gif")
+_REPO_DOC_NAMES = ("license", "licence", "notice", "authors", ".gitignore", ".gitattributes", ".editorconfig")
+_ARCHIVES = (".zip", ".tgz", ".gz", ".tar", ".whl", ".exe", ".msi", ".sh", ".py", ".js")
+
+
+def _is_repo_doc(name: str) -> bool:
+    """README, LICENSE, git files and a docs/ folder: never published, so harmless."""
+    low = name.lower()
+    base = posixpath.basename(low)
+    if base.endswith(_ARCHIVES):
+        return False
+    return ("/docs/" in f"/{low}" or base.endswith(_REPO_DOC_SUFFIXES)
+            or base in _REPO_DOC_NAMES or base.split(".")[0] in _REPO_DOC_NAMES)
+
+
 def _pack(up: Upload) -> tuple[list[ParsedCollection], dict[str, str], list[CheckResult], bytes, Any]:
     members = up.members or {}
     root = next(m for m in members if posixpath.basename(m) == "info.json" and m.count("/") <= 1)[:-len("info.json")]
     results: list[CheckResult] = []
 
     extra = sorted(m for m in members if not m.endswith(config.PACK_MEMBER_SUFFIXES))
+    # A pack zipped from its repository carries docs and git files: drop them, don't reject.
+    docs = [m for m in extra if _is_repo_doc(m)]
+    extra = [m for m in extra if m not in docs]
+    if docs:
+        results.append(CheckResult("pack.ignored-files", Severity.INFO,
+                                   "Documentation files were left out",
+                                   f"Only the exported JSON is published. Ignored: {', '.join(docs[:5])}"
+                                   + (f" and {len(docs) - 5} more" if len(docs) > 5 else "")))
     if extra:
         results.append(CheckResult("pack.installers", Severity.BLOCK,
-                                   "Bundled installers or binary files are not accepted",
-                                   "List connectors and widgets as their own items. Found: " + ", ".join(extra[:5])))
+                                   "Files that aren't part of a solution pack export",
+                                   "Upload the exported JSON only, and list connectors and widgets as their own "
+                                   f"items. Found: {', '.join(extra[:5])}"
+                                   + (f" and {len(extra) - 5} more" if len(extra) > 5 else "")))
 
     with tempfile.NamedTemporaryFile(suffix=".zip") as tmp:
         tmp.write(up.raw)
@@ -111,6 +136,8 @@ def _pack(up: Upload) -> tuple[list[ParsedCollection], dict[str, str], list[Chec
     collections: dict[str, ParsedCollection] = {}
     uuids: dict[str, str] = {}
     rebuilt: dict[str, bytes] = {}
+    # One tally for the whole pack, so 160 playbooks give one note each, not 160.
+    pack_report = new_report()
     for name in sorted(members):
         if not name.endswith(".json"):
             continue
@@ -118,8 +145,7 @@ def _pack(up: Upload) -> tuple[list[ParsedCollection], dict[str, str], list[Chec
         doc = load_json(members[name], rel)
         if rel.startswith("playbooks/") and isinstance(doc, dict) and doc.get("@type") == "Workflow":
             coll_name = rel.split("/")[1]
-            clean, res = sanitize_workflow(doc)
-            results += res
+            clean, _ = sanitize_workflow(doc, pack_report)
             if doc.get("uuid"):
                 uuids[str(doc["uuid"])] = f"{coll_name} › {doc.get('name')}"
             collections.setdefault(coll_name, ParsedCollection(coll_name, "")).playbooks.append(parse_workflow(clean))
@@ -129,6 +155,8 @@ def _pack(up: Upload) -> tuple[list[ParsedCollection], dict[str, str], list[Chec
         results += secrets.scan(doc, rel)
         results += brand.content(doc)
         rebuilt[name] = json.dumps(doc, indent=2, ensure_ascii=False).encode() + b"\n"
+
+    results += report_results(pack_report)
 
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:

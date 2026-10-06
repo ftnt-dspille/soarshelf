@@ -4,7 +4,7 @@
 
 | Threat | Control | Where |
 |---|---|---|
-| Malware / code execution | Only playbook JSON and pack zips accepted. Connector code is never hosted (manifest + source link only). Packs with bundled installers are blocked. Code steps force human review. Downloads are forced inactive. | `intake.py`, `process.py`, `policy.py`, `sanitize.py` |
+| Malware / code execution | Only playbook JSON and pack zips accepted. Connector code is never hosted (manifest + source link only). Packs with bundled installers or other non-JSON files are blocked (README, LICENSE and a docs folder are ignored, never published). Code steps force human review. Downloads are forced inactive. | `intake.py`, `process.py`, `policy.py`, `sanitize.py` |
 | Hostile archives | Path traversal, symlinks, encryption, >100× compression ratio, >2000 entries, >100 MB unpacked all rejected. Archive read in memory, never extracted to disk. | `intake.py` |
 | Serving attacker bytes | Every download is re-serialized from parsed content; the uploaded file is never served. `/downloads/*` is `Content-Disposition: attachment` with a sandbox CSP. | `process.py`, `site/static/_headers` |
 | Leaked credentials / environment data | Owners, people/team IRIs, connector config links, global variable values and sample data stripped. Token formats and literal secrets block; IPs, emails, internal hosts warn → review. | `sanitize.py`, `checks/secrets.py` |

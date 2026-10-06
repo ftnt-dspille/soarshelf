@@ -122,3 +122,51 @@ def test_reasons_are_not_repeated():
     from soarshelf.policy import decide
     many = [CheckResult("provenance.official", Severity.BLOCK, "Official Content Hub content")] * 5
     assert decide(many, trust="new", kind="playbook", has_code=False) == ("reject", ["Official Content Hub content"])
+
+
+def _zip_pack(path, doc, extra=()):
+    import zipfile
+    coll = doc["data"][0]
+    with zipfile.ZipFile(path, "w") as zf:
+        zf.writestr("pk/info.json", json.dumps({"name": "pk", "version": "1.0.0"}))
+        for wf in coll["workflows"]:
+            zf.writestr(f"pk/playbooks/{coll['name']}/{wf['name']}.json", json.dumps({**wf, "@type": "Workflow"}))
+        for name in extra:
+            zf.writestr(f"pk/{name}", "x")
+    return path
+
+
+def test_pack_repo_docs_are_ignored_not_rejected(doc, hub, meta, tmp_path):
+    res = process(meta, _zip_pack(tmp_path / "p.zip", doc, ["README.md", "LICENSE", ".gitignore", "docs/changelog.md"]),
+                  "maintainer", hub)
+    ids = {r.id: r for r in res.checks}
+    assert "pack.installers" not in ids
+    assert ids["pack.ignored-files"].severity is Severity.INFO
+
+
+def test_pack_with_other_files_rejected(doc, hub, meta, tmp_path):
+    res = process(meta, _zip_pack(tmp_path / "p.zip", doc, ["README.md", "setup.exe"]), "maintainer", hub)
+    assert res.decision == "reject"
+    blocked = [r for r in res.checks if r.id == "pack.installers"]
+    assert len(blocked) == 1 and "setup.exe" in blocked[0].detail and "README" not in blocked[0].detail
+
+
+def test_official_copies_reported_once_per_check(doc, hub, meta, write_json):
+    wfs = doc["data"][0]["workflows"]
+    hub.official_uuids = {_h(w["uuid"]) for w in wfs}
+    res = process(meta, write_json(doc), "maintainer", hub)
+    found = [r for r in res.checks if r.id.startswith("provenance.")]
+    assert len(found) == 1
+    assert str(len(wfs)) in found[0].detail
+
+
+def test_pack_notes_are_tallied_once(doc, hub, meta, tmp_path):
+    res = process(meta, _zip_pack(tmp_path / "p.zip", doc), "maintainer", hub)
+    ids = [r.id for r in res.checks if r.id.startswith("sanitize.")]
+    assert len(ids) == len(set(ids))
+
+
+def test_installer_in_docs_folder_still_blocks(doc, hub, meta, tmp_path):
+    res = process(meta, _zip_pack(tmp_path / "p.zip", doc, ["docs/shot.png", "docs/tool.zip"]), "maintainer", hub)
+    blocked = [r for r in res.checks if r.id == "pack.installers"]
+    assert blocked and "tool.zip" in blocked[0].detail and "shot.png" not in blocked[0].detail
