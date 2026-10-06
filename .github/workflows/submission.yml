@@ -78,6 +78,14 @@ jobs:
           echo "GITHUB_UID=$uid" >> "$GITHUB_ENV"
           echo "UPLOAD=/tmp/sub/upload.$ext" >> "$GITHUB_ENV"
 
+      # The widget devkit's AngularJS linter, pinned. It only reads the widget's files;
+      # its findings are notes for the reviewer, never a rejection.
+      - name: Fetch the widget linter
+        run: |
+          curl -fsSL -o /tmp/lint-angular.js \
+            "https://raw.githubusercontent.com/ftnt-dspille/fsr-widget-devkit/32db0b705f3dd7be3d210a2c9f12dbd6303f06a4/fortisoar-widget-harness/scripts/lint-angular.js"
+          echo "SOARSHELF_WIDGET_LINT=/tmp/lint-angular.js" >> "$GITHUB_ENV"
+
       - name: Run the checks
         id: intake
         run: |

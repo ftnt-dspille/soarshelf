@@ -11,6 +11,7 @@ import hashlib
 import io
 import json
 import posixpath
+import re
 import tempfile
 import zipfile
 from dataclasses import dataclass
@@ -79,6 +80,7 @@ def _uuids_of(doc_collections: list[dict[str, Any]]) -> dict[str, str]:
 # Item types whose payload is code that runs on the platform: listed by
 # manifest with a source link, never hosted, always reviewed.
 CODE_KINDS = ("connector", "widget")
+_SAFE_PART = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,79}")
 _REVIEW_NOTE = {
     False: "Only the manifest is published here; the code stays in the linked repository.",
     True: "The download is rebuilt from the reviewed source, so it is exactly what the reviewer read.",
@@ -99,6 +101,8 @@ def _package_checks(up: Upload) -> list[CheckResult]:
             found = [r for r in found if r.severity is Severity.BLOCK or r.id != "secrets.high-entropy"]
         results += found
     results += package.review_hints(files)
+    if up.kind == "widget":
+        results += package.widget_lint(files, up.package_top or "")
     if up.dropped:
         results.append(CheckResult("package.dropped", Severity.INFO, "Build leftovers were left out",
                                    ", ".join(up.dropped[:5]) + (f" and {len(up.dropped) - 5} more" if len(up.dropped) > 5 else "")))
@@ -330,7 +334,10 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
     ext = ".zip" if kind == "solution-pack" else ".json"
     filename = f"{slug or 'download'}{ext}"
     if packaged:
-        filename = f"{up.data.get('name') or slug}_{up.data.get('version') or '1.0.0'}.tgz"
+        # Manifest values name a file on disk: only plain characters, else fall back to the slug.
+        name, ver = str(up.data.get("name") or ""), str(up.data.get("version") or "")
+        ok = all(_SAFE_PART.fullmatch(v) and ".." not in v for v in (name, ver))
+        filename = f"{name}_{ver}.tgz" if ok else f"{slug or 'download'}.tgz"
     hosted = kind not in CODE_KINDS or packaged
     display = None
     if kind == "connector":

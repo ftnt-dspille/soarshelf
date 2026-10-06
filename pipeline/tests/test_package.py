@@ -125,8 +125,37 @@ def test_review_hints_point_at_risky_code():
     assert "package.dynamic-code.js" not in hints     # vendored library ignored
 
 
+def test_non_latin1_strings_flagged_but_not_comments():
+    hints = {r.id: r for r in package.review_hints({
+        "c/a.py": "msg = 'done \u2014 ok'\n# a comment \u2014 fine\n".encode()})}
+    assert hints["package.non-latin1"].detail == "c/a.py:1"
+
+
 def test_tgz_bomb_rejected(tmp_path, monkeypatch):
     from soarshelf import config
     monkeypatch.setattr(config, "MAX_PACKAGE_UNCOMPRESSED", 1000)
     with pytest.raises(RejectedUpload):
         package.read_tgz(_tgz({"c/info.json": b"x" * 5000}))
+
+
+def test_manifest_cannot_steer_the_download_path(tmp_path):
+    bad = dict(CONNECTOR, name="../../escape", version="1.0/../x")
+    files = {"my-conn/info.json": json.dumps(bad).encode(), "my-conn/connector.py": b"x\n"}
+    res = process(dict(META), _write(tmp_path, files), "maintainer", HUB)
+    assert res.filename == "my-conn.tgz" and "/" not in res.detail["download"]["filename"]
+
+
+def test_gzip_bomb_stops_at_the_cap(monkeypatch):
+    import gzip
+    from soarshelf import config
+    monkeypatch.setattr(config, "MAX_PACKAGE_UNCOMPRESSED", 10_000)
+    bomb = gzip.compress(b"\0" * 5_000_000)
+    with pytest.raises(RejectedUpload):
+        package._gunzip_capped(bomb)
+
+
+def test_huge_image_refused_before_decoding(monkeypatch):
+    from soarshelf import config
+    monkeypatch.setattr(config, "MAX_IMAGE_PIXELS", 100)
+    with pytest.raises(RejectedUpload):
+        package.clean_images({"w/images/a.png": _png(50, 50)})

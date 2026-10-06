@@ -13,6 +13,7 @@ import io
 import posixpath
 import re
 import tarfile
+import zlib
 from pathlib import Path
 
 from . import config
@@ -63,15 +64,29 @@ def _check_path(name: str) -> str:
     return norm
 
 
+def _gunzip_capped(raw: bytes) -> bytes:
+    """Decompress in steps and stop at the cap, so a gzip bomb never expands in memory."""
+    cap = config.MAX_PACKAGE_UNCOMPRESSED
+    d = zlib.decompressobj(16 + zlib.MAX_WBITS)
+    out = bytearray()
+    try:
+        chunk = d.decompress(raw, cap + 1 - len(out))
+        out += chunk
+        while d.unconsumed_tail and len(out) <= cap:
+            out += d.decompress(d.unconsumed_tail, cap + 1 - len(out))
+    except zlib.error as exc:
+        raise _reject("gzip", "File is not a readable .tgz", str(exc)) from exc
+    if len(out) > cap:
+        raise _reject("size", "Package expands beyond the size limit", f"more than {cap} bytes uncompressed")
+    return bytes(out)
+
+
 def read_tgz(raw: bytes) -> dict[str, bytes]:
     """Every regular file in a gzipped tar, refusing links, devices and bombs."""
-    try:
-        data = gzip.decompress(raw) if raw[:2] == b"\x1f\x8b" else raw
-    except (OSError, EOFError) as exc:
-        raise _reject("gzip", "File is not a readable .tgz", str(exc)) from exc
+    data = _gunzip_capped(raw) if raw[:2] == b"\x1f\x8b" else raw
     if len(data) > config.MAX_PACKAGE_UNCOMPRESSED:
         raise _reject("size", "Package expands beyond the size limit",
-                      f"{len(data)} bytes uncompressed, limit {config.MAX_PACKAGE_UNCOMPRESSED}")
+                      f"more than {config.MAX_PACKAGE_UNCOMPRESSED} bytes uncompressed")
     try:
         tf = tarfile.open(fileobj=io.BytesIO(data), mode="r:")
         infos = tf.getmembers()
@@ -134,15 +149,17 @@ def clean_images(files: dict[str, bytes]) -> dict[str, bytes]:
     """Re-encode every raster image: strips metadata and anything appended to it."""
     from PIL import Image, UnidentifiedImageError
 
+    Image.MAX_IMAGE_PIXELS = config.MAX_IMAGE_PIXELS
     out = dict(files)
     for name, raw in files.items():
         if not name.lower().endswith(IMAGE_SUFFIXES):
             continue
         try:
             with Image.open(io.BytesIO(raw)) as im:
-                im.load()
-                if im.width * im.height > config.MAX_IMAGE_PIXELS:
+                # Dimensions come from the header: refuse before decoding any pixels.
+                if im.width * im.height > config.MAX_IMAGE_PIXELS or getattr(im, "n_frames", 1) > 100:
                     raise _reject("image", "Image is too large", name)
+                im.load()
                 fmt = "PNG" if name.lower().endswith(".png") else ("GIF" if name.lower().endswith(".gif") else "JPEG")
                 if fmt == "JPEG" and im.mode not in ("RGB", "L"):
                     im = im.convert("RGB")
@@ -219,6 +236,14 @@ def review_hints(files: dict[str, bytes]) -> list[CheckResult]:
                 for m in _URL.finditer(line):
                     if not _BENIGN_HOSTS.search(m.group(1)):
                         hosts[m.group(1).lower()] = None
+        if lower.endswith(".py"):
+            # The platform encodes some connector traffic as latin-1; an en dash or curly
+            # quote in a string (not a comment) fails there at runtime, not at install.
+            for n, line in enumerate(text.splitlines(), 1):
+                code = line.split("#", 1)[0]
+                if any(ord(ch) > 255 for ch in code):
+                    hits.setdefault("non-latin1", ("Non-latin-1 characters in Python strings (can fail at runtime)",
+                                                   []))[1].append(f"{name}:{n}")
         if lower.endswith(".py") and any(len(line) > 1000 for line in text.splitlines()):
             hits.setdefault("long-lines", ("Very long lines in Python (possible obfuscation)", []))[1].append(name)
     out = [CheckResult(f"package.{k}", Severity.WARN, title,
@@ -250,3 +275,53 @@ def screenshots(files: dict[str, bytes], top: str) -> list[tuple[str, bytes, int
         if w >= 320 and h >= 200:
             out.append((name[len(top) + 1:], files[name], w, h))
     return out[:6]
+
+
+# --- widget lint ------------------------------------------------------------------
+# The widget devkit's AngularJS linter (fsr-widget-devkit, fortisoar-widget-harness/
+# scripts/lint-angular.js) knows the platform's widget footguns: bare ng-model,
+# unregistered ng-controller, info.json field typos, unscoped CSS, and more. It
+# runs when SOARSHELF_WIDGET_LINT points at the script (the submission workflow
+# fetches it at a pinned commit). It only reads the files; nothing is executed.
+
+# Rules about the devkit's own harness or house style, not about whether a widget works.
+_LINT_SKIP = {"uibModal-in-view-controller", "copyright-header-missing"}
+_LINT_LINE = re.compile(r"^\[(error|warning)\] (\S+?):(\d+)\s+(\S+)\s*$")
+
+
+def widget_lint(files: dict[str, bytes], top: str) -> list[CheckResult]:
+    import os
+    import shutil
+    import subprocess
+    import tempfile
+
+    script = os.environ.get("SOARSHELF_WIDGET_LINT")
+    node = shutil.which("node")
+    if not script or not node or not Path(script).is_file():
+        return []
+    with tempfile.TemporaryDirectory() as tmp:
+        for name, raw in files.items():
+            dest = Path(tmp) / name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(raw)
+        try:
+            out = subprocess.run([node, script, top], cwd=tmp, capture_output=True, text=True, timeout=60,
+                                 env={"PATH": os.environ.get("PATH", ""), "WIDGETS_SRC": tmp}).stdout
+        except subprocess.TimeoutExpired:
+            return [CheckResult("package.lint", Severity.INFO, "Widget lint timed out")]
+    found: dict[str, tuple[str, list[str], str]] = {}
+    lines = out.splitlines()
+    for i, line in enumerate(lines):
+        m = _LINT_LINE.match(line)
+        if not m:
+            continue
+        sev, where, n, rule = m.groups()
+        if rule in _LINT_SKIP:
+            continue
+        where = where[where.find(f"{top}/"):] if f"{top}/" in where else where
+        msg = lines[i + 1].strip() if i + 1 < len(lines) else ""
+        title, places, _ = found.setdefault(rule, (msg.split(". ")[0][:120] or rule, [], sev))
+        places.append(f"{where}:{n}")
+    return [CheckResult(f"package.lint.{rule}", Severity.WARN, f"Widget lint ({sev}): {title}",
+                        "; ".join(places[:5]) + (f"; and {len(places) - 5} more" if len(places) > 5 else ""))
+            for rule, (title, places, sev) in found.items()]

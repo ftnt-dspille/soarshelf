@@ -169,11 +169,20 @@ def build(content: Path, out: Path) -> int:
         detail = {k: v for k, v in res.detail.items() if not k.startswith("_")}
         (data_dir / "items" / f"{item.name}.json").write_text(json.dumps(detail, indent=1, ensure_ascii=False))
         (dl_dir / item.name).mkdir(parents=True)
+        base = (dl_dir / item.name).resolve()
+
+        def inside(rel: str) -> Path:
+            dest = (base / rel).resolve()
+            if not dest.is_relative_to(base):
+                raise SystemExit(f"{item}: refusing to write outside its download folder: {rel}")
+            return dest
+
         if res.detail.get("download"):
-            (dl_dir / item.name / res.filename).write_bytes(res.download)
+            inside(res.filename).write_bytes(res.download)
         for rel, raw in (res.assets or {}).items():
-            (dl_dir / item.name / rel).parent.mkdir(parents=True, exist_ok=True)
-            (dl_dir / item.name / rel).write_bytes(raw)
+            dest = inside(rel)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(raw)
         summaries.append({k: detail[k] for k in SUMMARY_KEYS})
         published.append((detail, yaml.safe_load((item / "meta.yaml").read_text()) or {}))
         print(f"✓ {item.relative_to(content)}")
