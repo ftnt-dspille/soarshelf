@@ -1,0 +1,15 @@
+title: Report on ZTP runs by run group, device and step
+summary: 'Run-group-first ZTP dashboard: a narrative headline, per-device and per-step results, and charts.'
+description: ''
+use_cases:
+- reporting
+tags:
+- ztp
+- charts
+author: ftnt-dspille
+version: 1.0.55
+min_version: null
+license: MIT
+published: '2026-10-06'
+source: https://github.com/ftnt-dspille/widget-ztp-run-report
+author_id: 99558074

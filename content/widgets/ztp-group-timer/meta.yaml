@@ -1,0 +1,15 @@
+title: Show live elapsed time for a ZTP run group
+summary: A live count-up clock for one ZTPF run group.
+description: ''
+use_cases:
+- reporting
+tags:
+- ztp
+- timer
+author: ftnt-dspille
+version: 1.0.3
+min_version: null
+license: MIT
+published: '2026-10-06'
+source: https://github.com/ftnt-dspille/widget-ztp-group-timer
+author_id: 99558074

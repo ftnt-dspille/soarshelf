@@ -1,0 +1,19 @@
+{
+  "type": "widget",
+  "name": "ztpRunReport",
+  "title": "ZTP Run Report",
+  "subTitle": "Run-group-first ZTPf2 dashboard with a narrative headline. One filter and one summary over two views: run groups with their steps, or devices with every step they took across every run in the window. ",
+  "version": "1.0.55",
+  "metadata": {
+    "description": "Report over the ZTPf2 modules, built around the run group -- the unit an operator actually dispatches -- and pivotable onto the device. Filters, time scale and summary sit above both views and narrow one shared fact cube, so the numbers always describe the list beneath them. A run group's verdict is its own status field; steps in flight are counted from the step's own done flag. Every step expands to its rendered output report, and deep-links to its record. CSV exports for steps, devices, run groups and failures, plus a print-ready PDF.",
+    "publisher": "Dylan Spille",
+    "pages": [
+      "Dashboard",
+      "Reports",
+      "View Panel"
+    ],
+    "compatibility": [
+      "7.6.0"
+    ]
+  }
+}
