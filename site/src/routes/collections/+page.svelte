@@ -12,8 +12,8 @@
   <p class="font-mono text-sm text-accent-text">Collections</p>
   <h1 class="mt-1.5 text-4xl font-semibold tracking-tight">Hand-picked sets</h1>
   <p class="mt-3 max-w-2xl text-muted">
-    Items that belong together, in the order to try them. Look for <span class="font-medium text-accent-text">Tested</span>:
-    those ran end to end on a live FortiSOAR.
+    Items that belong together, in the order to try them. Look for <span class="font-medium text-accent-text">Verified</span>:
+    those ran end to end on FortiSOAR.
   </p>
 
   {#if data.collections.length}

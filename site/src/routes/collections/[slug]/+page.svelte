@@ -35,7 +35,7 @@
   <p class="mt-3 max-w-2xl text-base text-muted sm:text-lg">{c.summary}</p>
   <p class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
     <span>{plural(entries.length, 'item')}</span>
-    {#if tested}<span class="inline-flex items-center gap-1 text-accent-text"><BadgeCheck size={14} aria-hidden="true" />{tested} ran end to end on a live FortiSOAR</span>{/if}
+    {#if tested}<span class="inline-flex items-center gap-1 text-accent-text"><BadgeCheck size={14} aria-hidden="true" />{tested} verified</span>{/if}
   </p>
   {#if c.description}<div class="mt-6 max-w-3xl"><Markdown source={c.description} /></div>{/if}
 

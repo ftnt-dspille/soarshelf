@@ -6,7 +6,6 @@
   import { useCaseIcon } from '$lib/icons';
   import ItemCard from '$lib/components/ItemCard.svelte';
   import CollectionCard from '$lib/components/CollectionCard.svelte';
-  import BadgeCheck from '@lucide/svelte/icons/badge-check';
   import FeaturedGraphs from '$lib/components/FeaturedGraphs.svelte';
   import Search from '@lucide/svelte/icons/search';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
@@ -28,12 +27,6 @@
   );
   const bySlug = $derived(new Map(index.items.map((i) => [i.slug, i])));
   const featuredCollections = $derived(data.collections.filter((c) => c.featured).slice(0, 3));
-  // Known working: ran end to end on a live box. Bigger items first, they show more.
-  const working = $derived(
-    index.items
-      .filter((i) => i.tested?.result === 'ran')
-      .sort((a, b) => b.stepCount - a.stepCount || a.title.localeCompare(b.title))
-  );
   const total = $derived(index.items.length);
   const complete = $derived(index.items.filter((i) => i.hubStatus === 'complete').length);
   const popular = $derived(index.connectors.slice(0, 6));
@@ -143,23 +136,6 @@
     {/each}
   </div>
 </section>
-
-{#if working.length}
-  <section class="mx-auto max-w-7xl px-4 pt-20 sm:px-6">
-    <div class="flex items-end justify-between gap-4">
-      <div>
-        <h2 class="flex items-center gap-2 text-2xl font-semibold tracking-tight"><BadgeCheck size={22} class="text-accent-text" aria-hidden="true" />Known working</h2>
-        <p class="mt-1 text-muted">Ran end to end on a live FortiSOAR, not just scanned. <a href="/guide#tested" class="text-accent-text hover:underline">How we test</a></p>
-      </div>
-      <a href="/browse?tested=ran" class="hidden items-center gap-1 text-sm font-medium text-accent-text hover:underline sm:inline-flex">All tested <ArrowRight size={14} /></a>
-    </div>
-    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {#each working.slice(0, 6) as item (item.slug)}
-        <ItemCard {item} {labels} />
-      {/each}
-    </div>
-  </section>
-{/if}
 
 {#if featuredCollections.length}
   <section class="mx-auto max-w-7xl px-4 pt-20 sm:px-6">

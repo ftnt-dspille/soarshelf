@@ -17,8 +17,8 @@
     <Library size={14} class="text-accent-text" aria-hidden="true" />
     <span>{plural(members.length, 'item')}</span>
     {#if tested}
-      <span class="ml-auto inline-flex items-center gap-1 text-accent-text" title="Items in this collection that ran end to end on a live FortiSOAR">
-        <BadgeCheck size={13} aria-hidden="true" />{tested} tested
+      <span class="ml-auto inline-flex items-center gap-1 text-accent-text" title="Items in this collection that ran end to end on FortiSOAR">
+        <BadgeCheck size={13} aria-hidden="true" />{tested} verified
       </span>
     {/if}
   </div>

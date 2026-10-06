@@ -24,7 +24,7 @@
     <TypePill type={item.type} />
     {#if item.tested?.result === 'ran'}
       <span class="inline-flex shrink-0 items-center gap-1 rounded-md bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-text" title={testedHint(item.tested)}>
-        <BadgeCheck size={13} aria-hidden="true" />Tested
+        <BadgeCheck size={13} aria-hidden="true" />Verified
       </span>
     {/if}
     {#if change.kind === 'updated'}

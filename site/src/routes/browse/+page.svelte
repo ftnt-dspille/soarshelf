@@ -94,7 +94,7 @@
 {#snippet rail()}
   <FacetGroup title="Type" options={typeOpts} selected={f.types} onToggle={(v) => flip('types', v)} />
   <FacetGroup title="Use case" options={ucOpts} selected={f.useCases} onToggle={(v) => flip('useCases', v)} limit={10} />
-  <FacetGroup title="Tested on a live FortiSOAR" options={testedOpts} selected={f.tested} onToggle={(v) => flip('tested', v)} />
+  <FacetGroup title="Verification" options={testedOpts} selected={f.tested} onToggle={(v) => flip('tested', v)} />
   <FacetGroup title="Connector availability" options={hubOpts} selected={f.hub} onToggle={(v) => flip('hub', v)} />
   <FacetGroup title="Trigger" options={triggerOpts} selected={f.triggers} onToggle={(v) => flip('triggers', v)} />
   <FacetGroup title="Connector" options={connOpts} selected={f.connectors} onToggle={(v) => flip('connectors', v)} searchable />

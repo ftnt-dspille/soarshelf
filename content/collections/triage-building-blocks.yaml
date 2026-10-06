@@ -1,5 +1,5 @@
-title: Tested triage building blocks
-summary: Small playbooks you call from your own triage flow. Every one ran end to end on a live FortiSOAR.
+title: Triage building blocks
+summary: Small playbooks you call from your own triage flow. Every one is verified.
 featured: true
 order: 0
 description: |

@@ -50,14 +50,14 @@ export function formatDate(iso: string): string {
 /** An item's latest change, falling back to its publish date for older builds. */
 /** Short labels for live test results (facets, chips). */
 export const TEST_LABEL: Record<TestResult, string> = {
-  ran: 'Ran end to end',
-  imported: 'Imported cleanly'
+  ran: 'Verified',
+  imported: 'Imports cleanly'
 };
 
 /** One sentence for a live test result, e.g. on hover. */
 export function testedHint(t: Tested): string {
   return t.result === 'ran'
-    ? `Ran to completion on a live FortiSOAR ${t.platform}`
+    ? `Verified: ran end to end on FortiSOAR ${t.platform}`
     : `Imported cleanly on a live FortiSOAR ${t.platform}; not run there`;
 }
 

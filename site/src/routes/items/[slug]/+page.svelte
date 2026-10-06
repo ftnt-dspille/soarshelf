@@ -200,7 +200,7 @@
         <div class="flex flex-wrap items-center gap-2">
           <TypePill type={item.type} />
           {#if item.tested?.result === 'ran'}
-            <a href="#tested" class="inline-flex items-center gap-1 rounded-md bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-text hover:underline" title={testedHint(item.tested)}><BadgeCheck size={13} aria-hidden="true" />Tested on {item.tested.platform}</a>
+            <a href="#tested" class="inline-flex items-center gap-1 rounded-md bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-text hover:underline" title={testedHint(item.tested)}><BadgeCheck size={13} aria-hidden="true" />Verified on {item.tested.platform}</a>
           {/if}
           <HubBadge status={item.hubStatus} />
           {#if item.hasCode}
@@ -442,12 +442,12 @@
         {#if item.type === 'playbook' || item.type === 'solution-pack'}
           <div id="tested" class="scroll-mt-20 rounded-xl border p-4 {best?.result === 'ran' ? 'border-accent/40 bg-accent-soft/40' : 'border-line'}">
             <h2 class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-faint">
-              <FlaskConical size={13} aria-hidden="true" />Live test
+              <FlaskConical size={13} aria-hidden="true" />Verification
             </h2>
             {#if best}
               <p class="mt-2 flex items-start gap-1.5 font-medium {best.result === 'ran' ? 'text-accent-text' : 'text-fg'}">
                 {#if best.result === 'ran'}<BadgeCheck size={16} class="mt-px shrink-0" aria-hidden="true" />{/if}
-                {best.result === 'ran' ? 'Ran end to end' : 'Imported cleanly'} on FortiSOAR {best.platform}
+                {best.result === 'ran' ? 'Verified: ran end to end' : 'Imports cleanly'} on FortiSOAR {best.platform}
               </p>
               {#if best.notes}<p class="mt-1.5 text-muted">{best.notes}</p>{/if}
               {#if best.playbooks.length}
@@ -462,11 +462,11 @@
                 <p class="mt-1.5 text-xs text-faint">Not run there: it needs integrations or records we don't test against.</p>
               {/if}
             {:else if older}
-              <p class="mt-2 text-muted">v{older.version} {older.result === 'ran' ? 'ran end to end' : 'imported cleanly'} on FortiSOAR {older.platform}. This version hasn't been tested yet.</p>
+              <p class="mt-2 text-muted">v{older.version} {older.result === 'ran' ? 'ran end to end' : 'imported cleanly'} on FortiSOAR {older.platform}. This version hasn't been verified yet.</p>
             {:else}
-              <p class="mt-2 text-muted">Not tested by the maintainers yet.</p>
+              <p class="mt-2 text-muted">Not verified yet.</p>
             {/if}
-            <a href="/guide#tested" class="mt-2 inline-block text-xs text-accent-text hover:underline">How we test</a>
+            <a href="/guide#tested" class="mt-2 inline-block text-xs text-accent-text hover:underline">How we verify</a>
           </div>
         {/if}
         {#if data.inCollections.length}
