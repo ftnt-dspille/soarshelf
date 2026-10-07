@@ -144,7 +144,10 @@ def scan(doc: Any, where: str = "") -> list[CheckResult]:
 
         for m in _IPV4.finditer(value):
             ip, cidr = m.group(1), m.group(2)
-            addr = ipaddress.ip_address(ip)
+            try:
+                addr = ipaddress.ip_address(ip)
+            except ValueError:           # "01.02.03.04": a version or date, not an address
+                continue
             if any(addr in n for n in _DOC_NETS) or ip in _PUBLIC_RESOLVERS:
                 continue
             if cidr:

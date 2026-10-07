@@ -12,6 +12,8 @@
   import { normaliseTag, validateDraft, type FieldErrors, type SubmitDraft } from '$lib/submitValidation';
   import Markdown from '$lib/components/Markdown.svelte';
   import { readListing, type Prefill } from '$lib/prefill';
+  import { preflight, type PreflightResult } from '$lib/preflight';
+  import PreflightPanel from '$lib/components/PreflightPanel.svelte';
   import { TYPE_LABEL } from '$lib/format';
   import CloudUpload from '@lucide/svelte/icons/cloud-upload';
   import FileBraces from '@lucide/svelte/icons/file-braces';
@@ -113,10 +115,25 @@
   let detected = $state<Prefill | null>(null);
   let filled: Partial<Record<'title' | 'summary' | 'version', string>> = {};
 
+  // Credentials and private details, found in the browser before anything is uploaded.
+  let check = $state<PreflightResult | null>(null);
+  let checking = $state(false);
+  let ignored = $state<string[]>([]);
+  const blockedBySecrets = $derived(!!check?.findings.some((f) => f.severity === 'block'));
+
   async function pickFile(f: File | null | undefined) {
     if (!f) return;
     file = f;
     serverError = null;
+    check = null;
+    ignored = [];
+    checking = true;
+    preflight(f).then((r) => {
+      if (file === f) {
+        check = r;
+        checking = false;
+      }
+    });
     const p = await readListing(f);
     if (file !== f) return; // another file was picked meanwhile
     detected = p;
@@ -164,6 +181,10 @@
     if (first) {
       await tick();
       document.getElementById(`f-${first}`)?.focus();
+      return;
+    }
+    if (blockedBySecrets) {
+      serverError = new ApiError(400, 'Your file contains credentials. Remove them (see the list under the file) and drop it again.');
       return;
     }
     if (!token) {
@@ -310,6 +331,7 @@
           {/if}
         </label>
         {@render fieldError('file')}
+        {#if file}<PreflightPanel result={check} scanning={checking} bind:ignored />{/if}
       </section>
 
       <!-- Listing -->
@@ -463,7 +485,7 @@
         {/if}
 
         <div class="flex flex-wrap items-center gap-4">
-          <button type="submit" disabled={uploading} class="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-accent-fg transition hover:bg-accent-hover disabled:cursor-wait disabled:opacity-70">
+          <button type="submit" disabled={uploading || blockedBySecrets} class="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-accent-fg transition hover:bg-accent-hover {blockedBySecrets && !uploading ? 'disabled:cursor-not-allowed' : 'disabled:cursor-wait'} disabled:opacity-70" title={blockedBySecrets ? 'Remove the credentials listed under your file first' : undefined}>
             {#if uploading}<LoaderCircle size={16} class="animate-spin" aria-hidden="true" />Uploading…{:else}Submit for checks{/if}
           </button>
           {#if uploading}
