@@ -22,13 +22,32 @@ use_cases:
 tags:
 - admin
 author: ftnt-dspille
-version: 1.0.0
+version: 1.0.1
 min_version: 7.4.0
 license: MIT
 published: '2026-10-06'
 author_id: 99558074
 tested:
 - platform: 8.0.0
+  version: 1.0.1
+  sha256: dd5e7f36a3cd87a4c868fe1150a7751ee6cd3e7e0dda41ab18fea22032dd4810
+  result: ran
+  playbooks:
+  - Find which playbooks reference selected
+  - Playbook-Audit
+  notes: 'Asked which playbooks call a playbook that three others reference: all three were listed, and
+    Done ended the run. Playbook-Audit read the same playbook. Clone FortiSOAR Module was not run (it
+    publishes a new module).'
+- platform: 8.0.0
   version: 1.0.0
   result: imported
   sha256: 209b5e31466696d8b8b498f6399de6b4920636cc150847680e2e8c9583d70b5f
+updated: '2026-10-06'
+changelog:
+- version: 1.0.1
+  date: '2026-10-06'
+  notes: 'Fixed: the results prompt''s Done button now ends the run. It was not wired to a step, so the
+    run stayed waiting after you clicked it.'
+- version: 1.0.0
+  date: '2026-10-06'
+  notes: First published.

@@ -62,7 +62,8 @@
                 "response_mapping": {
                   "options": [
                     {
-                      "option": "Done"
+                      "option": "Done",
+                      "step_iri": "/api/3/workflow_steps/03cf1942-ebdf-5fb2-b551-9ca02bc72eac"
                     }
                   ],
                   "duplicateOption": false
@@ -258,6 +259,20 @@
               "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
               "group": null,
               "uuid": "a8476453-513e-4e31-87a0-4c41879788b4"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Done",
+              "description": null,
+              "arguments": {
+                "found_matches": "{{ vars.found_matches }}"
+              },
+              "status": null,
+              "top": "1160",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "03cf1942-ebdf-5fb2-b551-9ca02bc72eac"
             }
           ],
           "routes": [
@@ -269,17 +284,27 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "44debc94-e809-49b5-85bd-8be22ef09140"
+              "uuid": "23eabf3b-91f2-5b0f-985e-139435d478f7"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Find workflows -> Set collection uuids",
+              "name": "Display results -> Done",
+              "targetStep": "/api/3/workflow_steps/03cf1942-ebdf-5fb2-b551-9ca02bc72eac",
+              "sourceStep": "/api/3/workflow_steps/f5680c79-b784-49a7-aa02-92ebe1ac5a3c",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "62c15b19-ad06-59d1-bd59-aecc6b2fa2e6"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Find workflows -> Set collection uuids and workflows",
               "targetStep": "/api/3/workflow_steps/4870349d-33d3-47a1-8ed3-71bbdafb7af7",
               "sourceStep": "/api/3/workflow_steps/c6de73d5-b646-4e07-93f5-04582730a04c",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "62415aa3-ab90-49ca-9e38-2926bbd84eb2"
+              "uuid": "9d0204c2-8a97-5649-a9fe-9f15c6297bbf"
             },
             {
               "@type": "WorkflowRoute",
@@ -289,7 +314,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "7c6710ec-522f-4817-9fca-53d466b254f0"
+              "uuid": "17737571-ff73-58be-9881-ebd32c7de17f"
             },
             {
               "@type": "WorkflowRoute",
@@ -299,17 +324,17 @@
               "label": "Submit",
               "isExecuted": false,
               "group": null,
-              "uuid": "2565a881-2a97-4506-95ca-4cecdc31b404"
+              "uuid": "822c71b4-964e-5068-b966-ef36b29165cb"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Set collection uuids -> Get Collections",
+              "name": "Set collection uuids and workflows -> Get Collections",
               "targetStep": "/api/3/workflow_steps/ce33e5a1-7511-4302-85f5-2601f698c078",
               "sourceStep": "/api/3/workflow_steps/4870349d-33d3-47a1-8ed3-71bbdafb7af7",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "2c645259-3396-47d0-9815-2d458965f251"
+              "uuid": "5b1269cf-aaf2-5b50-8c62-a6f8fc1068f6"
             },
             {
               "@type": "WorkflowRoute",
@@ -319,7 +344,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "e865e452-134d-4033-aa01-6a940816dba3"
+              "uuid": "6a18301a-354c-52dd-befb-11d59c1fec45"
             },
             {
               "@type": "WorkflowRoute",
@@ -329,7 +354,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "58aca785-b975-4667-9e47-3a4d6e25629d"
+              "uuid": "14c95f67-3e4c-5472-8001-7412d02ee99e"
             }
           ],
           "groups": [],
@@ -423,7 +448,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "bc993d20-4312-426a-adab-b52a19817cf2"
+              "uuid": "dbd3ddc9-b3dc-5ce3-8c58-6f0393cb841c"
             },
             {
               "@type": "WorkflowRoute",
@@ -433,7 +458,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "14e67363-752b-4e4b-b7de-f850f71027ca"
+              "uuid": "ddc5bca7-6e65-54cb-bc4d-37060bd81e7a"
             }
           ],
           "groups": [],
@@ -924,17 +949,17 @@
               "label": "Next",
               "isExecuted": false,
               "group": null,
-              "uuid": "d14c26c8-fc85-4cac-8bfe-3d21c9e77e69"
+              "uuid": "b4c81e80-fb58-5791-9f82-c3fbae6cd91a"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Ask user to manuallly publish or allow system -> Copy of Get Old Module View Templates",
+              "name": "Ask user to manuallly publish or allow system -> Publish Module",
               "targetStep": "/api/3/workflow_steps/bf3a8963-a916-445e-b4bb-15a7890ad1bc",
               "sourceStep": "/api/3/workflow_steps/8c220159-7efa-456c-a8a1-bae1162e0c86",
               "label": "Publish",
               "isExecuted": false,
               "group": null,
-              "uuid": "69a0ac7c-b60b-41ce-b9ea-83cf9ae199cc"
+              "uuid": "7709e495-5bd8-53b1-a395-457e594a5e75"
             },
             {
               "@type": "WorkflowRoute",
@@ -944,17 +969,7 @@
               "label": "Manual Review",
               "isExecuted": false,
               "group": null,
-              "uuid": "1a19d98e-da09-40af-bb99-06bf62aa8121"
-            },
-            {
-              "@type": "WorkflowRoute",
-              "name": "Copy of Create new Module -> Update module schema",
-              "targetStep": "/api/3/workflow_steps/2edcc2b0-6888-446d-8cef-7b1bb3f41b2f",
-              "sourceStep": "/api/3/workflow_steps/802342b3-7ea9-4979-94ed-bc20947e4713",
-              "label": null,
-              "isExecuted": false,
-              "group": null,
-              "uuid": "8f279456-a540-4b24-8545-a0f1321a0ecc"
+              "uuid": "110a0c70-552a-5af1-8984-ae34d7bcd05a"
             },
             {
               "@type": "WorkflowRoute",
@@ -964,17 +979,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "de58f852-7a8a-44a3-b9f1-5a6d5dcb1261"
+              "uuid": "e9f62205-72bd-5a95-b959-9c212728687e"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "Create new Module -> Copy of Create new Module",
+              "name": "Create new Module -> Create View Templates",
               "targetStep": "/api/3/workflow_steps/802342b3-7ea9-4979-94ed-bc20947e4713",
               "sourceStep": "/api/3/workflow_steps/1f4c35d8-e2b7-49b0-8f12-dc60dcdad9be",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "b03faad4-b9fc-41e8-b9be-d4408aeab6ed"
+              "uuid": "569d7e18-23c9-5d22-bead-5823ab01f2c0"
             },
             {
               "@type": "WorkflowRoute",
@@ -984,7 +999,17 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "923ed2e4-25b3-479a-be21-86e17f67e0bb"
+              "uuid": "d8de9c51-cfb3-5300-a073-830f11663936"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create View Templates -> Update module schema",
+              "targetStep": "/api/3/workflow_steps/2edcc2b0-6888-446d-8cef-7b1bb3f41b2f",
+              "sourceStep": "/api/3/workflow_steps/802342b3-7ea9-4979-94ed-bc20947e4713",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "31adce27-6bae-5907-b25f-dd42cac36687"
             },
             {
               "@type": "WorkflowRoute",
@@ -994,7 +1019,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "1e941755-877d-4b2d-aa19-838dd8e279cc"
+              "uuid": "74facce5-bf6e-58ee-b879-07ec07cf5741"
             },
             {
               "@type": "WorkflowRoute",
@@ -1004,7 +1029,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "28027c55-fbfa-4de7-85e2-add06e1b1c80"
+              "uuid": "a07b198b-e393-5095-a863-36d7d438ec5e"
             },
             {
               "@type": "WorkflowRoute",
@@ -1014,7 +1039,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "cd09353e-1a89-47f2-98a3-c160b9ecaace"
+              "uuid": "32e2d287-11dc-5c9b-b443-97649a9559f5"
             },
             {
               "@type": "WorkflowRoute",
@@ -1024,7 +1049,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "9bf660e0-25ec-463c-8ac5-ea7903202a44"
+              "uuid": "37d025a6-f57f-5339-b14e-3433c6c29d33"
             },
             {
               "@type": "WorkflowRoute",
@@ -1034,7 +1059,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "898bbaf8-f200-46c5-82b5-34bce29b4c88"
+              "uuid": "23ec5d10-1757-5a23-8cdb-9016f97735b3"
             },
             {
               "@type": "WorkflowRoute",
@@ -1044,7 +1069,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "4beaa711-2b1a-4a8f-80df-3f3e5e419a1e"
+              "uuid": "286e2433-9b5c-590f-ae9e-cb99a878fafc"
             },
             {
               "@type": "WorkflowRoute",
@@ -1054,7 +1079,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "53a82a09-fbf8-4469-86fb-66c39db6c4e5"
+              "uuid": "5d5e4c8d-a394-522d-a423-ca843fee2993"
             },
             {
               "@type": "WorkflowRoute",
@@ -1064,7 +1089,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "c29f2fc7-b7ec-4079-b13b-bd06bf4a1720"
+              "uuid": "a27e92e4-97b0-5caf-90ea-3bdc8a53822f"
             },
             {
               "@type": "WorkflowRoute",
@@ -1074,7 +1099,7 @@
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "be1a2279-7484-4763-8587-99f9597630b7"
+              "uuid": "6fd5388f-3c31-5d46-88d5-26bf50ed5c8b"
             }
           ],
           "groups": [
