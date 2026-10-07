@@ -4,7 +4,7 @@
   import { FAMILY_ICON } from '$lib/icons';
   import { humanizeKey } from '$lib/args';
 
-  type StepData = { step: PlaybookNode; connectorLabel: string | null; connectorIcon?: string | null; dir: 'TB' | 'LR' };
+  type StepData = { step: PlaybookNode; connectorLabel: string | null; connectorIcon?: string | null; childName?: string | null; dir: 'TB' | 'LR' };
   let { data, selected }: NodeProps<Node<StepData>> = $props();
   const step = $derived(data.step);
   const Icon = $derived(FAMILY_ICON[step.family]);
@@ -21,6 +21,7 @@
   <span class="min-w-0 flex-1">
     <span class="kind">{step.label}{#if showConnector}{' · '}{data.connectorLabel}{/if}</span>
     <span class="name" title={step.name}>{step.name}</span>
+    {#if data.childName}<span class="op" title="Runs the child playbook {data.childName}">↳ {data.childName}</span>{/if}
     {#if step.operation}<span class="op" title={step.operation}>{step.operationTitle ?? humanizeKey(step.operation)}</span>{/if}
   </span>
   <Handle type="source" position={across ? Position.Right : Position.Bottom} isConnectable={false} />

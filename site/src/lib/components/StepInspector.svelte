@@ -13,17 +13,22 @@
     step,
     connectorLabel,
     onclose,
-    onjump
+    onjump,
+    child = null,
+    onopen
   }: {
     step: PlaybookNode;
     connectorLabel: string | null;
     onclose: () => void;
     /** Select the step a decision branch leads to, by name. */
     onjump: (name: string) => void;
+    /** The playbook this step runs, when it is one of the item's own. */
+    child?: { key: string; name: string } | null;
+    onopen?: (key: string) => void;
   } = $props();
 
   const Icon = $derived(FAMILY_ICON[step.family]);
-  const a = $derived(shapeArgs(step.args));
+  const a = $derived(shapeArgs(step.args, step.family));
   const restKeys = $derived(Object.keys(a.rest).length);
   // "Connector · Connector" reads badly; only add the family when it says something new.
   const kind = $derived(
@@ -51,6 +56,15 @@
 </div>
 
 <div class="max-h-[540px] overflow-y-auto">
+  {#if child && onopen}
+    <section class="border-b border-line p-4">
+      <p class="text-xs text-muted">This step runs another playbook in this item.</p>
+      <button type="button" onclick={() => onopen(child.key)} class="mt-2 inline-flex w-full items-center justify-between gap-2 rounded-lg border border-line bg-surface-2/60 px-3 py-2 text-left text-sm font-medium hover:border-line-strong hover:bg-surface-2">
+        <span class="min-w-0 [overflow-wrap:anywhere]">Open child playbook: {child.name}</span>
+        <ArrowRight size={14} class="shrink-0" aria-hidden="true" />
+      </button>
+    </section>
+  {/if}
   {#if step.connector}
     <section class="border-b border-line p-4">
       <div class="rounded-lg border border-line bg-surface-2/60 p-3">

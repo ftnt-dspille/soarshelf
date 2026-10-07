@@ -12,28 +12,45 @@
   import StepInspector from './StepInspector.svelte';
 import MinimapNav from './MinimapNav.svelte';
   import Zap from '@lucide/svelte/icons/zap';
+  import Workflow from '@lucide/svelte/icons/workflow';
+  import CornerDownRight from '@lucide/svelte/icons/corner-down-right';
+  import { playbookRelations, roleOf } from '$lib/playbookRelations';
 
   let {
     collections,
     labels,
     icons = {},
-    initialKey = '0:0',
+    initialKey = null,
     initialStep = null
-  }: { collections: Collection[]; labels: Map<string, string>; icons?: Record<string, string>; initialKey?: string; initialStep?: string | null } = $props();
+  }: { collections: Collection[]; labels: Map<string, string>; icons?: Record<string, string>; initialKey?: string | null; initialStep?: string | null } = $props();
 
   // Flatten to one list so a single <select> can pick any playbook in any collection.
   const options = $derived(
     collections.flatMap((c, ci) => c.playbooks.map((p, pi) => ({ key: `${ci}:${pi}`, collection: c, playbook: p })))
   );
-  let selectedKey = $state(untrack(() => initialKey));
+  // Parents before the playbooks they call, so the page opens on where the work starts.
+  const rel = $derived(playbookRelations(collections));
+  const defaultKey = $derived.by(() => {
+    const ci = collections.findIndex((c) => c.playbooks.length);
+    return ci < 0 ? '0:0' : `${ci}:${rel.order[ci][0]}`;
+  });
+  let selectedKey = $state<string>(untrack(() => initialKey ?? defaultKey));
+  const ROLE_LABEL = { parent: 'Parent playbook', child: 'Child playbook', both: 'Parent and child' } as const;
+  const SUFFIX = { parent: ' (parent)', child: ' (child)', both: ' (parent and child)' } as const;
+  function openPlaybook(key: string) {
+    if (options.some((o) => o.key === key)) selectedKey = key;
+  }
   // Follow deep links that arrive after mount (hash changes while the viewer is open).
   $effect(() => {
     const k = initialKey;
     untrack(() => {
-      if (options.some((o) => o.key === k)) selectedKey = k;
+      if (k && options.some((o) => o.key === k)) selectedKey = k;
     });
   });
   const current = $derived(options.find((o) => o.key === selectedKey) ?? options[0]);
+  const role = $derived(current ? roleOf(rel, current.key) : null);
+  const calls = $derived(current ? (rel.calls.get(current.key) ?? []) : []);
+  const calledBy = $derived(current ? (rel.calledBy.get(current.key) ?? []) : []);
   const playbook = $derived(current?.playbook);
 
 
@@ -59,6 +76,7 @@ import MinimapNav from './MinimapNav.svelte';
       position: l.positions.get(n.id) ?? { x: 0, y: 0 },
       data: {
         step: n,
+        childName: n.reference ? (rel.byUuid.get(n.reference.toLowerCase())?.name ?? null) : null,
         connectorLabel: n.connector ? (labels.get(n.connector) ?? n.connector) : null,
         connectorIcon: n.connector ? (icons[n.connector] ?? null) : null,
         dir: l.dir
@@ -169,8 +187,9 @@ import MinimapNav from './MinimapNav.svelte';
           >
             {#each collections as c, ci (ci)}
               <optgroup label={c.name}>
-                {#each c.playbooks as p, pi (pi)}
-                  <option value="{ci}:{pi}">{p.name}</option>
+                {#each rel.order[ci] as pi (pi)}
+                  {@const r = roleOf(rel, `${ci}:${pi}`)}
+                  <option value="{ci}:{pi}">{c.playbooks[pi].name}{r ? SUFFIX[r] : ''}</option>
                 {/each}
               </optgroup>
             {/each}
@@ -186,6 +205,28 @@ import MinimapNav from './MinimapNav.svelte';
     </div>
     {#if playbook.description}
       <p class="border-b border-line px-4 py-2.5 text-sm text-muted">{playbook.description}</p>
+    {/if}
+    {#if role}
+      <!-- How this playbook relates to the others in the item, with a way to jump to them. -->
+      <div class="flex flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-line bg-surface-2/40 px-4 py-2 text-xs">
+        <span class="inline-flex items-center gap-1 rounded-md bg-accent-soft px-2 py-0.5 font-medium text-accent-text">
+          <Workflow size={12} aria-hidden="true" />{ROLE_LABEL[role]}
+        </span>
+        {#if calls.length}
+          <span class="text-muted">Calls</span>
+          {#each calls as r (r.key)}
+            <button type="button" onclick={() => openPlaybook(r.key)} class="inline-flex items-center gap-1 rounded-full border border-line px-2.5 py-0.5 text-fg hover:border-line-strong hover:bg-surface-2">
+              <CornerDownRight size={11} aria-hidden="true" />{r.name}
+            </button>
+          {/each}
+        {/if}
+        {#if calledBy.length}
+          <span class="text-muted">Called by</span>
+          {#each calledBy as r (r.key)}
+            <button type="button" onclick={() => openPlaybook(r.key)} class="rounded-full border border-line px-2.5 py-0.5 text-fg hover:border-line-strong hover:bg-surface-2">{r.name}</button>
+          {/each}
+        {/if}
+      </div>
     {/if}
 
     <div class="flex flex-col lg:flex-row">
@@ -230,6 +271,8 @@ import MinimapNav from './MinimapNav.svelte';
             connectorLabel={selected.connector ? (labels.get(selected.connector) ?? selected.connector) : null}
             onclose={() => selectNode(null)}
             onjump={jumpTo}
+            child={selected.reference ? (rel.byUuid.get(selected.reference.toLowerCase()) ?? null) : null}
+            onopen={openPlaybook}
           />
         {:else}
           <div class="p-5 text-sm text-muted">

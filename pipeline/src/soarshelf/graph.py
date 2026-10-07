@@ -46,6 +46,9 @@ def collections_graph(collections: list[ParsedCollection]) -> list[dict[str, Any
                     node["connector"] = s.arguments["connector"]
                     if family not in ("code",):
                         node["family"] = "connector"
+                ref = s.arguments.get("workflowReference")
+                if isinstance(ref, str) and ref:
+                    node["reference"] = ref.rstrip("/").rsplit("/", 1)[-1].lower()     # the child playbook's uuid
                 if isinstance(s.arguments.get("operation"), str) and node.get("connector"):
                     node["operation"] = s.arguments["operation"]
                     if isinstance(s.arguments.get("operationTitle"), str) and s.arguments["operationTitle"].strip():
@@ -58,7 +61,7 @@ def collections_graph(collections: list[ParsedCollection]) -> list[dict[str, Any
                 if src in ids and dst in ids:
                     edges.append({"id": str(r.get("uuid") or f"{src}-{dst}"), "source": src,
                                   "target": dst, "label": r.get("label") or None})
-            pbs.append({"name": pb.name, "description": pb.description, "trigger": trigger_label(pb),
+            pbs.append({"name": pb.name, "uuid": pb.uuid, "description": pb.description, "trigger": trigger_label(pb),
                         "nodes": nodes, "edges": edges})
         out.append({"name": c.name, "description": c.description, "playbooks": pbs})
     return out

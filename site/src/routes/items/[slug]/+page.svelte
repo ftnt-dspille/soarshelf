@@ -105,7 +105,7 @@
 
   let tab = $state<Tab>('overview');
   // Which playbook the viewer opens on; set by links like #playbooks/0:2 (collection:playbook).
-  let pbKey = $state('0:0');
+  let pbKey = $state<string | null>(null);
   // And which step it selects: #playbooks/0:2/<step id>.
   let stepId = $state<string | null>(null);
   let done = $state<Record<number, boolean>>({});

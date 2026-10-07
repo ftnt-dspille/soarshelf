@@ -28,7 +28,40 @@ export interface ShapedArgs {
 
 const str = (v: unknown) => (typeof v === 'string' && v ? v : null);
 
-export function shapeArgs(args: Record<string, unknown>): ShapedArgs {
+const isEmpty = (v: unknown) =>
+  v === null || v === undefined || v === '' || (Array.isArray(v) && !v.length) || (typeof v === 'object' && !Array.isArray(v) && !Object.keys(v as object).length);
+
+/** Drop empty values at every level: "none" and "empty" rows tell a reader nothing. */
+function pruneEmpty(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(pruneEmpty).filter((x) => !isEmpty(x));
+  if (v && typeof v === 'object') {
+    const out = Object.fromEntries(Object.entries(v as Record<string, unknown>).map(([k, x]) => [k, pruneEmpty(x)]).filter(([, x]) => !isEmpty(x)));
+    return out;
+  }
+  return v;
+}
+
+/** What every trigger step carries by default; showing it buries the settings that were chosen. */
+function tidyTrigger(rest: Record<string, unknown>): Record<string, unknown> {
+  const out = { ...rest };
+  delete out.route;                                        // an internal id
+  delete out.__triggerLimit;
+  if (out.executeButtonText === 'Execute') delete out.executeButtonText;
+  if (out.triggerOnReplicate === false) delete out.triggerOnReplicate;
+  if (out.noRecordExecution === false) delete out.noRecordExecution;
+  const toaster = out.showToasterMessage as { visible?: unknown; messageVisible?: unknown } | undefined;
+  if (toaster && toaster.visible === false) delete out.showToasterMessage;
+  // Display conditions with no filter on any module are the default (all records).
+  const dc = out.displayConditions;
+  if (dc && typeof dc === 'object') {
+    const kept = Object.fromEntries(Object.entries(dc as Record<string, { filters?: unknown[] }>).filter(([, m]) => Array.isArray(m?.filters) && m.filters.length));
+    if (Object.keys(kept).length) out.displayConditions = kept;
+    else delete out.displayConditions;
+  }
+  return out;
+}
+
+export function shapeArgs(args: Record<string, unknown>, family?: string): ShapedArgs {
   const conditions = Array.isArray(args.conditions) ? args.conditions : [];
   const branches = conditions
     .filter((c): c is Record<string, unknown> => !!c && typeof c === 'object')
@@ -46,7 +79,9 @@ export function shapeArgs(args: Record<string, unknown>): ShapedArgs {
     version: str(args.version),
     params: params && Object.keys(params).length ? params : null,
     branches,
-    rest: Object.fromEntries(Object.entries(args).filter(([k]) => !HIDDEN.has(k))),
+    rest: pruneEmpty(
+      family === 'trigger' ? tidyTrigger(Object.fromEntries(Object.entries(args).filter(([k]) => !HIDDEN.has(k)))) : Object.fromEntries(Object.entries(args).filter(([k]) => !HIDDEN.has(k)))
+    ) as Record<string, unknown>,
     truncated: str(args._truncated)
   };
 }

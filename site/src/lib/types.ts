@@ -201,6 +201,8 @@ export interface Collection {
 
 export interface Playbook {
   name: string;
+  /** Lets a "reference a playbook" step in another playbook point at this one. */
+  uuid?: string;
   description: string;
   trigger: string;
   nodes: PlaybookNode[];
@@ -231,6 +233,8 @@ export interface PlaybookNode {
   operation?: string;
   /** The operation's display name from the export, when it has one. */
   operationTitle?: string;
+  /** uuid of the playbook this step runs ("reference a playbook" steps). */
+  reference?: string;
   args: Record<string, unknown>;
 }
 
