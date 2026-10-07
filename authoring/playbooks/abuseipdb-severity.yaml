@@ -1,0 +1,87 @@
+collection: IP Reputation Enrichment with AbuseIPDB
+uuid: b097187a-8524-5ff9-a176-76dc41bf3808
+description: Check an alert's source IP on AbuseIPDB and raise its severity when the IP is reported for abuse.
+visible: true
+
+playbooks:
+  - name: IP Reputation Check with AbuseIPDB
+    uuid: 1c146eb0-4468-5d35-99c9-323f554f1179
+    description: >-
+      Run it on an alert. Looks up the alert's source IP on AbuseIPDB and sets severity to Critical
+      when the abuse confidence score is at or above the threshold (50, set in the first step).
+      Below the threshold the alert is left as it is. Private and invalid addresses are skipped.
+    steps:
+      - name: Start
+        type: start
+        module: alerts
+        button_label: Check source IP on AbuseIPDB
+        next: Settings
+
+      - name: Settings
+        type: set_variable
+        vars:
+          threshold: 50           # abuse confidence score (0-100) that makes the alert Critical
+          source_ip: "{{ vars.input.records[0].sourceIp | default('', true) | string | trim }}"
+        next: Is it a public IP
+
+      - name: Is it a public IP
+        type: decision
+        conditions:
+          - display: Public IP
+            when: "{{ (vars.source_ip | ipaddr('public')) is string and '/' not in vars.source_ip }}"
+            next: Check IP on AbuseIPDB
+        default: Not a public IP
+
+      - name: Not a public IP
+        type: set_variable
+        vars:
+          changed: false
+          reason: "source IP '{{ vars.source_ip }}' is empty, private or not an IP address"
+
+      - name: Check IP on AbuseIPDB
+        type: connector
+        connector: abuseipdb
+        operation: ip_lookup
+        config: ""
+        params:
+          ip: "{{ vars.source_ip }}"
+          days: 90
+        next: Read the score
+
+      - name: Read the score
+        type: set_variable
+        vars:
+          score: >-
+            {{ ((vars.steps.Check_IP_on_AbuseIPDB.data | default(vars.steps.Check_IP_on_AbuseIPDB, true))
+                .abuseConfidenceScore) | default(0, true) | int }}
+        next: Over the threshold
+
+      - name: Over the threshold
+        type: decision
+        conditions:
+          - display: Abusive
+            when: "{{ vars.score | int >= vars.threshold | int }}"
+            next: Set severity to Critical
+        default: Below the threshold
+
+      - name: Below the threshold
+        type: set_variable
+        vars:
+          changed: false
+          score: "{{ vars.score }}"
+          reason: "abuse confidence {{ vars.score }} is below {{ vars.threshold }}"
+
+      - name: Set severity to Critical
+        type: update_record
+        module: alerts
+        record: "{{ vars.input.records[0]['@id'] }}"
+        fields:
+          severity: Critical
+        next: Raised
+
+      - name: Raised
+        type: set_variable
+        vars:
+          changed: true
+          score: "{{ vars.score }}"
+          reason: "abuse confidence {{ vars.score }} is at or above {{ vars.threshold }}"

@@ -1,7 +1,8 @@
 title: Find and tag an existing indicator
-summary: Looks up an indicator by value and adds a tag to it.
-description: 'Shows the find-then-update pattern: query the Indicators module by value and update the
-  match. Handy as a building block inside larger enrichment flows.'
+summary: Finds an indicator by value and adds a tag to it, keeping the tags it already has.
+description: 'Shows the find-then-update pattern: query the Indicators module by value, then append a
+  tag with a link so existing tags stay. Call it with `indicator_value` and `tag`; it returns `tagged`
+  and the indicator''s `@id`, and returns `tagged: false` with a reason when nothing matches.'
 use_cases:
 - utility
 - enrichment
@@ -11,7 +12,26 @@ tags:
 - tagging
 author: ftnt-dspille
 author_id: 99558074
-version: 1.0.0
+version: 1.1.0
 min_version: 7.4.0
 license: MIT
 published: '2026-08-30'
+updated: '2026-10-06'
+changelog:
+- version: 1.1.0
+  date: '2026-10-06'
+  notes: 'Fixed: the update step now names the indicator it tags, and the tag is appended to recordTags
+    (indicators have no tags field), keeping existing tags. Returns tagged and the indicator''s @id, and
+    reports a missing value or no match instead of failing.'
+- version: 1.0.0
+  date: '2026-08-30'
+  notes: First published.
+tested:
+- platform: 8.0.0
+  version: 1.1.0
+  sha256: c21392b9814bfa7ff597335f2d94d3b5da0b913d03bf3a17521e0c3c8e7490fc
+  result: ran
+  playbooks:
+  - Tag Existing Indicator
+  notes: 'Called on an indicator that already had a tag: the new tag was added and the old one kept. A
+    value with no indicator returns tagged false.'

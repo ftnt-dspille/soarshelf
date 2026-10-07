@@ -248,26 +248,19 @@ def run(item: Path, *, instance: str | None, playbooks: list[str], calls: list[s
             if len(rows) != want_pbs or got_steps != want_steps:
                 raise VerifyError("the import is missing playbooks or steps")
         ran = []
+        on = {"record_uuid": record_uuid, "module": module} if module else {}
         for name in playbooks:
             r = client.playbooks.run_and_wait(playbook_uuid=uuids[name], inputs=inputs.get(name),
-                                              answers=answers or None, timeout=timeout)
+                                              answers=answers or None, timeout=timeout, **on)
             print(f"  ran {name}: {r.status}")
             if not r.succeeded:
                 raise VerifyError(f"{name} ended {r.status}: {_why(client, r)}")
+            if expect:
+                _finish(client, r, name, "ran", expect)
             ran.append(name)
         for name, h in harnesses.items():
-            r = client.playbooks.run_and_wait(playbook_uuid=h["uuid"], answers=answers or None, timeout=timeout,
-                                              **({"record_uuid": record_uuid, "module": module} if module else {}))
-            # A caller and everything it calls share one task id, and pyfsr may hand back
-            # any of those runs, so read each run from the log by playbook name.
-            runs = client.playbooks.log_list(task_id=r.task_id, limit=100).get("hydra:member") or []
-            unfinished = [f"{x.get('name')}: {x.get('status')}" for x in runs if x.get("status") != "finished"]
-            print(f"  called {name}: {len(runs) - len(unfinished)}/{len(runs)} runs finished")
-            if unfinished or not runs:
-                raise VerifyError(f"{name} via a caller: {'; '.join(unfinished) or 'no runs logged'}; {_why(client, r)}")
-            last_step, result = _final_result(client, runs, name)
-            print(f"    {last_step} → {json.dumps(result, default=str)[:300]}")
-            _check_expect(name, result, expect or {})
+            r = client.playbooks.run_and_wait(playbook_uuid=h["uuid"], answers=answers or None, timeout=timeout, **on)
+            _finish(client, r, name, "called", expect or {})
             ran.append(name)
     finally:
         if keep:
@@ -280,6 +273,21 @@ def run(item: Path, *, instance: str | None, playbooks: list[str], calls: list[s
             print(f"  removed {len(created)} scratch collection(s)")
     return {"platform": platform, "version": res.detail["version"], "sha256": res.detail["download"]["sha256"],
             "result": "ran" if ran else "imported", "playbooks": ran}
+
+
+def _finish(client: Any, r: Any, name: str, verb: str, expect: dict[str, str]) -> None:
+    """Every run under the task finished, and `name`'s last step has the expected values.
+
+    A caller and everything it calls share one task id, and pyfsr may hand back
+    any of those runs, so each run is read from the log by playbook name."""
+    runs = client.playbooks.log_list(task_id=r.task_id, limit=100).get("hydra:member") or []
+    unfinished = [f"{x.get('name')}: {x.get('status')}" for x in runs if x.get("status") != "finished"]
+    print(f"  {verb} {name}: {len(runs) - len(unfinished)}/{len(runs)} runs finished")
+    if unfinished or not runs:
+        raise VerifyError(f"{name}: {'; '.join(unfinished) or 'no runs logged'}; {_why(client, r)}")
+    last_step, result = _final_result(client, runs, name)
+    print(f"    {last_step} → {json.dumps(result, default=str)[:300]}")
+    _check_expect(name, result, expect)
 
 
 def _connect(registry: Any, instance: str | None, tries: int = 5) -> Any:

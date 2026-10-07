@@ -5,8 +5,8 @@
   "data": [
     {
       "@type": "WorkflowCollection",
-      "name": "Compiler Examples",
-      "description": "find + update pattern.",
+      "name": "Indicator Tagging",
+      "description": "Find an indicator by value and add a tag to it.",
       "visible": true,
       "image": null,
       "uuid": "3b28bf29-8f8a-59cb-a97c-54a1737e8284",
@@ -18,7 +18,7 @@
           "aliasName": null,
           "tag": "",
           "recordTags": [],
-          "description": "Look up an indicator by value and tag it.",
+          "description": "Looks up the indicator whose value is indicator_value and adds tag to it, keeping the tags it already has. Returns tagged (true or false) and the indicator's @id. Call it from an enrichment playbook.",
           "isActive": false,
           "debug": false,
           "singleRecordExecution": false,
@@ -28,11 +28,11 @@
             "tag"
           ],
           "synchronous": false,
-          "triggerStep": "/api/3/workflow_steps/c6c4dee6-003a-5c06-8787-5fc127654083",
+          "triggerStep": "/api/3/workflow_steps/1632cb69-1475-52eb-8e01-fb0108c6da48",
           "steps": [
             {
               "@type": "WorkflowStep",
-              "name": "start",
+              "name": "Start",
               "description": null,
               "arguments": {
                 "step_variables": {
@@ -46,76 +46,261 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
               "group": null,
-              "uuid": "c6c4dee6-003a-5c06-8787-5fc127654083"
+              "uuid": "1632cb69-1475-52eb-8e01-fb0108c6da48"
             },
             {
               "@type": "WorkflowStep",
-              "name": "find",
+              "name": "Inputs",
               "description": null,
               "arguments": {
-                "module": "indicators",
-                "partial": true,
+                "indicator_value": "{{ vars.input.params.indicator_value | default('', true) | string | trim }}",
+                "tag": "{{ vars.input.params.tag | default('', true) | string | trim }}"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "644457ab-43f3-5b86-86c3-4b42fdfc3709"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Have a value and a tag",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Both given",
+                    "condition": "{{ vars.indicator_value | length > 0 and vars.tag | length > 0 }}",
+                    "step_iri": "/api/3/workflow_steps/6ef3d668-b5ea-5625-afac-ac754dc08926",
+                    "step_name": "Find the indicator"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/d241130c-9dd2-5d11-9403-0d455a10fcc9",
+                    "step_name": "Missing input"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "db950227-f6ca-5a3b-a2b2-127f70b89578"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Missing input",
+              "description": null,
+              "arguments": {
+                "tagged": false,
+                "indicator": "",
+                "reason": "indicator_value and tag are both required"
+              },
+              "status": null,
+              "top": "510",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "d241130c-9dd2-5d11-9403-0d455a10fcc9"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Find the indicator",
+              "description": null,
+              "arguments": {
+                "module": "indicators?$limit=1",
                 "query": {
                   "sort": [],
-                  "limit": 30,
+                  "limit": 1,
                   "logic": "AND",
                   "filters": [
                     {
                       "type": "primitive",
                       "field": "value",
-                      "value": "{{ vars.input.params.indicator_value }}",
+                      "value": "{{ vars.indicator_value }}",
                       "operator": "eq",
                       "_operator": "eq"
                     }
+                  ],
+                  "__selectFields": [
+                    "value",
+                    "recordTags"
                   ]
                 },
-                "checkboxFields": false
+                "checkboxFields": true
               },
               "status": null,
-              "top": "250",
+              "top": "510",
               "left": "200",
               "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
               "group": null,
-              "uuid": "79d0f4a3-2dcf-5c86-8047-eca3f40b6778"
+              "uuid": "6ef3d668-b5ea-5625-afac-ac754dc08926"
             },
             {
               "@type": "WorkflowStep",
-              "name": "Apply tag",
+              "name": "Found it",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Found",
+                    "condition": "{{ vars.steps.Find_the_indicator | default([], true) | length > 0 }}",
+                    "step_iri": "/api/3/workflow_steps/f75d9256-fd40-5057-b179-e2f025e85f00",
+                    "step_name": "Add the tag"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/dc4d8d3f-4797-5d6e-a410-ddd7b9140e3b",
+                    "step_name": "Not found"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "3df13947-ecfd-5af2-a85d-adaa3fb1a844"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Not found",
+              "description": null,
+              "arguments": {
+                "tagged": false,
+                "indicator": "",
+                "reason": "no indicator has the value {{ vars.indicator_value }}"
+              },
+              "status": null,
+              "top": "770",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "dc4d8d3f-4797-5d6e-a410-ddd7b9140e3b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Add the tag",
               "description": null,
               "arguments": {
                 "resource": {
-                  "tags": "{{ vars.steps.find['hydra:member'][0].tags + [vars.input.params.tag] }}"
+                  "__link": {
+                    "recordTags": [
+                      "{{ vars.tag }}"
+                    ]
+                  }
                 },
-                "collectionType": "/api/3/indicators"
+                "collectionType": "/api/3/indicators",
+                "collection": "{{ vars.steps.Find_the_indicator[0]['@id'] }}"
               },
               "status": null,
-              "top": "380",
+              "top": "770",
               "left": "200",
               "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928722",
               "group": null,
-              "uuid": "88db2722-83af-53e3-9f42-edbf29f7b8b1"
+              "uuid": "f75d9256-fd40-5057-b179-e2f025e85f00"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Result",
+              "description": null,
+              "arguments": {
+                "tagged": true,
+                "indicator": "{{ vars.steps.Find_the_indicator[0]['@id'] }}",
+                "tag": "{{ vars.tag }}"
+              },
+              "status": null,
+              "top": "900",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "45e641fc-fbb0-5833-998d-cd5c2b70e69f"
             }
           ],
           "routes": [
             {
               "@type": "WorkflowRoute",
-              "name": "start -> find",
-              "targetStep": "/api/3/workflow_steps/79d0f4a3-2dcf-5c86-8047-eca3f40b6778",
-              "sourceStep": "/api/3/workflow_steps/c6c4dee6-003a-5c06-8787-5fc127654083",
+              "name": "Start -> Inputs",
+              "targetStep": "/api/3/workflow_steps/644457ab-43f3-5b86-86c3-4b42fdfc3709",
+              "sourceStep": "/api/3/workflow_steps/1632cb69-1475-52eb-8e01-fb0108c6da48",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "672357cd-4e1d-54a0-b9bc-1408ffb87faa"
+              "uuid": "4dcf2ca8-82a3-5262-ba5d-ceff44cb1e67"
             },
             {
               "@type": "WorkflowRoute",
-              "name": "find -> Apply tag",
-              "targetStep": "/api/3/workflow_steps/88db2722-83af-53e3-9f42-edbf29f7b8b1",
-              "sourceStep": "/api/3/workflow_steps/79d0f4a3-2dcf-5c86-8047-eca3f40b6778",
+              "name": "Inputs -> Have a value and a tag",
+              "targetStep": "/api/3/workflow_steps/db950227-f6ca-5a3b-a2b2-127f70b89578",
+              "sourceStep": "/api/3/workflow_steps/644457ab-43f3-5b86-86c3-4b42fdfc3709",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "0e1cea0d-db1c-5d24-9e7f-066b43f3ec94"
+              "uuid": "8a624a39-70d1-53d1-bd44-4a95e83e003b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Have a value and a tag -> Find the indicator",
+              "targetStep": "/api/3/workflow_steps/6ef3d668-b5ea-5625-afac-ac754dc08926",
+              "sourceStep": "/api/3/workflow_steps/db950227-f6ca-5a3b-a2b2-127f70b89578",
+              "label": "Both given",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "8433476d-19bb-59e9-927a-c5a732026c81"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Have a value and a tag -> Missing input",
+              "targetStep": "/api/3/workflow_steps/d241130c-9dd2-5d11-9403-0d455a10fcc9",
+              "sourceStep": "/api/3/workflow_steps/db950227-f6ca-5a3b-a2b2-127f70b89578",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "a96e5bcc-24dd-50bc-8da2-f545002c0a1e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Find the indicator -> Found it",
+              "targetStep": "/api/3/workflow_steps/3df13947-ecfd-5af2-a85d-adaa3fb1a844",
+              "sourceStep": "/api/3/workflow_steps/6ef3d668-b5ea-5625-afac-ac754dc08926",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6f910e50-0129-5365-a5c4-ad3ae4c9a904"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Found it -> Add the tag",
+              "targetStep": "/api/3/workflow_steps/f75d9256-fd40-5057-b179-e2f025e85f00",
+              "sourceStep": "/api/3/workflow_steps/3df13947-ecfd-5af2-a85d-adaa3fb1a844",
+              "label": "Found",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "3219351d-bbcc-5896-9cd6-0b6a1f9a0e96"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Found it -> Not found",
+              "targetStep": "/api/3/workflow_steps/dc4d8d3f-4797-5d6e-a410-ddd7b9140e3b",
+              "sourceStep": "/api/3/workflow_steps/3df13947-ecfd-5af2-a85d-adaa3fb1a844",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f7ccfa75-090f-5dc4-9ca9-09838586ff9f"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Add the tag -> Result",
+              "targetStep": "/api/3/workflow_steps/45e641fc-fbb0-5833-998d-cd5c2b70e69f",
+              "sourceStep": "/api/3/workflow_steps/f75d9256-fd40-5057-b179-e2f025e85f00",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "27b42f0d-db7a-5fbe-950b-3c1c013be950"
             }
           ],
           "groups": [],

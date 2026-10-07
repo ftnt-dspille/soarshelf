@@ -111,10 +111,11 @@ structures from official solution packs. Built locally from unpacked packs
 - [x] Collections / curated lists (`content/collections/*.yaml`, `/collections`, featured on the home page)
 - [x] Maintainer live tests: `soarshelf test-live` imports the download on a real box under fresh UUIDs,
       runs playbooks (referenced ones through a scratch caller with real inputs), checks the result,
-      cleans up, and records `ran` / `imported` per item version. Shown as the Tested badge.
+      cleans up, and records `ran` / `imported` per item version. Shown as the Verified badge.
+- [x] Live tests for playbooks that write records: `--run`/`--call` with `--on-record module/uuid`
+      runs on a seeded test record, then `--expect` checks the result
 - [ ] "Works on my box" confirmations (signed-in, per platform version)
-- [ ] Live tests for connectors and widgets (install + health check), and for playbooks that write records
-      (needs a box with no automations on the target module)
+- [ ] Live tests for connectors and widgets (install + health check)
 - [ ] Optional: pull an item straight into a platform instance via its API (client-side, user's own credentials, never sent to us)
 
 ## Open decisions

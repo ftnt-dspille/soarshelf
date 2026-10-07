@@ -233,9 +233,9 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--call", action="append", metavar="PLAYBOOK",
                    help="run a referenced playbook from a scratch caller, with its --inputs as arguments")
     t.add_argument("--on-record", metavar="MODULE/UUID",
-                   help="start the --call caller from this existing record (read, never changed)")
+                   help="run --run playbooks and --call callers on this existing record")
     t.add_argument("--expect", action="append", metavar="KEY=VALUE",
-                   help="the called playbook's final result must have this value (repeatable)")
+                   help="the playbook's final result must have this value (repeatable)")
     t.add_argument("--inputs", help='JSON {"playbook name": {input: value}}')
     t.add_argument("--answers", help="JSON answers for manual input prompts, by title or variable name")
     t.add_argument("--timeout", type=float, default=180)

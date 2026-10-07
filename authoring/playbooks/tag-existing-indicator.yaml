@@ -1,0 +1,80 @@
+collection: Indicator Tagging
+uuid: 3b28bf29-8f8a-59cb-a97c-54a1737e8284
+description: Find an indicator by value and add a tag to it.
+visible: true
+
+playbooks:
+  - name: Tag Existing Indicator
+    uuid: 03be4c2b-a985-5f54-83ee-dd24924cfa0c
+    description: >-
+      Looks up the indicator whose value is indicator_value and adds tag to it, keeping the tags it
+      already has. Returns tagged (true or false) and the indicator's @id. Call it from an
+      enrichment playbook.
+    parameters: [indicator_value, tag]
+    steps:
+      - name: Start
+        type: start
+        next: Inputs
+
+      - name: Inputs
+        type: set_variable
+        vars:
+          indicator_value: "{{ vars.input.params.indicator_value | default('', true) | string | trim }}"
+          tag: "{{ vars.input.params.tag | default('', true) | string | trim }}"
+        next: Have a value and a tag
+
+      - name: Have a value and a tag
+        type: decision
+        conditions:
+          - display: Both given
+            when: "{{ vars.indicator_value | length > 0 and vars.tag | length > 0 }}"
+            next: Find the indicator
+        default: Missing input
+
+      - name: Missing input
+        type: set_variable
+        vars:
+          tagged: false
+          indicator: ""
+          reason: indicator_value and tag are both required
+
+      - name: Find the indicator
+        type: find_record
+        module: indicators
+        filters:
+          - field: value
+            operator: eq
+            value: "{{ vars.indicator_value }}"
+        select: [value, recordTags]
+        limit: 1
+        next: Found it
+
+      - name: Found it
+        type: decision
+        conditions:
+          - display: Found
+            when: "{{ vars.steps.Find_the_indicator | default([], true) | length > 0 }}"
+            next: Add the tag
+        default: Not found
+
+      - name: Not found
+        type: set_variable
+        vars:
+          tagged: false
+          indicator: ""
+          reason: "no indicator has the value {{ vars.indicator_value }}"
+
+      - name: Add the tag
+        type: update_record
+        module: indicators
+        record: "{{ vars.steps.Find_the_indicator[0]['@id'] }}"
+        link:                     # appends; writing recordTags under fields: would replace them
+          recordTags: ["{{ vars.tag }}"]
+        next: Result
+
+      - name: Result
+        type: set_variable
+        vars:
+          tagged: true
+          indicator: "{{ vars.steps.Find_the_indicator[0]['@id'] }}"
+          tag: "{{ vars.tag }}"

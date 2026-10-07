@@ -1,10 +1,12 @@
 title: Set alert severity from AbuseIPDB score
-summary: Checks an alert's source IP against AbuseIPDB and raises severity when the abuse score is high.
-description: 'Runs against the selected alert, looks up its source IP on AbuseIPDB and sets severity to
-  **Critical** when the abuse confidence score is 50 or more, otherwise **Low**.
+summary: Checks an alert's source IP on AbuseIPDB and raises the alert to Critical when the IP is reported
+  for abuse.
+description: 'Run it from an alert''s Execute menu. It looks up the alert''s source IP on AbuseIPDB and
+  sets severity to **Critical** when the abuse confidence score is 50 or more; below that the alert is
+  left as it is. Private and invalid addresses are skipped.
 
 
-  Tune the threshold in the decision step to match your tolerance.'
+  Needs a configured AbuseIPDB connector. Tune the threshold in the Settings step.'
 use_cases:
 - enrichment
 - triage
@@ -14,7 +16,24 @@ tags:
 - abuseipdb
 author: ftnt-dspille
 author_id: 99558074
-version: 1.0.0
+version: 1.1.0
 min_version: 7.4.0
 license: MIT
 published: '2026-09-05'
+updated: '2026-10-06'
+changelog:
+- version: 1.1.0
+  date: '2026-10-06'
+  notes: 'Fixed: runs on the selected alert (the trigger now carries the alert) and the update names the
+    alert it changes. Private or invalid source IPs are skipped. Below the threshold the alert is now
+    left unchanged instead of being set to Low.'
+- version: 1.0.0
+  date: '2026-09-05'
+  notes: First published.
+tested:
+- platform: 8.0.0
+  version: 1.1.0
+  sha256: 89511d232e0e64dcf2eb2509d5d08451502d3395e33ffa50cc487b49ffb78b6d
+  result: imported
+  notes: 'Not run end to end: needs an AbuseIPDB API key. With the lookup''s result mocked, a score of
+    87 raised a Low alert to Critical; a private source IP is skipped.'
