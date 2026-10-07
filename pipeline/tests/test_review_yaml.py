@@ -81,6 +81,20 @@ def test_long_dashes_are_written_as_hyphens(tmp_path):
     assert "Done - ready - next" in text
 
 
+def test_a_hostile_pack_member_name_cannot_write_into_the_view(tmp_path):
+    z = tmp_path / "pack.zip"
+    with zipfile.ZipFile(z, "w") as zf:
+        zf.writestr("export_1/playbooks/Coll\nsteps: []\nname: FAKE/evil.json", json.dumps(_wire()["data"][0]["workflows"][0]))
+    item = tmp_path / "pack"
+    item.mkdir()
+    z.rename(item / "pack.zip")
+    (text,) = review_yaml.item_files(item).values()
+    head = text.split("\n", 3)
+    assert head[0].startswith("# Review view of Coll?steps: []?name: FAKE/evil.json")
+    assert all(line.startswith("#") for line in text.splitlines()[:3]), "only comments may precede the YAML"
+    assert yaml.safe_load(text)["playbooks"][0]["name"] == "Check IP"       # parses as the real playbook, not the injected lines
+
+
 def test_it_is_much_shorter_than_the_json(tmp_path):
     wire = _wire()
     view = review_yaml.item_files(_item(tmp_path, wire))["playbook.yaml"]
@@ -107,7 +121,7 @@ def test_two_playbooks_that_slugify_the_same_both_get_a_file(tmp_path):
 def test_a_playbook_that_will_not_render_is_noted_not_fatal(tmp_path):
     item = _item(tmp_path, {"type": "workflow_collections", "data": [{"workflows": "not a list"}]})
     text = review_yaml.item_files(item)["playbook.yaml"]
-    assert "No view" in text and text.startswith("# Review view")
+    assert "NO VIEW" in text and "Review playbook.json directly" in text and text.startswith("# Review view")
 
 
 def test_sync_writes_then_check_passes_then_detects_staleness_and_removes_orphans(tmp_path):

@@ -36,6 +36,16 @@ def _slug(text: str) -> str:
     return s or "playbook"
 
 
+_CONTROL = re.compile(r"[\x00-\x1f\x7f\x85\u2028\u2029]")
+
+
+def _header(source: str) -> str:
+    """The header names the file it came from. That name is the uploader's (a pack member path), so it is
+    flattened to one printable line: a newline in it would otherwise write its own lines, as live YAML,
+    above the real content of the view."""
+    return HEADER.format(source=_CONTROL.sub("?", source)[:200])
+
+
 def _hyphens(text: str) -> str:
     """En and em dashes become hyphens: they break FortiSOAR's latin-1 connector encoding if a view is ever
     copied into a playbook, and the repo's commit hook refuses them. The JSON keeps the original text."""
@@ -57,8 +67,9 @@ def _render(export: dict[str, Any], source: str) -> str:
     try:
         body = _hyphens(_without_layout(decompile_to_yaml(export, PACKAGED_SLIM_DB)))
     except Exception as exc:  # noqa: BLE001 - one odd playbook must not stop a submission being filed
-        return HEADER.format(source=source) + f"# No view: it could not be rendered ({type(exc).__name__}).\n"
-    return HEADER.format(source=source) + body
+        # Said loudly: a missing view must never read as "nothing to see". The JSON is what gets reviewed.
+        return _header(source) + f"# NO VIEW: rendering failed ({type(exc).__name__}). Review playbook.json directly.\n"
+    return _header(source) + body
 
 
 def _wrap(workflow: dict[str, Any], name: str, description: str) -> dict[str, Any]:
