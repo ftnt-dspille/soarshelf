@@ -5,7 +5,7 @@ description = "Check, sanitize and build community SOAR playbook content for the
 requires-python = ">=3.11"
 license = "MIT"
 dependencies = [
-    "pyfsr>=0.22",
+    "pyfsr>=0.23.1",
     "pyyaml>=6",
     "pillow>=10",
 ]

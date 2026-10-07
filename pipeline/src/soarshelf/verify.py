@@ -172,24 +172,6 @@ def _trigger(w: dict[str, Any]) -> str:
     return label if label in SAFE_TRIGGERS and all(o in SAFE_TRIGGERS for o in others) else "Unknown"
 
 
-def _button_answers(client: Any) -> None:
-    """Let an answer be ``{"option": "<button>", "inputs": {...}}``.
-
-    pyfsr's auto-answer hands every answer to ``manual_input.answer`` as a single
-    value, which only works for a prompt with exactly one field. Prompts that just
-    show a result and a button have none, so on this client only, a dict answer
-    with an ``option`` key presses that button with those inputs."""
-    mi = client.manual_input
-    original = mi.answer
-
-    def answer(value: Any = None, **kw: Any) -> Any:
-        if isinstance(value, dict) and "option" in value:
-            return original(option=value["option"], inputs=value.get("inputs") or {}, **kw)
-        return original(value, **kw)
-
-    mi.answer = answer
-
-
 def _platform(client: Any) -> str:
     raw = client.system.version()
     v = raw.get("version") if isinstance(raw, dict) else str(raw)
@@ -226,7 +208,6 @@ def run(item: Path, *, instance: str | None, playbooks: list[str], calls: list[s
         copy[0]["workflows"] += harnesses.values()
 
     client = _connect(InstanceRegistry.load(), instance)
-    _button_answers(client)
     platform = _platform(client)
     print(f"{item.name} v{res.detail['version']} → FortiSOAR {platform}")
     created: list[str] = []
