@@ -1,0 +1,537 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "00 - FortiEDR Use Cases",
+      "description": "POC",
+      "visible": true,
+      "image": null,
+      "uuid": "3378cfee-4362-4a15-8f99-fc39a81fc20c",
+      "importedBy": [],
+      "recordTags": [
+        "Claranet"
+      ],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Process Bad Indicators (part2)",
+          "aliasName": null,
+          "tag": null,
+          "description": "Extract Bad Indicators from EDR ALerts",
+          "isActive": false,
+          "debug": true,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [
+            "OriginalAlertIRI",
+            "OriginalAlertUUID"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/721746cb-7a5b-4c2e-b312-fb4ca52fb371",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Alert Id IRI",
+              "description": null,
+              "arguments": {
+                "filename": "/tmp/fortiedr_indicators_full_list.dat",
+                "alert_IRI": "{{vars.input.params.OriginalAlertIRI}}"
+              },
+              "status": null,
+              "top": "220",
+              "left": "360",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "a1ce60c7-6c17-47ca-ba90-53a1a9a1aac0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Bad Indicators",
+              "description": null,
+              "arguments": {
+                "query": {
+                  "sort": [],
+                  "limit": 30,
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "type": "primitive",
+                      "field": "alerts.uuid",
+                      "value": "{{vars.input.params.OriginalAlertUUID}}",
+                      "operator": "eq",
+                      "_operator": "eq"
+                    },
+                    {
+                      "type": "array",
+                      "field": "reputation",
+                      "value": [
+                        "7074e547-7785-4979-be32-c6d0c863e4bd",
+                        "50bfd06c-9aff-4f7d-b6d9-821339e31fe7"
+                      ],
+                      "module": "reputation",
+                      "display": "",
+                      "operator": "in",
+                      "template": "multiselectpicklist",
+                      "enableJinja": true,
+                      "OPERATOR_KEY": "$",
+                      "useInOperator": true,
+                      "previousOperator": "in",
+                      "previousTemplate": "multiselectpicklist"
+                    }
+                  ]
+                },
+                "module": "indicators?$limit=30&$relationships=true&$fsr_max_relation_count=100",
+                "checkboxFields": false,
+                "step_variables": {
+                  "my_indicators": "{{vars.steps.Get_Bad_Indicators}}",
+                  "num_indicators": "{{vars.steps.Get_Bad_Indicators | length}}"
+                }
+              },
+              "status": null,
+              "top": "360",
+              "left": "360",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
+              "group": null,
+              "uuid": "842c1fa1-e4b1-45e4-b45b-3f218a0471b2"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "SSH Command",
+              "description": null,
+              "arguments": {
+                "name": "SSH",
+                "config": "",
+                "params": {
+                  "cmd": "echo \"{{vars.steps.Get_Bad_Indicators[0].value}}\" >> {{vars.filename}}",
+                  "allowed_exit": "-1,0",
+                  "is_super_user": false
+                },
+                "version": "2.1.3",
+                "for_each": {
+                  "item": "{{vars.steps.Get_Bad_Indicators}}",
+                  "parallel": false,
+                  "condition": ""
+                },
+                "connector": "ssh",
+                "operation": "run_remote_command",
+                "operationTitle": "Execute remote command",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "520",
+              "left": "360",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "1cbec8ec-7b34-4dd4-b98b-80ea3099e6ae"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "80",
+              "left": "360",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "721746cb-7a5b-4c2e-b312-fb4ca52fb371"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "The End",
+              "description": null,
+              "arguments": {
+                "params": [],
+                "version": "3.4.0",
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "700",
+              "left": "360",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "654aa77c-dff2-464d-b1c7-aab91024d8e3"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Alert Id IRI -> Get Bad Indicators",
+              "targetStep": "/api/3/workflow_steps/842c1fa1-e4b1-45e4-b45b-3f218a0471b2",
+              "sourceStep": "/api/3/workflow_steps/a1ce60c7-6c17-47ca-ba90-53a1a9a1aac0",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b2377052-548f-4d05-9b37-09e26e0ddda4"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Bad Indicators -> SSH Command",
+              "targetStep": "/api/3/workflow_steps/1cbec8ec-7b34-4dd4-b98b-80ea3099e6ae",
+              "sourceStep": "/api/3/workflow_steps/842c1fa1-e4b1-45e4-b45b-3f218a0471b2",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "95e310ba-a237-472e-be59-8f53d50aae91"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "SSH Command -> The End",
+              "targetStep": "/api/3/workflow_steps/654aa77c-dff2-464d-b1c7-aab91024d8e3",
+              "sourceStep": "/api/3/workflow_steps/1cbec8ec-7b34-4dd4-b98b-80ea3099e6ae",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "39d6e5ab-2417-466f-a663-05d06b5c388a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Alert Id IRI",
+              "targetStep": "/api/3/workflow_steps/a1ce60c7-6c17-47ca-ba90-53a1a9a1aac0",
+              "sourceStep": "/api/3/workflow_steps/721746cb-7a5b-4c2e-b312-fb4ca52fb371",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "5f53a036-1c60-4dd8-bff4-6c8172337cef"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Heart of This Playbook",
+              "description": "For each Malicious or Suspicious indicator in the Alert, run the SSH Connector, running the specified command on the shell",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "480",
+              "left": "640",
+              "height": "115",
+              "width": "346",
+              "uuid": "f0c71a02-67ab-42d1-8289-d26fb86a1043",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "isEditable": true,
+          "uuid": "92593387-9058-4341-b786-56feca916cd6",
+          "isPrivate": false,
+          "importedBy": [],
+          "recordTags": [
+            "Claranet",
+            "Indicators2",
+            "POC"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Process Bad indicators (part1)",
+          "aliasName": null,
+          "tag": null,
+          "description": "Extract Bad Indicators from EDR ALerts",
+          "isActive": false,
+          "debug": true,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/96ae96e9-0b42-49bb-8e0c-edf96ce4b3f7",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "End",
+              "description": null,
+              "arguments": {
+                "params": [],
+                "version": "3.7.0",
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "40",
+              "left": "1340",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "a0c15ebc-fa75-4369-bf71-a0eb80788a40"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Find EDR Records",
+              "description": null,
+              "arguments": {
+                "query": {
+                  "sort": [],
+                  "limit": 30,
+                  "logic": "AND",
+                  "filters": [
+                    {
+                      "type": "primitive",
+                      "field": "source",
+                      "value": "Fortinet FortiSIEM",
+                      "operator": "eq",
+                      "_operator": "eq"
+                    },
+                    {
+                      "type": "primitive",
+                      "field": "name",
+                      "value": "%{{vars.edrFilter}}%",
+                      "operator": "like",
+                      "_operator": "like"
+                    },
+                    {
+                      "type": "datetime",
+                      "field": "createDate",
+                      "value": "{{vars.referenceDateTime}}",
+                      "operator": "gt"
+                    },
+                    {
+                      "type": "array",
+                      "field": "indicators.reputation.uuid",
+                      "value": [
+                        "7074e547-7785-4979-be32-c6d0c863e4bd",
+                        "50bfd06c-9aff-4f7d-b6d9-821339e31fe7"
+                      ],
+                      "display": "",
+                      "operator": "in",
+                      "template": "multiselectpicklist",
+                      "enableJinja": true,
+                      "OPERATOR_KEY": "$",
+                      "useInOperator": true,
+                      "previousOperator": "in",
+                      "previousTemplate": "multiselectpicklist"
+                    }
+                  ]
+                },
+                "module": "alerts?$limit=500",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "40",
+              "left": "680",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
+              "group": null,
+              "uuid": "4232615a-4f2e-4b82-bdce-6ae7d9297399"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Individual Alert Process",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.steps.Find_EDR_Records}}",
+                  "parallel": false,
+                  "condition": ""
+                },
+                "arguments": {
+                  "OriginalAlertIRI": "{{vars.item['@id']}}",
+                  "OriginalAlertUUID": "{{vars.item.uuid}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/92593387-9058-4341-b786-56feca916cd6"
+              },
+              "status": null,
+              "top": "40",
+              "left": "1020",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "82c83b5d-65d6-4178-9ac8-84f1e1910b68"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Playbooks Settings",
+              "description": null,
+              "arguments": {
+                "edrFilter": "EDR",
+                "referenceDateTime": "{{ arrow.utcnow().shift(days=vars.daysBack) }}"
+              },
+              "status": null,
+              "top": "40",
+              "left": "360",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "d2b2aecc-2e25-487e-a4fd-961c4c657e34"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "6cca52b4-85f8-4002-bab5-604daf85e461",
+                "title": "POC: Process EDR-related Alerts",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  },
+                  "daysBack": "-120"
+                },
+                "triggerOnSource": true,
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "triggerOnReplicate": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "96ae96e9-0b42-49bb-8e0c-edf96ce4b3f7"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Find EDR Records -> Call Individual Alert Processing",
+              "targetStep": "/api/3/workflow_steps/82c83b5d-65d6-4178-9ac8-84f1e1910b68",
+              "sourceStep": "/api/3/workflow_steps/4232615a-4f2e-4b82-bdce-6ae7d9297399",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f4c922f8-e22c-44c9-a931-7525ebd30847"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Individual Alert Process -> End",
+              "targetStep": "/api/3/workflow_steps/a0c15ebc-fa75-4369-bf71-a0eb80788a40",
+              "sourceStep": "/api/3/workflow_steps/82c83b5d-65d6-4178-9ac8-84f1e1910b68",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "982bbe7d-84c7-41fc-9962-e75321421f26"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Playbooks Settings -> Find EDR Records",
+              "targetStep": "/api/3/workflow_steps/4232615a-4f2e-4b82-bdce-6ae7d9297399",
+              "sourceStep": "/api/3/workflow_steps/d2b2aecc-2e25-487e-a4fd-961c4c657e34",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "7df33b82-9f77-47a3-b2a4-f2bf3c0775fd"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Playbooks Settings",
+              "targetStep": "/api/3/workflow_steps/d2b2aecc-2e25-487e-a4fd-961c4c657e34",
+              "sourceStep": "/api/3/workflow_steps/96ae96e9-0b42-49bb-8e0c-edf96ce4b3f7",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b59026eb-1b11-4e04-bce9-b32224d9dc50"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Step 1",
+              "description": "How many days back to \"process\"",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "140",
+              "left": "320",
+              "height": "0",
+              "width": "300",
+              "uuid": "056cdf2f-e83d-423c-a30d-c781805d4085",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Step 2",
+              "description": "What FortiSIEM Alerts should be taken into Consideration",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "140",
+              "left": "680",
+              "height": "0",
+              "width": "300",
+              "uuid": "ca7f108f-b2e0-4e4e-919d-daf1a755cd77",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Step 3",
+              "description": "For each \"relevant\" alert with Bad indicators, run Playbook Part2",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "140",
+              "left": "1000",
+              "height": "0",
+              "width": "300",
+              "uuid": "d7ec152e-7e9d-487d-8fe8-4405de3bfe75",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "isEditable": true,
+          "uuid": "f6f20eae-574f-4f09-a59c-db1a84b51edc",
+          "isPrivate": false,
+          "importedBy": [],
+          "recordTags": [
+            "Claranet",
+            "Indicators1",
+            "POC"
+          ]
+        }
+      ]
+    }
+  ],
+  "exported_tags": [
+    "Claranet",
+    "Indicators2",
+    "POC",
+    "Indicators1"
+  ]
+}
