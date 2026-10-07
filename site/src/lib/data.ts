@@ -23,6 +23,11 @@ export function connectorLabels(index: SiteIndex): Map<string, string> {
   return new Map(index.connectors.map((c) => [c.name, c.label]));
 }
 
+/** Map of connector machine name → icon URL, for the connectors uploaded here. */
+export function connectorIcons(index: SiteIndex): Record<string, string> {
+  return Object.fromEntries(index.connectors.filter((c) => c.icon).map((c) => [c.name, c.icon as string]));
+}
+
 /** Site-wide change log. Optional like featured: an older build just shows nothing. */
 export async function loadActivity(fetch: Fetch): Promise<Activity> {
   const res = await fetch('/data/activity.json');

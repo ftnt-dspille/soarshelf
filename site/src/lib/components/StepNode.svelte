@@ -2,21 +2,26 @@
   import { Handle, Position, type NodeProps, type Node } from '@xyflow/svelte';
   import type { PlaybookNode } from '$lib/types';
   import { FAMILY_ICON } from '$lib/icons';
+  import { humanizeKey } from '$lib/args';
 
-  type StepData = { step: PlaybookNode; connectorLabel: string | null; dir: 'TB' | 'LR' };
+  type StepData = { step: PlaybookNode; connectorLabel: string | null; connectorIcon?: string | null; dir: 'TB' | 'LR' };
   let { data, selected }: NodeProps<Node<StepData>> = $props();
   const step = $derived(data.step);
   const Icon = $derived(FAMILY_ICON[step.family]);
   const across = $derived(data.dir === 'LR');
+  // A code snippet step's connector is also called "Code Snippet"; say it once.
+  const showConnector = $derived(
+    !!step.connector && !!data.connectorLabel && data.connectorLabel.trim().toLowerCase() !== step.label.trim().toLowerCase()
+  );
 </script>
 
 <div class="step" class:selected style="--fam: var(--fam-{step.family})">
   <Handle type="target" position={across ? Position.Left : Position.Top} isConnectable={false} />
-  <span class="icon" aria-hidden="true"><Icon size={16} /></span>
+  <span class="icon" aria-hidden="true">{#if data.connectorIcon}<img src={data.connectorIcon} alt="" width="20" height="20" />{:else}<Icon size={16} />{/if}</span>
   <span class="min-w-0 flex-1">
-    <span class="kind">{step.label}{#if step.connector && data.connectorLabel}{' · '}{data.connectorLabel}{/if}</span>
+    <span class="kind">{step.label}{#if showConnector}{' · '}{data.connectorLabel}{/if}</span>
     <span class="name" title={step.name}>{step.name}</span>
-    {#if step.operation}<span class="op">{step.operation}</span>{/if}
+    {#if step.operation}<span class="op" title={step.operation}>{step.operationTitle ?? humanizeKey(step.operation)}</span>{/if}
   </span>
   <Handle type="source" position={across ? Position.Right : Position.Bottom} isConnectable={false} />
 </div>
@@ -78,8 +83,7 @@
   }
   .op {
     display: block;
-    font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: 11.5px;
     color: var(--muted);
     white-space: nowrap;
     overflow: hidden;

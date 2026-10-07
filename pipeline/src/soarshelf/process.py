@@ -394,6 +394,54 @@ def collections_of(payload: Path) -> list[ParsedCollection]:
     return list(out.values())
 
 
+ICON_MAX_BYTES = 200_000        # uploaded file size
+ICON_MAX_SIDE = 1024            # refuse anything claiming to be larger (decompression bombs)
+ICON_OUT_SIDE = 96              # what we publish: re-drawn, no larger than this
+
+
+def _clean_icon(raw: bytes) -> bytes | None:
+    """Re-draw an uploaded icon as a fresh PNG, or None if it isn't a plain small image.
+
+    An uploaded file is never published as is. It is decoded, checked, and its pixels written
+    to a new PNG, so nothing hidden rides along: no metadata, no appended data, no
+    polyglot file. SVG is never accepted (it can carry script).
+    """
+    from PIL import Image
+
+    if len(raw) > ICON_MAX_BYTES:
+        return None
+    try:
+        with Image.open(io.BytesIO(raw)) as im:
+            if im.format not in ("PNG", "JPEG", "GIF"):
+                return None
+            w, h = im.size
+            if not (0 < w <= ICON_MAX_SIDE and 0 < h <= ICON_MAX_SIDE):
+                return None
+            im.load()                                   # full decode: a truncated or corrupt file raises
+            frame = im.convert("RGBA")                  # first frame only; drops palette, ICC, EXIF, text chunks
+    except Exception:
+        return None
+    frame.thumbnail((ICON_OUT_SIDE, ICON_OUT_SIDE))
+    clean = Image.frombytes("RGBA", frame.size, frame.tobytes())    # pixels only, no carried-over info
+    out = io.BytesIO()
+    clean.save(out, "PNG", optimize=True)
+    return out.getvalue()
+
+
+def _connector_icon(up: Upload) -> tuple[str, bytes] | None:
+    """The connector's own icon from its package (info.json names it), cleaned, as ``icon.png``."""
+    from . import package
+
+    for key in ("icon_small_name", "icon_large_name"):
+        want = str(up.data.get(key) or "").strip()
+        if not want or not want.lower().endswith(package.IMAGE_SUFFIXES):
+            continue
+        for name, raw in (up.members or {}).items():
+            if posixpath.basename(name) == want and (png := _clean_icon(raw)):
+                return "icon.png", png
+    return None
+
+
 # --- entry point ---------------------------------------------------------------
 
 def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> Processed:
@@ -424,6 +472,7 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
     results += res
     shots: list[dict[str, Any]] = []
     assets: dict[str, bytes] = {}
+    icon_file: str | None = None
     if packaged:
         from . import package
         results += _package_checks(up)
@@ -432,6 +481,9 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
             ext = posixpath.splitext(name)[1].lower()
             assets[f"shots/{i + 1}{ext}"] = raw
             shots.append({"file": f"shots/{i + 1}{ext}", "width": w, "height": h, "name": name})
+        if kind == "connector" and (icon := _connector_icon(up)):
+            assets[icon[0]] = icon[1]
+            icon_file = icon[0]
 
     rows: list[dict[str, Any]] = []
     pack_rows: list[dict[str, Any]] = []
@@ -511,6 +563,7 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
         "collections": graph.collections_graph(collections),
         "download": {"path": f"/downloads/{slug}/{filename}", "filename": filename,
                      "sha256": hashlib.sha256(body).hexdigest(), "bytes": len(body)} if hosted else None,
+        "icon": f"/downloads/{slug}/{icon_file}" if icon_file else None,
         "screenshots": [{**s_, "path": f"/downloads/{slug}/{s_['file']}"} for s_ in shots],
         "_results": results,
         "_collections": collections,

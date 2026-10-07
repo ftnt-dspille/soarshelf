@@ -122,6 +122,6 @@
     <CopyButton value={JSON.stringify(step.args, null, 2)} label="Copy arguments" />
   </div>
   {#if raw}
-    <pre class="mx-4 mb-4 max-h-72 overflow-auto rounded-lg border border-line bg-surface-2 p-3 font-mono text-[11.5px] leading-relaxed whitespace-pre text-fg">{JSON.stringify(step.args, null, 2)}</pre>
+    <pre class="mx-4 mb-4 max-h-72 overflow-auto rounded-lg border border-line bg-surface-2 p-3 font-mono text-[11.5px] leading-relaxed [overflow-wrap:anywhere] whitespace-pre-wrap text-fg">{JSON.stringify(step.args, null, 2)}</pre>
   {/if}
 </div>

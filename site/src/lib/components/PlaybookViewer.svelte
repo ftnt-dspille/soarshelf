@@ -16,9 +16,10 @@ import MinimapNav from './MinimapNav.svelte';
   let {
     collections,
     labels,
+    icons = {},
     initialKey = '0:0',
     initialStep = null
-  }: { collections: Collection[]; labels: Map<string, string>; initialKey?: string; initialStep?: string | null } = $props();
+  }: { collections: Collection[]; labels: Map<string, string>; icons?: Record<string, string>; initialKey?: string; initialStep?: string | null } = $props();
 
   // Flatten to one list so a single <select> can pick any playbook in any collection.
   const options = $derived(
@@ -56,7 +57,12 @@ import MinimapNav from './MinimapNav.svelte';
       id: n.id,
       type: 'step',
       position: l.positions.get(n.id) ?? { x: 0, y: 0 },
-      data: { step: n, connectorLabel: n.connector ? (labels.get(n.connector) ?? n.connector) : null, dir: l.dir },
+      data: {
+        step: n,
+        connectorLabel: n.connector ? (labels.get(n.connector) ?? n.connector) : null,
+        connectorIcon: n.connector ? (icons[n.connector] ?? null) : null,
+        dir: l.dir
+      },
       selected: n.id === selectedId,
       draggable: false,
       connectable: false,

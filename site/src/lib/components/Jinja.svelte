@@ -9,7 +9,7 @@
 </script>
 
 {#if block}
-  <code class="block max-h-64 overflow-auto rounded-lg border border-line bg-surface-2 px-3 py-2 font-mono text-[12px] leading-relaxed whitespace-pre text-fg"
+  <code class="block max-h-64 overflow-auto rounded-lg border border-line bg-surface-2 px-3 py-2 font-mono text-[12px] leading-relaxed [overflow-wrap:anywhere] whitespace-pre-wrap text-fg"
     >{#each parts as p, i (i)}{#if p.expr}<span class="expr">{p.text}</span>{:else}{p.text}{/if}{/each}</code
   >
 {:else}

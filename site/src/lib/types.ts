@@ -26,6 +26,8 @@ export interface ConnectorFacet {
   category: string | null;
   onHub: boolean;
   count: number;
+  /** The connector's own icon, from its package on this site (community connectors only). */
+  icon?: string | null;
 }
 
 export interface ItemSummary {
@@ -227,6 +229,8 @@ export interface PlaybookNode {
   y: number;
   connector?: string;
   operation?: string;
+  /** The operation's display name from the export, when it has one. */
+  operationTitle?: string;
   args: Record<string, unknown>;
 }
 
@@ -241,6 +245,7 @@ export interface PlaybookEdge {
 export interface Featured {
   items: FeaturedItem[];
   connectorLabels: Record<string, string>;
+  connectorIcons?: Record<string, string>;
 }
 
 export interface FeaturedItem {

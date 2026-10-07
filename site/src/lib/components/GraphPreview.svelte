@@ -10,12 +10,14 @@
     nodes,
     edges,
     labels = {},
+    icons = {},
     aspect = 16 / 10,
     stepHref
   }: {
     nodes: PreviewNode[];
     edges: PreviewEdge[];
     labels?: Record<string, string>;
+    icons?: Record<string, string>;
     aspect?: number;
     stepHref?: (id: string) => string;
   } = $props();
@@ -65,6 +67,7 @@
 
   {#each g.nodes as n (n.id)}
     {@const Icon = FAMILY_ICON[n.family]}
+    {@const iconUrl = n.connector ? icons[n.connector] : undefined}
     {@const kindText = kind(n).toUpperCase()}
     <g transform="translate({n.x} {n.y})">
       <svelte:element
@@ -79,7 +82,11 @@
         <rect width={PV_W} height={PV_H} rx="12" class="card" />
         <rect x="0" y="12" width="3.5" height={PV_H - 24} rx="1.75" class="bar" />
         <rect x="14" y={(PV_H - 34) / 2} width="34" height="34" rx="9" class="chip" />
-        <Icon x={22} y={(PV_H - 18) / 2} size={18} class="ico" aria-hidden="true" />
+        {#if iconUrl}
+          <image href={iconUrl} x={22} y={(PV_H - 18) / 2} width="18" height="18" aria-hidden="true" />
+        {:else}
+          <Icon x={22} y={(PV_H - 18) / 2} size={18} class="ico" aria-hidden="true" />
+        {/if}
         <text x={TEXT_X} y="28" class="kind" use:fitText={{ text: kindText, max: TEXT_W }}
           >{fitWidth(kindText, TEXT_W, KIND.size, KIND.tracking)}</text
         >

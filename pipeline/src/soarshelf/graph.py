@@ -48,6 +48,8 @@ def collections_graph(collections: list[ParsedCollection]) -> list[dict[str, Any
                         node["family"] = "connector"
                 if isinstance(s.arguments.get("operation"), str) and node.get("connector"):
                     node["operation"] = s.arguments["operation"]
+                    if isinstance(s.arguments.get("operationTitle"), str) and s.arguments["operationTitle"].strip():
+                        node["operationTitle"] = s.arguments["operationTitle"].strip()
                 nodes.append(node)
             ids = {n["id"] for n in nodes}
             edges = []

@@ -186,6 +186,7 @@
                   nodes={current.playbook.nodes}
                   edges={current.playbook.edges}
                   labels={featured.connectorLabels}
+                  icons={featured.connectorIcons}
                   {stepHref}
                 />
                 <ul class="pointer-events-none absolute bottom-2 left-3 hidden flex-wrap gap-x-3 gap-y-1 text-[11px] text-faint sm:flex" aria-label="Step colours">

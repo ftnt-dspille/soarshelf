@@ -1,7 +1,7 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { SITE } from '$lib/config';
-  import { connectorLabels } from '$lib/data';
+  import { connectorIcons, connectorLabels } from '$lib/data';
   import { CODE_TYPES, TYPE_LABEL, formatBytes, formatDate, lastChange, testedHint } from '$lib/format';
   import type { ChangelogEntry, ItemDetail, SetupStep } from '$lib/types';
   import ParamList from '$lib/components/ParamList.svelte';
@@ -87,6 +87,7 @@
     save(item.download);
   }
   const labels = $derived(connectorLabels(data.index));
+  const icons = $derived(connectorIcons(data.index));
   const useCases = $derived(data.index.useCases.filter((u) => item.useCases.includes(u.id)));
 
   type Tab = 'overview' | 'playbooks' | 'setup' | 'dependencies' | 'checks';
@@ -553,7 +554,7 @@
     </div>
   {:else if tab === 'playbooks'}
     {#if browser}
-      <PlaybookViewer collections={item.collections} {labels} initialKey={pbKey} initialStep={stepId} />
+      <PlaybookViewer collections={item.collections} {labels} {icons} initialKey={pbKey} initialStep={stepId} />
     {:else}
       <div class="grid h-[540px] place-items-center rounded-xl border border-line bg-surface text-sm text-faint">Loading viewer…</div>
     {/if}
