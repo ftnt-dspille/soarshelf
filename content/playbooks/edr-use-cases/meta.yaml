@@ -1,0 +1,31 @@
+title: EDR Use Cases
+summary: Extracting and Processing IOCs from EDR Alerts
+description: 'These two playbooks were created for processing FortiEDR incidents which arrived into FortiSOAR
+  via FortiSIEM Data ingestion.
+
+
+  Description of the playbooks:
+
+
+  Playbook Part1) It starts and filters EDR alerts ingested via FortiSIEM Data Ingestion in the last X
+  days (there is a variable controlling the days back in the filter). The resulting Alerts are sent to
+  Part2.
+
+
+  Playbook Part2) The Part2 takes each "important" alert, extract Suspicious and Malicious Indicators
+  from the alert, and then saves ALL of the IOCs in a TXT file using the SSH connector. You can configure
+  the file destination.
+
+
+  Usage: you can schedule the Part1 and constantly have a TXT file with all the bad IOCs related to EDR.'
+use_cases:
+- utility
+tags:
+- ioc
+- alert-processing
+author: righirr
+version: 1.0.0
+min_version: null
+license: MIT
+published: '2026-10-07'
+author_id: 171357650
