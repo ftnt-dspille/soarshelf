@@ -9,9 +9,7 @@
       "image": null,
       "uuid": "3378cfee-4362-4a15-8f99-fc39a81fc20c",
       "importedBy": [],
-      "recordTags": [
-        "Claranet"
-      ],
+      "recordTags": [],
       "workflows": [
         {
           "@type": "Workflow",
@@ -235,7 +233,6 @@
           "isPrivate": false,
           "importedBy": [],
           "recordTags": [
-            "Claranet",
             "Indicators2",
             "POC"
           ]
@@ -520,7 +517,6 @@
           "isPrivate": false,
           "importedBy": [],
           "recordTags": [
-            "Claranet",
             "Indicators1",
             "POC"
           ]
@@ -529,7 +525,6 @@
     }
   ],
   "exported_tags": [
-    "Claranet",
     "Indicators2",
     "POC",
     "Indicators1"
