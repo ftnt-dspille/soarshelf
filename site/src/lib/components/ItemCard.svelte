@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { ItemSummary } from '$lib/types';
-  import { BUILTIN_CONNECTORS, formatDate, lastChange, plural, testedHint } from '$lib/format';
+  import { BUILTIN_CONNECTORS, HUB_HINT, formatDate, lastChange, plural, testedHint } from '$lib/format';
   import TypePill from './TypePill.svelte';
-  import HubBadge from './HubBadge.svelte';
+  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import Code from '@lucide/svelte/icons/code';
   import BadgeCheck from '@lucide/svelte/icons/badge-check';
 
@@ -27,11 +27,12 @@
         <BadgeCheck size={13} aria-hidden="true" />Verified
       </span>
     {/if}
-    {#if change.kind === 'updated'}
-      <span class="truncate rounded-md bg-info-soft px-2 py-0.5 text-xs font-medium text-info" title="v{change.version}{change.notes ? `: ${change.notes}` : ''}">Updated</span>
-    {/if}
     <span class="ml-auto flex shrink-0 items-center gap-1.5">
-      <HubBadge status={item.hubStatus} compact />
+      {#if item.hubStatus === 'needs-custom'}
+        <span class="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-warn-soft px-2 py-0.5 text-xs font-medium text-warn" title="Custom connector: {HUB_HINT['needs-custom']}">
+          <TriangleAlert size={13} aria-hidden="true" />Custom<span class="sr-only"> connector</span>
+        </span>
+      {/if}
       {#if item.hasCode}
         <span class="inline-flex items-center rounded-md bg-surface-2 px-1.5 py-0.5 text-muted" title="Contains code steps">
           <Code size={13} aria-hidden="true" /><span class="sr-only">Contains code steps</span>
@@ -67,6 +68,6 @@
     <span>
       {#if item.type === 'connector' || item.type === 'widget'}v{item.version}{:else}{plural(item.playbookCount, 'playbook')} · {plural(item.stepCount, 'step')}{/if}
     </span>
-    <span>@{item.author.github} · {change.kind === 'updated' ? 'updated ' : ''}{formatDate(change.date)}</span>
+    <span title={change.kind === 'updated' ? `v${change.version}${change.notes ? `: ${change.notes}` : ''}` : undefined}>@{item.author.github} · {change.kind === 'updated' ? 'updated ' : ''}{formatDate(change.date)}</span>
   </div>
 </a>

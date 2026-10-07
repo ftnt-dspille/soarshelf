@@ -6,6 +6,6 @@
   const Icon = $derived(TYPE_ICON[type]);
 </script>
 
-<span class="inline-flex items-center gap-1.5 rounded-md bg-surface-2 px-2 py-0.5 text-xs font-medium text-muted">
+<span class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md bg-surface-2 px-2 py-0.5 text-xs font-medium text-muted">
   <Icon size={13} aria-hidden="true" />{TYPE_LABEL[type]}
 </span>
