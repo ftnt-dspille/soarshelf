@@ -1,0 +1,86 @@
+collection: IP Reputation Enrichment with VirusTotal
+uuid: e32e5051-9d3d-5e08-9f1a-5e2b1225a8f8
+description: Check an alert's source IP on VirusTotal and raise its severity when the IP is reported for abuse.
+visible: true
+
+playbooks:
+  - name: IP Reputation Check with VirusTotal
+    uuid: 0cd185f2-c767-503f-8c7b-8ed10125dc2e
+    description: >-
+      Run it on an alert. Looks up the alert's source IP on VirusTotal and sets severity to Critical
+      when this many VirusTotal engines or more flag it as malicious (3 by default, set in the first step).
+      Below the threshold the alert is left as it is. Private and invalid addresses are skipped.
+    steps:
+      - name: Start
+        type: start
+        module: alerts
+        button_label: Check source IP on VirusTotal
+        next: Settings
+
+      - name: Settings
+        type: set_variable
+        vars:
+          threshold: 3            # number of malicious engines that makes the alert Critical
+          source_ip: "{{ vars.input.records[0].sourceIp | default('', true) | string | trim }}"
+        next: Is it a public IP
+
+      - name: Is it a public IP
+        type: decision
+        conditions:
+          - display: Public IP
+            when: "{{ (vars.source_ip | ipaddr('public')) is string and '/' not in vars.source_ip }}"
+            next: Check IP on VirusTotal
+        default: Not a public IP
+
+      - name: Not a public IP
+        type: set_variable
+        vars:
+          changed: false
+          reason: "source IP '{{ vars.source_ip }}' is empty, private or not an IP address"
+
+      - name: Check IP on VirusTotal
+        type: connector
+        connector: virustotal
+        operation: query_ip
+        config: ""
+        params:
+          ip: "{{ vars.source_ip }}"
+        next: Read the engine count
+
+      - name: Read the engine count
+        type: set_variable
+        vars:
+          score: >-
+            {{ (vars.steps.Check_IP_on_VirusTotal.data.attributes.last_analysis_stats.malicious)
+               | default(0, true) | int }}
+        next: Over the threshold
+
+      - name: Over the threshold
+        type: decision
+        conditions:
+          - display: Malicious
+            when: "{{ vars.score | int >= vars.threshold | int }}"
+            next: Set severity to Critical
+        default: Below the threshold
+
+      - name: Below the threshold
+        type: set_variable
+        vars:
+          changed: false
+          score: "{{ vars.score }}"
+          reason: "{{ vars.score }} malicious engines is below the threshold of {{ vars.threshold }}"
+
+      - name: Set severity to Critical
+        type: update_record
+        module: alerts
+        record: "{{ vars.input.records[0]['@id'] }}"
+        fields:
+          severity: Critical
+        next: Raised
+
+      - name: Raised
+        type: set_variable
+        vars:
+          changed: true
+          score: "{{ vars.score }}"
+          reason: "{{ vars.score }} malicious engines is at or above the threshold of {{ vars.threshold }}"

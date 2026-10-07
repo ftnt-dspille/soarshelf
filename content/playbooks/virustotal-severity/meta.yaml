@@ -1,0 +1,31 @@
+title: Set alert severity from VirusTotal verdict
+summary: Checks an alert's source IP on VirusTotal and raises the alert to Critical when enough engines
+  flag it as malicious.
+description: 'Run it from an alert''s Execute menu. It looks up the alert''s source IP on VirusTotal and
+  sets severity to **Critical** when 3 or more engines flag the IP as malicious; below that the alert
+  is left as it is. Private and invalid addresses are skipped.
+
+
+  Needs a configured VirusTotal connector. Tune the threshold in the Settings step.'
+use_cases:
+- enrichment
+- triage
+tags:
+- ip
+- severity
+- virustotal
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.4.0
+license: MIT
+published: '2026-10-07'
+author_id: 99558074
+tested:
+- platform: 8.0.0
+  version: 1.0.0
+  sha256: e6ae409c99cd2fd3b17917e1966cf40699ce3adcfcbef270c68a4194d89f1882
+  result: ran
+  playbooks:
+  - IP Reputation Check with VirusTotal
+  notes: 'Run on live alerts against a configured VirusTotal connector: a public IP flagged by several
+    engines raised a Low alert to Critical; a clean public IP left it Low.'

@@ -1,0 +1,347 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "IP Reputation Enrichment with VirusTotal",
+      "description": "Check an alert's source IP on VirusTotal and raise its severity when the IP is reported for abuse.",
+      "visible": true,
+      "image": null,
+      "uuid": "e32e5051-9d3d-5e08-9f1a-5e2b1225a8f8",
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "IP Reputation Check with VirusTotal",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Run it on an alert. Looks up the alert's source IP on VirusTotal and sets severity to Critical when this many VirusTotal engines or more flag it as malicious (3 by default, set in the first step). Below the threshold the alert is left as it is. Private and invalid addresses are skipped.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/cebdd867-ca84-51fb-a41f-95b951119708",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "title": "Check source IP on VirusTotal",
+                "resources": [
+                  "alerts"
+                ],
+                "route": "4fd45d08-0913-5ea1-8410-42132de0e801",
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false,
+                "noRecordExecution": false,
+                "singleRecordExecution": true,
+                "__triggerLimit": true,
+                "executeButtonText": "Execute",
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "cebdd867-ca84-51fb-a41f-95b951119708"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Settings",
+              "description": null,
+              "arguments": {
+                "threshold": 3,
+                "source_ip": "{{ vars.input.records[0].sourceIp | default('', true) | string | trim }}"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "ffee6d3b-b570-52db-905f-4408e2d0f8bf"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Is it a public IP",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Public IP",
+                    "condition": "{{ (vars.source_ip | ipaddr('public')) is string and '/' not in vars.source_ip }}",
+                    "step_iri": "/api/3/workflow_steps/b884ba14-6c7d-5f24-a91a-06b6e4505c0c",
+                    "step_name": "Check IP on VirusTotal"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/08310165-8bb6-57f8-a3c1-b1190845f774",
+                    "step_name": "Not a public IP"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "5110cca6-dd9a-5c83-b2c1-ba9937e14766"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Not a public IP",
+              "description": null,
+              "arguments": {
+                "changed": false,
+                "reason": "source IP '{{ vars.source_ip }}' is empty, private or not an IP address"
+              },
+              "status": null,
+              "top": "510",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "08310165-8bb6-57f8-a3c1-b1190845f774"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Check IP on VirusTotal",
+              "description": null,
+              "arguments": {
+                "connector": "virustotal",
+                "operation": "query_ip",
+                "config": "",
+                "params": {
+                  "ip": "{{ vars.source_ip }}"
+                },
+                "version": "3.2.1",
+                "name": "VirusTotal",
+                "operationTitle": "Get IP Reputation",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "b884ba14-6c7d-5f24-a91a-06b6e4505c0c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Read the engine count",
+              "description": null,
+              "arguments": {
+                "score": "{{ (vars.steps.Check_IP_on_VirusTotal.data.attributes.last_analysis_stats.malicious)\n   | default(0, true) | int }}"
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "8d03ffe1-0dfd-51e9-929b-464f46fe1ac4"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Over the threshold",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Malicious",
+                    "condition": "{{ vars.score | int >= vars.threshold | int }}",
+                    "step_iri": "/api/3/workflow_steps/db367941-8106-5959-a042-5d5be83b9ab8",
+                    "step_name": "Set severity to Critical"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/0edf4861-8530-5900-9b6a-b4a172467463",
+                    "step_name": "Below the threshold"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "770",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "30092a51-8050-5a2f-aafe-44b75d3b87f5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Below the threshold",
+              "description": null,
+              "arguments": {
+                "changed": false,
+                "score": "{{ vars.score }}",
+                "reason": "{{ vars.score }} malicious engines is below the threshold of {{ vars.threshold }}"
+              },
+              "status": null,
+              "top": "900",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "0edf4861-8530-5900-9b6a-b4a172467463"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set severity to Critical",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "severity": "/api/3/picklists/7efa2220-39bb-44e4-961f-ac368776e3b0"
+                },
+                "collectionType": "/api/3/alerts",
+                "collection": "{{ vars.input.records[0]['@id'] }}"
+              },
+              "status": null,
+              "top": "900",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928722",
+              "group": null,
+              "uuid": "db367941-8106-5959-a042-5d5be83b9ab8"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Raised",
+              "description": null,
+              "arguments": {
+                "changed": true,
+                "score": "{{ vars.score }}",
+                "reason": "{{ vars.score }} malicious engines is at or above the threshold of {{ vars.threshold }}"
+              },
+              "status": null,
+              "top": "1030",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "1f9fe92f-b41b-5a0f-ab03-c617f9bd972d"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Settings",
+              "targetStep": "/api/3/workflow_steps/ffee6d3b-b570-52db-905f-4408e2d0f8bf",
+              "sourceStep": "/api/3/workflow_steps/cebdd867-ca84-51fb-a41f-95b951119708",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "352e5af7-8c4d-509b-b381-09b17bb3bfca"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Settings -> Is it a public IP",
+              "targetStep": "/api/3/workflow_steps/5110cca6-dd9a-5c83-b2c1-ba9937e14766",
+              "sourceStep": "/api/3/workflow_steps/ffee6d3b-b570-52db-905f-4408e2d0f8bf",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "c4bdda59-6442-5295-a676-a57a4e0471ef"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Is it a public IP -> Check IP on VirusTotal",
+              "targetStep": "/api/3/workflow_steps/b884ba14-6c7d-5f24-a91a-06b6e4505c0c",
+              "sourceStep": "/api/3/workflow_steps/5110cca6-dd9a-5c83-b2c1-ba9937e14766",
+              "label": "Public IP",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "8cac9669-015a-5aef-9ec8-fc15f1feb582"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Is it a public IP -> Not a public IP",
+              "targetStep": "/api/3/workflow_steps/08310165-8bb6-57f8-a3c1-b1190845f774",
+              "sourceStep": "/api/3/workflow_steps/5110cca6-dd9a-5c83-b2c1-ba9937e14766",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "513dd407-538c-5111-8af2-157e2d415a07"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Check IP on VirusTotal -> Read the engine count",
+              "targetStep": "/api/3/workflow_steps/8d03ffe1-0dfd-51e9-929b-464f46fe1ac4",
+              "sourceStep": "/api/3/workflow_steps/b884ba14-6c7d-5f24-a91a-06b6e4505c0c",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "db81610c-64ee-5dec-957a-23fc75736fe2"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Read the engine count -> Over the threshold",
+              "targetStep": "/api/3/workflow_steps/30092a51-8050-5a2f-aafe-44b75d3b87f5",
+              "sourceStep": "/api/3/workflow_steps/8d03ffe1-0dfd-51e9-929b-464f46fe1ac4",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "93f2313d-f437-5830-a87c-017ec5dafec0"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Over the threshold -> Set severity to Critical",
+              "targetStep": "/api/3/workflow_steps/db367941-8106-5959-a042-5d5be83b9ab8",
+              "sourceStep": "/api/3/workflow_steps/30092a51-8050-5a2f-aafe-44b75d3b87f5",
+              "label": "Malicious",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e9c1cd40-9494-51b0-8878-b46afd8e6c10"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Over the threshold -> Below the threshold",
+              "targetStep": "/api/3/workflow_steps/0edf4861-8530-5900-9b6a-b4a172467463",
+              "sourceStep": "/api/3/workflow_steps/30092a51-8050-5a2f-aafe-44b75d3b87f5",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "fac883b8-bca2-59f1-bd82-7acb1d8ca772"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set severity to Critical -> Raised",
+              "targetStep": "/api/3/workflow_steps/1f9fe92f-b41b-5a0f-ab03-c617f9bd972d",
+              "sourceStep": "/api/3/workflow_steps/db367941-8106-5959-a042-5d5be83b9ab8",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "5b70807a-db6f-5532-8ff1-cc0b0ae7459f"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "0cd185f2-c767-503f-8c7b-8ed10125dc2e",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}
