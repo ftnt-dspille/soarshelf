@@ -135,4 +135,7 @@ def add(source: str, form: dict[str, Any], content: Path, *, dry_run: bool) -> t
             target = Path(tmp) / "content"
             shutil.copytree(content, target)
         res = intake(file, form, login, target, author_id=uid)
+        if res.written and not dry_run:
+            from .review_yaml import sync_item
+            sync_item(res.written)          # the readable YAML view (a no-op for connectors and widgets)
         return res, (None if dry_run else res.written)

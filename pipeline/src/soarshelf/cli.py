@@ -160,6 +160,18 @@ def _test_live(args: argparse.Namespace) -> int:
     return 0
 
 
+def _yaml(args: argparse.Namespace) -> int:
+    from . import review_yaml
+
+    stale = review_yaml.sync_item(args.item, args.check) if args.item else review_yaml.sync_content(args.content, args.check)
+    for rel in stale:
+        print(f"{'out of date' if args.check else 'wrote'}: {rel}")
+    if args.check and stale:
+        print("\nRun `soarshelf yaml` and commit the result.")
+        return 1
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="soarshelf", description=__doc__)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -171,6 +183,12 @@ def main(argv: list[str] | None = None) -> int:
     c.add_argument("--json", action="store_true")
     c.add_argument("--clean-out", type=Path, help="write the sanitized file (what gets published) here")
     c.set_defaults(fn=_check)
+
+    y = sub.add_parser("yaml", help="write the readable YAML review view of each playbook (--check: fail if stale)")
+    y.add_argument("--content", type=Path, default=Path("content"))
+    y.add_argument("--item", type=Path, help="only this item folder (content/<kind>/<slug>)")
+    y.add_argument("--check", action="store_true", help="change nothing; exit 1 if any file is out of date")
+    y.set_defaults(fn=_yaml)
 
     b = sub.add_parser("build", help="build site data from content/")
     b.add_argument("--content", type=Path, default=Path("content"))

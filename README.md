@@ -22,6 +22,7 @@ needs, and download a cleaned, inactive copy to import.
 ```bash
 cd pipeline && uv venv && uv pip install -e '.[test]' && .venv/bin/pytest
 cd .. && pipeline/.venv/bin/soarshelf build            # writes site/static/{data,downloads}
+pipeline/.venv/bin/soarshelf yaml                      # refresh the readable playbook YAML views in content/
 cd site && npm install && npm run dev
 ```
 

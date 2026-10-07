@@ -4,8 +4,8 @@ Layout::
 
     content/
       contributors.yaml            # github handle -> trust tier
-      playbooks/<slug>/meta.yaml + one .json payload
-      solution-packs/<slug>/meta.yaml + one .zip payload
+      playbooks/<slug>/meta.yaml + one .json payload (+ playbook.yaml, a generated review view)
+      solution-packs/<slug>/meta.yaml + one .zip payload (+ playbooks/*.yaml, generated review views)
       connectors/<slug>/meta.yaml + info.json, or + package/<folder>/... (the source, rebuilt into the .tgz)
       collections/<slug>.yaml      # a curated, ordered list of items
 
@@ -74,7 +74,7 @@ def payload_of(item: Path) -> Path:
     """The item's one payload file, or its ``package/`` folder (connector/widget source)."""
     if (item / "package").is_dir():
         return item / "package"
-    files = [p for p in item.iterdir() if p.is_file() and p.name != "meta.yaml" and not p.name.startswith(".")]
+    files = [p for p in item.iterdir() if p.is_file() and p.name not in ("meta.yaml", "playbook.yaml") and not p.name.startswith(".")]
     if len(files) != 1:
         raise SystemExit(f"{item}: expected exactly one payload file next to meta.yaml, found {len(files)}")
     return files[0]

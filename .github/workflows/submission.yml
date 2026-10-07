@@ -210,6 +210,9 @@ jobs:
           fi
           mkdir -p "content/$dir"
           cp -R "/tmp/out/content/$dir/$slug" "content/$dir/$slug"
+          # The readable YAML view is generated here, from the validated payload by main's own
+          # code, so the upload job never gets to write it and the allowlist above stays strict.
+          /tmp/p/bin/soarshelf yaml --item "content/$dir/$slug"
           { echo "LOGIN=$login"; echo "SLUG=$slug"; echo "ACTION=$action"; } >> "$GITHUB_ENV"
 
       - name: Open the pull request

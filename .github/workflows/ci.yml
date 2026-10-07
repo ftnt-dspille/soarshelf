@@ -29,6 +29,10 @@ jobs:
           .venv/bin/pytest -q
           .venv/bin/pip-audit --skip-editable
 
+      # The readable YAML views next to each playbook must match the JSON they came from.
+      - name: Playbook YAML views are current
+        run: pipeline/.venv/bin/soarshelf yaml --check
+
       # Fails the build if any item in content/ has a blocking finding.
       - name: Check content and build site data
         run: pipeline/.venv/bin/soarshelf build --content content --out site/static

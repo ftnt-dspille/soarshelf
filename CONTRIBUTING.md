@@ -63,6 +63,16 @@ soarshelf add https://github.com/you/kit/tree/main/widgets/x --use-case reportin
 
 Add `--dry-run` to see the report without writing anything.
 
+Playbooks and solution packs also carry a readable YAML view next to the JSON
+(`playbook.yaml`, or `playbooks/<collection>/<playbook>.yaml` in a pack): the
+playbook as `fsr-playbooks` authoring YAML, one block per step with its connector,
+arguments and where it goes next, minus canvas positions and uuids. Reviewers read
+that instead of the export. It is generated, not edited, and the JSON stays the
+source of truth. `soarshelf add` and the upload pipeline write it, and
+`soarshelf yaml` refreshes it. CI fails if one is out of date
+(`soarshelf yaml --check`). Run it from the pipeline venv: the views are generated
+with the exact `fsr-playbooks` release pinned in `pipeline/pyproject.toml`.
+
 ## Updating your item
 
 Upload the new version on the upload page, the same way as the first time.

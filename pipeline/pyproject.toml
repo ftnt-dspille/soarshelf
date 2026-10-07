@@ -6,6 +6,9 @@ requires-python = ">=3.11"
 license = "MIT"
 dependencies = [
     "pyfsr>=0.23.1",
+    # Pinned exactly: the YAML views under content/ are generated with it, and a new release can word
+    # things differently, which CI (`soarshelf yaml --check`) would report as every view being stale.
+    "fsr-playbooks==0.6.62",
     "pyyaml>=6",
     "pillow>=10",
 ]
