@@ -76,13 +76,31 @@ describe('findWorkflow', () => {
     expect(await findWorkflow(enc.encode(JSON.stringify(doc)), 'x-1.0.0.json', 'missing')).toBeNull();
   });
 
+  const wf = JSON.stringify({ '@type': 'Workflow', ...workflow });
+
   it('finds a playbook in a solution pack', async () => {
     const pack = zip({
       'export_1/info.json': '{}',
       'export_1/playbooks/tags.json': '{"uuid": "wf-1"}',
       'export_1/playbooks/Coll/collection.metadata.json': '{"name": "Coll"}',
-      'export_1/playbooks/Coll/Route.json': JSON.stringify(workflow)
+      'export_1/playbooks/Coll/Route.json': wf
     });
     expect((await findWorkflow(pack, 'pack-1.0.0.zip', 'wf-1'))?.name).toBe('Route');
+  });
+
+  it('only reads what the pipeline sanitized, and refuses a uuid claimed twice', async () => {
+    const decoy = JSON.stringify({ ...workflow, name: 'Decoy' });
+    // not @type Workflow, or outside <root>/playbooks/: the pipeline never sanitized these
+    const outside = zip({
+      'export_1/info.json': '{}',
+      'export_1/playbooks/Coll/A.json': decoy,
+      'export_1/other/playbooks/Coll/B.json': JSON.stringify({ '@type': 'Workflow', ...workflow, name: 'Decoy' }),
+      'export_1/playbooks/Coll/Route.json': wf
+    });
+    expect((await findWorkflow(outside, 'p.zip', 'wf-1'))?.name).toBe('Route');
+    const twice = zip({ 'export_1/info.json': '{}', 'export_1/playbooks/C/a.json': wf, 'export_1/playbooks/C/b.json': wf });
+    expect(await findWorkflow(twice, 'p.zip', 'wf-1')).toBeNull();
+    const doc = { data: [{ workflows: [workflow] }, { workflows: [workflow] }] };
+    expect(await findWorkflow(enc.encode(JSON.stringify(doc)), 'x.json', 'wf-1')).toBeNull();
   });
 });

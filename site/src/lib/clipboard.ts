@@ -30,24 +30,31 @@ export async function findWorkflow(bytes: Uint8Array, filename: string, uuid: st
       return null;
     }
   };
+  // Exactly one match, or nothing: two playbooks claiming one uuid means we can't
+  // be sure the copy is the one the viewer showed.
+  const only = (found: Obj[]) => (found.length === 1 ? found[0] : null);
   if (filename.toLowerCase().endsWith('.zip')) {
-    for (const e of await zipEntries(bytes)) {
-      // playbooks/<collection>/<playbook>.json; files directly in playbooks/ are pack-level (tags.json).
-      const parts = e.path.split('/');
-      const name = parts.at(-1) ?? '';
-      if (!parts.slice(0, -2).includes('playbooks') || parts.at(-2) === 'playbooks') continue;
-      if (!name.endsWith('.json') || name === 'collection.metadata.json') continue;
+    // The pipeline's rule (process.py _pack): under the folder holding info.json,
+    // playbooks/**.json with @type Workflow. Only those were sanitized and graphed.
+    const entries = await zipEntries(bytes);
+    const info = entries.find((e) => e.path.split('/').at(-1) === 'info.json' && e.path.split('/').length <= 2);
+    if (!info) return null;
+    const root = info.path.slice(0, -'info.json'.length);
+    const found: Obj[] = [];
+    for (const e of entries) {
+      if (!e.path.startsWith(root + 'playbooks/') || !e.path.endsWith('.json')) continue;
       const w = parse(e.data);
-      if (isObj(w) && w.uuid === uuid) return w;
+      if (isObj(w) && w['@type'] === 'Workflow' && w.uuid === uuid) found.push(w);
     }
-    return null;
+    return only(found);
   }
   const doc = parse(bytes);
   const collections = isObj(doc) && Array.isArray(doc.data) ? doc.data : [];
+  const found: Obj[] = [];
   for (const c of collections)
     for (const w of isObj(c) && Array.isArray(c.workflows) ? c.workflows : [])
-      if (isObj(w) && w.uuid === uuid) return w;
-  return null;
+      if (isObj(w) && w.uuid === uuid) found.push(w);
+  return only(found);
 }
 
 /** The clipboard document for one exported playbook, or null when the designer
