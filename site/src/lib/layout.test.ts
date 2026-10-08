@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { NODE_H, NODE_W, autoLayout, fitZoom, jumpPoints } from './layout';
+import { NODE_H, NODE_W, NOTE_W, autoLayout, fitZoom, jumpPoints, placeGroups } from './layout';
 import type { PlaybookEdge, PlaybookNode } from './types';
 
 const n = (id: string): PlaybookNode => ({ id, name: id, label: 'Step', family: 'utility', x: 0, y: 0, args: {} });
@@ -113,3 +113,36 @@ describe('autoLayout', () => {
   });
 });
 
+
+describe('placeGroups', () => {
+  const rect = (p: { x: number; y: number }) => ({ x: p.x, y: p.y, w: NODE_W, h: NODE_H });
+  const hit = (a: { x: number; y: number; w: number; h: number }, b: typeof a) =>
+    a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+
+  it('puts each note beside its step without covering any step or other note', () => {
+    const { nodes, edges } = chain(4);
+    const l = autoLayout(nodes, edges, 960, 600);
+    const a = placeGroups(l, [
+      { id: 'n1', kind: 'note', name: 'One', text: 'x'.repeat(200), anchor: 's1' },
+      { id: 'n2', kind: 'note', name: 'Two', text: 'short', anchor: 's1' }
+    ]);
+    const notes = [...a.notes.values()];
+    expect(notes).toHaveLength(2);
+    for (const r of notes) for (const p of l.positions.values()) expect(hit(r, rect(p))).toBe(false);
+    expect(hit(notes[0], notes[1])).toBe(false);
+    expect(notes[0].w).toBe(NOTE_W);
+    expect(a.width).toBeGreaterThanOrEqual(Math.max(...notes.map((r) => r.x + r.w)) - a.left);
+  });
+
+  it('boxes a block around its steps, but not when another step would land inside', () => {
+    const { nodes, edges } = chain(3); // one top-down column (see the first autoLayout test)
+    const l = autoLayout(nodes, edges, 960, 600);
+    const a = placeGroups(l, [{ id: 'b', kind: 'block', name: 'B', text: '', steps: ['s1', 's2'] }]);
+    const box = a.blocks.get('b')!;
+    for (const id of ['s1', 's2']) {
+      const p = l.positions.get(id)!;
+      expect(p.x >= box.x && p.y >= box.y && p.x + NODE_W <= box.x + box.w && p.y + NODE_H <= box.y + box.h).toBe(true);
+    }
+    expect(placeGroups(l, [{ id: 'b', kind: 'block', name: 'B', text: '', steps: ['s0', 's2'] }]).blocks.size).toBe(0);
+  });
+});

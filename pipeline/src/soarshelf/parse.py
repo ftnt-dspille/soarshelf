@@ -30,6 +30,7 @@ def parse_workflow(wf: dict[str, Any]) -> ParsedPlaybook:
             arguments=args if isinstance(args, dict) else {},
             x=_int(s.get("left")),
             y=_int(s.get("top")),
+            group=_tail(s.get("group")),
         ))
     return ParsedPlaybook(
         name=str(wf.get("name") or ""),
@@ -38,6 +39,7 @@ def parse_workflow(wf: dict[str, Any]) -> ParsedPlaybook:
         steps=steps,
         routes=[r for r in wf.get("routes") or [] if isinstance(r, dict)],
         uuid=str(wf.get("uuid") or "").lower(),
+        groups=[g for g in wf.get("groups") or [] if isinstance(g, dict)],
     )
 
 

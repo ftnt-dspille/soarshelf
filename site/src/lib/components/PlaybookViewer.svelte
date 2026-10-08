@@ -4,10 +4,12 @@
   import { untrack } from 'svelte';
   import type { Collection, PlaybookNode } from '$lib/types';
   import { theme } from '$lib/theme.svelte';
-  import { NODE_H, NODE_W, autoLayout, fitZoom, isRouted, jumpPoints, type Layout } from '$lib/layout';
+  import { NODE_H, NODE_W, autoLayout, fitZoom, isRouted, jumpPoints, placeGroups, type Annotations, type Layout } from '$lib/layout';
   import { FAMILY_ICON } from '$lib/icons';
   import { FAMILY_KEY } from '$lib/format';
   import StepNode from './StepNode.svelte';
+  import NoteNode from './NoteNode.svelte';
+  import BlockNode from './BlockNode.svelte';
   import JumpEdge from './JumpEdge.svelte';
   import StepInspector from './StepInspector.svelte';
 import MinimapNav from './MinimapNav.svelte';
@@ -61,20 +63,47 @@ import MinimapNav from './MinimapNav.svelte';
   let selectedId = $state<string | null>(null);
   const selected = $derived(playbook?.nodes.find((n) => n.id === selectedId) ?? null);
 
-  const nodeTypes = { step: StepNode };
+  const nodeTypes = { step: StepNode, note: NoteNode, block: BlockNode };
   const edgeTypes = { jump: JumpEdge };
   let boxW = $state(0);
   let boxH = $state(0);
+  let canvasEl: HTMLDivElement | undefined = $state();
+  // Read from the element: bind:clientHeight lags behind a height change.
+  const frameW = () => canvasEl?.clientWidth || boxW || 960;
+  const frameH = () => canvasEl?.clientHeight || boxH || 600;
+  // Long playbooks get a taller canvas (decided before layout, so the layout fits it).
+  const tall = $derived((playbook?.nodes.length ?? 0) > 12);
 
   // Always laid out automatically: export coordinates are often missing or
   // overlapping, and a consistent layout reads better across playbooks.
   let layout: Layout | null = null;
+  let extras: Annotations | null = null;
+  // Note node id -> the step it belongs to (clicking a note selects that step).
+  let noteAnchor = new Map<string, string>();
+
+  function groupNodes(): Node[] {
+    if (!playbook?.groups?.length || !layout) return [];
+    const l = layout;
+    const a = (extras = placeGroups(l, playbook.groups));
+    noteAnchor = new Map();
+    return playbook.groups.flatMap((g): Node[] => {
+      const r = g.kind === 'note' ? a.notes.get(g.id) : a.blocks.get(g.id);
+      if (!r) return [];
+      if (g.kind === 'note') noteAnchor.set(`note-${g.id}`, g.anchor);
+      return g.kind === 'note'
+        ? [{ id: `note-${g.id}`, type: 'note', position: { x: r.x, y: r.y }, data: { name: g.name, text: g.text, height: r.h, dir: l.dir },
+            draggable: false, connectable: false, deletable: false, selectable: false }]
+        : [{ id: `block-${g.id}`, type: 'block', position: { x: r.x, y: r.y }, zIndex: -1, data: { name: g.name, text: g.text, width: r.w, height: r.h },
+            draggable: false, connectable: false, deletable: false, selectable: false, focusable: false }];
+    });
+  }
 
   function buildNodes(): Node[] {
     if (!playbook) return [];
-    layout = autoLayout(playbook.nodes, playbook.edges, boxW || 960, boxH || 600);
+    layout = autoLayout(playbook.nodes, playbook.edges, frameW(), frameH());
+    extras = null;
     const l = layout;
-    return playbook.nodes.map((n) => ({
+    return [...groupNodes(), ...playbook.nodes.map((n) => ({
       id: n.id,
       type: 'step',
       position: l.positions.get(n.id) ?? { x: 0, y: 0 },
@@ -89,14 +118,32 @@ import MinimapNav from './MinimapNav.svelte';
       draggable: false,
       connectable: false,
       deletable: false
-    }));
+    }))];
   }
 
   function buildEdges(): Edge[] {
     if (!playbook) return [];
     const l = layout;
     const at = (id: string) => l?.positions.get(id) ?? { x: 0, y: 0 };
-    return playbook.edges.map((e) => {
+    const noteLinks: Edge[] = [...noteAnchor].map(([id, anchor]) => {
+      // A note placed before its step (left of it, or above in a sideways layout) links from that side.
+      const r = extras?.notes.get(id.slice('note-'.length));
+      const p = at(anchor);
+      const before = !!r && (l?.dir === 'LR' ? r.y + r.h <= p.y : r.x + r.w <= p.x);
+      return {
+      id: `link-${id}`,
+      source: anchor,
+      sourceHandle: before ? 'note-alt' : 'note',
+      target: id,
+      targetHandle: before ? 'in-alt' : 'in',
+      type: 'straight',
+      style: 'stroke: var(--faint); stroke-dasharray: 4 4;',
+      deletable: false,
+      selectable: false,
+      focusable: false
+      };
+    });
+    return [...noteLinks, ...playbook.edges.map((e) => {
       const jump = !!l && isRouted(l, e.id);
       // The line runs along the gap between the two columns.
       const gx = jump
@@ -113,14 +160,14 @@ import MinimapNav from './MinimapNav.svelte';
       deletable: false,
       selectable: false
       };
-    });
+    })];
   }
 
   // Rebuilt (and the canvas re-keyed) only when the playbook changes or the
   // canvas is first measured, not on selection changes.
   let nodes = $state.raw<Node[]>([]);
   let edges = $state.raw<Edge[]>([]);
-  const viewKey = $derived(`${selectedKey}|${boxW > 0}`);
+  const viewKey = $derived(`${selectedKey}|${boxW > 0}|${tall}`);
   // The canvas is re-created via renderKey only after nodes are rebuilt, so its
   // initial viewport is computed from the new playbook rather than the previous one.
   let renderKey = $state(0);
@@ -136,21 +183,24 @@ import MinimapNav from './MinimapNav.svelte';
   });
 
   // Open on the whole playbook, centred, at the largest zoom that fits it
-  // (capped so small playbooks don't look oversized).
+  // (capped so small playbooks don't look oversized). A playbook too big to fit
+  // at a readable size opens at its top instead, and the rest is a pan away.
+  const READABLE = 0.6;
   function initialViewport() {
-    if (!layout || !boxW || !boxH) return { x: 0, y: 0, zoom: 1 };
+    if (!layout || !boxW) return { x: 0, y: 0, zoom: 1 };
+    const W = frameW(), H = frameH();
+    const box = extras ?? { left: 0, top: 0, width: layout.width, height: layout.height };
     // Wrapped layouts need room above and below the columns for the lines between them.
-    const zoom = Math.max(Math.min(fitZoom(layout, boxW, boxH, layout.wrapped.size || layout.sideX?.size ? 56 : 32), 1), 0.2);
-    return {
-      x: (boxW - layout.width * zoom) / 2,
-      y: (boxH - layout.height * zoom) / 2,
-      zoom
-    };
+    const fit = Math.min(fitZoom(box, W, H, layout.wrapped.size || layout.sideX?.size ? 56 : 32), 1);
+    const zoom = Math.max(fit, READABLE);
+    const x = box.width * zoom <= W ? (W - box.width * zoom) / 2 : 24;
+    const y = box.height * zoom <= H ? (H - box.height * zoom) / 2 : 16;
+    return { x: x - box.left * zoom, y: y - box.top * zoom, zoom };
   }
 
   function selectNode(n: PlaybookNode | null) {
     selectedId = n?.id ?? null;
-    nodes = nodes.map((x) => ({ ...x, selected: x.id === selectedId }));
+    nodes = nodes.map((x) => (x.type && x.type !== 'step' ? x : { ...x, selected: x.id === selectedId }));
   }
 
   // A later deep link to another step of the same playbook.
@@ -163,6 +213,20 @@ import MinimapNav from './MinimapNav.svelte';
   });
 
   let flow: ReturnType<typeof useSvelteFlow> | null = null;
+
+  // Opening the inspector narrows the canvas: pan if the selected step would be hidden.
+  $effect(() => {
+    const id = selectedId;
+    void boxW;
+    untrack(() => {
+      const placed = id ? nodes.find((x) => x.id === id) : undefined;
+      if (!flow || !placed) return;
+      const { x, y, zoom } = flow.getViewport();
+      const left = placed.position.x * zoom + x, top = placed.position.y * zoom + y;
+      const out = left < 0 || top < 0 || left + NODE_W * zoom > frameW() || top + NODE_H * zoom > frameH();
+      if (out) flow.setCenter(placed.position.x + NODE_W / 2, placed.position.y + NODE_H / 2, { zoom, duration: 250 });
+    });
+  });
 
   /** Select a step by name and bring it into view (decision branch links). */
   function jumpTo(name: string) {
@@ -286,7 +350,12 @@ import MinimapNav from './MinimapNav.svelte';
     {/if}
 
     <div class="flex flex-col lg:flex-row">
-      <div class="h-[460px] min-w-0 flex-1 sm:h-[600px]" bind:clientWidth={boxW} bind:clientHeight={boxH}>
+      <div
+        bind:this={canvasEl}
+        class="min-w-0 flex-1 {tall ? 'h-[560px] sm:h-[min(85vh,860px)]' : 'h-[460px] sm:h-[600px]'}"
+        bind:clientWidth={boxW}
+        bind:clientHeight={boxH}
+      >
         {#key renderKey}
           {#if boxW && nodes.length}
           <SvelteFlow
@@ -305,7 +374,11 @@ import MinimapNav from './MinimapNav.svelte';
             zoomOnScroll={false}
             panOnScroll={false}
             preventScrolling={false}
-            onnodeclick={({ node }) => selectNode((node.data as { step: PlaybookNode }).step)}
+            onnodeclick={({ node }) => {
+              if (node.type === 'block') return;
+              const id = node.type === 'note' ? noteAnchor.get(node.id) : node.id;
+              selectNode(playbook?.nodes.find((n) => n.id === id) ?? null);
+            }}
             onpaneclick={() => selectNode(null)}
           >
             <Background gap={18} size={1.2} />
@@ -316,12 +389,12 @@ import MinimapNav from './MinimapNav.svelte';
         {/key}
       </div>
 
-      <aside
-        class="border-t border-line lg:w-[380px] lg:shrink-0 lg:border-t-0 lg:border-l"
-        aria-label="Step inspector"
-        aria-live="polite"
-      >
-        {#if selected}
+      {#if selected}
+        <aside
+          class="border-t border-line lg:w-[380px] lg:shrink-0 lg:border-t-0 lg:border-l"
+          aria-label="Step inspector"
+          aria-live="polite"
+        >
           <StepInspector
             step={selected}
             connectorLabel={selected.connector ? (labels.get(selected.connector) ?? selected.connector) : null}
@@ -330,21 +403,20 @@ import MinimapNav from './MinimapNav.svelte';
             child={selected.reference ? (rel.byUuid.get(selected.reference.toLowerCase()) ?? null) : null}
             onopen={openPlaybook}
           />
-        {:else}
-          <div class="p-5 text-sm text-muted">
-            <p class="font-medium text-fg">Inspect a step</p>
-            <p class="mt-1">Select any step to see its type, connector operation and arguments.</p>
-            <ul class="mt-4 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
-              {#each [...new Set(playbook.nodes.map((n) => n.family))] as fam (fam)}
-                {@const Icon = FAMILY_ICON[fam]}
-                <li class="flex items-center gap-1.5">
-                  <span style="color: var(--fam-{fam})" aria-hidden="true"><Icon size={13} /></span>{FAMILY_KEY[fam]}
-                </li>
-              {/each}
-            </ul>
-          </div>
-        {/if}
-      </aside>
+        </aside>
+      {/if}
     </div>
+    {#if !selected}
+      <!-- With nothing selected the graph gets the full width; the key sits underneath. -->
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-line px-4 py-2.5 text-xs text-muted">
+        <span class="font-medium text-fg">Select a step to inspect it</span>
+        {#each [...new Set(playbook.nodes.map((n) => n.family))] as fam (fam)}
+          {@const Icon = FAMILY_ICON[fam]}
+          <span class="inline-flex items-center gap-1.5">
+            <span style="color: var(--fam-{fam})" aria-hidden="true"><Icon size={13} /></span>{FAMILY_KEY[fam]}
+          </span>
+        {/each}
+      </div>
+    {/if}
   </div>
 {/if}

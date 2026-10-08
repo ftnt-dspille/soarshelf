@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any
 
 from . import config
-from .model import ParsedCollection
+from .model import ParsedCollection, ParsedPlaybook
 from .parse import route_ends
 
 # Arguments too noisy or too large to be useful in the inspector.
@@ -18,6 +18,58 @@ def _args(args: dict[str, Any]) -> dict[str, Any]:
     text = json.dumps(out, ensure_ascii=False)
     if len(text) > _MAX_ARG_CHARS:
         return {"_truncated": f"{len(text)} characters - download the file for the full step."}
+    return out
+
+
+# A designer step's footprint, for finding the step a note sits beside.
+_STEP_W, _STEP_H = 230, 54
+_MAX_NOTE_CHARS = 1000
+
+
+def _num(v: Any) -> float:
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _text(v: Any, limit: int) -> str:
+    t = str(v or "").strip()
+    return t if len(t) <= limit else t[: limit - 1].rstrip() + "…"
+
+
+def _groups(pb: ParsedPlaybook) -> list[dict[str, Any]]:
+    """The playbook's notes and blocks for the viewer. The viewer lays steps out
+    itself, so a note can't keep its canvas position: it is tied to the step it
+    sat closest to in the designer. A block lists the steps inside it."""
+    blocks = {str(g.get("uuid")): g for g in pb.groups if g.get("type") != "note" and g.get("uuid")}
+
+    def box(s) -> tuple[float, float, float, float]:
+        g = blocks.get(s.group)        # steps inside a block are positioned relative to it
+        x, y = s.x + (_num(g.get("left")) if g else 0), s.y + (_num(g.get("top")) if g else 0)
+        return x, y, x + _STEP_W, y + _STEP_H
+
+    def gap(a: tuple[float, float, float, float], b: tuple[float, float, float, float]) -> float:
+        dx = max(0.0, a[0] - b[2], b[0] - a[2])
+        dy = max(0.0, a[1] - b[3], b[1] - a[3])
+        return (dx * dx + dy * dy) ** 0.5
+
+    out: list[dict[str, Any]] = []
+    for g in pb.groups:
+        gid = str(g.get("uuid") or "")
+        name, text = _text(g.get("name"), 120), _text(g.get("description"), _MAX_NOTE_CHARS)
+        if not gid or not (name or text):
+            continue
+        members = [s.id for s in pb.steps if s.group == gid]
+        if g.get("type") != "note" and members:
+            out.append({"id": gid, "kind": "block", "name": name, "text": text, "steps": members})
+            continue
+        if not pb.steps:
+            continue
+        left, top = _num(g.get("left")), _num(g.get("top"))
+        area = (left, top, left + _num(g.get("width")), top + _num(g.get("height")))
+        near = min(pb.steps, key=lambda s: (gap(area, box(s)), s.y, s.x))
+        out.append({"id": gid, "kind": "note", "name": name, "text": text, "anchor": near.id})
     return out
 
 
@@ -62,6 +114,6 @@ def collections_graph(collections: list[ParsedCollection]) -> list[dict[str, Any
                     edges.append({"id": str(r.get("uuid") or f"{src}-{dst}"), "source": src,
                                   "target": dst, "label": r.get("label") or None})
             pbs.append({"name": pb.name, "uuid": pb.uuid, "description": pb.description, "trigger": trigger_label(pb),
-                        "nodes": nodes, "edges": edges})
+                        "nodes": nodes, "edges": edges, "groups": _groups(pb)})
         out.append({"name": c.name, "description": c.description, "playbooks": pbs})
     return out

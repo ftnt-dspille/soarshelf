@@ -59,7 +59,8 @@
     pannable
     zoomable
     ariaLabel="Overview map: click to jump, drag to pan"
-    nodeColor={(n: Node) => `var(--fam-${(n.data as { step: PlaybookNode }).step.family})`}
+    nodeColor={(n: Node) =>
+      n.type === 'note' ? 'var(--warn)' : n.type === 'block' ? 'transparent' : `var(--fam-${(n.data as { step: PlaybookNode }).step.family})`}
     nodeBorderRadius={6}
     class="!hidden cursor-pointer sm:!block"
   />

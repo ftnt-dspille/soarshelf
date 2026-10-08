@@ -3,12 +3,14 @@
   import type { PlaybookNode } from '$lib/types';
   import { FAMILY_ICON } from '$lib/icons';
   import { humanizeKey } from '$lib/args';
+  import { NODE_H, NODE_W } from '$lib/layout';
 
   type StepData = { step: PlaybookNode; connectorLabel: string | null; connectorIcon?: string | null; childName?: string | null; dir: 'TB' | 'LR' };
   let { data, selected }: NodeProps<Node<StepData>> = $props();
   const step = $derived(data.step);
   const Icon = $derived(FAMILY_ICON[step.family]);
   const across = $derived(data.dir === 'LR');
+  const noteAt = $derived(across ? `left: ${NODE_W / 2}px` : `top: ${NODE_H / 2}px`);
   // A code snippet step's connector is also called "Code Snippet"; say it once.
   const showConnector = $derived(
     !!step.connector && !!data.connectorLabel && data.connectorLabel.trim().toLowerCase() !== step.label.trim().toLowerCase()
@@ -25,9 +27,16 @@
     {#if step.operation}<span class="op" title={step.operation}>{step.operationTitle ?? humanizeKey(step.operation)}</span>{/if}
   </span>
   <Handle type="source" position={across ? Position.Right : Position.Bottom} isConnectable={false} />
+  <!-- Where a note's dashed link starts: beside the step, away from the flow. -->
+  <!-- At the layout's middle of the step (a step with an operation line renders taller), where its note is centred. -->
+  <Handle type="source" id="note" class="note-handle" position={across ? Position.Bottom : Position.Right} style={noteAt} isConnectable={false} />
+  <Handle type="source" id="note-alt" class="note-handle" position={across ? Position.Top : Position.Left} style={noteAt} isConnectable={false} />
 </div>
 
 <style>
+  .step :global(.note-handle) {
+    opacity: 0;
+  }
   .step {
     width: 236px;
     min-height: 66px;

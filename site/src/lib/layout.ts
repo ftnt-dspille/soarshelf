@@ -1,5 +1,5 @@
 import dagre from 'dagre';
-import type { PlaybookEdge, PlaybookNode } from './types';
+import type { PlaybookEdge, PlaybookGroup, PlaybookNode } from './types';
 
 export const NODE_W = 236;
 export const NODE_H = 66;
@@ -51,8 +51,14 @@ function run(nodes: PlaybookNode[], edges: PlaybookEdge[], dir: Direction): Layo
   });
   g.setDefaultEdgeLabel(() => ({}));
   for (const n of nodes) g.setNode(n.id, { width: NODE_W, height: NODE_H });
+  // A step many others lead to (a shared failure or end step) shouldn't pull the
+  // main flow sideways: its incoming edges count for little when aligning steps,
+  // so the main chain stays straight instead of drifting into a staircase.
+  const into = new Map<string, Set<string>>();
+  for (const e of edges) into.set(e.target, (into.get(e.target) ?? new Set()).add(e.source));
   for (const e of edges) {
-    if (g.hasNode(e.source) && g.hasNode(e.target) && e.source !== e.target) g.setEdge(e.source, e.target);
+    if (!g.hasNode(e.source) || !g.hasNode(e.target) || e.source === e.target) continue;
+    g.setEdge(e.source, e.target, { weight: (into.get(e.target)?.size ?? 0) >= 3 ? 1 : 8 });
   }
   dagre.layout(g);
   const positions = new Map<string, Point>();
@@ -73,7 +79,7 @@ const LANE = 12;
  * Cutting through a decision's open branches would send each of them to the
  * next column as a separate jump line, which hides which path is which.
  */
-function cleanCuts(tb: Layout, edges: PlaybookEdge[], rankOf: Map<string, number>, ranks: number): Set<number> {
+function cleanCuts(tb: Layout, edges: PlaybookEdge[], rankOf: Map<string, number>, ranks: number, loose = false): Set<number> {
   const ok = new Set<number>();
   for (let k = 1; k < ranks; k++) {
     const crossing = edges.filter((e) => {
@@ -83,6 +89,9 @@ function cleanCuts(tb: Layout, edges: PlaybookEdge[], rankOf: Map<string, number
     const targets = new Set(crossing.map((e) => e.target));
     const forward = crossing.every((e) => rankOf.get(e.source)! < rankOf.get(e.target)!);
     if (crossing.length === 1 || (forward && targets.size === 1 && rankOf.get([...targets][0]) === k)) ok.add(k);
+    // Loose: two forward lines may cross too (a decision's branch and the branch that
+    // skips its section). Only used when it shows the playbook clearly larger.
+    else if (loose && forward && crossing.length === 2) ok.add(k);
   }
   return ok;
 }
@@ -93,11 +102,11 @@ function cleanCuts(tb: Layout, edges: PlaybookEdge[], rankOf: Map<string, number
  * Long playbooks are mostly chains, so this shows them far larger than one
  * tall column or one wide row. Null when there aren't enough clean cuts.
  */
-function wrap(tb: Layout, edges: PlaybookEdge[], cols: number): Layout | null {
+function wrap(tb: Layout, edges: PlaybookEdge[], cols: number, loose = false): Layout | null {
   const ys = [...new Set([...tb.positions.values()].map((p) => p.y))].sort((a, b) => a - b);
   const rankIndex = new Map(ys.map((y, i) => [y, i]));
   const rankOf = new Map([...tb.positions].map(([id, p]) => [id, rankIndex.get(p.y)!]));
-  const cuts = cleanCuts(tb, edges, rankOf, ys.length);
+  const cuts = cleanCuts(tb, edges, rankOf, ys.length, loose);
   // Breaks nearest an even split, each column at least two ranks.
   const starts = [0];
   for (let c = 1; c < cols; c++) {
@@ -242,11 +251,135 @@ export function autoLayout(nodes: PlaybookNode[], edges: PlaybookEdge[], frameW 
   // to show the steps clearly larger than an unwrapped layout. Once wrapped,
   // another column costs little more, so it only has to be a bit larger.
   const ranks = new Set([...tb.positions.values()].map((p) => p.y)).size;
-  for (let cols = 2; cols <= Math.min(6, Math.floor(ranks / 2)); cols++) {
-    const w = wrap(tb, edges, cols);
-    if (!w) continue;
-    const bar = best.wrapped.size ? 1.05 : 1.25;
-    if (zoom(w) > zoom(best) * bar) best = w;
+  for (const loose of [false, true]) {
+    for (let cols = 2; cols <= Math.min(6, Math.floor(ranks / 2)); cols++) {
+      const w = wrap(tb, edges, cols, loose);
+      if (!w) continue;
+      // Loose cuts send two lines across a gap, so they have to win clearly.
+      const bar = (best.wrapped.size ? 1.05 : 1.25) * (loose ? 1.15 : 1);
+      if (zoom(w) > zoom(best) * bar) best = w;
+    }
   }
   return routeSkips(best, edges);
+}
+
+// ---- Designer notes and blocks ----------------------------------------------
+// The layout above ignores the designer's canvas, so notes can't keep their
+// position: each sits beside the step it was closest to, slid along until it
+// overlaps nothing. A block is drawn as a box around its steps, but only when no
+// other step would land inside the box.
+
+export const NOTE_W = 240;
+const NOTE_GAP = 40;
+const NOTE_MAX_LINES = 6;
+const BLOCK_PAD = 14;
+const BLOCK_HEAD = 26;
+
+export interface Rect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/** A note card's height: a title row plus up to NOTE_MAX_LINES of text (the card clamps to that). */
+export function noteHeight(text: string): number {
+  if (!text.trim()) return 40;
+  const lines = text.split('\n').reduce((n, p) => n + Math.max(1, Math.ceil(p.length / 34)), 0);
+  return 48 + Math.min(lines, NOTE_MAX_LINES) * 18;
+}
+
+const hits = (a: Rect, b: Rect, gap = 12) =>
+  a.x < b.x + b.w + gap && b.x < a.x + a.w + gap && a.y < b.y + b.h + gap && b.y < a.y + a.h + gap;
+
+export interface Annotations {
+  notes: Map<string, Rect>;
+  blocks: Map<string, Rect>;
+  /** The extent with the annotations included; a block box can start above or left of 0. */
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export function placeGroups(l: Layout, groups: PlaybookGroup[]): Annotations {
+  const nodeRect = (id: string): Rect | null => {
+    const p = l.positions.get(id);
+    return p ? { x: p.x, y: p.y, w: NODE_W, h: NODE_H } : null;
+  };
+  const steps = [...l.positions.keys()].map((id) => ({ id, r: nodeRect(id)! }));
+  const taken: Rect[] = steps.map((s) => s.r);
+  const blocks = new Map<string, Rect>();
+  const notes = new Map<string, Rect>();
+
+  for (const g of groups) {
+    if (g.kind !== 'block') continue;
+    const inside = g.steps.map(nodeRect).filter((r): r is Rect => !!r);
+    if (!inside.length) continue;
+    const x = Math.min(...inside.map((r) => r.x)) - BLOCK_PAD;
+    const y = Math.min(...inside.map((r) => r.y)) - BLOCK_PAD - BLOCK_HEAD;
+    const box = {
+      x,
+      y,
+      w: Math.max(...inside.map((r) => r.x + r.w)) + BLOCK_PAD - x,
+      h: Math.max(...inside.map((r) => r.y + r.h)) + BLOCK_PAD - y
+    };
+    const members = new Set(g.steps);
+    if (steps.some((s) => !members.has(s.id) && hits(box, s.r, 0))) continue;
+    if ([...blocks.values()].some((b) => hits(box, b, 0))) continue;
+    blocks.set(g.id, box);
+  }
+
+  // Top-down layouts put a note to the right of its step and slide it down;
+  // left-to-right layouts put it below and slide it right.
+  const across = l.dir === 'LR';
+  const ordered = groups
+    .filter((g): g is Extract<PlaybookGroup, { kind: 'note' }> => g.kind === 'note' && l.positions.has(g.anchor))
+    .sort((a, b) => {
+      const pa = l.positions.get(a.anchor)!;
+      const pb = l.positions.get(b.anchor)!;
+      return across ? pa.x - pb.x || pa.y - pb.y : pa.y - pb.y || pa.x - pb.x;
+    });
+  for (const g of ordered) {
+    const a = l.positions.get(g.anchor)!;
+    const h = noteHeight(g.text);
+    // Start beside the step (then the other side of it, then further out) and slide along.
+    // Centred on the step, so the note sits evenly beside it and the link runs straight.
+    const mid = across ? a.x + (NODE_W - NOTE_W) / 2 : a.y + (NODE_H - h) / 2;
+    const starts: Rect[] = across
+      ? [a.y + NODE_H + NOTE_GAP, a.y - NOTE_GAP - h, a.y + NODE_H + 2 * NOTE_GAP + h].map((y) => ({ x: mid, y, w: NOTE_W, h }))
+      : [a.x + NODE_W + NOTE_GAP, a.x - NOTE_GAP - NOTE_W, a.x + NODE_W + 2 * NOTE_GAP + NOTE_W].map((x) => ({ x, y: mid, w: NOTE_W, h }));
+    let placed: Rect | null = null;
+    for (const start of starts) {
+      let r = start;
+      for (let i = 0; i < 40; i++) {
+        const hit = [...taken, ...blocks.values()].find((t) => hits(r, t));
+        if (!hit) {
+          placed = r;
+          break;
+        }
+        r = across ? { ...r, x: hit.x + hit.w + 12 } : { ...r, y: hit.y + hit.h + 12 };
+        // Too far from its step to read as its note: try the next start.
+        if (across ? r.x - a.x > NODE_W * 2 : r.y - a.y > NODE_H * 3) break;
+      }
+      if (placed) break;
+    }
+    placed ??= across
+      ? { x: mid, y: Math.max(...taken.map((t) => t.y + t.h)) + NOTE_GAP, w: NOTE_W, h }
+      : { x: Math.max(...taken.map((t) => t.x + t.w)) + NOTE_GAP, y: mid, w: NOTE_W, h };
+    notes.set(g.id, placed);
+    taken.push(placed);
+  }
+
+  const all = [...notes.values(), ...blocks.values()];
+  const left = Math.min(0, ...all.map((r) => r.x));
+  const top = Math.min(0, ...all.map((r) => r.y));
+  return {
+    notes,
+    blocks,
+    left,
+    top,
+    width: Math.max(l.width, ...all.map((r) => r.x + r.w)) - left,
+    height: Math.max(l.height, ...all.map((r) => r.y + r.h)) - top
+  };
 }

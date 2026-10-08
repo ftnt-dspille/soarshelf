@@ -207,7 +207,14 @@ export interface Playbook {
   trigger: string;
   nodes: PlaybookNode[];
   edges: PlaybookEdge[];
+  /** Designer notes and blocks. Older builds have none. */
+  groups?: PlaybookGroup[];
 }
+
+/** A designer note (tied to the step it sat closest to) or a block (a box around steps). */
+export type PlaybookGroup =
+  | { id: string; kind: 'note'; name: string; text: string; anchor: string }
+  | { id: string; kind: 'block'; name: string; text: string; steps: string[] };
 
 export type NodeFamily =
   | 'trigger'

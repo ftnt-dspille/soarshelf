@@ -53,6 +53,7 @@ class Step:
     arguments: dict[str, Any]
     x: int = 0
     y: int = 0
+    group: str = ""     # uuid of the block the step sits in; its x/y are then relative to the block
 
 
 @dataclass
@@ -63,6 +64,7 @@ class ParsedPlaybook:
     steps: list[Step]
     routes: list[dict[str, Any]]
     uuid: str = ""
+    groups: list[dict[str, Any]] = field(default_factory=list)   # notes and blocks, as exported
 
 
 @dataclass
