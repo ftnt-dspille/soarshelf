@@ -14,15 +14,19 @@ import MinimapNav from './MinimapNav.svelte';
   import Zap from '@lucide/svelte/icons/zap';
   import Workflow from '@lucide/svelte/icons/workflow';
   import CornerDownRight from '@lucide/svelte/icons/corner-down-right';
+  import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
+  import ClipboardCheck from '@lucide/svelte/icons/clipboard-check';
   import { playbookRelations, roleOf } from '$lib/playbookRelations';
+  import { clipboardText } from '$lib/clipboard';
 
   let {
     collections,
     labels,
     icons = {},
     initialKey = null,
-    initialStep = null
-  }: { collections: Collection[]; labels: Map<string, string>; icons?: Record<string, string>; initialKey?: string | null; initialStep?: string | null } = $props();
+    initialStep = null,
+    download = null
+  }: { collections: Collection[]; labels: Map<string, string>; icons?: Record<string, string>; initialKey?: string | null; initialStep?: string | null; download?: { path: string; filename: string } | null } = $props();
 
   // Flatten to one list so a single <select> can pick any playbook in any collection.
   const options = $derived(
@@ -171,6 +175,34 @@ import MinimapNav from './MinimapNav.svelte';
       duration: 300
     });
   }
+
+  // Designer clipboard format: paste into any playbook with Cmd/Ctrl+V.
+  let copyState = $state<'idle' | 'copying' | 'copied' | 'failed'>('idle');
+  let copyTimer: ReturnType<typeof setTimeout> | undefined;
+  const canCopy = $derived(!!download && !!playbook?.uuid);
+  $effect(() => {
+    void selectedKey;
+    copyState = 'idle';
+  });
+  async function copySteps() {
+    if (!canCopy || !playbook || copyState === 'copying') return;
+    copyState = 'copying';
+    clearTimeout(copyTimer);
+    try {
+      const text = clipboardText(download!, playbook.uuid!);
+      // Hand the clipboard a promise so the write still counts as part of the click
+      // (Safari drops the permission once we await the download first).
+      if (typeof ClipboardItem !== 'undefined' && navigator.clipboard.write)
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'text/plain': text.then((t) => new Blob([t], { type: 'text/plain' })) })
+        ]);
+      else await navigator.clipboard.writeText(await text);
+      copyState = 'copied';
+    } catch {
+      copyState = 'failed';
+    }
+    copyTimer = setTimeout(() => (copyState = 'idle'), 12_000);
+  }
 </script>
 
 {#if !playbook}
@@ -202,6 +234,30 @@ import MinimapNav from './MinimapNav.svelte';
         <Zap size={12} style="color: var(--fam-trigger)" aria-hidden="true" />{playbook.trigger}
       </span>
       <span class="text-xs text-faint">{playbook.nodes.length} steps</span>
+      {#if canCopy}
+      <div class="ml-auto flex items-center gap-2">
+        {#if copyState === 'copied'}
+          <span class="hidden text-xs text-muted sm:inline">Open a playbook in the designer, click the canvas, press <kbd class="rounded border border-line px-1 font-mono">⌘V</kbd> / <kbd class="rounded border border-line px-1 font-mono">Ctrl V</kbd></span>
+        {:else if copyState === 'failed'}
+          <span class="text-xs text-block">Couldn't copy. Use the download instead.</span>
+        {/if}
+        <button
+          type="button"
+          onclick={copySteps}
+          disabled={copyState === 'copying'}
+          title={calls.length
+            ? 'Copies the steps for pasting into the playbook designer. This playbook calls other playbooks in this item: import the download to get those too.'
+            : 'Copies the steps for pasting into the playbook designer'}
+          class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-sm font-medium text-fg hover:border-line-strong hover:bg-surface-2 disabled:opacity-60"
+        >
+          {#if copyState === 'copied'}
+            <ClipboardCheck size={15} class="text-ok" aria-hidden="true" />Copied
+          {:else}
+            <ClipboardCopy size={15} aria-hidden="true" />Copy steps
+          {/if}
+        </button>
+      </div>
+      {/if}
     </div>
     {#if playbook.description}
       <p class="border-b border-line px-4 py-2.5 text-sm text-muted">{playbook.description}</p>

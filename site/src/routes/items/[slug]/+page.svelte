@@ -558,7 +558,7 @@
     </div>
   {:else if tab === 'playbooks'}
     {#if browser}
-      <PlaybookViewer collections={item.collections} {labels} {icons} initialKey={pbKey} initialStep={stepId} />
+      <PlaybookViewer collections={item.collections} {labels} {icons} initialKey={pbKey} initialStep={stepId} download={item.download} />
     {:else}
       <div class="grid h-[540px] place-items-center rounded-xl border border-line bg-surface text-sm text-faint">Loading viewer…</div>
     {/if}
