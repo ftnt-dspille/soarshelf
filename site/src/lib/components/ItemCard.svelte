@@ -5,8 +5,13 @@
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import Code from '@lucide/svelte/icons/code';
   import BadgeCheck from '@lucide/svelte/icons/badge-check';
+  import Workflow from '@lucide/svelte/icons/workflow';
 
-  let { item, labels }: { item: ItemSummary; labels: Map<string, string> } = $props();
+  let {
+    item,
+    labels,
+    matched = null
+  }: { item: ItemSummary; labels: Map<string, string>; matched?: { name: string; key: string } | null } = $props();
   // Built-in connectors (utilities, code snippet) are in nearly every playbook, so the
   // card leads with the ones that tell you what it integrates with.
   const external = $derived(item.connectors.filter((c) => !BUILTIN_CONNECTORS.has(c)));
@@ -16,7 +21,7 @@
 </script>
 
 <a
-  href="/items/{item.slug}"
+  href="/items/{item.slug}{matched ? `#playbooks/${matched.key}` : ''}"
   class="group flex h-full flex-col rounded-xl border border-line bg-surface p-5 shadow-card transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-pop"
 >
   <!-- One line: type on the left, status as icons on the right (labels on hover and for screen readers). -->
@@ -53,6 +58,12 @@
     </h3>
   {/if}
   <p class="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">{item.summary}</p>
+  {#if matched}
+    <p class="mt-2.5 flex min-w-0 items-center gap-1.5 text-xs text-muted">
+      <Workflow size={13} class="shrink-0 text-accent-text" aria-hidden="true" /><span class="shrink-0">Playbook:</span>
+      <span class="truncate font-medium text-fg" title={matched.name}>{matched.name}</span>
+    </p>
+  {/if}
 
   {#if shown.length && !item.displayName}
     <div class="mt-4 flex min-w-0 items-center gap-1.5" title={external.map((c) => labels.get(c) ?? c).join(', ')}>

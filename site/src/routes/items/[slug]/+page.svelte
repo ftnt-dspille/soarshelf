@@ -136,6 +136,14 @@
     tab = t;
     history.replaceState(history.state, '', t === 'overview' ? location.pathname : `#${t}`);
   }
+  // The open playbook and step, kept in the address bar so it can be copied as a link.
+  function viewing(key: string, step: string | null) {
+    pbKey = key;
+    stepId = step;
+    if (tab !== 'playbooks') return;
+    const hash = `#playbooks/${key}${step ? `/${encodeURIComponent(step)}` : ''}`;
+    if (location.hash !== hash) history.replaceState(history.state, '', hash);
+  }
   function onTabKey(e: KeyboardEvent) {
     const i = tabs.findIndex((t) => t.id === tab);
     const n = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : null;
@@ -558,7 +566,7 @@
     </div>
   {:else if tab === 'playbooks'}
     {#if browser}
-      <PlaybookViewer collections={item.collections} {labels} {icons} initialKey={pbKey} initialStep={stepId} download={item.download} />
+      <PlaybookViewer collections={item.collections} {labels} {icons} initialKey={pbKey} initialStep={stepId} download={item.download} onview={viewing} />
     {:else}
       <div class="grid h-[540px] place-items-center rounded-xl border border-line bg-surface text-sm text-faint">Loading viewer…</div>
     {/if}

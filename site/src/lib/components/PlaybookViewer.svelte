@@ -27,8 +27,9 @@ import MinimapNav from './MinimapNav.svelte';
     icons = {},
     initialKey = null,
     initialStep = null,
-    download = null
-  }: { collections: Collection[]; labels: Map<string, string>; icons?: Record<string, string>; initialKey?: string | null; initialStep?: string | null; download?: { path: string; filename: string } | null } = $props();
+    download = null,
+    onview
+  }: { collections: Collection[]; labels: Map<string, string>; icons?: Record<string, string>; initialKey?: string | null; initialStep?: string | null; download?: { path: string; filename: string } | null; onview?: (key: string, step: string | null) => void } = $props();
 
   // Flatten to one list so a single <select> can pick any playbook in any collection.
   const options = $derived(
@@ -202,6 +203,12 @@ import MinimapNav from './MinimapNav.svelte';
     selectedId = n?.id ?? null;
     nodes = nodes.map((x) => (x.type && x.type !== 'step' ? x : { ...x, selected: x.id === selectedId }));
   }
+
+  // Tell the page what's open, so the address bar always links to it.
+  $effect(() => {
+    const key = current?.key, step = selectedId;
+    if (key) untrack(() => onview?.(key, step));
+  });
 
   // A later deep link to another step of the same playbook.
   $effect(() => {

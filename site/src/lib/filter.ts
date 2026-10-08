@@ -97,11 +97,13 @@ export function createSearch(items: ItemSummary[], connectors: ConnectorFacet[],
   const ucLabel = new Map(useCases.map((u) => [u.id, u.label]));
   const ms = new MiniSearch<Record<string, string>>({
     idField: 'slug',
-    fields: ['title', 'displayName', 'summary', 'tags', 'connectors', 'triggers', 'useCases'],
+    fields: ['title', 'displayName', 'summary', 'tags', 'connectors', 'triggers', 'useCases', 'playbooks'],
     searchOptions: {
-      boost: { title: 3, displayName: 3, connectors: 2, tags: 1.5 },
+      boost: { title: 3, displayName: 3, connectors: 2, tags: 1.5, playbooks: 1.5 },
       prefix: true,
-      fuzzy: 0.2,
+      // Typo tolerance only for longer words: on a short one a single edit is
+      // most of the word ("dad" would match "bad" and "add").
+      fuzzy: (term: string) => (term.length > 4 ? 0.2 : false),
       combineWith: 'AND'
     }
   });
@@ -114,7 +116,8 @@ export function createSearch(items: ItemSummary[], connectors: ConnectorFacet[],
       tags: i.tags.join(' '),
       connectors: i.connectors.map((c) => `${c} ${connLabel.get(c) ?? ''}`).join(' '),
       triggers: i.triggers.join(' '),
-      useCases: i.useCases.map((u) => ucLabel.get(u) ?? u).join(' ')
+      useCases: i.useCases.map((u) => ucLabel.get(u) ?? u).join(' '),
+      playbooks: (i.playbooks ?? []).flat().join(' ')
     }))
   );
   return {
@@ -127,6 +130,21 @@ export function createSearch(items: ItemSummary[], connectors: ConnectorFacet[],
       return new Map(hits.map((h) => [String(h.id), h.score]));
     }
   };
+}
+
+/**
+ * The playbook a search found an item through, when its own title and summary
+ * don't explain the match: the card names it and links straight to it.
+ * `key` is the viewer's collection:playbook position.
+ */
+export function matchedPlaybook(item: ItemSummary, q: string): { name: string; key: string } | null {
+  const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length || !item.playbooks?.length) return null;
+  const has = (text: string) => words.every((w) => text.toLowerCase().includes(w));
+  if (has(`${item.title} ${item.displayName ?? ''} ${item.summary}`)) return null;
+  for (const [ci, names] of item.playbooks.entries())
+    for (const [pi, name] of names.entries()) if (has(name)) return { name, key: `${ci}:${pi}` };
+  return null;
 }
 
 function matchesFacet(item: ItemSummary, f: FilterState, key: FacetKey): boolean {

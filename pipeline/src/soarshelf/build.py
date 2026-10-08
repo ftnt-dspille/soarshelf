@@ -284,7 +284,11 @@ def build(content: Path, out: Path) -> int:
             dest.write_bytes(raw)
         if detail["type"] == "connector" and detail.get("icon") and res.detail.get("_name"):
             icons[res.detail["_name"]] = detail["icon"]
-        summaries.append({k: detail[k] for k in SUMMARY_KEYS})
+        summary = {k: detail[k] for k in SUMMARY_KEYS}
+        # Playbook names per collection, so browse search finds an item by any playbook
+        # inside it and can link to that playbook (#playbooks/<collection>:<playbook>).
+        summary["playbooks"] = [[pb["name"] for pb in c["playbooks"]] for c in detail.get("collections") or []]
+        summaries.append(summary)
         published.append((detail, yaml.safe_load((item / "meta.yaml").read_text()) or {}))
         print(f"✓ {item.relative_to(content)}")
 

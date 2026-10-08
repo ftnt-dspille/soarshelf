@@ -11,6 +11,7 @@
     createSearch,
     facetCounts,
     parseFilters,
+    matchedPlaybook,
     serializeFilters,
     toggle,
     type FacetKey,
@@ -130,6 +131,17 @@
         class="h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-faint"
         autocomplete="off"
       />
+      {#if f.q}
+        <button
+          type="button"
+          class="grid size-7 shrink-0 place-items-center rounded-md text-faint hover:bg-surface-2 hover:text-fg"
+          aria-label="Clear search"
+          onclick={() => {
+            f.q = '';
+            searchEl?.focus();
+          }}><X size={16} aria-hidden="true" /></button
+        >
+      {/if}
       <kbd class="hidden rounded-md border border-line bg-surface-2 px-2 py-0.5 font-mono text-xs text-muted sm:block">/</kbd>
     </label>
     <button
@@ -152,7 +164,7 @@
       <div class="flex flex-wrap items-center gap-3">
         <p class="text-sm text-muted" aria-live="polite">
           <span class="font-semibold text-fg tabular-nums">{results.length}</span>
-          {results.length === 1 ? 'result' : 'results'}{#if f.q.trim()} for “{f.q.trim()}”{/if}
+          {results.length === 1 ? 'result' : 'results'}{#if f.q.trim()}{` for “${f.q.trim()}”`}{/if}
         </p>
         <label class="ml-auto flex items-center gap-2 text-sm text-muted">
           Sort
@@ -192,7 +204,7 @@
       {#if results.length}
         <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {#each results as item (item.slug)}
-            <ItemCard {item} {labels} />
+            <ItemCard {item} {labels} matched={matchedPlaybook(item, f.q)} />
           {/each}
         </div>
       {:else}

@@ -54,6 +54,8 @@ export interface ItemSummary {
   lastChange?: LastChange;
   /** Best live test of the current version, or null when it hasn't been tested. */
   tested?: Tested | null;
+  /** Playbook names per collection (playbooks and packs). Older builds don't carry it. */
+  playbooks?: string[][];
 }
 
 /** ran: the listed playbooks ran to completion on a live FortiSOAR. imported: the download imported cleanly. */

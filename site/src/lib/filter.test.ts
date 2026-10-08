@@ -7,6 +7,7 @@ import {
   applyFilters,
   createSearch,
   facetCounts,
+  matchedPlaybook,
   parseFilters,
   serializeFilters,
   toggle,
@@ -106,5 +107,30 @@ describe('url state', () => {
     expect(activeFilterCount({ ...EMPTY_FILTERS, types: ['playbook'], noCode: true })).toBe(2);
     expect(toggle(['a', 'b'], 'a')).toEqual(['b']);
     expect(toggle(['a'], 'b')).toEqual(['a', 'b']);
+  });
+});
+
+describe('playbook names', () => {
+  const base = idx.items[0];
+  const pack = { ...base, slug: 'pack', title: 'Tutorial pack', summary: 'Examples.', playbooks: [['Intro'], ['Dad Joke API Playbook', 'Other']] };
+  const items = [...idx.items, pack];
+  const s2 = createSearch(items, idx.connectors, idx.useCases);
+
+  it('finds an item by a playbook inside it', () => {
+    expect(applyFilters(items, { ...EMPTY_FILTERS, q: 'dad' }, s2).map((i) => i.slug)).toContain('pack');
+  });
+
+  it('does not match short words by a one-letter typo', () => {
+    const bad = { ...base, slug: 'bad', title: 'Bad indicators', summary: 'x', playbooks: [] };
+    const s3 = createSearch([pack, bad], idx.connectors, idx.useCases);
+    expect(applyFilters([pack, bad], { ...EMPTY_FILTERS, q: 'dad' }, s3).map((i) => i.slug)).toEqual(['pack']);
+  });
+
+  it('names the playbook that matched, with its viewer position', () => {
+    expect(matchedPlaybook(pack, 'dad joke')).toEqual({ name: 'Dad Joke API Playbook', key: '1:0' });
+    // the title already explains the match, or nothing matched by name
+    expect(matchedPlaybook(pack, 'tutorial')).toBeNull();
+    expect(matchedPlaybook(pack, 'zebra')).toBeNull();
+    expect(matchedPlaybook(base, 'dad')).toBeNull();
   });
 });
