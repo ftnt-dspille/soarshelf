@@ -39,13 +39,14 @@
   </p>
   {#if c.description}<div class="mt-6 max-w-3xl"><Markdown source={c.description} /></div>{/if}
 
-  <ol class="mt-10 space-y-6">
+  <ol class="mt-10 space-y-8">
     {#each entries as e, i (e.slug)}
       <li class="grid gap-3 sm:grid-cols-[2.5rem_1fr]">
         <span class="hidden h-8 w-8 items-center justify-center rounded-full border border-line text-sm font-semibold tabular-nums text-muted sm:flex">{i + 1}</span>
         <div>
           {#if e.note}<p class="mb-2.5 text-sm text-muted"><span class="font-semibold text-fg sm:hidden">{i + 1}. </span>{e.note}</p>{/if}
-          <ItemCard item={e.item} {labels} />
+          <!-- Own box: the card is h-full, which would otherwise stretch it by the note's height. -->
+          <div><ItemCard item={e.item} {labels} /></div>
         </div>
       </li>
     {/each}
