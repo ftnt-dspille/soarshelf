@@ -3,9 +3,12 @@ import { cloudflareTest, readD1Migrations } from '@cloudflare/vitest-pool-worker
 
 // Every outbound call the Worker makes is answered here, so tests never touch
 // the network: Turnstile, contributors.yaml on GitHub, and the GitHub API.
-function outbound(req: Request): Response {
+async function outbound(req: Request): Promise<Response> {
   const url = new URL(req.url);
   if (url.hostname === 'challenges.cloudflare.com') {
+    const token = (await req.formData()).get('response');
+    if (token === 'expired') return Response.json({ success: false, 'error-codes': ['timeout-or-duplicate'] });
+    if (token === 'bot') return Response.json({ success: false, 'error-codes': ['invalid-input-response'] });
     return Response.json({ success: true });
   }
   if (url.hostname === 'raw.githubusercontent.com') {

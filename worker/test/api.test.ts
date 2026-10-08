@@ -75,6 +75,28 @@ describe('submissions', () => {
     expect((await again.json<{ id: string }>()).id).toBe(first.id);
   });
 
+  it('refuses a body with no declared length before reading it', async () => {
+    const u = await user('gail');
+    const body = new ReadableStream({
+      start(c) {
+        c.enqueue(new TextEncoder().encode('x'.repeat(1024)));
+        c.close();
+      }
+    });
+    const res = await api('/api/submissions', { method: 'POST', body, cookie: u.cookie, duplex: 'half' } as RequestInit);
+    expect(res.status).toBe(411);
+  });
+
+  it('tells an expired bot check apart from a failed one', async () => {
+    const u = await user('ivy');
+    const expired = await upload(u.cookie, playbook(), META, undefined, 'expired');
+    expect(expired.status).toBe(403);
+    expect((await expired.json<{ error: string }>()).error).toMatch(/expired/);
+    const bot = await upload(u.cookie, playbook(), META, undefined, 'bot');
+    expect(bot.status).toBe(403);
+    expect((await bot.json<{ error: string }>()).error).toMatch(/Bot check failed/);
+  });
+
   it('does not let parallel uploads slip past the daily limit', async () => {
     const u = await user('dora');
     const codes = (await Promise.all(Array.from({ length: 6 }, () => upload(u.cookie)))).map((r) => r.status);

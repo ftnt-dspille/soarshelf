@@ -73,7 +73,11 @@
     try {
       const res = await fetch(`/data/items/${item.slug}.json`, { cache: 'no-store' });
       if (res.status === 404) gone = true;
-      else if (res.ok) latest = await res.json();
+      else if (res.ok) {
+        const body = (await res.json()) as ItemDetail;
+        // Only trust a reply that is this item with a download of its own.
+        if (body?.slug === item.slug && body.download?.path?.startsWith('/downloads/')) latest = body;
+      }
     } catch {
       // Offline or blocked: fall back to the file this page lists.
     } finally {

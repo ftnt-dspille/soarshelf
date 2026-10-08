@@ -58,6 +58,9 @@ def is_text(path: str) -> bool:
 
 
 def _check_path(name: str) -> str:
+    # Names become paths under content/ and lines in the review PR.
+    if any(c < " " or c == "\x7f" for c in name):
+        raise _reject("path", "Archive contains a file name with control characters", repr(name))
     norm = posixpath.normpath(name.lstrip("./")) if name.startswith("./") else posixpath.normpath(name)
     if name.startswith(("/", "\\")) or norm.startswith("..") or "\\" in name or ":" in norm.split("/")[0]:
         raise _reject("path", "Archive contains an unsafe path", name)

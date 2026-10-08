@@ -83,6 +83,8 @@ def _safe_members(raw: bytes) -> dict[str, bytes]:
     for i in infos:
         name = i.filename
         norm = posixpath.normpath(name)
+        if any(c < " " or c == "\x7f" for c in name):
+            raise _reject("zip-path", "Archive contains a file name with control characters", repr(name))
         if name.startswith(("/", "\\")) or norm.startswith("..") or ":" in name.split("/")[0] or "\\" in name:
             raise _reject("zip-path", "Archive contains an unsafe path", name)
         if i.flag_bits & 0x1:

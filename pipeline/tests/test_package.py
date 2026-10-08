@@ -117,6 +117,7 @@ def test_connector_update_matches_on_manifest_name(tmp_path):
 @pytest.mark.parametrize("files,links,why", [
     ({"my-conn/info.json": json.dumps(CONNECTOR).encode(), "my-conn/lib.so": b"\x7fELF"}, (), "package.file-types"),
     ({"my-conn/info.json": json.dumps(CONNECTOR).encode(), "../evil.py": b"x"}, (), "package.path"),
+    ({"my-conn/info.json": json.dumps(CONNECTOR).encode(), "my-conn/a\nb.py": b"x"}, (), "package.path"),
     ({"my-conn/info.json": json.dumps(CONNECTOR).encode()}, [("my-conn/x.py", "/etc/passwd")], "package.link"),
     ({"a/info.json": json.dumps(CONNECTOR).encode(), "b/x.py": b"x"}, (), "package.layout"),
     ({"my-conn/connector.py": b"x"}, (), "package.manifest"),

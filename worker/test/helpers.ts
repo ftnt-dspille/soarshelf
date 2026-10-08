@@ -44,10 +44,16 @@ export const META = {
   rightsConfirmed: true
 };
 
-export function upload(cookie: string, file: File = playbook(), meta: object = META, origin?: string | null) {
+export function upload(
+  cookie: string,
+  file: File = playbook(),
+  meta: object = META,
+  origin?: string | null,
+  turnstile = 'token'
+) {
   const form = new FormData();
   form.set('file', file);
   form.set('meta', JSON.stringify(meta));
-  form.set('turnstile', 'token');
+  form.set('turnstile', turnstile);
   return api('/api/submissions', { method: 'POST', body: form, cookie, origin });
 }

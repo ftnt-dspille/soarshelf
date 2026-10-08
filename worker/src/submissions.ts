@@ -38,13 +38,20 @@ function summary(r: Row) {
   };
 }
 
-async function verifyTurnstile(env: Env, token: string, ip: string | null): Promise<boolean> {
+/** Null when the token is good, otherwise the message to show. An expired or
+ * reused token is the common case (the form sat open too long), so it gets
+ * its own wording instead of reading like a bot verdict. */
+async function verifyTurnstile(env: Env, token: string, ip: string | null): Promise<string | null> {
   const body = new FormData();
   body.set('secret', env.TURNSTILE_SECRET);
   body.set('response', token);
   if (ip) body.set('remoteip', ip);
   const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body });
-  return res.ok && ((await res.json()) as { success?: boolean }).success === true;
+  const out = res.ok ? ((await res.json()) as { success?: boolean; 'error-codes'?: string[] }) : {};
+  if (out.success === true) return null;
+  if (out['error-codes']?.includes('timeout-or-duplicate'))
+    return 'The bot check expired. Run it again and resubmit.';
+  return 'Bot check failed. Reload the page and try again.';
 }
 
 export async function create(req: Request, env: Env): Promise<Response> {
@@ -54,7 +61,10 @@ export async function create(req: Request, env: Env): Promise<Response> {
   // Cheapest refusals first: who you are, then how big, then the bot check.
   const g = await gate(env, s);
   if (!g.canUpload) throw new HttpError(g.reason?.startsWith('Daily') ? 429 : 403, g.reason ?? 'Uploads not allowed');
-  const declared = Number(req.headers.get('content-length') ?? 0);
+  // Without a declared length formData() would buffer the whole body before
+  // any size check. Browsers always send one for a multipart upload.
+  const declared = Number(req.headers.get('content-length'));
+  if (!declared) throw new HttpError(411, 'Upload must declare its length');
   if (declared > MAX_ZIP + 256 * 1024) throw new HttpError(413, 'File is too large');
 
   const form = await req.formData().catch(() => null);
@@ -65,8 +75,8 @@ export async function create(req: Request, env: Env): Promise<Response> {
   if (!(file instanceof File) || typeof metaRaw !== 'string' || typeof token !== 'string')
     throw new HttpError(400, 'Missing file, details or bot check');
 
-  if (!(await verifyTurnstile(env, token, req.headers.get('cf-connecting-ip'))))
-    throw new HttpError(403, 'Bot check failed. Reload the page and try again.');
+  const botError = await verifyTurnstile(env, token, req.headers.get('cf-connecting-ip'));
+  if (botError) throw new HttpError(403, botError);
 
   let parsed: unknown;
   try {

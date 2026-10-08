@@ -70,6 +70,11 @@ def test_zip_path_traversal(tmp_path):
     assert _rejected(p) == "intake.zip-path"
 
 
+def test_zip_control_characters_in_name(tmp_path):
+    p = _zip(tmp_path, {"info.json": PACK_INFO, "a\nb.json": b"{}"})
+    assert _rejected(p) == "intake.zip-path"
+
+
 def test_zip_symlink(tmp_path):
     p = _zip(tmp_path, {"info.json": PACK_INFO}, symlink="link")
     assert _rejected(p) == "intake.zip-symlink"
