@@ -63,6 +63,19 @@ def test_tgz_connector_is_hosted_without_a_source_link(tmp_path):
     assert not any(c["id"] == "meta.source" for c in res.detail["checks"])
 
 
+def test_connector_bundled_playbooks_are_listed(tmp_path, doc):
+    files = _conn_files(**{"my-conn/playbooks/playbooks.json": json.dumps(doc).encode()})
+    d = process(dict(META), _write(tmp_path, files), "maintainer", HUB).detail
+    assert d["playbookCount"] >= 1 and d["collections"]
+
+
+def test_connector_with_unreadable_playbooks_is_still_listed(tmp_path):
+    files = _conn_files(**{"my-conn/playbooks/playbooks.json": b"{not json"})
+    res = process(dict(META), _write(tmp_path, files), "maintainer", HUB)
+    assert res.decision == "review" and res.detail["playbookCount"] == 0
+    assert "connector.playbooks" in {c["id"] for c in res.detail["checks"]}
+
+
 def test_manifest_alone_still_needs_source(tmp_path, write_json):
     res = process(dict(META), write_json(CONNECTOR, "info.json"), "maintainer", HUB)
     assert res.decision == "reject" and res.detail["download"] is None

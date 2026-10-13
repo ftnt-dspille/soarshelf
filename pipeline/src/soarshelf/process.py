@@ -274,6 +274,24 @@ def _connector(up: Upload, hub: HubIndex) -> tuple[list[CheckResult], bytes, lis
     return results, json.dumps(keep, indent=2, ensure_ascii=False).encode() + b"\n", ops
 
 
+def _bundled_playbooks(up: Upload) -> tuple[list[ParsedCollection], list[CheckResult]]:
+    """The sample playbooks a packaged connector ships in ``playbooks/playbooks.json``.
+
+    Read for display only (the download is the package itself), so a file that does
+    not parse costs the connector its playbook view, not its listing.
+    """
+    want = f"{up.package_top}/playbooks/playbooks.json"
+    raw = (up.members or {}).get(want)
+    if raw is None:
+        return [], []
+    try:
+        doc = load_json(raw, want)
+        return parse_collections(doc), []
+    except Exception as exc:  # noqa: BLE001 - any malformed shape just hides the view
+        return [], [CheckResult("connector.playbooks", Severity.WARN, "Bundled playbooks could not be read",
+                                f"{want}: {str(exc)[:200]}")]
+
+
 def _text(v: Any, limit: int) -> str:
     """Manifest text on one line, cut at a word with an ellipsis when it's too long."""
     if not isinstance(v, (str, int, float)) or isinstance(v, bool):
@@ -467,6 +485,9 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
         collections, uuids, res, body, macros = _pack(up, hub)
     elif kind == "connector":
         res, body, connector_ops = _connector(up, hub)
+        if packaged:
+            collections, extra = _bundled_playbooks(up)
+            res += extra
     elif kind == "widget":
         res, body, widget = _widget(up, hub)
     results += res
