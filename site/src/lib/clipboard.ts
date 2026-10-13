@@ -8,11 +8,17 @@
 // branches, so the export's UUIDs can stay. The designer's own copy leaves out the
 // trigger step; we keep it, and paste makes it the trigger of a playbook that has none
 // (one that already has a trigger drops it with a warning).
+//
+// Steps can take the viewer's layout instead of the export's own coordinates, which
+// are often a staircase or a pile; the viewer's step size is close to the designer's.
 
 import { zipEntries } from './archive';
 
 type Obj = Record<string, unknown>;
 type StepTypes = Record<string, Obj>;
+type Rect = { x: number; y: number; w?: number; h?: number };
+/** Where to put things: step uuid -> point, group uuid -> rect (notes and blocks). */
+export type Placement = { steps: Map<string, Rect>; groups: Map<string, Rect> };
 
 const STEP_IRI = '/api/3/workflow_steps/';
 const ROUTE_IRI = '/api/3/workflow_routes/';
@@ -57,15 +63,53 @@ export async function findWorkflow(bytes: Uint8Array, filename: string, uuid: st
   return only(found);
 }
 
+const MARGIN = 40;
+
+/** The workflow's steps and groups moved to `place`, with the top-left item at the
+ * margin. Null when it doesn't cover them all: then the export's own layout stays. */
+function relaid(workflow: Obj, place: Placement): { steps: Map<string, Rect>; groups: Map<string, Rect> } | null {
+  const steps = Array.isArray(workflow.steps) ? workflow.steps.filter(isObj) : [];
+  const groups = Array.isArray(workflow.groups) ? workflow.groups.filter(isObj) : [];
+  if (!steps.length || steps.some((s) => !place.steps.has(String(s.uuid)))) return null;
+  // A block holds its steps; one the viewer didn't draw can't be rebuilt around them.
+  const blocks = new Set(groups.filter((g) => g.type !== 'note').map((g) => String(g.uuid)));
+  if (steps.some((s) => s.group && blocks.has(tail(s.group)) && !place.groups.has(tail(s.group)))) return null;
+  const all = [...place.steps.entries(), ...place.groups.entries()];
+  const dx = MARGIN - Math.min(...all.map(([, r]) => r.x));
+  const dy = MARGIN - Math.min(...all.map(([, r]) => r.y));
+  const move = (r: Rect) => ({ ...r, x: Math.round(r.x + dx), y: Math.round(r.y + dy) });
+  return {
+    steps: new Map([...place.steps].map(([k, r]) => [k, move(r)])),
+    groups: new Map([...place.groups].map(([k, r]) => [k, move(r)]))
+  };
+}
+
 /** The clipboard document for one exported playbook, or null when the designer
- * couldn't paste it (an unknown step type, or a route to a missing step). */
-export function toClipboard(workflow: Obj, types: StepTypes): Obj | null {
+ * couldn't paste it (an unknown step type, or a route to a missing step). With
+ * `place`, steps and notes take those positions instead of the export's. */
+export function toClipboard(workflow: Obj, types: StepTypes, place?: Placement): Obj | null {
+  const at = place ? relaid(workflow, place) : null;
+  const groups: Obj[] = clone(Array.isArray(workflow.groups) ? workflow.groups.filter(isObj) : []);
+  for (const g of groups) {
+    const r = at?.groups.get(String(g.uuid));
+    if (!r) continue;
+    Object.assign(g, { left: String(r.x), top: String(r.y) });
+    if (r.w) g.width = String(r.w);
+    if (r.h) g.height = String(r.h);
+  }
   const steps: Obj[] = [];
   const plain = new Map<string, Obj>();
   for (const raw of Array.isArray(workflow.steps) ? workflow.steps : []) {
     const type = isObj(raw) && typeof raw.stepType === 'string' ? types[raw.stepType] : undefined;
     if (!isObj(raw) || !type || typeof raw.uuid !== 'string') return null;
     const s: Obj = { '@id': STEP_IRI + raw.uuid, ...clone(raw), stepType: clone(type) };
+    const p = at?.steps.get(raw.uuid);
+    if (p) {
+      // Inside a block, a step is positioned relative to the block.
+      const b = typeof raw.group === 'string' ? at!.groups.get(tail(raw.group)) : undefined;
+      s.left = String(p.x - (b?.x ?? 0));
+      s.top = String(p.y - (b?.y ?? 0));
+    }
     plain.set(raw.uuid, clone(s));
     s.parentTop = Math.trunc(Number(s.top) || 0);
     s.parentLeft = Math.trunc(Number(s.left) || 0);
@@ -86,19 +130,19 @@ export function toClipboard(workflow: Obj, types: StepTypes): Obj | null {
     if (routes.has(key) && (routes.get(key)!.label || !raw.label)) continue;
     routes.set(key, { '@id': ROUTE_IRI + String(raw.uuid), ...clone(raw), sourceStep: clone(src), targetStep: clone(dst) });
   }
-  return { steps, groups: clone(Array.isArray(workflow.groups) ? workflow.groups : []), routes: [...routes.values()] };
+  return { steps, groups, routes: [...routes.values()] };
 }
 
 /** Clipboard text for one playbook of an item: fetches the item's download and the
  * step type table (both only when asked) and converts. */
-export async function clipboardText(download: { path: string; filename: string }, uuid: string): Promise<string> {
+export async function clipboardText(download: { path: string; filename: string }, uuid: string, place?: Placement): Promise<string> {
   const [res, types] = await Promise.all([
     fetch(download.path),
     import('./stepTypes.json').then((m) => m.default as unknown as StepTypes)
   ]);
   if (!res.ok) throw new Error(`download ${res.status}`);
   const w = await findWorkflow(new Uint8Array(await res.arrayBuffer()), download.filename, uuid);
-  const doc = w && toClipboard(w, types);
+  const doc = w && toClipboard(w, types, place);
   if (!doc) throw new Error('this playbook can’t be converted');
   return JSON.stringify(doc);
 }
