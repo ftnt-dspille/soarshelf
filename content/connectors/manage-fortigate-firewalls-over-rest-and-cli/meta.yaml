@@ -1,0 +1,25 @@
+title: Fortinet FortiGate v2
+summary: Fortinet FortiGate enterprise firewall provide high performance, consolidated advanced security
+  and granular visibility for broad protection across the entire…
+description: ''
+use_cases:
+- containment
+- utility
+tags:
+- firewall
+- fortios
+author: ftnt-dspille
+version: 1.1.0
+min_version: null
+license: MIT
+published: '2026-10-13'
+source: https://github.com/ftnt-dspille/connector-fortigatev2
+author_id: 99558074
+updated: '2026-10-13'
+changelog:
+- version: 1.1.0
+  date: '2026-10-13'
+  notes: Updated.
+- version: 1.0.0
+  date: '2026-10-13'
+  notes: First published.

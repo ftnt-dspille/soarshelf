@@ -1,0 +1,4212 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Sample - Fortinet FortiGate v2 - 1.1.0",
+      "description": "Sample playbooks for \"Fortinet FortiGate v2\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete.",
+      "visible": true,
+      "image": "/api/3/images/621afee6-ce1c-4a2d-b8f2-c10796b953fb",
+      "uuid": "c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+      "id": 304,
+      "deletedAt": null,
+      "importedBy": [],
+      "recordTags": [
+        "Fortinet",
+        "fortinet-fortigate"
+      ],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get System Events",
+          "aliasName": null,
+          "tag": null,
+          "description": "Retrieves system log data from Fortinet FortiGate server",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/3764de3f-97fb-4771-8d74-3c68b7036bc5",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "87566be9-7e9c-4e13-84b0-989881bedaca",
+                "title": "Fortinet FortiGate: Get System Events",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "3764de3f-97fb-4771-8d74-3c68b7036bc5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get System Events",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "",
+                  "rows": "10",
+                  "start": "0",
+                  "filter": "level=*\"information\", logid=*\"0100020027\"",
+                  "location": "Memory"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_system_events",
+                "mock_result": "{\n  \"now\": 1651474606378,\n  \"rows\": 10,\n  \"vdom\": \"root\",\n  \"build\": 1879,\n  \"start\": 0,\n  \"device\": \"memory\",\n  \"serial\": \"FGVM02TM21013928\",\n  \"status\": \"success\",\n  \"results\": [\n    {\n      \"tz\": \"-0700\",\n      \"vd\": \"root\",\n      \"msg\": \"Delete 2 old report files\",\n      \"date\": \"2022-05-01\",\n      \"time\": \"23:55:14\",\n      \"type\": \"event\",\n      \"level\": \"information\",\n      \"logid\": \"0100020027\",\n      \"logdesc\": \"Outdated report files deleted\",\n      \"subtype\": \"system\",\n      \"_metadata\": {\n        \"#\": 1,\n        \"roll\": 65504,\n        \"logid\": 20027,\n        \"timestamp\": 1651474514000\n      },\n      \"eventtime\": 1651474514880324400\n    },\n    {\n      \"tz\": \"-0700\",\n      \"vd\": \"root\",\n      \"msg\": \"Delete 2 old report files\",\n      \"date\": \"2022-05-01\",\n      \"time\": \"23:50:14\",\n      \"type\": \"event\",\n      \"level\": \"information\",\n      \"logid\": \"0100020027\",\n      \"logdesc\": \"Outdated report files deleted\",\n      \"subtype\": \"system\",\n      \"_metadata\": {\n        \"#\": 2,\n        \"roll\": 65504,\n        \"logid\": 20027,\n        \"timestamp\": 1651474214000\n      },\n      \"eventtime\": 1651474214880587800\n    }\n  ],\n  \"version\": \"v6.4.6\",\n  \"category\": \"event\",\n  \"completed\": 5,\n  \"session_id\": 73,\n  \"http_method\": \"GET\",\n  \"subcategory\": \"system\",\n  \"total_lines\": 1189\n}",
+                "operationTitle": "Get System Events",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "201",
+              "left": "387",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "63b549e0-1b88-4027-bdf1-dd39aa9ee54b"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get System Events",
+              "targetStep": "/api/3/workflow_steps/63b549e0-1b88-4027-bdf1-dd39aa9ee54b",
+              "sourceStep": "/api/3/workflow_steps/3764de3f-97fb-4771-8d74-3c68b7036bc5",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "ed749004-c136-4b2f-8282-710ad7e7a3c9"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "101700a7-72c3-4a8d-98b9-84a6531d8882",
+          "id": 4402,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Host: Unquarantine Host",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Unquaratine Host on the Fortinet Fortigate server",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/eadbce85-826c-4301-8afd-9101fcc8d77e",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Unquarantine Host",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "macs": "00:04:1f:c4:9d:7c, 00:15:00:e8:27:22",
+                  "vdom": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "unquarantine_host",
+                "mock_result": "{\n    \"not_exist\": [\n      \"00:04:1f:c4:9d:7c\"\n    ],\n    \"not_unquarantine\": [],\n    \"newly_unquarantine\": [\n      \"00:15:00:e8:27:22\"\n    ]\n  }",
+                "operationTitle": "Unquarantine Host",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "180",
+              "left": "360",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "2773e337-fa71-496d-8be5-3bbcb50becc5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "cdf0df19-e2ba-4416-8ce4-d7496d342669",
+                "title": "Fortinet FortiGate: Unquarantine Host",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "eadbce85-826c-4301-8afd-9101fcc8d77e"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Unquarantine Host",
+              "targetStep": "/api/3/workflow_steps/2773e337-fa71-496d-8be5-3bbcb50becc5",
+              "sourceStep": "/api/3/workflow_steps/eadbce85-826c-4301-8afd-9101fcc8d77e",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "6a0a7915-77e5-43c0-b1bd-e14d07529e89"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "15ab542e-a2df-4195-b0ff-260361145ba7",
+          "id": 4408,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Policy: Delete Policy",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Delete specific policy based on input policy id provided.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/c1181c3a-cc14-42ff-bc97-d61b5f94fd11",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Delete Policy",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": "",
+                  "policyid": "12"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "delete_policy",
+                "mock_result": "{\n    \"mkey\": 12,\n    \"name\": \"policy\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"399fe9146eec7eb093a5e042e52557b8\",\n    \"http_method\": \"DELETE\",\n    \"http_status\": 200,\n    \"old_revision\": \"d2579e3bff4511125899630a8966b96f\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Delete Policy",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "140",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "890cc779-31cb-4104-8019-a0fdf8291b05"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "83fda5db-cb6f-462f-9908-1fd92546e1e5",
+                "title": "Fortinet FortiGate: Delete Policy",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "c1181c3a-cc14-42ff-bc97-d61b5f94fd11"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Delete Policy",
+              "targetStep": "/api/3/workflow_steps/890cc779-31cb-4104-8019-a0fdf8291b05",
+              "sourceStep": "/api/3/workflow_steps/c1181c3a-cc14-42ff-bc97-d61b5f94fd11",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "b3e70821-62be-4915-8a08-4231f99c5b59"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "1c0e2e02-8b7e-4419-8469-48f9855ebfa3",
+          "id": 4392,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Address Group: Get Address Groups",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Retrieves a list of all address groups that are configured on Fortinet FortiGate.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/34df6e08-8f90-48ce-8f77-bc21b6de51b4",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "c2658874-d41e-4faa-84bd-491cf7a8ccca",
+                "title": "Fortinet FortiGate: Get Address Groups",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "34df6e08-8f90-48ce-8f77-bc21b6de51b4"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Address Groups",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": "",
+                  "group_name": "",
+                  "address_group_category": "IPv6 Group"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_address_groups",
+                "mock_result": "{\n    \"mkey\": \"demogrp1\",\n    \"name\": \"addrgrp6\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"results\": [\n      {\n        \"name\": \"demogrp1\",\n        \"uuid\": \"11206be6-c078-51ec-e8b3-772f57f1e116\",\n        \"color\": 0,\n        \"member\": [\n          {\n            \"name\": \"de\",\n            \"q_origin_key\": \"de\"\n          }\n        ],\n        \"comment\": \"\",\n        \"tagging\": [],\n        \"q_origin_key\": \"demogrp1\",\n        \"fabric-object\": \"disable\"\n      }\n    ],\n    \"version\": \"v6.4.6\",\n    \"revision\": \"0c62b8ae11282e5dd335a3fce87c8769\",\n    \"http_method\": \"GET\",\n    \"http_status\": 200\n  }",
+                "operationTitle": "Get Address Groups",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "160",
+              "left": "360",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "44110174-cf4a-42d6-8df4-b2e5e758a840"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Address Groups",
+              "targetStep": "/api/3/workflow_steps/44110174-cf4a-42d6-8df4-b2e5e758a840",
+              "sourceStep": "/api/3/workflow_steps/34df6e08-8f90-48ce-8f77-bc21b6de51b4",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "9e49766a-5086-4e02-a03c-f418ed590bed"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "2051539b-4417-473a-9a61-1d4c6ef80e8e",
+          "id": 4389,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Users: Get Users",
+          "aliasName": null,
+          "tag": null,
+          "description": "Retrieves list of all users that is configured on Fortinet FortiGate based on the name of the user you have specified",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/5cd19ac5-57d6-422d-8bd5-f42d491d1ba5",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Users",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "demouser",
+                  "vdom": "",
+                  "count": "",
+                  "start": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_users",
+                "mock_result": "{\n    \"name\": \"local\",\n    \"path\": \"user\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"results\": [\n      {\n        \"id\": 16777227,\n        \"name\": \"demoadmin\",\n        \"type\": \"tacacs+\",\n        \"q_ref\": 1,\n        \"passwd\": \"\",\n        \"q_name\": \"local\",\n        \"q_path\": \"user\",\n        \"q_type\": 21,\n        \"status\": \"enable\",\n        \"q_class\": \"fa-user\",\n        \"email-to\": \"xxx@gmail.com\",\n        \"q_static\": false,\n        \"css-class\": \"fa-user\",\n        \"q_no_edit\": false,\n        \"sms-phone\": \"+91123212\",\n        \"fortitoken\": {\n          \"datasource\": \"user.fortitoken\",\n          \"q_origin_key\": \"FTKMOB18267B23BD\",\n          \"serial-number\": \"FTKMOB18267B23BD\"\n        },\n        \"ppk-secret\": \"\",\n        \"sms-server\": \"fortiguard\",\n        \"two-factor\": \"fortitoken\",\n        \"authtimeout\": 0,\n        \"ldap-server\": \"\",\n        \"passwd-time\": \"0000-00-00 00:00:00\",\n        \"q_mkey_type\": \"string\",\n        \"q_no_rename\": false,\n        \"workstation\": \"\",\n        \"ppk-identity\": \"\",\n        \"q_origin_key\": \"demoadmin\",\n        \"passwd-policy\": \"\",\n        \"radius-server\": \"\",\n        \"q_global_entry\": false,\n        \"tacacs+-server\": {\n          \"name\": \"tacserver\",\n          \"datasource\": \"user.tacacs+\",\n          \"q_origin_key\": \"tacserver\"\n        },\n        \"sms-custom-server\": \"\",\n        \"auth-concurrent-value\": 0,\n        \"two-factor-notification\": \"\",\n        \"auth-concurrent-override\": \"disable\",\n        \"two-factor-authentication\": \"\",\n        \"username-case-sensitivity\": \"enable\"\n      }\n    ],\n    \"version\": \"v6.4.6\",\n    \"revision\": \"00b546ec07f9aca628306722421835e5\",\n    \"http_method\": \"GET\",\n    \"http_status\": 200\n  }",
+                "operationTitle": "Get Users",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "180",
+              "left": "360",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "194cc329-6a45-45ee-a1ab-7f76c5caaffb"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "f5f0cbf3-39a0-4b4a-9b2d-d157dee68772",
+                "title": "Fortinet FortiGate: Get Users",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "5cd19ac5-57d6-422d-8bd5-f42d491d1ba5"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Users",
+              "targetStep": "/api/3/workflow_steps/194cc329-6a45-45ee-a1ab-7f76c5caaffb",
+              "sourceStep": "/api/3/workflow_steps/5cd19ac5-57d6-422d-8bd5-f42d491d1ba5",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "84ab444f-7e03-4e0b-8817-65e011d6d2e2"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "265a72e0-6356-48aa-8495-97a8829795c3",
+          "id": 4396,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "URL: Get Blocked URLs",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Retrieves a list of URLs that are blocked on Fortinet FortiGate.Note: This operation always blocks URLs on the root VDOM and ignores VDOMs provided on the configuration page.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/5723d6aa-3c51-457a-9967-fe5cfa66755b",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "description": null,
+              "arguments": {
+                "route": "59dc222b-0524-4472-b1ca-204132ed57aa",
+                "title": "Fortinet FortiGate: Get Blocked URLs",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "5723d6aa-3c51-457a-9967-fe5cfa66755b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Blocked URLs",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_blocked_urls",
+                "mock_result": "[\n    {\n      \"id\": 1,\n      \"url\": \"xyz.com\",\n      \"type\": \"simple\",\n      \"action\": \"block\",\n      \"exempt\": \"av web-content activex-java-cookie dlp fortiguard range-block antiphish all\",\n      \"status\": \"enable\",\n      \"q_origin_key\": 1,\n      \"referrer-host\": \"\",\n      \"antiphish-action\": \"block\",\n      \"web-proxy-profile\": \"\",\n      \"dns-address-family\": \"ipv4\"\n    },\n    {\n      \"id\": 3,\n      \"url\": \"demo.com\",\n      \"type\": \"simple\",\n      \"action\": \"block\",\n      \"exempt\": \"av web-content activex-java-cookie dlp fortiguard range-block antiphish all\",\n      \"status\": \"enable\",\n      \"q_origin_key\": 3,\n      \"referrer-host\": \"\",\n      \"antiphish-action\": \"block\",\n      \"web-proxy-profile\": \"\",\n      \"dns-address-family\": \"ipv4\"\n    }\n  ]",
+                "operationTitle": "Get Blocked URLs",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "a68fe338-fcad-466c-b40e-5a6e7fc8d73d"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Alerts -> Get Blocked URLs",
+              "targetStep": "/api/3/workflow_steps/a68fe338-fcad-466c-b40e-5a6e7fc8d73d",
+              "sourceStep": "/api/3/workflow_steps/5723d6aa-3c51-457a-9967-fe5cfa66755b",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "b20ace0a-5587-429d-82bc-b2b6c3bd78c9"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "3528ce58-71ef-4cd7-8069-844fac3b8e4e",
+          "id": 4406,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Address: Unblock IP Address",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Unblocks IP addresses on Fortinet FortiGate using the IPv4 Block Policy that you have specified as the \"action\" parameter of Fortinet FortiGate. For more information see the \"Blocking or Unblocking IP addresses, URLs, or applications in Fortinet FortiGate\" section.Note: This operation is supported on all VDOMs.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/a418178c-848c-4ea7-8d66-0c0d00561faa",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Unblock IP Address",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": "",
+                  "method": "Quarantine Based",
+                  "ip_addresses": "1.2.1.2, 9.9.9.9, 1.80.106.68, 2002:c0a8:64:0:4d04:a0f1:ed51:a3e2"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "unblock_ip",
+                "mock_result": "{\n    \"ip_not_exist\": [],\n    \"vdom_not_exist\": [],\n    \"newly_unblocked\": [\n      \"1.2.1.2\",\n      \"9.9.9.9\",\n      \"1.80.106.68\",\n      \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2\"\n    ],\n    \"error_with_unblock\": []\n  }",
+                "operationTitle": "Unblock IP Address",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "52240718-d665-4612-a80e-e17ed43cdd06"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "description": null,
+              "arguments": {
+                "route": "e37c20d5-b37f-4fa5-98f6-191cc66d7ae1",
+                "title": "Fortinet FortiGate: Unblock IP Address",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "a418178c-848c-4ea7-8d66-0c0d00561faa"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Alerts -> Unblock IP Address",
+              "targetStep": "/api/3/workflow_steps/52240718-d665-4612-a80e-e17ed43cdd06",
+              "sourceStep": "/api/3/workflow_steps/a418178c-848c-4ea7-8d66-0c0d00561faa",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "d70af813-d9bd-4ff8-bf8e-8c8b17642578"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "39548419-f9c4-46bf-a190-5db7c2800c69",
+          "id": 4395,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Address: Create Address",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Create new address in Fortinet FortiGate.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/9bdff3e4-19df-47bd-87a1-fabdca433fe5",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "fd40cf27-a068-4392-9d70-cffa42df0ec9",
+                "title": "Fortinet FortiGate: Create Address",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "9bdff3e4-19df-47bd-87a1-fabdca433fe5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Address",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "2002:c0a8:64:0:4d04:a0f1:ed51:a3e2",
+                  "type": "IPv6 Subnet",
+                  "vdom": "",
+                  "color": "",
+                  "subnet": "2002:c0a8:64:0:4d04:a0f1:ed51:a3e2",
+                  "comment": "",
+                  "country": "Canada",
+                  "allow-routing": true,
+                  "address_category": "IPv6 Address"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "create_address",
+                "mock_result": "{\n    \"mkey\": \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2\",\n    \"name\": \"address6\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"cc63d3decf227a4394dc8364c0c52ebc\",\n    \"http_method\": \"POST\",\n    \"http_status\": 200,\n    \"old_revision\": \"b824c9726d2a915f0fdf30a39b8fcf24\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Create Address",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "202",
+              "left": "388",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "f7dce5e6-2d3c-497a-8478-40fea014e3d4"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Create Address",
+              "targetStep": "/api/3/workflow_steps/f7dce5e6-2d3c-497a-8478-40fea014e3d4",
+              "sourceStep": "/api/3/workflow_steps/9bdff3e4-19df-47bd-87a1-fabdca433fe5",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "065fb8b0-fd81-4186-8890-75521437625e"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "402256e8-0a4b-453f-8cd1-6d114ae9b98b",
+          "id": 4391,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Address: Block IP Address",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Blocks IP addresses on Fortinet FortiGate using the IPv4 Block Policy that you have specified as the \\\"action\\\" parameter of Fortinet FortiGate or by Quarantine based- adds IP into the banned IP list.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/7ea029d5-2d84-486b-97a1-441592d935b7",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "description": null,
+              "arguments": {
+                "route": "7eff091d-23e4-4cbb-bd13-6a78a48ed291",
+                "title": "Fortinet FortiGate: Block IP Address",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "7ea029d5-2d84-486b-97a1-441592d935b7"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Block IP Address",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": "",
+                  "method": "Quarantine Based",
+                  "ip_addresses": "1.2.1.2, 9.9.9.9, 1.80.106.68, 2002:c0a8:64:0:4d04:a0f1:ed51:a3e2",
+                  "time_to_live": "1 Hour"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "block_ip_new",
+                "mock_result": "{\n    \"newly_blocked\": [\n      \"1.2.1.2\",\n      \"9.9.9.9\",\n      \"1.80.106.68\",\n      \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2\"],\n    \"vdom_not_exist\": [],\n    \"already_blocked\": [],\n    \"error_with_block\": []\n  }",
+                "operationTitle": "Block IP Address",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "fcc8ee81-96f8-4f5f-bac9-1e43699bdda9"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Alerts -> Block IP Address",
+              "targetStep": "/api/3/workflow_steps/fcc8ee81-96f8-4f5f-bac9-1e43699bdda9",
+              "sourceStep": "/api/3/workflow_steps/7ea029d5-2d84-486b-97a1-441592d935b7",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "03036868-1f5b-4776-b23f-b9a7c1417e31"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "404ddd68-7dd2-488a-91bf-ad6ae9241695",
+          "id": 4422,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Address: Update Address",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Update an existing address on Fortinet FortiGate server.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/efda84e2-07bf-43f7-a93b-d6c19daccb78",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Address",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "2002:c0a8:64:0:4d04:a0f1:ed51:a3e2",
+                  "type": "",
+                  "vdom": "",
+                  "comment": "",
+                  "country": "Australia",
+                  "new_name": "asdcv",
+                  "address_category": "IPv6 Address"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "update_address",
+                "mock_result": "{\n    \"mkey\": \"asdcv\",\n    \"name\": \"address6\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"24191f2f7b3c5a3b9c7c58f8bfc985e3\",\n    \"http_method\": \"PUT\",\n    \"http_status\": 200,\n    \"old_revision\": \"cc63d3decf227a4394dc8364c0c52ebc\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Update Address",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "163",
+              "left": "387",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "a155d080-6bf1-4b53-8732-54d714d7840e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "eb703bcf-760f-460c-a833-5537b972a166",
+                "title": "Fortinet FortiGate: Update Address",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "efda84e2-07bf-43f7-a93b-d6c19daccb78"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Update Address",
+              "targetStep": "/api/3/workflow_steps/a155d080-6bf1-4b53-8732-54d714d7840e",
+              "sourceStep": "/api/3/workflow_steps/efda84e2-07bf-43f7-a93b-d6c19daccb78",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "93877910-1388-4c17-8b87-37a1bdae5ee9"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "4858e82b-a4c9-4ea7-8e7d-8a0b7b162991",
+          "id": 4428,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Address Group: Delete Address Group",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Delete a specific address group that is configured on Fortinet FortiGate.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/3d57f046-ea8c-47e4-9ea7-ff2decd1513f",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Delete Address Group",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": "",
+                  "group_name": "demogroup",
+                  "address_group_category": "IPv6 Group"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "delete_address_group",
+                "mock_result": "{\n    \"mkey\": \"test6\",\n    \"name\": \"demogroup\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"6ee1c01adc12157f035ebda2944ae623\",\n    \"http_method\": \"DELETE\",\n    \"http_status\": 200,\n    \"old_revision\": \"be85cea2e39dd1a209b3521cec21b589\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Delete Address Group",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "166",
+              "left": "387",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "2cb037dc-dc16-4744-abdf-522d71c3a2d0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "1bdc441f-cf05-42c8-97d5-d93c03fc91f6",
+                "title": "Fortinet FortiGate: Delete Address Group",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "3d57f046-ea8c-47e4-9ea7-ff2decd1513f"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Delete Address Group",
+              "targetStep": "/api/3/workflow_steps/2cb037dc-dc16-4744-abdf-522d71c3a2d0",
+              "sourceStep": "/api/3/workflow_steps/3d57f046-ea8c-47e4-9ea7-ff2decd1513f",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "004419fd-8c45-4beb-97b9-0b9a475e8652"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "4caf5753-dde4-4ed1-9881-000e1044e4d7",
+          "id": 4390,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Host: Quarantine Host",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Quarantine Host on the Fortinet Fortigate server",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/728d4d32-c9e0-4f58-a4dc-757816734cab",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "9a72f99e-d342-425c-8fb6-a6ea3af79a2b",
+                "title": "Fortinet FortiGate: Quarantine Host",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "728d4d32-c9e0-4f58-a4dc-757816734cab"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Quarantine Host",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "macs": "00:15:00:e8:27:25, 00:15:00:e8:27:22",
+                  "vdom": "",
+                  "entry": "c4:57:6e:a6:d0:db",
+                  "description": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "quarantine_host",
+                "mock_result": "{\n    \"not_quarantine\": [],\n    \"newly_quarantine\": [\n      \"00:15:00:e8:27:25\",\n      \"00:15:00:e8:27:22\"\n    ],\n    \"already_quarantine\": []\n  }",
+                "operationTitle": "Quarantine Host",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "160",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e7f5390d-6e2a-43c5-992c-22859d6ce90e"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Quarantine Host",
+              "targetStep": "/api/3/workflow_steps/e7f5390d-6e2a-43c5-992c-22859d6ce90e",
+              "sourceStep": "/api/3/workflow_steps/728d4d32-c9e0-4f58-a4dc-757816734cab",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "353f215a-f460-490b-9b46-bd3c430c5a16"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "5b383fe1-27cf-4c7c-b9b1-3a010309a9ff",
+          "id": 4416,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "URL: Unblock URL",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Unblocks URLs on Fortinet FortiGate using the Web Filter Profile Name that you have specified while configuring Fortinet FortiGate. For more information see the \"Blocking or Unblocking IP addresses, URLs, or applications in Fortinet FortiGate\" section.Note: This operation always unblocks URLs on the root VDOM and ignores VDOMs provided on the configuration page.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/136a8a2c-e72b-4530-bd5c-c2632b77b6c5",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "description": null,
+              "arguments": {
+                "route": "f8faffda-1307-4795-8b7e-1f0a5e32edb0",
+                "title": "Fortinet FortiGate: Unblock URL",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "136a8a2c-e72b-4530-bd5c-c2632b77b6c5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Unblock URL",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "url": "www.example.com",
+                  "vdom": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "unblock_url",
+                "mock_result": "{\n    \"not_exist\": [],\n    \"not_unblock\": [],\n    \"newly_unblocked\": [\n      \"www.example.com\"\n    ]\n  }",
+                "operationTitle": "Unblock URL",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "7ef78805-6007-4605-bc96-a55e62f8a06a"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Alerts -> Unblock URL",
+              "targetStep": "/api/3/workflow_steps/7ef78805-6007-4605-bc96-a55e62f8a06a",
+              "sourceStep": "/api/3/workflow_steps/136a8a2c-e72b-4530-bd5c-c2632b77b6c5",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "c6f86957-57fc-4416-bd1d-37de25ac78db"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "64d57881-ad77-44eb-80c9-3eca9be118ef",
+          "id": 4394,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Service: Get Services",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Retrieves a list of all firewalls services or specific service based on given input which are configured on Fortinet FortiGate.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/16c90ef7-560e-4ee2-9614-863e5a1402cc",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "bb28382e-abb0-40b7-a1b5-4f090ec1d839",
+                "title": "Fortinet FortiGate: Get Firewall Services",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "16c90ef7-560e-4ee2-9614-863e5a1402cc"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Services",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "DNS",
+                  "vdom": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_firewall_services",
+                "mock_result": "{\n    \"mkey\": \"DNS\",\n    \"name\": \"custom\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"results\": [\n      {\n        \"fqdn\": \"\",\n        \"name\": \"DNS\",\n        \"color\": 0,\n        \"proxy\": \"disable\",\n        \"helper\": \"auto\",\n        \"comment\": \"\",\n        \"iprange\": \"0.0.0.0\",\n        \"category\": \"Network Services\",\n        \"protocol\": \"TCP/UDP/SCTP\",\n        \"visibility\": \"enable\",\n        \"application\": [],\n        \"session-ttl\": \"0\",\n        \"app-category\": [],\n        \"q_origin_key\": \"DNS\",\n        \"fabric-object\": \"disable\",\n        \"tcp-portrange\": \"53\",\n        \"udp-portrange\": \"53\",\n        \"sctp-portrange\": \"\",\n        \"udp-idle-timer\": 0,\n        \"app-service-type\": \"disable\",\n        \"check-reset-range\": \"default\",\n        \"tcp-halfopen-timer\": 0,\n        \"tcp-timewait-timer\": 0,\n        \"tcp-halfclose-timer\": 0\n      }\n    ],\n    \"version\": \"v6.4.6\",\n    \"revision\": \"8f4f0ccaec9831718eb96c1081897ac2\",\n    \"http_method\": \"GET\",\n    \"http_status\": 200\n  }",
+                "operationTitle": "Get Firewall Services",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "180",
+              "left": "383",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "a98820ad-576d-49b6-b2a6-7042958fd93e"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Firewall Services",
+              "targetStep": "/api/3/workflow_steps/a98820ad-576d-49b6-b2a6-7042958fd93e",
+              "sourceStep": "/api/3/workflow_steps/16c90ef7-560e-4ee2-9614-863e5a1402cc",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "ead4e545-dec8-4f13-bd04-3f08ca4fa1fe"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "653d51d8-d7f6-4d71-82a3-a04812f3bab0",
+          "id": 4411,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Address: Get Addresses",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Retrieves a list of all addresses that are configured on Fortinet FortiGate.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/3c71a5d6-bb7b-4475-9de8-d2ec6ce26eaf",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "9038a60b-7907-4a19-945c-2a781715a0ed",
+                "title": "Fortinet FortiGate: Get Addresses",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "3c71a5d6-bb7b-4475-9de8-d2ec6ce26eaf"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Addresses",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "2002:c0a8:64:0:4d04:a0f1:ed51:a3e2",
+                  "vdom": "",
+                  "address_category": "IPv6 Address"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_addresses",
+                "mock_result": "{\n    \"mkey\": \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2\",\n    \"name\": \"address6\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"results\": [\n      {\n        \"ip6\": \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2/128\",\n        \"sdn\": \"\",\n        \"fqdn\": \"\",\n        \"list\": [],\n        \"name\": \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2\",\n        \"type\": \"ipprefix\",\n        \"uuid\": \"ea5405a8-c172-51ec-542d-4b41c6a520b2\",\n        \"color\": 0,\n        \"end-ip\": \"::\",\n        \"obj-id\": \"\",\n        \"comment\": \"\",\n        \"country\": \"\",\n        \"end-mac\": \"00:00:00:00:00:00\",\n        \"tagging\": [],\n        \"template\": \"\",\n        \"cache-ttl\": 0,\n        \"host-type\": \"any\",\n        \"start-mac\": \"00:00:00:00:00:00\",\n        \"q_origin_key\": \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2\",\n        \"fabric-object\": \"disable\",\n        \"subnet-segment\": []\n      }\n    ],\n    \"version\": \"v6.4.6\",\n    \"revision\": \"cc63d3decf227a4394dc8364c0c52ebc\",\n    \"http_method\": \"GET\",\n    \"http_status\": 200\n  }",
+                "operationTitle": "Get Addresses",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "180",
+              "left": "460",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "4035b4d2-5248-462b-99e7-a435c732b77d"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Addresses",
+              "targetStep": "/api/3/workflow_steps/4035b4d2-5248-462b-99e7-a435c732b77d",
+              "sourceStep": "/api/3/workflow_steps/3c71a5d6-bb7b-4475-9de8-d2ec6ce26eaf",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "5e59f73a-28d0-4bc3-a7d4-1bed61ebe29f"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "65a4a9ef-4023-47df-a377-8ba25a29fbd0",
+          "id": 4420,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Service Group: Create Service Group",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Creates new service group based on input parameters provided on Fortinet FortiGate.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/c2376a2e-9f18-415f-916a-d8192ea6f951",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Service Group",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "sample_service_grp",
+                  "vdom": "",
+                  "color": "8",
+                  "comment": "sample group created",
+                  "members": "HTTP, HTTPS"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "create_service_group",
+                "mock_result": "{\n    \"mkey\": \"sample_service_grp\",\n    \"name\": \"group\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"40457ae9eeb53f9e3cfcb794c86c5436\",\n    \"http_method\": \"POST\",\n    \"http_status\": 200,\n    \"old_revision\": \"c77371e8920b4675c2965169d14ec580\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Create Service Group",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "200",
+              "left": "260",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "71a946dd-0dec-436c-8014-51f146abb53e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "f0e84730-79b7-43dc-ad23-0c3a47458642",
+                "title": "Fortinet FortiGate: Create Service Group",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "c2376a2e-9f18-415f-916a-d8192ea6f951"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Create Service Group",
+              "targetStep": "/api/3/workflow_steps/71a946dd-0dec-436c-8014-51f146abb53e",
+              "sourceStep": "/api/3/workflow_steps/c2376a2e-9f18-415f-916a-d8192ea6f951",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "be56a227-0c9e-4863-bef7-299b136a1cf2"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "713a34fd-a9aa-4420-9c36-5ad3875871b7",
+          "id": 4409,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Policy: Get List of Policies",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Retrieves a list and details for all IPv4 policies that are configured on Fortinet FortiGate.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/620a62a7-c70d-402f-aa2c-f7fdb83ab18e",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "description": null,
+              "arguments": {
+                "route": "e6611980-7a86-4e33-8664-b8b09dd59b4d",
+                "title": "Fortinet FortiGate: Get List of Policies",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "620a62a7-c70d-402f-aa2c-f7fdb83ab18e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get List of Policies",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": "",
+                  "ngfw_mode": "Profile Based"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_list_of_policies",
+                "mock_result": "{\n  \"result\": [\n    {\n      \"name\": \"policy\",\n      \"path\": \"firewall\",\n      \"vdom\": \"root\",\n      \"build\": 1879,\n      \"serial\": \"FGVM02TM21013928\",\n      \"status\": \"success\",\n      \"results\": [\n        {\n          \"nat\": \"enable\",\n          \"tos\": \"0x00\",\n          \"dsri\": \"disable\",\n          \"name\": \"test\",\n          \"ntlm\": \"disable\",\n          \"uuid\": \"851f17dc-6ded-51ec-fd36-69a850d48d0c\",\n          \"wccp\": \"disable\",\n          \"label\": \"\",\n          \"natip\": \"0.0.0.0 0.0.0.0\",\n          \"users\": [],\n          \"action\": \"accept\",\n          \"groups\": [],\n          \"ippool\": \"disable\",\n          \"status\": \"enable\",\n          \"wanopt\": \"disable\",\n          \"dstaddr\": [\n            {\n              \"name\": \"derfb\",\n              \"q_origin_key\": \"derfb\"\n            }\n          ],\n          \"dstintf\": [\n            {\n              \"name\": \"port4\",\n              \"q_origin_key\": \"port4\"\n            }\n          ],\n          \"inbound\": \"disable\",\n          \"rtp-nat\": \"disable\",\n          \"service\": [\n            {\n              \"name\": \"ALL\",\n              \"q_origin_key\": \"ALL\"\n            }\n          ],\n          \"srcaddr\": [\n            {\n              \"name\": \"1.1.0.1/24\",\n              \"q_origin_key\": \"1.1.0.1/24\"\n            }\n          ],\n          \"srcintf\": [\n            {\n              \"name\": \"port2\",\n              \"q_origin_key\": \"port2\"\n            }\n          ],\n          \"comments\": \"Purged Policy from FortiSOAR\",\n          \"dstaddr6\": [],\n          \"outbound\": \"enable\",\n          \"policyid\": 2,\n          \"poolname\": [],\n          \"rtp-addr\": [],\n          \"schedule\": \"always\",\n          \"srcaddr6\": [],\n          \"tos-mask\": \"0x00\",\n          \"webcache\": \"disable\",\n          \"auth-cert\": \"\",\n          \"auth-path\": \"disable\",\n          \"fixedport\": \"disable\",\n          \"match-vip\": \"disable\",\n          \"poolname6\": [],\n          \"vpntunnel\": \"\",\n          \"av-profile\": \"\",\n          \"disclaimer\": \"disable\",\n          \"dlp-sensor\": \"\",\n          \"ips-sensor\": \"\",\n          \"logtraffic\": \"disable\",\n          \"natinbound\": \"disable\",\n          \"ntlm-guest\": \"disable\",\n          \"tos-negate\": \"disable\",\n          \"utm-status\": \"disable\",\n          \"anti-replay\": \"enable\",\n          \"fsso-groups\": [],\n          \"geoip-match\": \"physical-location\",\n          \"natoutbound\": \"disable\",\n          \"session-ttl\": \"0\",\n          \"vlan-filter\": \"\",\n          \"waf-profile\": \"\",\n          \"wanopt-peer\": \"\",\n          \"cifs-profile\": \"\",\n          \"global-label\": \"\",\n          \"icap-profile\": \"\",\n          \"profile-type\": \"single\",\n          \"q_origin_key\": 2,\n          \"redirect-url\": \"\",\n          \"vlan-cos-fwd\": 255,\n          \"vlan-cos-rev\": 255,\n          \"voip-profile\": \"\",\n          \"email-collect\": \"disable\",\n          \"geoip-anycast\": \"disable\",\n          \"per-ip-shaper\": \"\",\n          \"profile-group\": \"\",\n          \"capture-packet\": \"disable\",\n          \"dstaddr-negate\": \"disable\",\n          \"match-vip-only\": \"disable\",\n          \"service-negate\": \"disable\",\n          \"src-vendor-mac\": [],\n          \"srcaddr-negate\": \"disable\",\n          \"tcp-mss-sender\": 0,\n          \"traffic-shaper\": \"\",\n          \"wanopt-profile\": \"\",\n          \"webcache-https\": \"disable\",\n          \"dynamic-shaping\": \"disable\",\n          \"inspection-mode\": \"proxy\",\n          \"permit-any-host\": \"disable\",\n          \"ssl-ssh-profile\": \"no-inspection\",\n          \"application-list\": \"\",\n          \"diffserv-forward\": \"disable\",\n          \"diffserv-reverse\": \"disable\",\n          \"diffservcode-rev\": \"000000\",\n          \"internet-service\": \"disable\",\n          \"logtraffic-start\": \"enable\",\n          \"permit-stun-host\": \"disable\",\n          \"schedule-timeout\": \"disable\",\n          \"send-deny-packet\": \"disable\",\n          \"tcp-mss-receiver\": 0,\n          \"timeout-send-rst\": \"disable\",\n          \"wanopt-detection\": \"active\",\n          \"webproxy-profile\": \"\",\n          \"auto-asic-offload\": \"disable\",\n          \"custom-log-fields\": [],\n          \"dnsfilter-profile\": \"\",\n          \"webfilter-profile\": \"\",\n          \"auth-redirect-addr\": \"\",\n          \"block-notification\": \"disable\",\n          \"reputation-minimum\": 0,\n          \"ssh-filter-profile\": \"\",\n          \"wanopt-passive-opt\": \"default\",\n          \"emailfilter-profile\": \"\",\n          \"file-filter-profile\": \"\",\n          \"fsso-agent-for-ntlm\": \"\",\n          \"ssh-policy-redirect\": \"disable\",\n          \"diffservcode-forward\": \"000000\",\n          \"http-policy-redirect\": \"disable\",\n          \"identity-based-route\": \"\",\n          \"internet-service-src\": \"disable\",\n          \"reputation-direction\": \"destination\",\n          \"captive-portal-exempt\": \"disable\",\n          \"delay-tcp-npu-session\": \"disable\",\n          \"internet-service-name\": [],\n          \"ntlm-enabled-browsers\": [],\n          \"firewall-session-dirty\": \"check-all\",\n          \"internet-service-group\": [],\n          \"radius-mac-auth-bypass\": \"disable\",\n          \"traffic-shaper-reverse\": \"\",\n          \"internet-service-custom\": [],\n          \"internet-service-negate\": \"disable\",\n          \"tcp-session-without-syn\": \"disable\",\n          \"webproxy-forward-server\": \"\",\n          \"decrypted-traffic-mirror\": \"\",\n          \"profile-protocol-options\": \"default\",\n          \"internet-service-src-name\": [],\n          \"replacemsg-override-group\": \"\",\n          \"internet-service-src-group\": [],\n          \"internet-service-src-custom\": [],\n          \"internet-service-src-negate\": \"disable\",\n          \"internet-service-custom-group\": [],\n          \"internet-service-src-custom-group\": []\n        }\n      ],\n      \"version\": \"v6.4.6\",\n      \"revision\": \"97278e93b437f651e7ba9605025b8d87\",\n      \"http_method\": \"GET\",\n      \"http_status\": 200\n    }\n  ],\n  \"vdom_not_exist\": []\n}",
+                "operationTitle": "Get List of Policies",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "bfdf231d-f13e-4728-99fa-ce39894e2e55"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Alerts -> Get List of Policies",
+              "targetStep": "/api/3/workflow_steps/bfdf231d-f13e-4728-99fa-ce39894e2e55",
+              "sourceStep": "/api/3/workflow_steps/620a62a7-c70d-402f-aa2c-f7fdb83ab18e",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "5a355ac1-6a34-42a1-9bd6-710d821036ed"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "81af0c56-2564-4875-b16d-b8fac6874a6c",
+          "id": 4423,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Service: Update Service",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Update existing firewall service based on input parameters provided.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/66cbcd8b-459f-4b7e-9bcb-9b78c408a964",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "6d6114ab-93e6-4686-8296-0c6ce5460e5b",
+                "title": "Fortinet FortiGate: Update Firewall Service",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "66cbcd8b-459f-4b7e-9bcb-9b78c408a964"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Service",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "demo",
+                  "vdom": "",
+                  "color": "",
+                  "comment": "",
+                  "category": "",
+                  "icmpcode": "",
+                  "icmptype": "",
+                  "new_name": "Demo service",
+                  "protocol": "ICMP",
+                  "visibility": "Disable"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "update_firewall_service",
+                "mock_result": "{\n    \"mkey\": \"Demo service\",\n    \"name\": \"custom\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"7ca5a10b8d4a2c54e0ce751f22bfd353\",\n    \"http_method\": \"PUT\",\n    \"http_status\": 200,\n    \"old_revision\": \"f28fa92ddb20dbe689c165a5fca4a0f4\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Update Firewall Service",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "160",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "d4f7aef9-20f9-4632-b7b6-2fb755ff272f"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Update Firewall Service",
+              "targetStep": "/api/3/workflow_steps/d4f7aef9-20f9-4632-b7b6-2fb755ff272f",
+              "sourceStep": "/api/3/workflow_steps/66cbcd8b-459f-4b7e-9bcb-9b78c408a964",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "1f3da317-1430-4232-a820-f35179ca3b5e"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "8533cebe-3ab7-4e98-901e-fb6e3fa94b56",
+          "id": 4427,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Service: Create Service",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Create new service based on input parameters provided",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/b4059651-f35e-423a-942d-d5c158cd7a57",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Service",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "demo",
+                  "vdom": "",
+                  "color": "",
+                  "comment": "",
+                  "category": "",
+                  "protocol": "IP",
+                  "visibility": "",
+                  "protocol-number": 21
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "create_firewall_service",
+                "mock_result": "{\n    \"mkey\": \"demo\",\n    \"name\": \"custom\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"8f4f0ccaec9831718eb96c1081897ac2\",\n    \"http_method\": \"POST\",\n    \"http_status\": 200,\n    \"old_revision\": \"8abca50ab117de5a2769bef5ad208ae4\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Create Firewall Service",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "260",
+              "left": "360",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "96a8287b-2ae1-4ee0-8382-2299d790c212"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "e3e16867-9a8b-42fd-ac03-fb2c6f870169",
+                "title": "Fortinet FortiGate: Create Firewall Service",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "b4059651-f35e-423a-942d-d5c158cd7a57"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Create Firewall Service",
+              "targetStep": "/api/3/workflow_steps/96a8287b-2ae1-4ee0-8382-2299d790c212",
+              "sourceStep": "/api/3/workflow_steps/b4059651-f35e-423a-942d-d5c158cd7a57",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "8beb2780-6a1d-485c-92a7-35753b424b37"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "8978f305-55f1-48a5-8b00-4385a5c5eb0e",
+          "id": 4405,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Service Group: Update Service Group",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Update specific service group based on inputs parameters provided on Fortinet FortiGate server.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/9db6ab71-e438-4763-9b3c-f81f30c02764",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Fortinet FortiGate",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "Demo Group123",
+                  "vdom": "",
+                  "color": "",
+                  "comment": "",
+                  "new_name": "",
+                  "add_member": "DNS, IMAP",
+                  "remove_member": "HTTP"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "update_service_group",
+                "mock_result": "{\n    \"mkey\": \"Demo Group123\",\n    \"name\": \"group\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"40457ae9eeb53f9e3cfcb794c86c5436\",\n    \"http_method\": \"PUT\",\n    \"http_status\": 200,\n    \"revision_changed\": false\n  }",
+                "operationTitle": "Update Service Group",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "151",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "18d12ed1-1a5a-4498-aee8-335e4cf78860"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "3e4f07e4-4c5b-4426-a97a-52f780f10811",
+                "title": "Fortinet FortiGate: Update Service Group",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "9db6ab71-e438-4763-9b3c-f81f30c02764"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Fortinet FortiGate",
+              "targetStep": "/api/3/workflow_steps/18d12ed1-1a5a-4498-aee8-335e4cf78860",
+              "sourceStep": "/api/3/workflow_steps/9db6ab71-e438-4763-9b3c-f81f30c02764",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "1a21046b-e0e9-408a-8ebe-11c6edf1dabb"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "90dd83b3-ee66-4efa-a0da-8e194fd7cb44",
+          "id": 4426,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Policy: Update Policy",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Update an existing firewall policy based on input parameters provided.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/2566ce9a-965b-435b-82bc-89e0df39c054",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "12d1133d-e261-4798-8ce8-6083f9e34ee6",
+                "title": "Fortinet FortiGate: Update Policy",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "2566ce9a-965b-435b-82bc-89e0df39c054"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Policy",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "nat": true,
+                  "name": "",
+                  "vdom": "",
+                  "action": "Accept",
+                  "status": "",
+                  "comment": "",
+                  "dstintf": "",
+                  "srcintf": "",
+                  "policyid": "12",
+                  "schedule": "",
+                  "fixedport": "",
+                  "logtraffic": "",
+                  "add_dstaddr": "",
+                  "add_service": "",
+                  "add_srcaddr": "",
+                  "waf_profile": "g-default",
+                  "ip_pool_config": "",
+                  "remove_dstaddr": "",
+                  "remove_service": "",
+                  "remove_srcaddr": "",
+                  "additional_args": "",
+                  "inspection_mode": "Proxy Based",
+                  "security_profile_name": [],
+                  "profile-protocol-options": "",
+                  "security_profile_names_to_disable": [
+                    "AntiVirus",
+                    "Web Filter"
+                  ]
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "update_policy",
+                "mock_result": "{\n    \"mkey\": \"12\",\n    \"name\": \"policy\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"d2579e3bff4511125899630a8966b96f\",\n    \"http_method\": \"PUT\",\n    \"http_status\": 200,\n    \"old_revision\": \"97278e93b437f651e7ba9605025b8d87\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Update Policy",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "140",
+              "left": "340",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "bd0efa3b-f5b6-4ba6-a3f2-53afb15c4451"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Update Policy",
+              "targetStep": "/api/3/workflow_steps/bd0efa3b-f5b6-4ba6-a3f2-53afb15c4451",
+              "sourceStep": "/api/3/workflow_steps/2566ce9a-965b-435b-82bc-89e0df39c054",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "b770f0a5-9138-4dbd-a46d-c2cae1802e06"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "91829ed9-e671-47c2-b113-df839674120a",
+          "id": 4400,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Application: Block Application",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Blocks applications on Fortinet FortiGate using the Application Control Profile Name that you have specified while configuring Fortinet FortiGate. For more information see the \"Blocking or Unblocking IP addresses, URLs, or applications in Fortinet FortiGate\" section.Note: This operation always blocks applications on the root VDOM and ignores VDOMs provided on the configuration page.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/afd7c205-0968-4359-8632-a01fadc63f10",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "description": null,
+              "arguments": {
+                "route": "136fac85-4199-4635-9094-79f80681354e",
+                "title": "Fortinet FortiGate: Block Application",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "afd7c205-0968-4359-8632-a01fadc63f10"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Block Application",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": "",
+                  "app_list": "[\"webRDP\", \"vBulletin\"]"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "block_applications",
+                "mock_result": "[\n    {\n      \"name\": \"webRDP\",\n      \"status\": \"Failed\",\n      \"message\": \"Application not found in Fortinet FortiGate database\"\n    },\n    {\n      \"name\": \"vBulletin\",\n      \"status\": \"Successful\",\n      \"message\": \"Application blocked successfully\"\n    }\n  ]",
+                "operationTitle": "Block Application",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "ee069cc1-a661-475c-92d8-cdf4b09de370"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Alerts -> Block Application",
+              "targetStep": "/api/3/workflow_steps/ee069cc1-a661-475c-92d8-cdf4b09de370",
+              "sourceStep": "/api/3/workflow_steps/afd7c205-0968-4359-8632-a01fadc63f10",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "726f523d-3884-4d51-83d5-a48ec3e266bd"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "981a3624-2c4e-456b-89d1-9d8b71b9ec59",
+          "id": 4393,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Address Group: Create Address Group",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Create new address group based on input parameters you have provided on Fortinet FortiGate server",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/487a39e4-3438-46dc-b98e-2824c7acc09c",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "33b51b21-041b-443f-846e-2e3c804af043",
+                "title": "Fortinet FortiGate: Create Address Group",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "487a39e4-3438-46dc-b98e-2824c7acc09c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Address Group",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "type": "Group",
+                  "vdom": "",
+                  "member": "v66",
+                  "comment": "",
+                  "exclude": false,
+                  "group_name": "demogroup",
+                  "allow-routing": "",
+                  "address_group_category": "IPv6 Group"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "create_address_group",
+                "mock_result": "{\n    \"mkey\": \"demogrp\",\n    \"name\": \"addrgrp\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"0c62b8ae11282e5dd335a3fce87c8769\",\n    \"http_method\": \"POST\",\n    \"http_status\": 200,\n    \"old_revision\": \"adb5a57a1e37f398f701f3fab9dd13e1\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Create Address Group",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "160",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "c92d929a-ecf1-402f-aaa7-f220e8997ffb"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Create Address Group",
+              "targetStep": "/api/3/workflow_steps/c92d929a-ecf1-402f-aaa7-f220e8997ffb",
+              "sourceStep": "/api/3/workflow_steps/487a39e4-3438-46dc-b98e-2824c7acc09c",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "fd472525-c149-473e-bebc-ad24bde2ce44"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "9b3e73da-0706-4d93-95a3-f0e2a6d80522",
+          "id": 4418,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Policy: Create Policy",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Create new firewall policy based on input parameters provided.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/b2d86991-8dd7-463c-912c-41c44fcb5450",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "8fea3adc-9241-4b45-acca-a08f04883fc8",
+                "title": "Fortinet FortiGate: Create Policy",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "b2d86991-8dd7-463c-912c-41c44fcb5450"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Policy",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "nat": "",
+                  "name": "Demo Policy",
+                  "vdom": "",
+                  "action": "Accept",
+                  "status": "",
+                  "comment": "sample created policy",
+                  "dstaddr": "1.1.1.1",
+                  "dstintf": "port2",
+                  "service": "HTTP",
+                  "srcaddr": "1.1.1.1",
+                  "srcintf": "port2",
+                  "schedule": "always",
+                  "av_profile": "g-default",
+                  "logtraffic": "",
+                  "additional_args": "",
+                  "inspection_mode": "Flow Based",
+                  "webfilter_profile": "g-default",
+                  "security_profile_name": [
+                    "AntiVirus",
+                    "Web Filter"
+                  ],
+                  "profile-protocol-options": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "create_policy",
+                "mock_result": "{\n    \"mkey\": 12,\n    \"name\": \"policy\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"97278e93b437f651e7ba9605025b8d87\",\n    \"http_method\": \"POST\",\n    \"http_status\": 200,\n    \"old_revision\": \"ae329cc2a9df45e0692a342d7fb8e7ab\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Create Policy",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "187",
+              "left": "329",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "f9a167da-3805-483c-8a42-86a3e8ff936b"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Create Policy",
+              "targetStep": "/api/3/workflow_steps/f9a167da-3805-483c-8a42-86a3e8ff936b",
+              "sourceStep": "/api/3/workflow_steps/b2d86991-8dd7-463c-912c-41c44fcb5450",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "d2eef82e-5a0e-46cb-9500-05cedd9c806a"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "a194182f-ea26-4e93-83ff-1c5d691b6f7a",
+          "id": 4407,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "User: Delete User",
+          "aliasName": null,
+          "tag": null,
+          "description": "Deletes a user that is configured on Fortinet FortiGate based on the name of the user you have specified",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/85a198b5-71c5-41e6-a6df-1fa03ef81c59",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Delete User",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "demo",
+                  "vdom": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "delete_user",
+                "mock_result": "{\n    \"mkey\": \"new test\",\n    \"name\": \"local\",\n    \"path\": \"user\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"f888268a92a1dd2d1d6ab4c6d8404666\",\n    \"http_method\": \"DELETE\",\n    \"http_status\": 200,\n    \"old_revision\": \"c2d7c0be3f730e57024f76eaa26e0a46\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Delete User",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "263",
+              "left": "386",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "579ab70e-1f77-4e2d-b301-ccd948c725eb"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "9a4484b4-9e4d-4d22-be77-a16978fe8677",
+                "title": "Fortinet FortiGate: Delete User",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "85a198b5-71c5-41e6-a6df-1fa03ef81c59"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Delete User",
+              "targetStep": "/api/3/workflow_steps/579ab70e-1f77-4e2d-b301-ccd948c725eb",
+              "sourceStep": "/api/3/workflow_steps/85a198b5-71c5-41e6-a6df-1fa03ef81c59",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "2b2f6488-f402-4b85-adcd-dd9a78664d23"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "a567ec32-4410-4dfd-8c22-7089b0c11dac",
+          "id": 4424,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Service Group: Get Service Groups",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Retrieves a list of all service groups or specific group based on inputs which are configured on Fortinet FortiGate.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/2e433acd-e82d-44d5-8a87-9bfd11282a20",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "de758332-793d-43af-ac7d-3d2b972dae48",
+                "title": "Fortinet FortiGate: Get Service Groups",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "2e433acd-e82d-44d5-8a87-9bfd11282a20"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Service Groups",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "",
+                  "vdom": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_service_groups",
+                "mock_result": "{\n    \"name\": \"group\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"results\": [\n      {\n        \"name\": \"Demo Group123\",\n        \"color\": 0,\n        \"proxy\": \"disable\",\n        \"member\": [\n          {\n            \"name\": \"HTTPS\",\n            \"q_origin_key\": \"HTTPS\"\n          },\n          {\n            \"name\": \"IMAP\",\n            \"q_origin_key\": \"IMAP\"\n          },\n          {\n            \"name\": \"DNS\",\n            \"q_origin_key\": \"DNS\"\n          }\n        ],\n        \"comment\": \"\",\n        \"q_origin_key\": \"Demo Group123\",\n        \"fabric-object\": \"disable\"\n      },\n      {\n        \"name\": \"DemoGroup\",\n        \"color\": 0,\n        \"proxy\": \"disable\",\n        \"member\": [],\n        \"comment\": \"\",\n        \"q_origin_key\": \"DemoGroup\",\n        \"fabric-object\": \"disable\"\n      }\n    ],\n    \"version\": \"v6.4.6\",\n    \"revision\": \"40457ae9eeb53f9e3cfcb794c86c5436\",\n    \"http_method\": \"GET\",\n    \"http_status\": 200\n  }",
+                "operationTitle": "Get Service Groups",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "153",
+              "left": "340",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "d47be389-9a1e-488c-9572-1f6f50bb684b"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Service Groups",
+              "targetStep": "/api/3/workflow_steps/d47be389-9a1e-488c-9572-1f6f50bb684b",
+              "sourceStep": "/api/3/workflow_steps/2e433acd-e82d-44d5-8a87-9bfd11282a20",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "0c541822-6f03-4bd1-af6f-8304a8a2f981"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "b4bc5399-0131-43d1-bd41-46b61523e1ec",
+          "id": 4403,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "URL: Block URL",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Blocks URLs on Fortinet FortiGate using the Web Filter Profile Name Policy that you have specified while configuring Fortinet FortiGate. For more information see the \"Blocking or Unblocking IP addresses, URLs, or applications in Fortinet FortiGate\" section.Note: This operation always blocks URLs on the root VDOM and ignores VDOMs provided on the configuration page.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/8acf9e7a-2e07-4b7b-9dfb-b4ee3450098f",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Block URL",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "url": "www.example.com",
+                  "vdom": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "block_url",
+                "mock_result": "{\n    \"not_block\": [],\n    \"newly_blocked\": [\n      \"www.example.com\"\n    ],\n    \"already_blocked\": []\n  }",
+                "operationTitle": "Block URL",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "680c3f97-5a2c-459a-b452-4f7740d4a9cd"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "description": null,
+              "arguments": {
+                "route": "16a11bea-e10f-4694-b953-28836e7ab620",
+                "title": "Fortinet FortiGate: Block URL",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "8acf9e7a-2e07-4b7b-9dfb-b4ee3450098f"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Alerts -> Block URL",
+              "targetStep": "/api/3/workflow_steps/680c3f97-5a2c-459a-b452-4f7740d4a9cd",
+              "sourceStep": "/api/3/workflow_steps/8acf9e7a-2e07-4b7b-9dfb-b4ee3450098f",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "1b74e4b4-6694-434a-b694-94e514f6c7a5"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "b9fc79fb-2f22-461c-9c61-21294531cf96",
+          "id": 4413,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Application: Unblock Application",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Unblocks applications on Fortinet FortiGate using the Application Control Profile Name that you have specified while configuring Fortinet FortiGate. For more information see the \"Blocking or Unblocking IP addresses, URLs, or applications in Fortinet FortiGate\" section.Note: This operation always unblocks applications on the root VDOM and ignores VDOMs provided on the configuration page.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/a32f8a90-36b3-45db-948d-19a1a5d9c3a9",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "description": null,
+              "arguments": {
+                "route": "a6c8f45b-c370-4b93-b4a7-7012ef099779",
+                "title": "Fortinet FortiGate: Unblock Application",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "a32f8a90-36b3-45db-948d-19a1a5d9c3a9"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Unblock Application",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": "",
+                  "app_list": "[\"vBulletin\"]"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "unblock_applications",
+                "mock_result": "[\n    {\n      \"name\": \"vBulletin\",\n      \"status\": \"Successful\",\n      \"message\": \"Application unblock successfully\"\n    }\n  ]",
+                "operationTitle": "Unblock Application",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "d5de2fac-aff0-4202-b8b4-4a927f8e84d0"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Alerts -> Unblock Application",
+              "targetStep": "/api/3/workflow_steps/d5de2fac-aff0-4202-b8b4-4a927f8e84d0",
+              "sourceStep": "/api/3/workflow_steps/a32f8a90-36b3-45db-948d-19a1a5d9c3a9",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "78f599d7-1fcb-4f21-9e2d-b0590e43a9ff"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "bb652d2b-af58-4582-ae6d-393e89b443f9",
+          "id": 4412,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Application: Get Blocked Applications",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Retrieves a list of application names that are blocked on Fortinet FortiGate.Note: This operation is only supported on the root VDOM.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/1ae9b56a-dbdb-4a1d-a049-20c790e7e612",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "description": null,
+              "arguments": {
+                "route": "4c456c73-afc2-4036-9afc-4308d691a2cb",
+                "title": "Fortinet FortiGate: Get Blocked Applications",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "1ae9b56a-dbdb-4a1d-a049-20c790e7e612"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Blocked Applications",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_blocked_applications",
+                "mock_result": "[\n    {\n      \"id\": 16692,\n      \"name\": \"ASProxy\",\n      \"risk\": 5,\n      \"q_ref\": 0,\n      \"q_name\": \"name\",\n      \"q_path\": \"application\",\n      \"q_type\": 348,\n      \"vendor\": \"Other\",\n      \"weight\": 10,\n      \"q_class\": \"app_icon app16692\",\n      \"behavior\": \"Tunneling\",\n      \"category\": 6,\n      \"metadata\": [\n        {\n          \"id\": 0,\n          \"metaid\": 7,\n          \"valueid\": 2\n        }\n      ],\n      \"protocol\": \"TCP, HTTP\",\n      \"q_static\": true,\n      \"q_no_edit\": false,\n      \"parameters\": [],\n      \"popularity\": 3,\n      \"technology\": \"Browser-Based\",\n      \"q_mkey_type\": \"string\",\n      \"q_no_rename\": false,\n      \"q_origin_key\": \"ASProxy\",\n      \"q_global_entry\": false\n    },\n    {\n      \"id\": 23399,\n      \"name\": \"vBulletin\",\n      \"risk\": 2,\n      \"q_ref\": 0,\n      \"q_name\": \"name\",\n      \"q_path\": \"application\",\n      \"q_type\": 348,\n      \"vendor\": \"Other\",\n      \"weight\": 10,\n      \"q_class\": \"app_icon app23399\",\n      \"behavior\": \"\",\n      \"category\": 23,\n      \"metadata\": [\n        {\n          \"id\": 2,\n          \"metaid\": 18,\n          \"valueid\": 3875,\n          \"q_origin_key\": 2\n        }\n      ],\n      \"protocol\": \"TCP, HTTP\",\n      \"q_static\": true,\n      \"q_no_edit\": false,\n      \"parameters\": [],\n      \"popularity\": 4,\n      \"technology\": \"Browser-Based\",\n      \"q_mkey_type\": \"string\",\n      \"q_no_rename\": false,\n      \"q_origin_key\": \"vBulletin\",\n      \"q_global_entry\": false\n    }\n  ]",
+                "operationTitle": "Get Blocked Applications",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "6e7c1c2b-4784-4fd4-84d3-9b7d6562879a"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Alerts -> Get Blocked Applications",
+              "targetStep": "/api/3/workflow_steps/6e7c1c2b-4784-4fd4-84d3-9b7d6562879a",
+              "sourceStep": "/api/3/workflow_steps/1ae9b56a-dbdb-4a1d-a049-20c790e7e612",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "4efab769-fcdb-4d5c-89e5-fed1da732e60"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "cb8a4a2d-03ea-4a87-9a30-78c736694edb",
+          "id": 4398,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Address Group: Update Address Group",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Update a specific address group based on the input parameters you have provided on Fortinet FortiGate server.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/8138ffcb-df3d-4ab7-a1d8-aa4cc527b219",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Address Group",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": "",
+                  "comment": "",
+                  "exclude": false,
+                  "add_member": "addr1",
+                  "group_name": "demogroup",
+                  "allow-routing": "",
+                  "remove_member": "addr2",
+                  "new_group_name": "demogroup",
+                  "address_group_category": "IPv6 Group"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "update_address_group",
+                "mock_result": "{\n    \"mkey\": \"demogroup\",\n    \"name\": \"addrgrp6\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"c7a2fc0b16fe450e0de433fa8809350c\",\n    \"http_method\": \"PUT\",\n    \"http_status\": 200,\n    \"old_revision\": \"6b4261a562c618443dce6f9471909d24\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Update Address Group",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "177",
+              "left": "394",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "79d5372f-1c87-4774-baae-aa06fbed1a8c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "a2462104-c940-4d78-8d66-5d1a68d2ad56",
+                "title": "Fortinet FortiGate: Update Address Group",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "8138ffcb-df3d-4ab7-a1d8-aa4cc527b219"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Update Address Group",
+              "targetStep": "/api/3/workflow_steps/79d5372f-1c87-4774-baae-aa06fbed1a8c",
+              "sourceStep": "/api/3/workflow_steps/8138ffcb-df3d-4ab7-a1d8-aa4cc527b219",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "56c163e7-1d9d-4b3f-ac58-caaea774fac5"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "d505f083-2cc1-42e7-847a-d546e8fa12d5",
+          "id": 4410,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Service Group: Delete Service Group",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Delete specific service group which is configured on Fortinet FortiGate.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/d60b6e16-bc0e-4259-b00b-f0d70613aa0d",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "33099543-64bf-44fc-b7b8-eea467fc436c",
+                "title": "Fortinet FortiGate: Delete Service Group",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "d60b6e16-bc0e-4259-b00b-f0d70613aa0d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Delete Service Group",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "Demo Group",
+                  "vdom": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "delete_service_group",
+                "mock_result": "{\n    \"mkey\": \"Demo Group\",\n    \"name\": \"group\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"0505a5d093a4aff048f29a3de2b64b56\",\n    \"http_method\": \"DELETE\",\n    \"http_status\": 200,\n    \"old_revision\": \"40457ae9eeb53f9e3cfcb794c86c5436\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Delete Service Group",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "140",
+              "left": "427",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e4dd9a3a-0580-4954-bd44-0010d132942c"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Delete Service Group",
+              "targetStep": "/api/3/workflow_steps/e4dd9a3a-0580-4954-bd44-0010d132942c",
+              "sourceStep": "/api/3/workflow_steps/d60b6e16-bc0e-4259-b00b-f0d70613aa0d",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "1c4f20b2-b066-43c6-ad77-dfe31b170bab"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "d9be696e-2f33-431b-b2a9-daeccccffd11",
+          "id": 4397,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Host: Get Quarantine Hosts",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Get list of all quarantine hosts",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/af0e4562-2162-4c4f-86d1-288ee538d6b2",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Quarantine Hosts",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": [],
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_quarantine_hosts",
+                "mock_result": "{\n  \"name\": \"quarantine\",\n  \"path\": \"user\",\n  \"vdom\": \"root\",\n  \"build\": 1879,\n  \"serial\": \"FGVM02TM21013928\",\n  \"status\": \"success\",\n  \"results\": {\n    \"targets\": [\n      {\n        \"macs\": [\n          {\n            \"mac\": \"00:0c:29:40:45:d2\",\n            \"drop\": \"disable\",\n            \"parent\": \"00:0c:29:40:45:d2\",\n            \"entry-id\": 2,\n            \"description\": \"Quarantined by FortiSOAR\",\n            \"q_origin_key\": \"00:0c:29:40:45:d2\"\n          }\n        ],\n        \"entry\": \"00:0c:29:40:45:d2\",\n        \"description\": \"Quarantined by FortiSOAR\",\n        \"q_origin_key\": \"00:0c:29:40:45:d2\"\n      }\n    ],\n    \"quarantine\": \"enable\",\n    \"traffic-policy\": \"\",\n    \"firewall-groups\": \"QuarantinedDevices\"\n  },\n  \"version\": \"v6.4.6\",\n  \"revision\": \"88068982a7a22a841b094609159d8107\",\n  \"http_method\": \"GET\",\n  \"http_status\": 200\n}",
+                "operationTitle": "Get Quarantine Hosts",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "200",
+              "left": "380",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "8b4e87ef-088d-4510-a636-6acc5e6cf0f3"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "1b0c5331-fe48-4efc-bdfc-6ed2aa22847b",
+                "title": "Fortinet FortiGate: Get Quarantine Hosts",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "af0e4562-2162-4c4f-86d1-288ee538d6b2"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Quarantine Hosts",
+              "targetStep": "/api/3/workflow_steps/8b4e87ef-088d-4510-a636-6acc5e6cf0f3",
+              "sourceStep": "/api/3/workflow_steps/af0e4562-2162-4c4f-86d1-288ee538d6b2",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "1c09e7b1-a109-4892-b694-7f780340b2e8"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "dbedf95f-a76a-456b-baa4-1b09bcb68b3c",
+          "id": 4399,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "User: Create User",
+          "aliasName": null,
+          "tag": null,
+          "description": "Create new user in the fortinet fortigate server based on input parameters you have provided.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/7f6e0287-28be-4a72-b4bd-8a6fea510be8",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create User",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "sms": "Enable",
+                  "name": "demoadmin1",
+                  "vdom": "",
+                  "status": "Enable",
+                  "email-to": "dummy@gmail.com",
+                  "auth_type": "FortiToken",
+                  "user_type": "Remote TACACS+ User",
+                  "fortitoken": "FTKMOB18267B23BD",
+                  "two-factor": "Enable",
+                  "user_group": "Enable",
+                  "country_code": "+91",
+                  "phone_number": 123212,
+                  "tacacs+-server": "tacserver",
+                  "user_group_name": "test",
+                  "activation_method": "Email",
+                  "send_activation_code": "Enable"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "create_user",
+                "mock_result": "{\n    \"mkey\": \"demo user\",\n    \"name\": \"local\",\n    \"path\": \"user\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"f24922e2256e8da60a0c05f318750942\",\n    \"http_method\": \"POST\",\n    \"http_status\": 200,\n    \"old_revision\": \"b6ed4b4304cccd10c0d82c253dad8fce\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Create User",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "224",
+              "left": "441",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "357d9be2-47e4-44e5-bc26-7c59ba0aa9e1"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "ff874c78-74b0-49aa-8d10-e2b50812d3c8",
+                "title": "Fortinet FortiGate: Create User",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "7f6e0287-28be-4a72-b4bd-8a6fea510be8"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Create User",
+              "targetStep": "/api/3/workflow_steps/357d9be2-47e4-44e5-bc26-7c59ba0aa9e1",
+              "sourceStep": "/api/3/workflow_steps/7f6e0287-28be-4a72-b4bd-8a6fea510be8",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "1243dd79-cee8-46d6-9489-6565f6790248"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "df5ef72f-504d-4822-aef4-2e5ab72eab23",
+          "id": 4414,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Service: Delete Service",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Delete firewall service from the Fortinet FortiGate.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/ee257d64-86e6-4f98-9463-3336539d2d04",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Delete Service",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "Demo service",
+                  "vdom": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "delete_firewall_service",
+                "mock_result": "{\n    \"mkey\": \"Demo service\",\n    \"name\": \"custom\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"1c53a0a5feeaad20755bad096c63ad90\",\n    \"http_method\": \"DELETE\",\n    \"http_status\": 200,\n    \"old_revision\": \"7ca5a10b8d4a2c54e0ce751f22bfd353\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Delete Firewall Service",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "200",
+              "left": "360",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e182194b-c908-47a2-82fa-52887742f911"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "65b6f800-b8b7-4bd8-9cf2-4bb6c6d5eb8d",
+                "title": "Fortinet FortiGate: Delete Firewall Service",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "ee257d64-86e6-4f98-9463-3336539d2d04"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Delete Firewall Service",
+              "targetStep": "/api/3/workflow_steps/e182194b-c908-47a2-82fa-52887742f911",
+              "sourceStep": "/api/3/workflow_steps/ee257d64-86e6-4f98-9463-3336539d2d04",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "0224d198-b7c2-45d2-b3e9-2dd083e89593"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "e1900abc-39e5-4c26-ad7f-212c69d1fdbf",
+          "id": 4401,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Address: Delete Address",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Delete address which is configured on Fortinet FortiGate.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/628a4c0e-3965-46c0-a2b4-3edf6874252b",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Delete Address",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "addr6",
+                  "vdom": "",
+                  "address_category": "IPv6 Address"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "delete_address",
+                "mock_result": "{\n    \"mkey\": \"addr6\",\n    \"name\": \"addr6\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"8d047d5b9653cc61c86d64e3769be51a\",\n    \"http_method\": \"DELETE\",\n    \"http_status\": 200,\n    \"old_revision\": \"24191f2f7b3c5a3b9c7c58f8bfc985e3\",\n    \"revision_changed\": true\n  }",
+                "operationTitle": "Delete Address",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "260",
+              "left": "400",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "4063ac06-c506-4da3-9177-c76d39adb752"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "0511c276-d4a8-4437-8d9f-708695fde17a",
+                "title": "Fortinet FortiGate: Delete Address",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "628a4c0e-3965-46c0-a2b4-3edf6874252b"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Delete Address",
+              "targetStep": "/api/3/workflow_steps/4063ac06-c506-4da3-9177-c76d39adb752",
+              "sourceStep": "/api/3/workflow_steps/628a4c0e-3965-46c0-a2b4-3edf6874252b",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "85248abf-4cf7-4c63-a1af-c94c7ddf2190"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "e1ef4191-43ae-48f7-8f9a-4061a14adcc7",
+          "id": 4419,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Application: Get Applications Detail",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Retrieves a list of all application names and associated details from the Fortinet FortiGate server.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/43bfa278-0adb-48be-a9b1-a853055f7d6f",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "description": null,
+              "arguments": {
+                "route": "e6f900cf-4158-4e80-953a-664551b9c46c",
+                "title": "Fortinet FortiGate: Get Applications Detail",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "43bfa278-0adb-48be-a9b1-a853055f7d6f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Applications Detail",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": [],
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_list_of_applications",
+                "mock_result": "{\n  \"name\": \"name\",\n  \"path\": \"application\",\n  \"vdom\": \"root\",\n  \"build\": 1879,\n  \"serial\": \"FGVM02TM21013928\",\n  \"status\": \"success\",\n  \"version\": \"v6.4.6\",\n  \"revision\": \"f085535b69a12752f9c55c99eba14fed\",\n  \"http_method\": \"GET\",\n  \"http_status\": 200,\n  \"results\": [\n    {\n      \"id\": 46289,\n      \"name\": \"Amazon.CloudFront\",\n      \"risk\": 3,\n      \"q_ref\": 0,\n      \"q_name\": \"name\",\n      \"q_path\": \"application\",\n      \"q_type\": 348,\n      \"vendor\": \"Amazon\",\n      \"weight\": 9,\n      \"q_class\": \"app_icon app46289\",\n      \"behavior\": \"Cloud\",\n      \"category\": 30,\n      \"metadata\": [\n        {\n          \"id\": 0,\n          \"metaid\": 7,\n          \"valueid\": 1\n        }\n      ],\n      \"protocol\": \"TCP, HTTP, SSL\",\n      \"q_static\": true,\n      \"q_no_edit\": false,\n      \"parameters\": [],\n      \"popularity\": 5,\n      \"technology\": \"Browser-Based\",\n      \"q_mkey_type\": \"string\",\n      \"q_no_rename\": false,\n      \"q_origin_key\": \"Amazon.CloudFront\",\n      \"q_global_entry\": false\n    },\n    {\n      \"id\": 38075,\n      \"name\": \"Amazon.Mobile\",\n      \"risk\": 2,\n      \"q_ref\": 0,\n      \"q_name\": \"name\",\n      \"q_path\": \"application\",\n      \"q_type\": 348,\n      \"vendor\": \"Amazon\",\n      \"weight\": 10,\n      \"q_class\": \"app_icon app38075\",\n      \"behavior\": \"\",\n      \"category\": 12,\n      \"metadata\": [\n        {\n          \"id\": 0,\n          \"metaid\": 7,\n          \"valueid\": 1\n        }\n      ],\n      \"protocol\": \"TCP, HTTP, SSL\",\n      \"q_static\": true,\n      \"q_no_edit\": false,\n      \"parameters\": [],\n      \"popularity\": 4,\n      \"technology\": \"Client-Server\",\n      \"q_mkey_type\": \"string\",\n      \"q_no_rename\": false,\n      \"q_origin_key\": \"Amazon.Mobile\",\n      \"q_global_entry\": false\n    }\n  ]\n}",
+                "operationTitle": "Get Applications Detail",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "86d7f11e-1647-4441-8b4f-449935a7f943"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Alerts -> Get Applications Detail",
+              "targetStep": "/api/3/workflow_steps/86d7f11e-1647-4441-8b4f-449935a7f943",
+              "sourceStep": "/api/3/workflow_steps/43bfa278-0adb-48be-a9b1-a853055f7d6f",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "6c26c71f-5a64-405e-bc7d-e9bf7261a34d"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "e2a574db-57d0-4ee1-a63e-0709777c71d4",
+          "id": 4417,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Address: Get Blocked IP Addresses",
+          "aliasName": null,
+          "tag": "#Fortinet FortiGate",
+          "description": "Retrieves a list of IP Addresses that are blocked on Fortinet FortiGate.Note: This operation is supported on all VDOMs.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/8136c7e7-4190-4d18-873e-359b1becdc8d",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Blocked IP Addresses",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "vdom": "",
+                  "ngfw_mode": "Profile Based",
+                  "method": "Policy Based",
+                  "ip_group_name": "demogrp1",
+                  "ip_block_policy": "demo"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_blocked_ip",
+                "mock_result": "{\n    \"addrgrp\": [\n      {\n        \"name\": \"demogrp1\",\n        \"member\": [\n          \"v66\"\n        ]\n      }\n    ],\n    \"dstaddr\": [\n      \"1.1.0.1/24\"\n    ],\n    \"srcaddr\": [\n      \"1.1.0.1/24\"\n    ],\n    \"dstaddr6\": [\n      \"2002:c0a8:63:0:4d04:a0f1:ed51:a3e2/128\",\n      \"demogrp1\"\n    ],\n    \"srcaddr6\": [\n      \"2002:c0a8:63:0:4d04:a0f1:ed51:a3e2/128\",\n      \"demogrp1\"\n    ],\n    \"policy_name\": \"demo\",\n    \"addrgrp_not_exist\": []\n  }",
+                "operationTitle": "Get Blocked IP Addresses",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "0b30de08-aeec-4d3e-9cda-af782f2d0cde"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "description": null,
+              "arguments": {
+                "route": "2c00cf00-273e-439e-8457-bc3cd6d2f9c9",
+                "title": "Fortinet FortiGate: Get Blocked IP Addresses",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "8136c7e7-4190-4d18-873e-359b1becdc8d"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Alerts -> Get Blocked IP Addresses",
+              "targetStep": "/api/3/workflow_steps/0b30de08-aeec-4d3e-9cda-af782f2d0cde",
+              "sourceStep": "/api/3/workflow_steps/8136c7e7-4190-4d18-873e-359b1becdc8d",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "0809c371-bb4d-4e66-832a-df155c8341dd"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "e846db06-d9b4-4ff4-9579-463816313361",
+          "id": 4421,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Execute Command",
+          "aliasName": null,
+          "tag": null,
+          "description": "Executes an any CLI command on Fortinet FortiGate server",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/300a5cd8-8372-412e-b8d3-ba6a68905e70",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "85100058-b92e-4a74-b010-cb14bbd55abe",
+                "title": "Fortinet FortiGate: Execute Command",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "300a5cd8-8372-412e-b8d3-ba6a68905e70"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Execute Command",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "port": 22,
+                  "vdom": "wfw",
+                  "timeout": 10,
+                  "cmd_list": "[\"config firewall address\\nshow\\nend\"]",
+                  "password": "changeme@1",
+                  "username": "admin",
+                  "private_key": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "execute_command",
+                "operationTitle": "Execute Command",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "140",
+              "left": "360",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "75f1050f-35ea-4278-80ec-ff77703b24b7"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Execute Command",
+              "targetStep": "/api/3/workflow_steps/75f1050f-35ea-4278-80ec-ff77703b24b7",
+              "sourceStep": "/api/3/workflow_steps/300a5cd8-8372-412e-b8d3-ba6a68905e70",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "a283fd7b-1cf8-41cb-aa65-a14561cbaa3e"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "e8fee4cd-aea2-4eb9-9a73-26d91840b66c",
+          "id": 4425,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "User: Get User Last Login Details",
+          "aliasName": null,
+          "tag": null,
+          "description": "Retrieves last login details of input user from fortinet fortigate server.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/af29d9e2-a7de-431c-bef6-80a1fef6ccc2",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "6464c351-3ea0-428c-a6a6-f7ce4ba0b367",
+                "title": "Fortinet fortiGate: Get User Last Login Details",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "af29d9e2-a7de-431c-bef6-80a1fef6ccc2"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get User Last Login Details",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "username": "admin"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_user_list_login_details",
+                "mock_result": "{\n    \"sn\": \"1651472000\",\n    \"tz\": \"-0700\",\n    \"ui\": \"https(10.132.17.28)\",\n    \"vd\": \"root\",\n    \"msg\": \"Administrator admin logged in successfully from https(10.132.17.28)\",\n    \"date\": \"2022-05-01\",\n    \"time\": \"23:13:20\",\n    \"type\": \"event\",\n    \"user\": \"admin\",\n    \"dstip\": \"192.168.63.28\",\n    \"level\": \"information\",\n    \"logid\": \"0100032001\",\n    \"srcip\": \"10.132.17.28\",\n    \"action\": \"login\",\n    \"method\": \"https\",\n    \"reason\": \"none\",\n    \"status\": \"success\",\n    \"logdesc\": \"Admin login successful\",\n    \"profile\": \"super_admin\",\n    \"subtype\": \"system\",\n    \"_metadata\": {\n      \"#\": 1,\n      \"roll\": 65504,\n      \"logid\": 32001,\n      \"timestamp\": 1651472000000\n    },\n    \"eventtime\": 1651472000137843000\n  }",
+                "operationTitle": "Get User Last Login Details",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "368",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "b258d8f0-0f69-4710-af51-0958073f27cb"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get User Last Login Details",
+              "targetStep": "/api/3/workflow_steps/b258d8f0-0f69-4710-af51-0958073f27cb",
+              "sourceStep": "/api/3/workflow_steps/af29d9e2-a7de-431c-bef6-80a1fef6ccc2",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "7587f229-ee5e-4995-ad7b-944aa909b90b"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "ec6895f3-7e4e-474d-9266-1b97edd4a1ad",
+          "id": 4404,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "User: Update User",
+          "aliasName": null,
+          "tag": null,
+          "description": "Update an existing user in the fortinet fortigate server based on input parameters you have provided.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1663069089,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/744a3960-2e1b-49c2-8fcf-124a30e6af90",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Update User",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "name": "demo",
+                  "vdom": "",
+                  "status": "Enable",
+                  "user_type": "Remote TACACS+ User",
+                  "two-factor": "Disable",
+                  "user_group": "Enable",
+                  "new_username": "demo",
+                  "tacacs+-server": "",
+                  "user_group_name": "test"
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "update_user",
+                "mock_result": "{\n    \"mkey\": \"demo\",\n    \"name\": \"local\",\n    \"path\": \"user\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"c840c55b7fe0154481ba3939719bd766\",\n    \"http_method\": \"PUT\",\n    \"http_status\": 200,\n    \"revision_changed\": false\n  }",
+                "operationTitle": "Update User",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "200",
+              "left": "340",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "275f573e-9533-44a1-8e89-c878865ebd9a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "c6a7ed39-02a2-4da8-9cae-3dff04dc7a55",
+                "title": "Fortinet FortiGate: Update User",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "40",
+              "left": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "744a3960-2e1b-49c2-8fcf-124a30e6af90"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Update User",
+              "targetStep": "/api/3/workflow_steps/275f573e-9533-44a1-8e89-c878865ebd9a",
+              "sourceStep": "/api/3/workflow_steps/744a3960-2e1b-49c2-8fcf-124a30e6af90",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "38ba9dfe-a091-40b4-9967-8bc6f7208409"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "f9ad2bd0-88ac-4cdc-85a8-806f0d27c635",
+          "id": 4415,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "fortinet-fortigate",
+            "Fortinet"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Entries from External Dynamic List",
+          "aliasName": null,
+          "tag": null,
+          "description": "Fetches entries from the specified External Dynamic List (EDL) in Fortinet FortiGate, including status and counts.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1735283354,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/ab2f6d6e-c58f-4702-ac98-895ada5dceb5",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Entries from External Dynamic List",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "mkey": "",
+                  "vdom": "",
+                  "counts_only": "",
+                  "status_only": false,
+                  "include_notes": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "get_entries_from_edl",
+                "operationTitle": "Get Entries from External Dynamic List",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "d4f130a2-76c9-4b0b-a838-82ddec555220"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "ab2f6d6e-c58f-4702-ac98-895ada5dceb5"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Entries from External Dynamic List",
+              "targetStep": "/api/3/workflow_steps/d4f130a2-76c9-4b0b-a838-82ddec555220",
+              "sourceStep": "/api/3/workflow_steps/ab2f6d6e-c58f-4702-ac98-895ada5dceb5",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "14ef7405-8266-451c-b802-9105bd61c1c7"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "c860d65d-7b57-434f-8e5e-6f6be504a238",
+          "id": 624,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortigate"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Modify Entries in External Dynamic List",
+          "aliasName": null,
+          "tag": null,
+          "description": "Adds, removes, or replaces entries in the specified External Dynamic List (EDL) in Fortinet FortiGate.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1735283315,
+          "collection": "/api/3/workflow_collections/c4bbfe6a-2afc-4eef-9aff-3508c9811b03",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/d4115e52-fa0d-43df-ae36-0b9ac9330fa1",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Modify Entries in External Dynamic List",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiGate",
+                "config": "",
+                "params": {
+                  "mkey": "",
+                  "vdom": "",
+                  "action": "",
+                  "entries": ""
+                },
+                "version": "1.1.0",
+                "connector": "fortigatev2",
+                "operation": "modify_entries_in_edl",
+                "operationTitle": "Modify Entries in External Dynamic List",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "60027c4f-a12a-4e90-affe-15c8506e2f70"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "d4115e52-fa0d-43df-ae36-0b9ac9330fa1"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Entries from External Dynamic List",
+              "targetStep": "/api/3/workflow_steps/60027c4f-a12a-4e90-affe-15c8506e2f70",
+              "sourceStep": "/api/3/workflow_steps/d4115e52-fa0d-43df-ae36-0b9ac9330fa1",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "27ab3caf-f167-4ff7-8e72-003f64d2cffa"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "d832b9cf-077e-4319-8e0e-8ef1cce4da8e",
+          "id": 625,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortigate"
+          ]
+        }
+      ]
+    }
+  ],
+  "exported_tags": [
+    "fortinet-fortigate",
+    "Fortinet"
+  ]
+}

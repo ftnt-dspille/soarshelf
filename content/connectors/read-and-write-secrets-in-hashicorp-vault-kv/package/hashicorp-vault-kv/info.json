@@ -1,0 +1,285 @@
+{
+  "name": "hashicorp-vault-kv",
+  "label": "HashiCorp Vault KV",
+  "version": "1.1.0",
+  "description": "HashiCorp Vault KV v2 secrets engine connector. Reads, writes, lists and deletes key-value secrets through the KV version 2 mount, using token authentication. Unlike the official read-only hashicorp-vault connector, this connector can WRITE: write_secret creates a new version of a secret, so scheduled rotation flows can push fresh credentials into Vault and let downstream watchers pick up the new version. Operations: read secret (optionally a specific version), write secret, list secrets under a path, delete the latest version of a secret.",
+  "publisher": "Fortinet",
+  "category": "Analytics and SIEM",
+  "cs_compatible": true,
+  "cs_approved": false,
+  "icon_small_name": "vaultkv_small.png",
+  "icon_large_name": "vaultkv_large.png",
+  "configuration": {
+    "fields": [
+      {
+        "name": "server",
+        "title": "Server URL",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": true,
+        "placeholder": "e.g. http://vault.example.com:8200",
+        "description": "Base URL of the HashiCorp Vault server, for example http://10.0.0.1:8200.",
+        "isOnChange": false,
+        "onchange": {}
+      },
+      {
+        "name": "token",
+        "title": "Token",
+        "type": "password",
+        "editable": true,
+        "visible": true,
+        "required": true,
+        "description": "Vault token used for authentication. It must carry a policy that grants read/write/list on the KV mount.",
+        "isOnChange": false,
+        "onchange": {}
+      },
+      {
+        "name": "mount",
+        "title": "KV v2 Mount Path",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "value": "secret",
+        "description": "Mount path of the KV version 2 secrets engine. Default: secret.",
+        "isOnChange": false,
+        "onchange": {}
+      },
+      {
+        "name": "verify_ssl",
+        "title": "Verify SSL",
+        "type": "checkbox",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "value": true,
+        "description": "Specifies whether the SSL certificate of the Vault server is to be verified. Uncheck for self-signed certificates.",
+        "isOnChange": false,
+        "onchange": {}
+      },
+      {
+        "name": "timeout",
+        "title": "Request Timeout (seconds)",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "value": "30",
+        "description": "Per-request timeout in seconds applied to every Vault HTTP call.",
+        "isOnChange": false,
+        "onchange": {}
+      }
+    ]
+  },
+  "operations": [
+    {
+      "operation": "get_health",
+      "title": "Get Health",
+      "description": "Verify connectivity and token validity against Vault by looking up the token itself (auth/token/lookup-self).",
+      "enabled": true,
+      "annotation": "get_health",
+      "category": "investigation",
+      "parameters": [],
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "policies": {
+            "type": "array"
+          }
+        }
+      }
+    },
+    {
+      "operation": "read_secret",
+      "title": "Read Secret",
+      "description": "Read a secret from the KV v2 mount. Optionally read a specific (historic) version; by default the latest version is returned. The result includes the secret's data, the version number and the metadata.",
+      "enabled": true,
+      "annotation": "read_secret",
+      "category": "investigation",
+      "parameters": [
+        {
+          "title": "Secret Path",
+          "type": "text",
+          "name": "path",
+          "placeholder": "e.g. lab/ai",
+          "description": "Path of the secret under the mount, without the leading mount name (e.g. myapp/api for secret/myapp/api).",
+          "required": true,
+          "editable": true,
+          "visible": true
+        },
+        {
+          "title": "Version",
+          "type": "text",
+          "name": "version",
+          "placeholder": "e.g. 2",
+          "description": "(Optional) Read this historic version instead of the latest one.",
+          "required": false,
+          "editable": true,
+          "visible": true
+        }
+      ],
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    {
+      "operation": "write_secret",
+      "title": "Write Secret",
+      "description": "Write a secret to the KV v2 mount. This creates a NEW VERSION of the secret (existing fields are not merged, so include every field you want kept). Downstream consumers watching version changes will observe the bump. Returns the new version number.",
+      "enabled": true,
+      "annotation": "write_secret",
+      "category": "containment",
+      "parameters": [
+        {
+          "title": "Secret Path",
+          "type": "text",
+          "name": "path",
+          "placeholder": "e.g. lab/ai",
+          "description": "Path of the secret under the mount.",
+          "required": true,
+          "editable": true,
+          "visible": true
+        },
+        {
+          "title": "Secret Data (JSON)",
+          "type": "text",
+          "name": "secret_data",
+          "placeholder": "e.g. {\"api_key\": \"faig_...\"}",
+          "description": "JSON object with all fields of the secret. Every existing field you omit is dropped by the versioning semantics - resend fields you want kept.",
+          "required": true,
+          "editable": true,
+          "visible": true
+        }
+      ],
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    {
+      "operation": "list_secrets",
+      "title": "List Secrets",
+      "description": "List the secret keys under a path in the KV v2 mount.",
+      "enabled": true,
+      "annotation": "list_secrets",
+      "category": "investigation",
+      "parameters": [
+        {
+          "title": "Path",
+          "type": "text",
+          "name": "path",
+          "placeholder": "e.g. lab",
+          "description": "(Optional) List keys under this path. Empty lists keys directly under the mount root.",
+          "required": false,
+          "editable": true,
+          "visible": true
+        }
+      ],
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "keys": {
+            "type": "array"
+          }
+        }
+      }
+    },
+    {
+      "operation": "delete_secret",
+      "title": "Delete Secret Version",
+      "description": "Soft-delete the latest version of a secret in the KV v2 mount. Earlier versions remain readable by version number.",
+      "enabled": true,
+      "annotation": "delete_secret",
+      "category": "containment",
+      "parameters": [
+        {
+          "title": "Secret Path",
+          "type": "text",
+          "name": "path",
+          "placeholder": "e.g. lab/ai",
+          "description": "Path of the secret under the mount.",
+          "required": true,
+          "editable": true,
+          "visible": true
+        }
+      ],
+      "output_schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "operation": "execute_api_request",
+      "title": "Execute API Request",
+      "description": "Calls any Vault HTTP API endpoint with the configured token. A full URL is refused so the token only ever goes to the configured server.",
+      "enabled": true,
+      "annotation": "execute_api_request",
+      "category": "miscellaneous",
+      "parameters": [
+        {
+          "title": "Endpoint",
+          "type": "text",
+          "name": "endpoint",
+          "description": "Path on the Vault server, for example /v1/sys/health or /v1/secret/data/myapp. /v1 is added when missing.",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. /v1/sys/health"
+        },
+        {
+          "title": "Method",
+          "type": "select",
+          "name": "method",
+          "description": "HTTP method. Defaults to GET. LIST is Vault's list verb.",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "options": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "LIST"
+          ],
+          "value": "GET"
+        },
+        {
+          "title": "Query Parameters",
+          "type": "json",
+          "name": "query_params",
+          "description": "(Optional) JSON object of query string parameters.",
+          "required": false,
+          "editable": true,
+          "visible": true
+        },
+        {
+          "title": "Request Body",
+          "type": "json",
+          "name": "request_body",
+          "description": "(Optional) JSON object sent with POST, PUT and PATCH.",
+          "required": false,
+          "editable": true,
+          "visible": true
+        }
+      ],
+      "output_schema": {}
+    }
+  ]
+}

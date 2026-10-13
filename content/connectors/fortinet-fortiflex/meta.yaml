@@ -1,0 +1,16 @@
+title: Fortinet FortiFlex
+summary: FortiFlex is a points-based program that empowers organizations to provision the Fortinet services
+  and solutions, and offers the flexibility to scale their…
+description: ''
+use_cases:
+- utility
+tags:
+- fortiflex
+- licensing
+author: ftnt-dspille
+version: 1.1.0
+min_version: null
+license: MIT
+published: '2026-10-13'
+source: https://github.com/ftnt-dspille/connector-fortinet-fortiflex
+author_id: 99558074
