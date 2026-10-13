@@ -69,6 +69,43 @@ describe('toClipboard', () => {
   });
 });
 
+describe('toClipboard with the viewer layout', () => {
+  const place = {
+    steps: new Map([['start', { x: 100, y: -20 }], ['branch', { x: 100, y: 120 }], ['hi', { x: 400, y: 120 }]]),
+    groups: new Map<string, { x: number; y: number; w: number; h: number }>()
+  };
+
+  it('moves steps to the layout, top-left at the margin', () => {
+    const steps = toClipboard(workflow, types, place)!.steps as Record<string, any>[];
+    expect(steps.map((s) => [s.left, s.top, s.parentLeft, s.parentTop])).toEqual([
+      ['40', '40', 40, 40], ['40', '180', 40, 180], ['340', '180', 340, 180]
+    ]);
+  });
+
+  it('places notes, and steps in a block relative to it', () => {
+    const wf = {
+      ...workflow,
+      steps: workflow.steps.map((s) => (s.uuid === 'hi' ? { ...s, group: '/api/3/workflow_groups/blk' } : s)),
+      groups: [{ uuid: 'n1', type: 'note', top: '9', left: '9', width: '346', height: '115' }, { uuid: 'blk', type: 'block', top: '0', left: '0' }]
+    };
+    const groups = new Map([['n1', { x: 380, y: -20, w: 240, h: 66 }], ['blk', { x: 386, y: 90, w: 264, h: 110 }]]);
+    const doc = toClipboard(wf, types, { ...place, groups })!;
+    expect(doc.groups).toEqual([
+      { uuid: 'n1', type: 'note', top: '40', left: '320', width: '240', height: '66' },
+      { uuid: 'blk', type: 'block', top: '150', left: '326', width: '264', height: '110' }
+    ]);
+    const hi = (doc.steps as Record<string, any>[]).find((s) => s.uuid === 'hi')!;
+    expect([hi.left, hi.top]).toEqual(['14', '30']);
+  });
+
+  it("keeps the export's layout when the viewer's doesn't cover everything", () => {
+    const partial = { steps: new Map([['start', { x: 0, y: 0 }]]), groups: new Map() };
+    expect((toClipboard(workflow, types, partial)!.steps as Record<string, any>[])[0].left).toBe('200.5');
+    const wf = { ...workflow, steps: workflow.steps.map((s) => ({ ...s, group: '/api/3/workflow_groups/blk' })), groups: [{ uuid: 'blk', type: 'block' }] };
+    expect((toClipboard(wf, types, place)!.steps as Record<string, any>[])[0].left).toBe('200.5');
+  });
+});
+
 describe('findWorkflow', () => {
   it('finds a playbook in a playbook export', async () => {
     const doc = { type: 'workflow_collections', data: [{ name: 'c', workflows: [{ uuid: 'other' }, workflow] }] };

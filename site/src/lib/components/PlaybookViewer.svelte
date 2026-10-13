@@ -19,7 +19,7 @@ import MinimapNav from './MinimapNav.svelte';
   import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
   import ClipboardCheck from '@lucide/svelte/icons/clipboard-check';
   import { playbookRelations, roleOf } from '$lib/playbookRelations';
-  import { clipboardText } from '$lib/clipboard';
+  import { clipboardText, type Placement } from '$lib/clipboard';
 
   let {
     collections,
@@ -235,6 +235,11 @@ import MinimapNav from './MinimapNav.svelte';
     });
   });
 
+  function stepNameOf(iri: unknown): string | null {
+    const id = typeof iri === 'string' ? iri.slice(iri.lastIndexOf('/') + 1) : '';
+    return (id && playbook?.nodes.find((x) => x.id === id)?.name) || null;
+  }
+
   /** Select a step by name and bring it into view (decision branch links). */
   function jumpTo(name: string) {
     const n = playbook?.nodes.find((x) => x.name === name);
@@ -255,12 +260,20 @@ import MinimapNav from './MinimapNav.svelte';
     void selectedKey;
     copyState = 'idle';
   });
+  /** The layout on screen, so a paste looks like the viewer rather than the export. */
+  function placement(): Placement | undefined {
+    if (!layout) return undefined;
+    const groups = new Map<string, { x: number; y: number; w: number; h: number }>();
+    for (const [id, r] of [...(extras?.notes ?? []), ...(extras?.blocks ?? [])]) groups.set(id, r);
+    return { steps: layout.positions, groups };
+  }
+
   async function copySteps() {
     if (!canCopy || !playbook || copyState === 'copying') return;
     copyState = 'copying';
     clearTimeout(copyTimer);
     try {
-      const text = clipboardText(download!, playbook.uuid!);
+      const text = clipboardText(download!, playbook.uuid!, placement());
       // Hand the clipboard a promise so the write still counts as part of the click
       // (Safari drops the permission once we await the download first).
       if (typeof ClipboardItem !== 'undefined' && navigator.clipboard.write)
@@ -409,6 +422,7 @@ import MinimapNav from './MinimapNav.svelte';
             onjump={jumpTo}
             child={selected.reference ? (rel.byUuid.get(selected.reference.toLowerCase()) ?? null) : null}
             onopen={openPlaybook}
+            nameOf={stepNameOf}
           />
         </aside>
       {/if}

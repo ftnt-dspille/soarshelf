@@ -15,7 +15,8 @@
     onclose,
     onjump,
     child = null,
-    onopen
+    onopen,
+    nameOf
   }: {
     step: PlaybookNode;
     connectorLabel: string | null;
@@ -25,10 +26,12 @@
     /** The playbook this step runs, when it is one of the item's own. */
     child?: { key: string; name: string } | null;
     onopen?: (key: string) => void;
+    /** A step's name from its IRI (manual input buttons point at steps by IRI). */
+    nameOf?: (iri: unknown) => string | null;
   } = $props();
 
   const Icon = $derived(FAMILY_ICON[step.family]);
-  const a = $derived(shapeArgs(step.args, step.family));
+  const a = $derived(shapeArgs(step.args, step.family, nameOf));
   const restKeys = $derived(Object.keys(a.rest).length);
   // "Connector · Connector" reads badly; only add the family when it says something new.
   const kind = $derived(
@@ -78,15 +81,34 @@
     </section>
   {/if}
 
+  {#if a.form}
+    <section class="border-b border-line p-4">
+      <h5 class="mb-2.5 text-[11px] font-semibold tracking-wider text-faint uppercase">Asks</h5>
+      {#if a.form.title}<p class="text-sm font-semibold [overflow-wrap:anywhere]">{a.form.title}</p>{/if}
+      {#if a.form.description}<div class="mt-1.5 text-sm"><ArgValue value={a.form.description} /></div>{/if}
+      {#if a.form.fields.length}
+        <ul class="mt-3 divide-y divide-line rounded-lg border border-line">
+          {#each a.form.fields as f, i (i)}
+            <li class="flex items-baseline gap-2 px-3 py-2 text-sm">
+              <span class="min-w-0 flex-1 [overflow-wrap:anywhere]">{f.label}{#if f.required}<span class="text-accent-text" title="Required"> *</span>{/if}</span>
+              {#if f.type}<span class="shrink-0 rounded bg-surface-2 px-1.5 py-0.5 text-[10.5px] font-medium text-muted">{f.type}</span>{/if}
+            </li>
+          {/each}
+        </ul>
+      {/if}
+    </section>
+  {/if}
+
   {#if a.branches.length}
     <section class="border-b border-line p-4">
-      <h5 class="mb-2.5 text-[11px] font-semibold tracking-wider text-faint uppercase">Branches</h5>
+      <h5 class="mb-2.5 text-[11px] font-semibold tracking-wider text-faint uppercase">{a.form || step.family === 'human' ? 'Responses' : 'Branches'}</h5>
       <ol class="space-y-2">
         {#each a.branches as b, i (i)}
           <li class="rounded-lg border border-line p-3">
             <div class="flex items-center gap-2">
               <span class="text-sm font-semibold">{b.option}</span>
               {#if b.isDefault}<span class="rounded bg-surface-2 px-1.5 py-0.5 text-[10.5px] font-medium text-muted">otherwise</span>{/if}
+              {#if b.primary}<span class="rounded bg-accent-soft px-1.5 py-0.5 text-[10.5px] font-medium text-accent-text">primary</span>{/if}
             </div>
             {#if b.condition}<div class="mt-1.5"><Jinja value={b.condition} /></div>{/if}
             {#if b.target}
@@ -120,7 +142,7 @@
 
   {#if a.truncated}
     <p class="border-b border-line p-4 text-sm text-muted">This step is large ({a.truncated}). Download the file to see all of it.</p>
-  {:else if !a.params && !restKeys && !a.branches.length && !step.connector}
+  {:else if !a.params && !restKeys && !a.branches.length && !a.form && !step.connector}
     <p class="border-b border-line p-4 text-sm text-faint">This step has no settings.</p>
   {/if}
 
