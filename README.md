@@ -8,6 +8,14 @@ needs, and download a cleaned, inactive copy to import.
 > sponsored by Fortinet. Product names are trademarks of their owners and are
 > used only to describe compatibility.
 
+Live at **https://soarshelf.pages.dev**.
+
+![A playbook as a graph, with a manual input step open in the inspector](docs/screenshots/viewer.png)
+
+| Home | Browse | An item |
+|---|---|---|
+| ![Home page with search and popular connectors](docs/screenshots/home.png) | ![Browse page with filters by type and use case](docs/screenshots/browse.png) | ![An item page with download, verification and connectors](docs/screenshots/item.png) |
+
 ## Layout
 
 | Path | What |
