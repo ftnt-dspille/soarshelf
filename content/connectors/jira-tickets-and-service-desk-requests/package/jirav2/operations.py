@@ -8,7 +8,7 @@ import json
 import os
 import re
 from datetime import datetime
-from urllib.parse import quote, urlparse
+from urllib.parse import quote, unquote, urlparse
 
 from connectors.core.connector import ConnectorError, get_logger
 
@@ -720,13 +720,26 @@ def get_service_desk_options(config, params):
 # generic API call
 # ---------------------------------------------------------------------------
 
+def _climbs_out(endpoint):
+    """True when the path, after percent-decoding, holds a `..` segment or a backslash."""
+    path = endpoint.split('?')[0]
+    for _ in range(3):  # a doubly encoded %252e%252e decodes in two rounds
+        if '\\' in path or '..' in path.split('/'):
+            return True
+        decoded = unquote(path)
+        if decoded == path:
+            return False
+        path = decoded
+    return True
+
+
 def execute_api_request(config, params):
     """Call any Jira or JSM REST endpoint with the connector's credentials."""
     _require(params, 'endpoint')
     endpoint = str(params['endpoint']).strip()
     parsed = urlparse(endpoint)
     # Credentials go to the configured site only: never to a host named in a playbook.
-    if parsed.scheme or parsed.netloc or '..' in endpoint.split('?')[0].split('/'):
+    if parsed.scheme or parsed.netloc or _climbs_out(endpoint):
         raise ConnectorError('Endpoint must be a path on the configured site, '
                              'e.g. /rest/api/3/myself - not a full URL.')
     if not endpoint.startswith('/'):

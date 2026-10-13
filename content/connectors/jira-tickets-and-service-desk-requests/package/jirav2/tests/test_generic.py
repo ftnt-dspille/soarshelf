@@ -72,7 +72,8 @@ def test_jsm_endpoints_work_too(fake, run):
 @pytest.mark.op('execute_api_request')
 @pytest.mark.parametrize('endpoint', [
     'https://evil.example.com/steal', 'http://evil.example.com', '//evil.example.com/x',
-    '/rest/api/3/../../etc', 'ftp://x/y'])
+    '/rest/api/3/../../etc', 'ftp://x/y', '/rest/api/3/%2e%2e/%2e%2e/etc',
+    '/rest/api/3/%252e%252e/etc', '/rest/api/3/..%5cetc'])
 def test_endpoints_that_could_leak_credentials_are_refused(fake, run, endpoint):
     with pytest.raises(ConnectorError, match='path on the configured site'):
         run('execute_api_request', endpoint=endpoint)
