@@ -1,0 +1,17 @@
+title: Manage FortiGate firewalls over REST and CLI
+summary: 'Configure and monitor FortiGate firewalls: addresses, policies, interfaces, routing and the
+  FortiOS API, from playbooks.'
+description: ''
+use_cases:
+- containment
+- utility
+tags:
+- firewall
+- fortios
+author: ftnt-dspille
+version: 1.0.0
+min_version: null
+license: MIT
+published: '2026-10-13'
+source: https://github.com/ftnt-dspille/connector-fortigatev2
+author_id: 99558074

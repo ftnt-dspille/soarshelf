@@ -1,0 +1,2017 @@
+{
+  "name": "jirav2",
+  "label": "Jira v2",
+  "description": "Create, update, search and transition Jira Cloud issues, and work with Jira Service Management requests and queues. Supports scoped API tokens, tests every action offline, and ships a generic API call for anything not covered.",
+  "publisher": "Fortinet",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "version": "1.0.0",
+  "category": "Ticket Management",
+  "icon_small_name": "jira_small.png",
+  "icon_large_name": "jira_large.png",
+  "help_online": "https://github.com/ftnt-dspille/connector-jirav2",
+  "configuration": {
+    "fields": [
+      {
+        "name": "server_url",
+        "title": "Server URL",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": true,
+        "description": "Your Jira Cloud site, for example https://yourcompany.atlassian.net. For a scoped API token either tick \"Scoped API Token\" below, or enter https://api.atlassian.com/ex/jira/<cloudId> here.",
+        "tooltip": "Your Jira Cloud site, for example https://yourcompany.atlassian.net. For a scoped API token either tick \"Scoped API Token\" below, or enter https://api.atlassian.com/ex/jira/<cloudId> here.",
+        "placeholder": "https://yourcompany.atlassian.net"
+      },
+      {
+        "name": "auth_type",
+        "title": "Authentication",
+        "type": "select",
+        "editable": true,
+        "visible": true,
+        "required": true,
+        "description": "Basic: the Atlassian account email as Username and an API token as API Token. Bearer: an OAuth 2.0 access token, sent as-is; Username is ignored.",
+        "tooltip": "Basic: the Atlassian account email as Username and an API token as API Token. Bearer: an OAuth 2.0 access token, sent as-is; Username is ignored.",
+        "value": "Basic (Email + API Token)",
+        "options": [
+          "Basic (Email + API Token)",
+          "Bearer (OAuth 2.0 Access Token)"
+        ],
+        "onchange": {
+          "Basic (Email + API Token)": [
+            {
+              "name": "username",
+              "title": "Username",
+              "type": "text",
+              "editable": true,
+              "visible": true,
+              "required": true,
+              "description": "The Atlassian account email address the API token was created under (not the token name). Not used for Bearer authentication.",
+              "tooltip": "The Atlassian account email address the API token was created under (not the token name). Not used for Bearer authentication."
+            }
+          ],
+          "Bearer (OAuth 2.0 Access Token)": []
+        }
+      },
+      {
+        "name": "token",
+        "title": "API Token",
+        "type": "password",
+        "editable": true,
+        "visible": true,
+        "required": true,
+        "description": "The API token (Basic) or access token (Bearer).",
+        "tooltip": "The API token (Basic) or access token (Bearer)."
+      },
+      {
+        "name": "scoped",
+        "title": "Scoped API Token",
+        "type": "checkbox",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Tick this when the token was created with scopes. Requests are then routed through https://api.atlassian.com/ex/jira/<cloudId>, which is the only place Atlassian accepts a scoped token. An unrestricted token does not need it.",
+        "tooltip": "Tick this when the token was created with scopes. Requests are then routed through https://api.atlassian.com/ex/jira/<cloudId>, which is the only place Atlassian accepts a scoped token. An unrestricted token does not need it.",
+        "value": false
+      },
+      {
+        "name": "cloud_id",
+        "title": "Cloud ID",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "(Optional) The site's cloud id, used only with \"Scoped API Token\". Left empty, it is looked up from <Server URL>/_edge/tenant_info.",
+        "tooltip": "(Optional) The site's cloud id, used only with \"Scoped API Token\". Left empty, it is looked up from <Server URL>/_edge/tenant_info."
+      },
+      {
+        "name": "timeout",
+        "title": "Timeout (seconds)",
+        "type": "integer",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Seconds to wait for each request. Defaults to 30.",
+        "tooltip": "Seconds to wait for each request. Defaults to 30.",
+        "value": "30"
+      },
+      {
+        "name": "verify_ssl",
+        "title": "Verify SSL",
+        "type": "checkbox",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Specifies whether the SSL certificate for the server is to be verified or not. By default, this option is set to True.",
+        "tooltip": "Specifies whether the SSL certificate for the server is to be verified or not. By default, this option is set to True.",
+        "value": true
+      }
+    ]
+  },
+  "operations": [
+    {
+      "operation": "create_ticket",
+      "title": "Create Ticket",
+      "description": "Creates an issue. Give the issue type by name or by id. Anything else the project requires (a custom field, a JSM request type, a reporter) goes in Other Fields.",
+      "category": "investigation",
+      "annotation": "create_ticket",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "project_key",
+          "title": "Project Key",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Key of the project to create the issue in. Pick from the list or enter a key.",
+          "tooltip": "Key of the project to create the issue in. Pick from the list or enter a key.",
+          "placeholder": "e.g. SEC",
+          "apiOperation": "get_project_options"
+        },
+        {
+          "name": "ticket_summary",
+          "title": "Summary",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The issue summary (title).",
+          "tooltip": "The issue summary (title)."
+        },
+        {
+          "name": "ticket_description",
+          "title": "Description",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Plain text, or an Atlassian Document Format JSON document. Blank lines start a new paragraph.",
+          "tooltip": "(Optional) Plain text, or an Atlassian Document Format JSON document. Blank lines start a new paragraph."
+        },
+        {
+          "name": "issue_type",
+          "title": "Issue Type",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Issue type name, exactly as the project spells it. Jira Service Management projects use names such as \"[System] Service request\". Use List Issue Types to see them. Ignored when Issue Type ID is set. The list shows the chosen project's own types.",
+          "tooltip": "Issue type name, exactly as the project spells it. Jira Service Management projects use names such as \"[System] Service request\". Use List Issue Types to see them. Ignored when Issue Type ID is set. The list shows the chosen project's own types.",
+          "apiOperation": "get_issue_type_options"
+        },
+        {
+          "name": "issue_type_id",
+          "title": "Issue Type ID",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Issue type id, for example 10341. Wins over Issue Type.",
+          "tooltip": "(Optional) Issue type id, for example 10341. Wins over Issue Type.",
+          "apiOperation": "get_issue_type_id_options"
+        },
+        {
+          "name": "priority",
+          "title": "Priority",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Priority name, for example High. Leave empty when the project has no Priority field.",
+          "tooltip": "(Optional) Priority name, for example High. Leave empty when the project has no Priority field."
+        },
+        {
+          "name": "labels",
+          "title": "Labels",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Comma-separated labels, or a JSON list.",
+          "tooltip": "(Optional) Comma-separated labels, or a JSON list."
+        },
+        {
+          "name": "assignee_account_id",
+          "title": "Assignee",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) The assignee. Pick a user or enter an account id.",
+          "tooltip": "(Optional) The assignee. Pick a user or enter an account id.",
+          "apiOperation": "get_user_options"
+        },
+        {
+          "name": "parent",
+          "title": "Parent Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Parent issue key. Required for sub-tasks, for example SEC-1.",
+          "tooltip": "(Optional) Parent issue key. Required for sub-tasks, for example SEC-1."
+        },
+        {
+          "name": "other_fields",
+          "title": "Other Fields",
+          "type": "json",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) JSON object merged into the issue fields, for example {\"customfield_10010\": \"1/25\", \"reporter\": {\"accountId\": \"...\"}}. It overrides the fields above.",
+          "tooltip": "(Optional) JSON object merged into the issue fields, for example {\"customfield_10010\": \"1/25\", \"reporter\": {\"accountId\": \"...\"}}. It overrides the fields above."
+        },
+        {
+          "name": "include_details",
+          "title": "Return Full Issue",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Also fetch the created issue (one extra read) and return it under \"issue\".",
+          "tooltip": "Also fetch the created issue (one extra read) and return it under \"issue\".",
+          "value": false
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "get_ticket_details",
+      "title": "Get Ticket Details",
+      "description": "Retrieves one issue.",
+      "category": "investigation",
+      "annotation": "get_ticket_details",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "fields",
+          "title": "Fields",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Comma-separated fields to return, for example summary,status.",
+          "tooltip": "(Optional) Comma-separated fields to return, for example summary,status."
+        },
+        {
+          "name": "expand",
+          "title": "Expand",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Comma-separated expansions, for example changelog,renderedFields.",
+          "tooltip": "(Optional) Comma-separated expansions, for example changelog,renderedFields."
+        },
+        {
+          "name": "include_text",
+          "title": "Include Plain Text",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Add description_text, the description flattened from ADF to plain text.",
+          "tooltip": "Add description_text, the description flattened from ADF to plain text.",
+          "value": false
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "update_ticket",
+      "title": "Update Ticket",
+      "description": "Updates fields, adds a comment and/or moves the issue to a new status. Only the values you set are sent. The project cannot be changed.",
+      "category": "investigation",
+      "annotation": "update_ticket",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "summary",
+          "title": "Summary",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) New summary.",
+          "tooltip": "(Optional) New summary."
+        },
+        {
+          "name": "description",
+          "title": "Description",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) New description (plain text or ADF JSON).",
+          "tooltip": "(Optional) New description (plain text or ADF JSON)."
+        },
+        {
+          "name": "priority",
+          "title": "Priority",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) New priority name.",
+          "tooltip": "(Optional) New priority name."
+        },
+        {
+          "name": "labels",
+          "title": "Labels",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Replaces the labels. Comma-separated or a JSON list.",
+          "tooltip": "(Optional) Replaces the labels. Comma-separated or a JSON list."
+        },
+        {
+          "name": "comment",
+          "title": "Comment",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) A comment to add.",
+          "tooltip": "(Optional) A comment to add."
+        },
+        {
+          "name": "status",
+          "title": "Status",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Target status name. The issue is moved with the workflow transition that leads there.",
+          "tooltip": "(Optional) Target status name. The issue is moved with the workflow transition that leads there.",
+          "apiOperation": "get_transition_options"
+        },
+        {
+          "name": "other_fields",
+          "title": "Other Fields",
+          "type": "json",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) JSON object of additional fields to set.",
+          "tooltip": "(Optional) JSON object of additional fields to set."
+        },
+        {
+          "name": "notify_users",
+          "title": "Notify Users",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Send Jira notifications for the field changes.",
+          "tooltip": "Send Jira notifications for the field changes.",
+          "value": true
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "delete_ticket",
+      "title": "Delete Ticket",
+      "description": "Deletes an issue.",
+      "category": "miscellaneous",
+      "annotation": "delete_ticket",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "delete_subtask",
+          "title": "Delete Sub-tasks",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Also delete the issue's sub-tasks.",
+          "tooltip": "Also delete the issue's sub-tasks.",
+          "value": false
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "set_status",
+      "title": "Set Ticket Status",
+      "description": "Moves an issue through its workflow, by target status name or by transition id.",
+      "category": "investigation",
+      "annotation": "set_status",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "status",
+          "title": "Status",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Name of the status to move to, or of the transition. The list shows what the issue can move to now.",
+          "tooltip": "Name of the status to move to, or of the transition. The list shows what the issue can move to now.",
+          "apiOperation": "get_transition_options"
+        },
+        {
+          "name": "transition_id",
+          "title": "Transition ID",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Transition id. Wins over Status. See Get Transitions.",
+          "tooltip": "(Optional) Transition id. Wins over Status. See Get Transitions.",
+          "apiOperation": "get_transition_id_options"
+        },
+        {
+          "name": "resolution",
+          "title": "Resolution",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Resolution name, for transitions that require one.",
+          "tooltip": "(Optional) Resolution name, for transitions that require one."
+        },
+        {
+          "name": "comment",
+          "title": "Comment",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) A comment to add with the transition.",
+          "tooltip": "(Optional) A comment to add with the transition."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "get_transitions",
+      "title": "Get Transitions",
+      "description": "Lists the workflow transitions available from the issue's status.",
+      "category": "investigation",
+      "annotation": "get_transitions",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "assign_issue",
+      "title": "Assign Issue",
+      "description": "Assigns the issue. An empty Account ID unassigns it; \"-1\" assigns the project's default assignee.",
+      "category": "investigation",
+      "annotation": "assign_issue",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "accountId",
+          "title": "Assignee",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "The new assignee (an account id). Leave empty to unassign; \"-1\" assigns the project default.",
+          "tooltip": "The new assignee (an account id). Leave empty to unassign; \"-1\" assigns the project default.",
+          "apiOperation": "get_user_options"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "get_changelog",
+      "title": "Get Changelog",
+      "description": "Retrieves the change history of an issue.",
+      "category": "investigation",
+      "annotation": "get_changelog",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "startAt",
+          "title": "Start At",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Index of the first result to return. Defaults to 0.",
+          "tooltip": "(Optional) Index of the first result to return. Defaults to 0."
+        },
+        {
+          "name": "maxResults",
+          "title": "Max Results",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Maximum number of results per page. Defaults to 50.",
+          "tooltip": "(Optional) Maximum number of results per page. Defaults to 50.",
+          "value": "50"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "add_worklog",
+      "title": "Add Worklog",
+      "description": "Logs time against an issue.",
+      "category": "investigation",
+      "annotation": "add_worklog",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "time_spent",
+          "title": "Time Spent",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Time in Jira notation, for example 1h 30m.",
+          "tooltip": "Time in Jira notation, for example 1h 30m."
+        },
+        {
+          "name": "started",
+          "title": "Started",
+          "type": "datetime",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) When the work started. Defaults to now.",
+          "tooltip": "(Optional) When the work started. Defaults to now."
+        },
+        {
+          "name": "comment",
+          "title": "Comment",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Work description.",
+          "tooltip": "(Optional) Work description."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "add_comment",
+      "title": "Add Comment",
+      "description": "Adds a comment to an issue.",
+      "category": "investigation",
+      "annotation": "add_comment",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "comment",
+          "title": "Comment",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Comment text (plain text or ADF JSON).",
+          "tooltip": "Comment text (plain text or ADF JSON)."
+        },
+        {
+          "name": "internal",
+          "title": "Internal (JSM)",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "In a Jira Service Management project, make the comment internal so the customer cannot see it.",
+          "tooltip": "In a Jira Service Management project, make the comment internal so the customer cannot see it.",
+          "value": false
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "get_comments",
+      "title": "Get Comments",
+      "description": "Lists the comments on an issue.",
+      "category": "investigation",
+      "annotation": "get_comments",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "orderBy",
+          "title": "Order By",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Sort order.",
+          "tooltip": "(Optional) Sort order.",
+          "value": "created",
+          "options": [
+            "created",
+            "-created"
+          ]
+        },
+        {
+          "name": "include_text",
+          "title": "Include Plain Text",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Add body_text to each comment.",
+          "tooltip": "Add body_text to each comment.",
+          "value": false
+        },
+        {
+          "name": "startAt",
+          "title": "Start At",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Index of the first result to return. Defaults to 0.",
+          "tooltip": "(Optional) Index of the first result to return. Defaults to 0."
+        },
+        {
+          "name": "maxResults",
+          "title": "Max Results",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Maximum number of results per page. Defaults to 50.",
+          "tooltip": "(Optional) Maximum number of results per page. Defaults to 50.",
+          "value": "50"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "update_comment",
+      "title": "Update Comment",
+      "description": "Replaces the text of a comment.",
+      "category": "investigation",
+      "annotation": "update_comment",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "comment_id",
+          "title": "Comment ID",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Id of the comment.",
+          "tooltip": "Id of the comment."
+        },
+        {
+          "name": "comment",
+          "title": "Comment",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "New comment text.",
+          "tooltip": "New comment text."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "delete_comment",
+      "title": "Delete Comment",
+      "description": "Deletes a comment.",
+      "category": "miscellaneous",
+      "annotation": "delete_comment",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "comment_id",
+          "title": "Comment ID",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Id of the comment.",
+          "tooltip": "Id of the comment."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "submit_file",
+      "title": "Add Attachment",
+      "description": "Attaches a FortiSOAR file to an issue.",
+      "category": "investigation",
+      "annotation": "submit_file",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "path",
+          "title": "Reference Type",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "How the file is identified.",
+          "tooltip": "How the file is identified.",
+          "value": "Attachment ID",
+          "options": [
+            "Attachment ID",
+            "File IRI"
+          ]
+        },
+        {
+          "name": "value",
+          "title": "Reference Value",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The FortiSOAR attachment id or file IRI.",
+          "tooltip": "The FortiSOAR attachment id or file IRI."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "add_remote_link",
+      "title": "Add Remote Link",
+      "description": "Adds a web link to an issue.",
+      "category": "investigation",
+      "annotation": "add_remote_link",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "url",
+          "title": "URL",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The link target.",
+          "tooltip": "The link target."
+        },
+        {
+          "name": "title",
+          "title": "Title",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The link text.",
+          "tooltip": "The link text."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "link_issues",
+      "title": "Link Issues",
+      "description": "Creates a link between two issues, for example Blocks or Relates.",
+      "category": "investigation",
+      "annotation": "link_issues",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "link_type",
+          "title": "Link Type",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Link type name. See List Link Types.",
+          "tooltip": "Link type name. See List Link Types.",
+          "placeholder": "e.g. Relates",
+          "apiOperation": "get_link_type_options"
+        },
+        {
+          "name": "inward_issue",
+          "title": "Inward Issue",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Key of the inward issue.",
+          "tooltip": "Key of the inward issue."
+        },
+        {
+          "name": "outward_issue",
+          "title": "Outward Issue",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Key of the outward issue.",
+          "tooltip": "Key of the outward issue."
+        },
+        {
+          "name": "comment",
+          "title": "Comment",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) A comment to add with the link.",
+          "tooltip": "(Optional) A comment to add with the link."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "list_link_types",
+      "title": "List Link Types",
+      "description": "Lists the issue link types.",
+      "category": "investigation",
+      "annotation": "list_link_types",
+      "enabled": true,
+      "visible": true,
+      "parameters": [],
+      "output_schema": {}
+    },
+    {
+      "operation": "list_tickets",
+      "title": "List Tickets",
+      "description": "Searches with JQL. Jira requires the query to be bounded (for example project = SEC), and interprets dates in the calling user's time zone.",
+      "category": "investigation",
+      "annotation": "list_tickets",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "jql_query",
+          "title": "JQL Query",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The JQL to run. An ORDER BY clause is allowed.",
+          "tooltip": "The JQL to run. An ORDER BY clause is allowed.",
+          "placeholder": "e.g. project = SEC AND statusCategory != Done"
+        },
+        {
+          "name": "start_time",
+          "title": "Updated Since",
+          "type": "datetime",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Only issues updated at or after this time (ANDed onto the JQL, to the minute).",
+          "tooltip": "(Optional) Only issues updated at or after this time (ANDed onto the JQL, to the minute)."
+        },
+        {
+          "name": "fields",
+          "title": "Fields",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Comma-separated fields to return. Defaults to all navigable fields.",
+          "tooltip": "(Optional) Comma-separated fields to return. Defaults to all navigable fields."
+        },
+        {
+          "name": "expand",
+          "title": "Expand",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Comma-separated expansions.",
+          "tooltip": "(Optional) Comma-separated expansions."
+        },
+        {
+          "name": "maxResults",
+          "title": "Max Results",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Page size. Defaults to 50.",
+          "tooltip": "(Optional) Page size. Defaults to 50.",
+          "value": "50"
+        },
+        {
+          "name": "nextPageToken",
+          "title": "Next Page Token",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) The nextPageToken from a previous response, to read the next page.",
+          "tooltip": "(Optional) The nextPageToken from a previous response, to read the next page."
+        },
+        {
+          "name": "fetch_all",
+          "title": "Fetch All Pages",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Follow nextPageToken until the results run out or Max Total is hit.",
+          "tooltip": "Follow nextPageToken until the results run out or Max Total is hit.",
+          "value": false
+        },
+        {
+          "name": "max_total",
+          "title": "Max Total",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Cap for Fetch All Pages. Defaults to 1000.",
+          "tooltip": "(Optional) Cap for Fetch All Pages. Defaults to 1000.",
+          "value": "1000"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "validate_jql_query",
+      "title": "Validate JQL Query",
+      "description": "Checks a JQL string for errors without running it.",
+      "category": "investigation",
+      "annotation": "validate_jql_query",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "jql_query",
+          "title": "JQL Query",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The JQL to validate.",
+          "tooltip": "The JQL to validate."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "list_projects",
+      "title": "List Projects",
+      "description": "Lists the projects the account can browse.",
+      "category": "investigation",
+      "annotation": "list_projects",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "query",
+          "title": "Query",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Filter by project name or key.",
+          "tooltip": "(Optional) Filter by project name or key."
+        },
+        {
+          "name": "fetch_all",
+          "title": "Fetch All Pages",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Read every page (up to 1000 projects).",
+          "tooltip": "Read every page (up to 1000 projects).",
+          "value": false
+        },
+        {
+          "name": "startAt",
+          "title": "Start At",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Index of the first result to return. Defaults to 0.",
+          "tooltip": "(Optional) Index of the first result to return. Defaults to 0."
+        },
+        {
+          "name": "maxResults",
+          "title": "Max Results",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Maximum number of results per page. Defaults to 50.",
+          "tooltip": "(Optional) Maximum number of results per page. Defaults to 50.",
+          "value": "50"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "get_project",
+      "title": "Get Project",
+      "description": "Retrieves one project.",
+      "category": "investigation",
+      "annotation": "get_project",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "project_key",
+          "title": "Project Key",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The project key or id.",
+          "tooltip": "The project key or id.",
+          "apiOperation": "get_project_options"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "search_users",
+      "title": "Search Users",
+      "description": "Finds users by name or email.",
+      "category": "investigation",
+      "annotation": "search_users",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "query",
+          "title": "Query",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Name or email fragment. Empty lists users.",
+          "tooltip": "(Optional) Name or email fragment. Empty lists users."
+        },
+        {
+          "name": "startAt",
+          "title": "Start At",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Index of the first result to return. Defaults to 0.",
+          "tooltip": "(Optional) Index of the first result to return. Defaults to 0."
+        },
+        {
+          "name": "maxResults",
+          "title": "Max Results",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Maximum number of results per page. Defaults to 50.",
+          "tooltip": "(Optional) Maximum number of results per page. Defaults to 50.",
+          "value": "50"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "get_user_details",
+      "title": "Get User Details",
+      "description": "Retrieves a user by account id.",
+      "category": "investigation",
+      "annotation": "get_user_details",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "accountId",
+          "title": "User",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The user (an account id).",
+          "tooltip": "The user (an account id).",
+          "apiOperation": "get_user_options"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "list_issue_types",
+      "title": "List Issue Types",
+      "description": "Lists issue types: those usable in one project, or every type on the site when no project is given.",
+      "category": "investigation",
+      "annotation": "list_issue_types",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "project_key",
+          "title": "Project Key",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Limit to the types this project allows.",
+          "tooltip": "(Optional) Limit to the types this project allows.",
+          "apiOperation": "get_project_options"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "get_create_metadata",
+      "title": "Get Create Metadata",
+      "description": "Lists the fields (and which are required) for creating an issue of a type in a project.",
+      "category": "investigation",
+      "annotation": "get_create_metadata",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "project_key",
+          "title": "Project Key",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The project key or id.",
+          "tooltip": "The project key or id.",
+          "apiOperation": "get_project_options"
+        },
+        {
+          "name": "issue_type_id",
+          "title": "Issue Type ID",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The issue type id.",
+          "tooltip": "The issue type id.",
+          "apiOperation": "get_issue_type_id_options"
+        },
+        {
+          "name": "startAt",
+          "title": "Start At",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Index of the first result to return. Defaults to 0.",
+          "tooltip": "(Optional) Index of the first result to return. Defaults to 0."
+        },
+        {
+          "name": "maxResults",
+          "title": "Max Results",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Maximum number of results per page. Defaults to 200.",
+          "tooltip": "(Optional) Maximum number of results per page. Defaults to 200.",
+          "value": "200"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "list_priorities",
+      "title": "List Priorities",
+      "description": "Lists the priorities. Needs the manage:jira-configuration scope (see README).",
+      "category": "investigation",
+      "annotation": "list_priorities",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "startAt",
+          "title": "Start At",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Index of the first result to return. Defaults to 0.",
+          "tooltip": "(Optional) Index of the first result to return. Defaults to 0."
+        },
+        {
+          "name": "maxResults",
+          "title": "Max Results",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Maximum number of results per page. Defaults to 50.",
+          "tooltip": "(Optional) Maximum number of results per page. Defaults to 50.",
+          "value": "50"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "list_fields",
+      "title": "List Fields",
+      "description": "Lists system and custom fields, including custom field ids.",
+      "category": "investigation",
+      "annotation": "list_fields",
+      "enabled": true,
+      "visible": true,
+      "parameters": [],
+      "output_schema": {}
+    },
+    {
+      "operation": "list_service_desks",
+      "title": "List Service Desks",
+      "description": "Lists Jira Service Management service desks.",
+      "category": "investigation",
+      "annotation": "list_service_desks",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "start",
+          "title": "Start",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Index of the first result.",
+          "tooltip": "(Optional) Index of the first result."
+        },
+        {
+          "name": "limit",
+          "title": "Limit",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Maximum results.",
+          "tooltip": "(Optional) Maximum results."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "list_request_types",
+      "title": "List Request Types",
+      "description": "Lists the request types of a service desk.",
+      "category": "investigation",
+      "annotation": "list_request_types",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "service_desk_id",
+          "title": "Service Desk",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The service desk (its numeric id).",
+          "tooltip": "The service desk (its numeric id).",
+          "apiOperation": "get_service_desk_options"
+        },
+        {
+          "name": "search_query",
+          "title": "Search Query",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Filter by name.",
+          "tooltip": "(Optional) Filter by name."
+        },
+        {
+          "name": "start",
+          "title": "Start",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Index of the first result.",
+          "tooltip": "(Optional) Index of the first result."
+        },
+        {
+          "name": "limit",
+          "title": "Limit",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Maximum results.",
+          "tooltip": "(Optional) Maximum results."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "get_request_type_fields",
+      "title": "Get Request Type Fields",
+      "description": "Lists the fields a request type takes, and which are required.",
+      "category": "investigation",
+      "annotation": "get_request_type_fields",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "service_desk_id",
+          "title": "Service Desk",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The service desk (its numeric id).",
+          "tooltip": "The service desk (its numeric id).",
+          "apiOperation": "get_service_desk_options"
+        },
+        {
+          "name": "request_type_id",
+          "title": "Request Type",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The request type (its id). Pick the service desk first.",
+          "tooltip": "The request type (its id). Pick the service desk first.",
+          "apiOperation": "get_request_type_options"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "create_customer_request",
+      "title": "Create Customer Request",
+      "description": "Creates a request through the JSM API, so it has a request type and shows in the portal and queues.",
+      "category": "investigation",
+      "annotation": "create_customer_request",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "service_desk_id",
+          "title": "Service Desk",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The service desk (its numeric id).",
+          "tooltip": "The service desk (its numeric id).",
+          "apiOperation": "get_service_desk_options"
+        },
+        {
+          "name": "request_type_id",
+          "title": "Request Type",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The request type (its id). Pick the service desk first.",
+          "tooltip": "The request type (its id). Pick the service desk first.",
+          "apiOperation": "get_request_type_options"
+        },
+        {
+          "name": "summary",
+          "title": "Summary",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The request summary.",
+          "tooltip": "The request summary."
+        },
+        {
+          "name": "description",
+          "title": "Description",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Description, as plain or wiki-markup text.",
+          "tooltip": "(Optional) Description, as plain or wiki-markup text."
+        },
+        {
+          "name": "request_field_values",
+          "title": "Request Field Values",
+          "type": "json",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) JSON object of other request fields, keyed by field id.",
+          "tooltip": "(Optional) JSON object of other request fields, keyed by field id."
+        },
+        {
+          "name": "raise_on_behalf_of",
+          "title": "Raise On Behalf Of",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Account id of the customer.",
+          "tooltip": "(Optional) Account id of the customer."
+        },
+        {
+          "name": "request_participants",
+          "title": "Participants",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Comma-separated participant account ids.",
+          "tooltip": "(Optional) Comma-separated participant account ids."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "get_customer_request",
+      "title": "Get Customer Request",
+      "description": "Retrieves a request with its portal-side details.",
+      "category": "investigation",
+      "annotation": "get_customer_request",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "expand",
+          "title": "Expand",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Comma-separated expansions, for example participant,sla.",
+          "tooltip": "(Optional) Comma-separated expansions, for example participant,sla."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "add_request_comment",
+      "title": "Add Request Comment",
+      "description": "Comments on a request through the JSM API.",
+      "category": "investigation",
+      "annotation": "add_request_comment",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "issue_key",
+          "title": "Issue Key",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Specify the key of the issue, for example SEC-123.",
+          "tooltip": "Specify the key of the issue, for example SEC-123.",
+          "placeholder": "e.g. SEC-123"
+        },
+        {
+          "name": "comment",
+          "title": "Comment",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Comment text (JSM takes plain or wiki-markup text).",
+          "tooltip": "Comment text (JSM takes plain or wiki-markup text)."
+        },
+        {
+          "name": "public",
+          "title": "Public",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Visible to the customer. Untick for an internal note.",
+          "tooltip": "Visible to the customer. Untick for an internal note.",
+          "value": true
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "list_queues",
+      "title": "List Queues",
+      "description": "Lists the queues of a service desk.",
+      "category": "investigation",
+      "annotation": "list_queues",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "service_desk_id",
+          "title": "Service Desk",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The service desk (its numeric id).",
+          "tooltip": "The service desk (its numeric id).",
+          "apiOperation": "get_service_desk_options"
+        },
+        {
+          "name": "include_count",
+          "title": "Include Issue Count",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Also return the issue count of each queue.",
+          "tooltip": "Also return the issue count of each queue.",
+          "value": false
+        },
+        {
+          "name": "start",
+          "title": "Start",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Index of the first result.",
+          "tooltip": "(Optional) Index of the first result."
+        },
+        {
+          "name": "limit",
+          "title": "Limit",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Maximum results.",
+          "tooltip": "(Optional) Maximum results."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "list_queue_issues",
+      "title": "List Queue Issues",
+      "description": "Lists the issues in a queue.",
+      "category": "investigation",
+      "annotation": "list_queue_issues",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "service_desk_id",
+          "title": "Service Desk",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The service desk (its numeric id).",
+          "tooltip": "The service desk (its numeric id).",
+          "apiOperation": "get_service_desk_options"
+        },
+        {
+          "name": "queue_id",
+          "title": "Queue",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The queue (its id). Pick the service desk first.",
+          "tooltip": "The queue (its id). Pick the service desk first.",
+          "apiOperation": "get_queue_options"
+        },
+        {
+          "name": "start",
+          "title": "Start",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Index of the first result.",
+          "tooltip": "(Optional) Index of the first result."
+        },
+        {
+          "name": "limit",
+          "title": "Limit",
+          "type": "integer",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Maximum results.",
+          "tooltip": "(Optional) Maximum results."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "execute_api_request",
+      "title": "Execute an API Request",
+      "description": "Calls any Jira or Jira Service Management REST endpoint with this configuration's credentials. The scopes needed depend on the endpoint.",
+      "category": "investigation",
+      "annotation": "execute_api_request",
+      "enabled": true,
+      "visible": true,
+      "parameters": [
+        {
+          "name": "endpoint",
+          "title": "Endpoint",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "A path on the configured site, for example /rest/api/3/project/search. Full URLs are refused so credentials never leave the configured site.",
+          "tooltip": "A path on the configured site, for example /rest/api/3/project/search. Full URLs are refused so credentials never leave the configured site.",
+          "placeholder": "/rest/api/3/myself"
+        },
+        {
+          "name": "method",
+          "title": "Method",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "The HTTP method. Defaults to GET.",
+          "tooltip": "The HTTP method. Defaults to GET.",
+          "value": "GET",
+          "options": [
+            "DELETE",
+            "GET",
+            "PATCH",
+            "POST",
+            "PUT"
+          ]
+        },
+        {
+          "name": "content_type",
+          "title": "Content Type",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Content-Type of the payload.",
+          "tooltip": "(Optional) Content-Type of the payload.",
+          "value": "application/json",
+          "options": [
+            "None",
+            "application/json",
+            "application/x-www-form-urlencoded"
+          ]
+        },
+        {
+          "name": "query_params",
+          "title": "Query Parameters",
+          "type": "json",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) Query string parameters, as a JSON object.",
+          "tooltip": "(Optional) Query string parameters, as a JSON object."
+        },
+        {
+          "name": "payload",
+          "title": "Payload",
+          "type": "json",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "(Optional) The request body.",
+          "tooltip": "(Optional) The request body."
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "get_project_options",
+      "title": "Get Project Options",
+      "description": "Populates project dropdowns: every project the account can browse, as Name (KEY) / key pairs.",
+      "category": "investigation",
+      "annotation": "get_project_options",
+      "enabled": true,
+      "visible": false,
+      "parameters": [],
+      "output_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    {
+      "operation": "get_issue_type_options",
+      "title": "Get Issue Type Options",
+      "description": "Populates issue type dropdowns with the chosen project's issue type names (the whole site's when no project is chosen).",
+      "category": "investigation",
+      "annotation": "get_issue_type_options",
+      "enabled": true,
+      "visible": false,
+      "parameters": [],
+      "output_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    {
+      "operation": "get_issue_type_id_options",
+      "title": "Get Issue Type ID Options",
+      "description": "Populates issue type id dropdowns as Name [id] / id pairs, for the chosen project when one is set.",
+      "category": "investigation",
+      "annotation": "get_issue_type_id_options",
+      "enabled": true,
+      "visible": false,
+      "parameters": [],
+      "output_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    {
+      "operation": "get_link_type_options",
+      "title": "Get Link Type Options",
+      "description": "Populates link type dropdowns with the issue link type names.",
+      "category": "investigation",
+      "annotation": "get_link_type_options",
+      "enabled": true,
+      "visible": false,
+      "parameters": [],
+      "output_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    {
+      "operation": "get_user_options",
+      "title": "Get User Options",
+      "description": "Populates assignee dropdowns with the active people on the site, as Name (email) / account id.",
+      "category": "investigation",
+      "annotation": "get_user_options",
+      "enabled": true,
+      "visible": false,
+      "parameters": [],
+      "output_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    {
+      "operation": "get_service_desk_options",
+      "title": "Get Service Desk Options",
+      "description": "Populates service desk dropdowns as Project (KEY) / service desk id.",
+      "category": "investigation",
+      "annotation": "get_service_desk_options",
+      "enabled": true,
+      "visible": false,
+      "parameters": [],
+      "output_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    {
+      "operation": "get_request_type_options",
+      "title": "Get Request Type Options",
+      "description": "Populates request type dropdowns for the chosen service desk. Empty until Service Desk is set.",
+      "category": "investigation",
+      "annotation": "get_request_type_options",
+      "enabled": true,
+      "visible": false,
+      "parameters": [],
+      "output_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    {
+      "operation": "get_queue_options",
+      "title": "Get Queue Options",
+      "description": "Populates queue dropdowns for the chosen service desk. Empty until Service Desk is set.",
+      "category": "investigation",
+      "annotation": "get_queue_options",
+      "enabled": true,
+      "visible": false,
+      "parameters": [],
+      "output_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    {
+      "operation": "get_transition_options",
+      "title": "Get Transition Options",
+      "description": "Populates status dropdowns with what the chosen issue can move to now. Empty until Issue Key is set.",
+      "category": "investigation",
+      "annotation": "get_transition_options",
+      "enabled": true,
+      "visible": false,
+      "parameters": [],
+      "output_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    {
+      "operation": "get_transition_id_options",
+      "title": "Get Transition ID Options",
+      "description": "Populates transition id dropdowns for the chosen issue. Empty until Issue Key is set.",
+      "category": "investigation",
+      "annotation": "get_transition_id_options",
+      "enabled": true,
+      "visible": false,
+      "parameters": [],
+      "output_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    }
+  ]
+}

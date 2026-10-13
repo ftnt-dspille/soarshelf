@@ -1,0 +1,9 @@
+[
+  {"name": "health", "set": "health", "token": "<scoped token created with only the health-check scopes>"},
+  {"name": "readonly", "set": "readonly", "token": "<scoped token created with only the read-only scopes>"},
+  {"name": "all", "set": "all", "token": "<scoped token created with every scope>"},
+  {"name": "just-comments", "family": "granular",
+   "scopes": ["read:comment:jira", "write:comment:jira", "read:comment.property:jira", "write:comment.property:jira",
+              "read:group:jira", "read:project:jira", "read:project-role:jira", "read:user:jira", "read:avatar:jira"],
+   "token": "<a token with exactly these scopes>"}
+]

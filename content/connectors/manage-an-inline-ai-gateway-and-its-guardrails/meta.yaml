@@ -1,0 +1,17 @@
+title: Manage an inline AI gateway and its guardrails
+summary: Manage FortiAIGate virtual keys, providers, models and guard policies, and read its traffic logs.
+description: ''
+use_cases:
+- utility
+- reporting
+tags:
+- ai
+- llm
+- gateway
+author: ftnt-dspille
+version: 1.2.1
+min_version: null
+license: MIT
+published: '2026-10-13'
+source: https://github.com/ftnt-dspille/fortinet-fortiaigate
+author_id: 99558074

@@ -1,0 +1,202 @@
+# Jira v2 sample playbook collection.
+#
+# Compiled to playbooks/playbooks.json by scripts/build_playbooks.sh, which shells
+# out to the fsrpb compiler. Author here, never in the JSON.
+#
+# Each playbook takes plain parameters rather than a record trigger, so it can be
+# run from a button, called from another playbook, or driven by the test script
+# in tests/ without a module record behind it. Every operation used here is
+# exercised against a live site by tests/test_live.py.
+
+collection: Sample - Jira v2 - 1.0.0
+description: Create, work and poll Jira Cloud tickets and Jira Service Management requests with the Jira v2 connector.
+visible: true
+
+playbooks:
+
+  # --------------------------------------------------------------- create --
+  - name: Jira v2 - Create Ticket
+    description: >
+      Create a Jira ticket from plain text and read it back. The description is
+      converted to Atlassian Document Format by the connector, so a blank line
+      becomes a paragraph. Returns the key and a browse link.
+    is_active: true
+    parameters: [project_key, issue_type, summary, description]
+    steps:
+      - name: start
+        type: start
+        next: Create Ticket
+
+      - name: Create Ticket
+        type: connector
+        next: Read Ticket
+        connector: jirav2
+        operation: create_ticket
+        config: ""
+        params:
+          project_key: "{{ vars.input.params.project_key }}"
+          issue_type: "{{ vars.input.params.issue_type }}"
+          ticket_summary: "{{ vars.input.params.summary }}"
+          ticket_description: "{{ vars.input.params.description }}"
+          labels: jirav2-sample
+
+      - name: Read Ticket
+        type: connector
+        next: Summarize
+        connector: jirav2
+        operation: get_ticket_details
+        config: ""
+        params:
+          issue_key: "{{ vars.steps.Create_Ticket.data.key }}"
+          fields: summary,status,issuetype
+          include_text: true
+
+      - name: Summarize
+        type: set_variable
+        vars:
+          issue_key: "{{ vars.steps.Create_Ticket.data.key }}"
+          issue_status: "{{ vars.steps.Read_Ticket.data.fields.status.name }}"
+          issue_url: "{{ vars.steps.Create_Ticket.data.browse_url }}"
+
+  # ----------------------------------------------------------------- work --
+  - name: Jira v2 - Comment and Transition
+    description: >
+      Add a comment to a ticket and move it to a new status by name. The
+      connector looks the status up in the ticket's own workflow, so a status
+      the workflow does not offer fails with the list of valid ones.
+    is_active: true
+    parameters: [issue_key, comment, status]
+    steps:
+      - name: start
+        type: start
+        next: Add Comment
+
+      - name: Add Comment
+        type: connector
+        next: List Transitions
+        connector: jirav2
+        operation: add_comment
+        config: ""
+        params:
+          issue_key: "{{ vars.input.params.issue_key }}"
+          comment: "{{ vars.input.params.comment }}"
+
+      - name: List Transitions
+        type: connector
+        next: Move Ticket
+        connector: jirav2
+        operation: get_transitions
+        config: ""
+        params:
+          issue_key: "{{ vars.input.params.issue_key }}"
+
+      - name: Move Ticket
+        type: connector
+        next: Read Back
+        connector: jirav2
+        operation: set_status
+        config: ""
+        params:
+          issue_key: "{{ vars.input.params.issue_key }}"
+          status: "{{ vars.input.params.status }}"
+
+      - name: Read Back
+        type: connector
+        next: Summarize
+        connector: jirav2
+        operation: get_ticket_details
+        config: ""
+        params:
+          issue_key: "{{ vars.input.params.issue_key }}"
+          fields: status
+
+      - name: Summarize
+        type: set_variable
+        vars:
+          comment_id: "{{ vars.steps.Add_Comment.data.id }}"
+          available_transitions: "{{ vars.steps.List_Transitions.data.transitions | map(attribute='name') | list }}"
+          issue_status: "{{ vars.steps.Read_Back.data.fields.status.name }}"
+
+  # ----------------------------------------------------------------- poll --
+  - name: Jira v2 - Poll Updated Tickets
+    description: >
+      Return every ticket matching a JQL query, following the pagination for
+      you. Pass a JQL such as `project = KAN AND updated >= -1d`; an ORDER BY
+      is kept. Use it as the fetch step of an ingestion that stores the last
+      pull time in a macro.
+    is_active: true
+    parameters: [jql_query]
+    steps:
+      - name: start
+        type: start
+        next: Search
+
+      - name: Search
+        type: connector
+        next: Summarize
+        connector: jirav2
+        operation: list_tickets
+        config: ""
+        params:
+          jql_query: "{{ vars.input.params.jql_query }}"
+          fields: summary,status,updated
+          fetch_all: true
+          max_total: 500
+
+      - name: Summarize
+        type: set_variable
+        vars:
+          ticket_count: "{{ vars.steps.Search.data.issues | length }}"
+          ticket_keys: "{{ vars.steps.Search.data.issues | map(attribute='key') | list }}"
+
+  # ------------------------------------------------------------------ jsm --
+  - name: Jira v2 - Open Service Desk Request
+    description: >
+      Raise a customer request in a Jira Service Management project, add a
+      public reply and read the request back. Find the desk and request type
+      ids with the list_service_desks and list_request_types operations, or use
+      the dropdowns in the step editor.
+    is_active: true
+    parameters: [service_desk_id, request_type_id, summary, description]
+    steps:
+      - name: start
+        type: start
+        next: Open Request
+
+      - name: Open Request
+        type: connector
+        next: Reply
+        connector: jirav2
+        operation: create_customer_request
+        config: ""
+        params:
+          service_desk_id: "{{ vars.input.params.service_desk_id }}"
+          request_type_id: "{{ vars.input.params.request_type_id }}"
+          summary: "{{ vars.input.params.summary }}"
+          description: "{{ vars.input.params.description }}"
+
+      - name: Reply
+        type: connector
+        next: Read Request
+        connector: jirav2
+        operation: add_request_comment
+        config: ""
+        params:
+          issue_key: "{{ vars.steps.Open_Request.data.issueKey }}"
+          comment: "Received by FortiSOAR, an analyst is looking at it."
+          public: true
+
+      - name: Read Request
+        type: connector
+        next: Summarize
+        connector: jirav2
+        operation: get_customer_request
+        config: ""
+        params:
+          issue_key: "{{ vars.steps.Open_Request.data.issueKey }}"
+
+      - name: Summarize
+        type: set_variable
+        vars:
+          request_key: "{{ vars.steps.Open_Request.data.issueKey }}"
+          request_status: "{{ vars.steps.Read_Request.data.currentStatus.status }}"

@@ -1,0 +1,15 @@
+title: Read and write secrets in HashiCorp Vault KV
+summary: Read, write, list and delete key-value secrets in a Vault KV v2 mount with token authentication.
+description: ''
+use_cases:
+- utility
+tags:
+- secrets
+- vault
+author: ftnt-dspille
+version: 1.0.1
+min_version: null
+license: MIT
+published: '2026-10-13'
+source: https://github.com/ftnt-dspille/hashicorp-vault-kv
+author_id: 99558074
