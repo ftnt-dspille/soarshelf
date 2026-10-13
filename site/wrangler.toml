@@ -7,3 +7,10 @@ compatibility_date = "2026-08-15"
 [[services]]
 binding = "API"
 service = "soarshelf-api"
+
+# Download counts (functions/downloads). Same database as the upload Worker;
+# apply worker/migrations first (docs/deploy.md).
+[[d1_databases]]
+binding = "DB"
+database_name = "soarshelf"
+database_id = "1f6d197e-4116-4589-8970-bc0244b9f051"

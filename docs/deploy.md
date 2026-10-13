@@ -54,6 +54,11 @@ pnpm exec wrangler r2 bucket lifecycle add soarshelf-quarantine expire-30d --exp
 pnpm run migrate:remote
 ```
 
+Download counts: the site's `/downloads` Pages Function writes one row per item per day
+to the `download_counts` table (migration 0002; the `DB` binding is in `site/wrangler.toml`).
+Read them with
+`pnpm exec wrangler d1 execute soarshelf --remote --command "SELECT slug, SUM(n) AS downloads FROM download_counts GROUP BY slug ORDER BY downloads DESC"`.
+
 `wrangler.toml` `[vars]`: `SITE_ORIGIN`, `REPO`, `GITHUB_CLIENT_ID`,
 `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID`. The Worker has no public URL
 (`workers_dev = false`); the site reaches it through a service binding (below).
