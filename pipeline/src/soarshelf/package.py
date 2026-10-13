@@ -266,13 +266,19 @@ def review_hints(files: dict[str, bytes]) -> list[CheckResult]:
     return out
 
 
-def screenshots(files: dict[str, bytes], top: str) -> list[tuple[str, bytes, int, int]]:
-    """Images worth showing on the item page: not icons, at most six."""
+def screenshots(files: dict[str, bytes], top: str, icons: tuple[str, ...] = ()) -> list[tuple[str, bytes, int, int]]:
+    """Images worth showing on the item page: not icons, at most six.
+
+    ``icons`` are the file names the manifest declares as its icons. A connector's large
+    icon is 500x500, which is big enough to pass for a screenshot by size alone.
+    """
     from PIL import Image
 
     out = []
     for name in sorted(files):
         if not name.lower().endswith(IMAGE_SUFFIXES):
+            continue
+        if posixpath.basename(name) in icons:
             continue
         with Image.open(io.BytesIO(files[name])) as im:
             w, h = im.size
