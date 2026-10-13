@@ -5,7 +5,7 @@
   "publisher": "Fortinet",
   "cs_approved": false,
   "cs_compatible": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "category": "Ticket Management",
   "icon_small_name": "jira_small.png",
   "icon_large_name": "jira_large.png",

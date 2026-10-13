@@ -6,7 +6,7 @@ Copyright end
 """
 from connectors.core.connector import Connector, ConnectorError, get_logger
 
-from .operations import check_health, operations
+from .operations import check_health, operations, resolve_dropdowns
 
 logger = get_logger('jirav2')
 
@@ -17,7 +17,7 @@ class JiraV2(Connector):
         if action is None:
             raise ConnectorError('Unsupported operation: %s' % operation)
         try:
-            return action(config, params or {})
+            return action(config, resolve_dropdowns(config, operation, params or {}))
         except ConnectorError:
             raise
         except Exception as err:

@@ -75,7 +75,7 @@ Server speak REST v2 and are not supported.
 
 ## Sample playbooks
 
-The connector ships a collection, `Sample - Jira v2 - 1.0.0`, that FortiSOAR imports with it. Each
+The connector ships a collection, `Sample - Jira v2 - 1.0.1`, that FortiSOAR imports with it. Each
 playbook takes plain parameters, so it runs from a button, from another playbook, or on its own.
 
 | Playbook | Parameters | What it does |
@@ -180,7 +180,7 @@ A scope lets the token call an endpoint; the account behind the token must *also
 
 ### Dropdown helpers
 
-Parameters that take a project, user, issue type, link type or service desk are dropdowns filled live by hidden `get_*_options` actions (the same `apiOperation` mechanism as the FortiAIGate connector). They call the same endpoints as the matching read actions, so they need no extra permission:
+Parameters that take a project, user, issue type, link type or service desk are dropdowns filled live by hidden `get_*_options` actions (the same `apiOperation` mechanism as the FortiAIGate connector). The editor can only show plain text, so each list holds names such as `Operations (OPS)`; the connector turns the picked name back into the key or id when the action runs, and an action can also be given the bare key or id. They call the same endpoints as the matching read actions, so they need no extra permission:
 
 | Helper | Calls | Granular scopes |
 |---|---|---|
