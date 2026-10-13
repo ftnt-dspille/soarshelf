@@ -5,7 +5,7 @@
   "publisher": "Fortinet",
   "cs_approved": false,
   "cs_compatible": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "Firewall and Network Protection",
   "help_online": "https://github.com/ftnt-dspille/connector-fortigatev2",
   "icon_small_name": "Fortinet_small.png",
@@ -6128,6 +6128,73 @@
         "version": "",
         "http_method": "",
         "vdom_not_exist": []
+      }
+    },
+    {
+      "operation": "execute_api_request",
+      "title": "Execute API Request",
+      "category": "miscellaneous",
+      "annotation": "execute_api_request",
+      "description": "Calls any FortiOS REST API endpoint on the configured FortiGate using the connector's API key. REST only; to run CLI commands use Execute Command.",
+      "enabled": true,
+      "parameters": [
+        {
+          "title": "Endpoint",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "endpoint",
+          "tooltip": "A path on the configured FortiGate, for example /api/v2/monitor/system/status",
+          "placeholder": "/api/v2/monitor/system/status",
+          "description": "Specify the path of the FortiOS REST API endpoint to call on the configured FortiGate, for example /api/v2/monitor/system/status. A full URL is not accepted, so the API key is only ever sent to the configured FortiGate."
+        },
+        {
+          "title": "Method",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "select",
+          "name": "method",
+          "options": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE"
+          ],
+          "value": "GET",
+          "tooltip": "HTTP method of the request",
+          "description": "Specify the HTTP method of the request. You can choose from following options: GET, POST, PUT, PATCH, DELETE. By default it is GET."
+        },
+        {
+          "title": "Query Parameters",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "type": "json",
+          "name": "query_params",
+          "tooltip": "Query-string parameters as a JSON object",
+          "placeholder": "{\"filter\": \"name==value\"}",
+          "description": "(Optional) Specify the query-string parameters of the request as a JSON object. The VDOM from the configuration is added unless it is given here as vdom."
+        },
+        {
+          "title": "Request Body",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "type": "json",
+          "name": "request_body",
+          "tooltip": "JSON object sent as the body for POST, PUT and PATCH",
+          "placeholder": "{\"name\": \"value\"}",
+          "description": "(Optional) Specify the request body as a JSON object. It is sent for POST, PUT and PATCH requests."
+        }
+      ],
+      "output_schema": {
+        "http_method": "",
+        "status": "",
+        "http_status": "",
+        "results": []
       }
     }
   ]

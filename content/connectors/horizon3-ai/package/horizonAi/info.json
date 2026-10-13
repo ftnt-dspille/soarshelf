@@ -1,7 +1,7 @@
 {
   "name": "horizonAi",
   "label": "Horizon3.ai",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Horizon3.ai is a cybersecurity company specializing in automated security solutions. Their flagship product, NodeZero, is an autonomous penetration testing platform that simulates real-world cyberattacks to identify vulnerabilities and provide actionable remediation insights. Designed for ease of use, NodeZero empowers organizations to continuously assess and improve their security posture without relying heavily on manual intervention. It supports cloud, on-premise, and hybrid environments, making it adaptable to diverse IT setups.",
   "publisher": "Community",
   "cs_approved": false,
@@ -311,6 +311,45 @@
             "total_count": 0
           }
         }
+      }
+    },
+    {
+      "operation": "execute_graphql_query",
+      "title": "Execute GraphQL Query",
+      "description": "Run any GraphQL query or mutation against the configured Horizon3.ai server using the configured API token",
+      "category": "miscellaneous",
+      "annotation": "execute_graphql_query",
+      "parameters": [
+        {
+          "name": "query",
+          "title": "Query",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "The GraphQL document (query or mutation) to run, for example: query hello { hello }"
+        },
+        {
+          "name": "variables",
+          "title": "Variables",
+          "type": "json",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Optional JSON object of GraphQL variables, for example {\"page_input\": {\"page_size\": 10}}. Leave blank for none."
+        },
+        {
+          "name": "operation_name",
+          "title": "Operation Name",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "description": "Optional operationName to run when the document contains several operations"
+        }
+      ],
+      "output_schema": {
+        "data": {}
       }
     }
   ]

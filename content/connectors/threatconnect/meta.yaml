@@ -1,0 +1,16 @@
+title: ThreatConnect
+summary: ThreatConnect connector for the v3 REST API.
+description: ''
+use_cases:
+- enrichment
+- ingestion
+tags:
+- threatconnect
+- threat-intel
+author: ftnt-dspille
+version: 2.2.0
+min_version: null
+license: MIT
+published: '2026-10-13'
+source: https://github.com/ftnt-dspille/connector-threatconnect
+author_id: 99558074

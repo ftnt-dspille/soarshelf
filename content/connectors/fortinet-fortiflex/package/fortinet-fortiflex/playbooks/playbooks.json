@@ -1,0 +1,1537 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Sample - Fortinet FortiFlex - 1.0.0",
+      "description": "Sample playbooks for \"Fortinet FortiFlex\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete.",
+      "visible": true,
+      "image": null,
+      "uuid": "1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+      "id": 239,
+      "deletedAt": null,
+      "importedBy": [],
+      "recordTags": [
+        "Fortinet",
+        "fortinet-fortiflex"
+      ],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Point Usage for VM",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Retrieves the total points consumed by one or more virtual machines in a date range in FortiFlex based on the serial number and datetime parameters you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693252729,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/757f0349-cb01-4474-a2ca-0f4e7c7b8d6b",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Point Usage for VM",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "endDate": "2023-09-07T18:30:00.000Z",
+                  "configId": 5957,
+                  "accountId": "",
+                  "serialNumber": "",
+                  "programSerialNumber": ""
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "get_point_usage_for_vm",
+                "operationTitle": "Get Point Usage for VM",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "de6676a3-745c-4500-8e8f-23ce557486f8"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "757f0349-cb01-4474-a2ca-0f4e7c7b8d6b"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Point Usage for VM",
+              "targetStep": "/api/3/workflow_steps/de6676a3-745c-4500-8e8f-23ce557486f8",
+              "sourceStep": "/api/3/workflow_steps/757f0349-cb01-4474-a2ca-0f4e7c7b8d6b",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "2f0cba43-41f2-450a-843b-24b02909e534"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "01b8eae7-e391-41d7-9ef4-ed078b9d6b24",
+          "id": 2812,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Reactivate Entitlement",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Reactivate an entitlement after being stopped in FortiFlex based on the serial number you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693252640,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/935b24ef-2e85-42f9-8177-d2606b5fff66",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Reactivate Entitlement",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "serialNumber": "FGVMMLTM23010678"
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "reactivate_entitlement",
+                "operationTitle": "Reactivate Entitlement",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "518e976a-5a54-4d9d-b200-b7ab1383860b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "935b24ef-2e85-42f9-8177-d2606b5fff66"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Reactivate Entitlement",
+              "targetStep": "/api/3/workflow_steps/518e976a-5a54-4d9d-b200-b7ab1383860b",
+              "sourceStep": "/api/3/workflow_steps/935b24ef-2e85-42f9-8177-d2606b5fff66",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b16222a2-0fd6-4881-9de2-4d993aa9c0e9"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "11d3075c-20b6-4339-918a-ca3950833cbc",
+          "id": 2813,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Disable Configuration",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Disables a specific configuration of a program in FortiFlex based on the configuration ID you have specified. Note: Disabling a configuration will affect all virtual machines created based on it.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693250266,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/551032bd-fb4c-46c8-a894-3984d618e5d9",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Disable Configuration",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "id": 6063
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "disable_configuration",
+                "operationTitle": "Disable Configuration",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e5ba0371-4f2a-4db6-8350-0f471d23b7f6"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "551032bd-fb4c-46c8-a894-3984d618e5d9"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Disable Configuration",
+              "targetStep": "/api/3/workflow_steps/e5ba0371-4f2a-4db6-8350-0f471d23b7f6",
+              "sourceStep": "/api/3/workflow_steps/551032bd-fb4c-46c8-a894-3984d618e5d9",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "00fcb1e5-06fb-41ab-b50d-841dba77ae78"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "172f9d8c-1fe1-4c7a-a595-030006f48216",
+          "id": 2814,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Regenerate Token for VM",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Regenerate token for a VM in FortiFlex based on the serial number you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693252137,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/95d69c16-5862-4a68-a42c-1079b975195a",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Regenerate Token for VM",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "serialNumber": "FGVMMLTM23010679"
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "regenerate_token_for_vm",
+                "operationTitle": "Regenerate Token for VM",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "7b62fc5f-eb68-4a7a-a7a8-5d5abb59c071"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "95d69c16-5862-4a68-a42c-1079b975195a"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Regenerate Token for VM",
+              "targetStep": "/api/3/workflow_steps/7b62fc5f-eb68-4a7a-a7a8-5d5abb59c071",
+              "sourceStep": "/api/3/workflow_steps/95d69c16-5862-4a68-a42c-1079b975195a",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "8d2124f8-014b-4203-8b5a-3902218f68ed"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "1f6071ca-7eeb-4a72-a0c0-80623e474df5",
+          "id": 2815,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get All Entitlement List",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Retrieves the list of existing entitlements for a configuration from FortiFlex based on the configuration ID you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693250694,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/28f4bcab-64ed-4edd-9d4a-8dd9ef456be7",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get All Entitlement List",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "configId": 5957,
+                  "accountId": "",
+                  "programSerialNumber": ""
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "get_entitlements",
+                "operationTitle": "Get All Entitlement List",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "a2a54c0f-d4b7-4a8d-821b-8ae2acab955b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "28f4bcab-64ed-4edd-9d4a-8dd9ef456be7"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get All Entitlement List",
+              "targetStep": "/api/3/workflow_steps/a2a54c0f-d4b7-4a8d-821b-8ae2acab955b",
+              "sourceStep": "/api/3/workflow_steps/28f4bcab-64ed-4edd-9d4a-8dd9ef456be7",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f014eed7-9061-4605-aa76-7a91aa3e98d3"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "33e66f01-2b59-433d-adde-ec3b820cfaf8",
+          "id": 2816,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get All Configuration List",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Retrieves the list of configurations for a program from FortiFlex based on the program serial number you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693248936,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/f1b3e122-4bc2-4b7d-b684-fcd0bf8a005e",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get All Configuration List",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "accountId": "",
+                  "programSerialNumber": "ELAVMS0000001035"
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "get_configurations",
+                "operationTitle": "Get All Configuration List",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "1f7c7c62-e101-4daf-bc76-e24406f36597"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "f1b3e122-4bc2-4b7d-b684-fcd0bf8a005e"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get All Configuration List",
+              "targetStep": "/api/3/workflow_steps/1f7c7c62-e101-4daf-bc76-e24406f36597",
+              "sourceStep": "/api/3/workflow_steps/f1b3e122-4bc2-4b7d-b684-fcd0bf8a005e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "aeb611eb-21a8-484f-9fac-743843270fb8"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "373f93bc-97e8-4eb2-abb7-79d73c0aad11",
+          "id": 2817,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Transfer Entitlement",
+          "aliasName": null,
+          "tag": null,
+          "description": "Move serial numbers and entitlements managed by FortiFlex from one account to another.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693252101,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/348265a2-dafa-4e46-ac60-6ef287214877",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "ab050553-4bf7-4981-8a80-27b773ba470f",
+                "title": "Fortinet FortiFlex: Transfer Entitlement",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "348265a2-dafa-4e46-ac60-6ef287214877"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Transfer Entitlement",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "serialNumbers": "FGVMMLTM23010679",
+                  "sourceConfigId": 5955,
+                  "targetConfigId": "",
+                  "sourceAccountId": 1411143,
+                  "targetAccountId": 1411144
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "transfer_entitlement",
+                "operationTitle": "Transfer Entitlement",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "d1ad7106-f806-4ea9-91cf-c847da2e6883"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Transfer Entitlement",
+              "targetStep": "/api/3/workflow_steps/d1ad7106-f806-4ea9-91cf-c847da2e6883",
+              "sourceStep": "/api/3/workflow_steps/348265a2-dafa-4e46-ac60-6ef287214877",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "2896bb1c-0044-4b07-9967-c4ea3ded9b73"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "38917358-0a0c-4f4a-bf74-1d95f306addd",
+          "id": 2818,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Create Configuration",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Creates a new configuration under a specific program in FortiFlex based on the program serial number, configuration name, product type ID, and parameters that you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1695631891,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/8a5d7877-df0b-4e7c-9773-6a630130efab",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Configuration",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "name": "Sample Configuration",
+                  "accountId": "",
+                  "parameters": "[\n  {\n    \"id\": 21,\n    \"value\": 5\n  },\n  {\n    \"id\": 22,\n    \"value\": 2\n  },\n  {\n    \"id\": 23,\n    \"value\": \"FAZFC247\"\n  }\n]",
+                  "FGTVMSBVDOMs": "",
+                  "productTypeId": "FortiGate Virtual Machine - Service Bundle",
+                  "FGTVMSBCpuSize": "1 CPU",
+                  "programSerialNumber": "ELAVMS0000001035",
+                  "FGTVMSBServicePackage": "FortiCare"
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "create_configuration",
+                "operationTitle": "Create Configuration",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "93ef788e-93c9-480b-8208-bae2cb69c3f6"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "8a5d7877-df0b-4e7c-9773-6a630130efab"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Create Configuration",
+              "targetStep": "/api/3/workflow_steps/93ef788e-93c9-480b-8208-bae2cb69c3f6",
+              "sourceStep": "/api/3/workflow_steps/8a5d7877-df0b-4e7c-9773-6a630130efab",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4ac1e7ef-884b-46c4-86ce-a8659c5c96c4"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "3e8270c9-5a41-47b0-9257-8b4d9ffe3975",
+          "id": 2819,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Update Configuration",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Updates a existing configuration in FortiFlex based on the configuration ID, configuration name, and parameters that you have specified. Note: Updating a configuration's parameters such as number of CPUS, will affect all virtual machines created based on it.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1695631880,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/eb678bea-e51d-421a-ae57-b2fb41e7c510",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "eb678bea-e51d-421a-ae57-b2fb41e7c510"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Configuration",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "id": 6802,
+                  "name": "Sample Configuration",
+                  "parameters": "[\n  {\n    \"id\": 21,\n    \"value\": 5\n  },\n  {\n    \"id\": 22,\n    \"value\": 1\n  },\n  {\n    \"id\": 23,\n    \"value\": \"FAZFC247\"\n  }\n]",
+                  "FGTVMSBVDOMs": "",
+                  "productTypeId": "FortiGate Virtual Machine - Service Bundle",
+                  "FGTVMSBCpuSize": "2 CPUs",
+                  "FGTVMSBServicePackage": "UTP"
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "update_configuration",
+                "operationTitle": "Update Configuration",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "35c3f82e-c6fb-4ecf-ab32-c8356a426f2a"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Update Configuration",
+              "targetStep": "/api/3/workflow_steps/35c3f82e-c6fb-4ecf-ab32-c8356a426f2a",
+              "sourceStep": "/api/3/workflow_steps/eb678bea-e51d-421a-ae57-b2fb41e7c510",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "713273de-dbf8-4afd-9f0a-6c604cd0b040"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "50238f7f-00b9-4d6b-a77c-207401ecf6ba",
+          "id": 2820,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get All Program List",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Retrieves the list of programs for a account from FortiFlex.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693248425,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/35d58479-1bf2-4d8b-9752-7f2016938ab8",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get All Program List",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": [],
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "get_programs",
+                "operationTitle": "Get All Program List",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "7add838e-0054-492d-b71e-e09573c6c0e7"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "35d58479-1bf2-4d8b-9752-7f2016938ab8"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get All Program List",
+              "targetStep": "/api/3/workflow_steps/7add838e-0054-492d-b71e-e09573c6c0e7",
+              "sourceStep": "/api/3/workflow_steps/35d58479-1bf2-4d8b-9752-7f2016938ab8",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e979175f-6b3a-4aa8-a85d-702a3319c6f8"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "5083ccaf-a85e-4619-8429-e58c35677efc",
+          "id": 2821,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Enable Configuration",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Enables a specific configuration of a program in FortiFlex based on the configuration ID you have specified. Note: Enabling a configuration will affect all virtual machines created based on it.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693250162,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/42dfa51c-447e-4885-8d57-aca067fa9efb",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Enable Configuration",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "id": 6063
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "enable_configuration",
+                "operationTitle": "Enable Configuration",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "18096acf-8802-4a64-840f-99085ea6f017"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "42dfa51c-447e-4885-8d57-aca067fa9efb"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Enable Configuration",
+              "targetStep": "/api/3/workflow_steps/18096acf-8802-4a64-840f-99085ea6f017",
+              "sourceStep": "/api/3/workflow_steps/42dfa51c-447e-4885-8d57-aca067fa9efb",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0ccde2e5-23a0-4769-8ec7-1f4a4040f0cd"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "6f701181-0007-4475-bdc7-fb5b3985d719",
+          "id": 2822,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Create VM Entitlements",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Creates a VM entitlements based on a configuration in FortiFlex based on the configuration ID, description, count, folder path, and end datetime that you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693251217,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/3b0f7c38-5436-41f7-93c6-f0a421dc6c62",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create VM Entitlements",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "count": 1,
+                  "endDate": "",
+                  "configId": 5956,
+                  "folderPath": "My Assets",
+                  "description": "Create an VM entitlement"
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "create_vm_entitlements",
+                "operationTitle": "Create VM Entitlements",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "7f34db73-2f91-4a33-817f-e5aa3a5d5388"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "3b0f7c38-5436-41f7-93c6-f0a421dc6c62"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Create VM Entitlements",
+              "targetStep": "/api/3/workflow_steps/7f34db73-2f91-4a33-817f-e5aa3a5d5388",
+              "sourceStep": "/api/3/workflow_steps/3b0f7c38-5436-41f7-93c6-f0a421dc6c62",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ce198c6b-dca6-47b3-b62c-b0d44fb4769e"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "75d24f0a-4185-4b5e-95bb-8463a8dffae5",
+          "id": 2823,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Stop Entitlement",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Stop an entitlement in FortiFlex based on the serial number you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693252662,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/137706ff-1508-4fdb-9588-042a7eb6952d",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "137706ff-1508-4fdb-9588-042a7eb6952d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Stop Entitlement",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "serialNumber": "FGVMMLTM23010678"
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "stop_entitlement",
+                "operationTitle": "Stop Entitlement",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "a776c584-8a12-4e66-ace7-f7c2c14aa8a5"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Stop Entitlement",
+              "targetStep": "/api/3/workflow_steps/a776c584-8a12-4e66-ace7-f7c2c14aa8a5",
+              "sourceStep": "/api/3/workflow_steps/137706ff-1508-4fdb-9588-042a7eb6952d",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4880a1cd-63c3-42a0-b25a-5b6a9cb8fd8e"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "79888c86-8160-4aca-a641-0ffb49dacab5",
+          "id": 2824,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Update Entitlements",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Update an entitlements details in FortiFlex based on the configuration ID, serial number, description and end datetime that you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693252602,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/925bcd32-aa2e-43d1-af91-a23f00255ae4",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "925bcd32-aa2e-43d1-af91-a23f00255ae4"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Entitlements",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "endDate": "2023-08-30T18:37:00.000Z",
+                  "configId": 5957,
+                  "description": "Updated an VM entitlement",
+                  "serialNumber": "FGVMMLTM23010678"
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "update_entitlements",
+                "operationTitle": "Update Entitlements",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "2cfd41ac-7123-427c-93ce-c39ef6bbf79d"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Update Entitlements",
+              "targetStep": "/api/3/workflow_steps/2cfd41ac-7123-427c-93ce-c39ef6bbf79d",
+              "sourceStep": "/api/3/workflow_steps/925bcd32-aa2e-43d1-af91-a23f00255ae4",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e353e701-1446-49ad-a51d-357c6d430035"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "7a1d63e5-911c-4e19-9f17-74d1ccbf09aa",
+          "id": 2825,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get All Group List",
+          "aliasName": null,
+          "tag": null,
+          "description": "Retrieves the list of groups from FortiFlex based on the account ID you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693248322,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/4f454008-6b3a-4eb8-953b-007bce1cbea4",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get All Group List",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "accountId": 1411143
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "get_groups",
+                "operationTitle": "Get All Group List",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "093a341b-8154-4005-97ab-8af2f2470d0e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "da8005b2-f04a-456e-b816-77a0bef20c91",
+                "title": "Fortinet FortiFlex: Get All Group List",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "4f454008-6b3a-4eb8-953b-007bce1cbea4"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get All Group List",
+              "targetStep": "/api/3/workflow_steps/093a341b-8154-4005-97ab-8af2f2470d0e",
+              "sourceStep": "/api/3/workflow_steps/4f454008-6b3a-4eb8-953b-007bce1cbea4",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ca3fdfcc-2594-471b-ba20-aaaa358bbcf8"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "7d62aee4-ca0d-410f-99d5-d8f4a5716167",
+          "id": 2826,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Create Hardware Entitlements",
+          "aliasName": null,
+          "tag": "#Fortinet FortiFlex",
+          "description": "Creates a hardware entitlements based on a configuration in FortiFlex based on the configuration ID, serial numbers, and end datetime that you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693251637,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/1c2e35ac-19d9-40b5-bd8b-d193766b1580",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Hardware Entitlements",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "endDate": "",
+                  "configId": 6064,
+                  "serialNumbers": "ELAVMS0000001035"
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "create_hardware_entitlements",
+                "operationTitle": "Create Hardware Entitlements",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "f2dceabe-922a-4b8d-9f89-9f7b64911676"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "1c2e35ac-19d9-40b5-bd8b-d193766b1580"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Create Hardware Entitlements",
+              "targetStep": "/api/3/workflow_steps/f2dceabe-922a-4b8d-9f89-9f7b64911676",
+              "sourceStep": "/api/3/workflow_steps/1c2e35ac-19d9-40b5-bd8b-d193766b1580",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "d71fe8a8-26e8-4e43-ae7f-418391bc0a56"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "d48d9db8-b434-498b-ad44-5a8e28baac74",
+          "id": 2827,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get NextToken for Group",
+          "aliasName": null,
+          "tag": null,
+          "description": "Retrieves first available token from FortiFlex based on the account ID and other input parameters you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1693248393,
+          "collection": "/api/3/workflow_collections/1fe754de-2664-4fcd-ac80-5cb38a4111a2",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/6869ce8c-af2c-4dd9-b140-3b2d2fc1a963",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get NextToken for Group",
+              "description": null,
+              "arguments": {
+                "name": "Fortinet FortiFlex",
+                "config": "",
+                "params": {
+                  "configId": "",
+                  "accountId": 1411143,
+                  "folderPath": ""
+                },
+                "version": "1.0.0",
+                "connector": "fortinet-fortiflex",
+                "operation": "get_group_next_token",
+                "operationTitle": "Get NextToken for Group",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "29e1c739-7396-4784-a1e3-b95e53e167df"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "f54586b5-ba2b-4c0b-b7dd-0365bddad230",
+                "title": "Fortinet FortiFlex: Get NextToken for Group",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "6869ce8c-af2c-4dd9-b140-3b2d2fc1a963"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get NextToken for Group",
+              "targetStep": "/api/3/workflow_steps/29e1c739-7396-4784-a1e3-b95e53e167df",
+              "sourceStep": "/api/3/workflow_steps/6869ce8c-af2c-4dd9-b140-3b2d2fc1a963",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "a812c8f0-4993-4157-b09d-613f796b89d5"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "fc201a21-0abd-42d6-bc70-cb8ce080f99d",
+          "id": 2828,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Fortinet",
+            "fortinet-fortiflex"
+          ]
+        }
+      ]
+    }
+  ],
+  "exported_tags": [
+    "Fortinet",
+    "fortinet-fortiflex"
+  ]
+}

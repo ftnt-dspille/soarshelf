@@ -10,7 +10,10 @@ new value up automatically.
 
 Operations: get health (token lookup-self), read secret (latest or a
 specific version), write secret (new version; replaces all fields - resend
-what you want kept), list secrets, delete latest version.
+what you want kept), list secrets, delete latest version, and execute API
+request: any Vault HTTP API endpoint (GET, POST, PUT, PATCH, DELETE, LIST) called
+with the configured token; a full URL is refused so the token never leaves
+the configured server.
 
 ## Tests
 

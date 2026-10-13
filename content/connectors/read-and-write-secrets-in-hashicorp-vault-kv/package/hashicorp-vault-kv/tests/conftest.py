@@ -144,6 +144,11 @@ class Handler(BaseHTTPRequestHandler):
             return
         self._send(404, {'errors': ['not found']})
 
+    def do_LIST(self):
+        # Vault's LIST verb is GET ?list=true on the same path
+        self.path = self.path.split('?')[0] + '?list=true'
+        self.do_GET()
+
     def do_POST(self):
         if not self._authorized():
             self._send(403, {'errors': ['permission denied']})

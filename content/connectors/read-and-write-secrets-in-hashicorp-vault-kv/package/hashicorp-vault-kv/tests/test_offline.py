@@ -105,3 +105,62 @@ def test_required_params_rejected(fake, config):
         ops.write_secret(config, {'path': 'a', 'secret_data': ''})
     with pytest.raises(ValueError):
         ops.delete_secret(config, {'path': None})
+
+
+# - generic API call ------------------------------------------------------
+
+def test_execute_api_request_reads_with_the_token(fake, config):
+    out = ops.execute_api_request(config, {'endpoint': '/v1/secret/data/lab/ai'})
+    assert out['data']['data']['base_url'] == 'https://gw'
+
+
+def test_execute_api_request_adds_v1_and_sends_a_body(fake, config):
+    ops.execute_api_request(config, {'endpoint': 'secret/data/new/one', 'method': 'POST',
+                                     'request_body': '{"data": {"k": "v"}}'})
+    assert fake.store['new/one']['value'] == {'k': 'v'}
+
+
+def test_execute_api_request_list_verb_and_delete(fake, config):
+    assert ops.execute_api_request(config, {'endpoint': '/v1/secret/metadata/', 'method': 'LIST'})['data']['keys'] == ['lab/']
+    ops.execute_api_request(config, {'endpoint': '/v1/secret/data/lab/ai', 'method': 'DELETE'})
+    assert 'lab/ai' not in fake.store
+
+
+def test_execute_api_request_passes_query_params(fake, config):
+    out = ops.execute_api_request(config, {'endpoint': '/v1/secret/data/lab/ai', 'query_params': {'version': 2}})
+    assert out['data']['metadata']['version'] == 2
+
+
+def test_execute_api_request_uses_the_configured_token(fake, config):
+    with pytest.raises(ConnectorError, match='HTTP 403'):
+        ops.execute_api_request(dict(config, token='bad'), {'endpoint': '/v1/secret/data/lab/ai'})
+
+
+@pytest.mark.parametrize('endpoint', [
+    'https://evil.example.com/v1/x', '//evil.example.com/v1/x', 'ftp://x/y', '/v1/../etc',
+    '/v1/%2e%2e/etc', '/v1/%252e%252e/etc', '/v1/..%5cetc'])
+def test_execute_api_request_refuses_anything_that_could_send_the_token_elsewhere(fake, config, endpoint):
+    with pytest.raises(ConnectorError, match='path on the configured server'):
+        ops.execute_api_request(config, {'endpoint': endpoint})
+
+
+def test_execute_api_request_validates_input(fake, config):
+    with pytest.raises(ConnectorError, match='Endpoint is required'):
+        ops.execute_api_request(config, {})
+    with pytest.raises(ConnectorError, match='Method must be'):
+        ops.execute_api_request(config, {'endpoint': '/v1/sys/health', 'method': 'TRACE'})
+    with pytest.raises(ConnectorError, match='valid JSON'):
+        ops.execute_api_request(config, {'endpoint': '/v1/sys/health', 'request_body': '{nope'})
+    with pytest.raises(ConnectorError, match='JSON object'):
+        ops.execute_api_request(config, {'endpoint': '/v1/sys/health', 'request_body': '[1]'})
+
+
+def test_execute_api_request_does_not_follow_redirects(fake, config, monkeypatch):
+    import requests
+
+    class Redirect(object):
+        status_code, content, text, headers = 302, b'', '', {'Location': 'http://other.invalid/x'}
+
+    monkeypatch.setattr(requests.Session, 'request', lambda self, *a, **k: (_ for _ in ()).throw(AssertionError) if k.get('allow_redirects', True) else Redirect())
+    with pytest.raises(ConnectorError, match='redirect'):
+        ops.execute_api_request(config, {'endpoint': '/v1/sys/health'})

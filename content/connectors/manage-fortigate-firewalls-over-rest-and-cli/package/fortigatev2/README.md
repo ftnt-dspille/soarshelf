@@ -55,6 +55,7 @@ creates and attaches one on first use.
 | Delete Service Group | `delete_service_group` | investigation |
 | Delete User | `delete_user` | investigation |
 | Execute Command | `execute_command` | investigation |
+| Execute API Request | `execute_api_request` | miscellaneous |
 | Get Address Groups | `get_address_groups` | investigation |
 | Get Addresses | `get_addresses` | investigation |
 | Get Applications Detail | `get_list_of_applications` | investigation |
@@ -80,6 +81,8 @@ creates and attaches one on first use.
 | Unblock Application | `unblock_applications` | remediation |
 | Unblock IP Address | `unblock_ip` | remediation |
 | Unblock URL | `unblock_url` | remediation |
+
+`Execute API Request` calls any FortiOS REST endpoint (GET, POST, PUT, PATCH, DELETE) on the configured FortiGate with the configured API key; a full URL is refused so the key never leaves that server.
 
 `Execute Command` connects over SSH with the username/password (or private key) given
 in the operation, not the API key. It accepts the FortiGate's SSH host key without

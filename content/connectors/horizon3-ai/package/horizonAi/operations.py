@@ -1,3 +1,5 @@
+import json
+
 from connectors.core.connector import get_logger, ConnectorError
 
 from .constants import (
@@ -165,6 +167,38 @@ def get_weaknesses(config, params):
         raise ConnectorError(str(e))
 
 
+def execute_graphql_query(config, params):
+    query = params.get('query')
+    if not isinstance(query, str) or not query.strip():
+        raise ConnectorError("query is required")
+
+    variables = params.get('variables')
+    if isinstance(variables, str):
+        if not variables.strip():
+            variables = None
+        else:
+            try:
+                variables = json.loads(variables)
+            except ValueError as e:
+                raise ConnectorError(f"variables is not valid JSON: {e}")
+    if variables in (None, ''):
+        variables = None
+    if variables is not None and not isinstance(variables, dict):
+        raise ConnectorError("variables must be a JSON object")
+
+    operation_name = params.get('operation_name')
+    operation_name = operation_name.strip() if isinstance(operation_name, str) else None
+
+    horizon = HorizonAPI(config)
+    body = horizon.execute_raw(query, variables, operation_name or None)
+    errors = body.get('errors') if isinstance(body, dict) else None
+    if errors:
+        first = errors[0] if isinstance(errors, list) else errors
+        message = first.get('message') if isinstance(first, dict) else str(first)
+        raise ConnectorError(f"GraphQL Error: {message} (all errors: {json.dumps(errors)})")
+    return body
+
+
 def health_check(config):
     try:
         horizon = HorizonAPI(config)
@@ -178,5 +212,6 @@ operations = {
     'get_pentests': get_pentests,
     'get_attack_paths': get_attack_paths,
     'get_weaknesses': get_weaknesses,
+    'execute_graphql_query': execute_graphql_query,
     'check_health': health_check
 }

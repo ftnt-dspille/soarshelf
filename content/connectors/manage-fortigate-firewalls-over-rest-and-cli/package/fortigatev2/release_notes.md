@@ -1,3 +1,8 @@
+## 1.1.0
+
+#### What's Improved
+- Added a new action **Execute API Request**: call any FortiOS REST API endpoint (GET, POST, PUT, PATCH, DELETE) with the configured API key, VDOM and SSL verification setting. A full URL, a `//host` start, a `..` segment or a backslash is refused, so the API key only goes to the configured FortiGate. REST only; `Execute Command` remains the CLI action.
+
 ## 1.0.0
 
 First release of **FortiGate v2** (`fortigatev2`), a fork of Fortinet's `fortigate-firewall` 5.4.0

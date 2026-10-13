@@ -3,7 +3,7 @@
   "data": [
     {
       "@type": "WorkflowCollection",
-      "name": "Sample - Fortinet FortiGate v2 - 1.0.0",
+      "name": "Sample - Fortinet FortiGate v2 - 1.1.0",
       "description": "Sample playbooks for \"Fortinet FortiGate v2\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete.",
       "visible": true,
       "image": "/api/3/images/621afee6-ce1c-4a2d-b8f2-c10796b953fb",
@@ -76,7 +76,7 @@
                   "filter": "level=*\"information\", logid=*\"0100020027\"",
                   "location": "Memory"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_system_events",
                 "mock_result": "{\n  \"now\": 1651474606378,\n  \"rows\": 10,\n  \"vdom\": \"root\",\n  \"build\": 1879,\n  \"start\": 0,\n  \"device\": \"memory\",\n  \"serial\": \"FGVM02TM21013928\",\n  \"status\": \"success\",\n  \"results\": [\n    {\n      \"tz\": \"-0700\",\n      \"vd\": \"root\",\n      \"msg\": \"Delete 2 old report files\",\n      \"date\": \"2022-05-01\",\n      \"time\": \"23:55:14\",\n      \"type\": \"event\",\n      \"level\": \"information\",\n      \"logid\": \"0100020027\",\n      \"logdesc\": \"Outdated report files deleted\",\n      \"subtype\": \"system\",\n      \"_metadata\": {\n        \"#\": 1,\n        \"roll\": 65504,\n        \"logid\": 20027,\n        \"timestamp\": 1651474514000\n      },\n      \"eventtime\": 1651474514880324400\n    },\n    {\n      \"tz\": \"-0700\",\n      \"vd\": \"root\",\n      \"msg\": \"Delete 2 old report files\",\n      \"date\": \"2022-05-01\",\n      \"time\": \"23:50:14\",\n      \"type\": \"event\",\n      \"level\": \"information\",\n      \"logid\": \"0100020027\",\n      \"logdesc\": \"Outdated report files deleted\",\n      \"subtype\": \"system\",\n      \"_metadata\": {\n        \"#\": 2,\n        \"roll\": 65504,\n        \"logid\": 20027,\n        \"timestamp\": 1651474214000\n      },\n      \"eventtime\": 1651474214880587800\n    }\n  ],\n  \"version\": \"v6.4.6\",\n  \"category\": \"event\",\n  \"completed\": 5,\n  \"session_id\": 73,\n  \"http_method\": \"GET\",\n  \"subcategory\": \"system\",\n  \"total_lines\": 1189\n}",
@@ -145,7 +145,7 @@
                   "macs": "00:04:1f:c4:9d:7c, 00:15:00:e8:27:22",
                   "vdom": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "unquarantine_host",
                 "mock_result": "{\n    \"not_exist\": [\n      \"00:04:1f:c4:9d:7c\"\n    ],\n    \"not_unquarantine\": [],\n    \"newly_unquarantine\": [\n      \"00:15:00:e8:27:22\"\n    ]\n  }",
@@ -242,7 +242,7 @@
                   "vdom": "",
                   "policyid": "12"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "delete_policy",
                 "mock_result": "{\n    \"mkey\": 12,\n    \"name\": \"policy\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"399fe9146eec7eb093a5e042e52557b8\",\n    \"http_method\": \"DELETE\",\n    \"http_status\": 200,\n    \"old_revision\": \"d2579e3bff4511125899630a8966b96f\",\n    \"revision_changed\": true\n  }",
@@ -368,7 +368,7 @@
                   "group_name": "",
                   "address_group_category": "IPv6 Group"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_address_groups",
                 "mock_result": "{\n    \"mkey\": \"demogrp1\",\n    \"name\": \"addrgrp6\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"results\": [\n      {\n        \"name\": \"demogrp1\",\n        \"uuid\": \"11206be6-c078-51ec-e8b3-772f57f1e116\",\n        \"color\": 0,\n        \"member\": [\n          {\n            \"name\": \"de\",\n            \"q_origin_key\": \"de\"\n          }\n        ],\n        \"comment\": \"\",\n        \"tagging\": [],\n        \"q_origin_key\": \"demogrp1\",\n        \"fabric-object\": \"disable\"\n      }\n    ],\n    \"version\": \"v6.4.6\",\n    \"revision\": \"0c62b8ae11282e5dd335a3fce87c8769\",\n    \"http_method\": \"GET\",\n    \"http_status\": 200\n  }",
@@ -439,7 +439,7 @@
                   "count": "",
                   "start": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_users",
                 "mock_result": "{\n    \"name\": \"local\",\n    \"path\": \"user\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"results\": [\n      {\n        \"id\": 16777227,\n        \"name\": \"demoadmin\",\n        \"type\": \"tacacs+\",\n        \"q_ref\": 1,\n        \"passwd\": \"\",\n        \"q_name\": \"local\",\n        \"q_path\": \"user\",\n        \"q_type\": 21,\n        \"status\": \"enable\",\n        \"q_class\": \"fa-user\",\n        \"email-to\": \"xxx@gmail.com\",\n        \"q_static\": false,\n        \"css-class\": \"fa-user\",\n        \"q_no_edit\": false,\n        \"sms-phone\": \"+91123212\",\n        \"fortitoken\": {\n          \"datasource\": \"user.fortitoken\",\n          \"q_origin_key\": \"FTKMOB18267B23BD\",\n          \"serial-number\": \"FTKMOB18267B23BD\"\n        },\n        \"ppk-secret\": \"\",\n        \"sms-server\": \"fortiguard\",\n        \"two-factor\": \"fortitoken\",\n        \"authtimeout\": 0,\n        \"ldap-server\": \"\",\n        \"passwd-time\": \"0000-00-00 00:00:00\",\n        \"q_mkey_type\": \"string\",\n        \"q_no_rename\": false,\n        \"workstation\": \"\",\n        \"ppk-identity\": \"\",\n        \"q_origin_key\": \"demoadmin\",\n        \"passwd-policy\": \"\",\n        \"radius-server\": \"\",\n        \"q_global_entry\": false,\n        \"tacacs+-server\": {\n          \"name\": \"tacserver\",\n          \"datasource\": \"user.tacacs+\",\n          \"q_origin_key\": \"tacserver\"\n        },\n        \"sms-custom-server\": \"\",\n        \"auth-concurrent-value\": 0,\n        \"two-factor-notification\": \"\",\n        \"auth-concurrent-override\": \"disable\",\n        \"two-factor-authentication\": \"\",\n        \"username-case-sensitivity\": \"enable\"\n      }\n    ],\n    \"version\": \"v6.4.6\",\n    \"revision\": \"00b546ec07f9aca628306722421835e5\",\n    \"http_method\": \"GET\",\n    \"http_status\": 200\n  }",
@@ -561,7 +561,7 @@
                 "params": {
                   "vdom": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_blocked_urls",
                 "mock_result": "[\n    {\n      \"id\": 1,\n      \"url\": \"xyz.com\",\n      \"type\": \"simple\",\n      \"action\": \"block\",\n      \"exempt\": \"av web-content activex-java-cookie dlp fortiguard range-block antiphish all\",\n      \"status\": \"enable\",\n      \"q_origin_key\": 1,\n      \"referrer-host\": \"\",\n      \"antiphish-action\": \"block\",\n      \"web-proxy-profile\": \"\",\n      \"dns-address-family\": \"ipv4\"\n    },\n    {\n      \"id\": 3,\n      \"url\": \"demo.com\",\n      \"type\": \"simple\",\n      \"action\": \"block\",\n      \"exempt\": \"av web-content activex-java-cookie dlp fortiguard range-block antiphish all\",\n      \"status\": \"enable\",\n      \"q_origin_key\": 3,\n      \"referrer-host\": \"\",\n      \"antiphish-action\": \"block\",\n      \"web-proxy-profile\": \"\",\n      \"dns-address-family\": \"ipv4\"\n    }\n  ]",
@@ -632,7 +632,7 @@
                   "method": "Quarantine Based",
                   "ip_addresses": "1.2.1.2, 9.9.9.9, 1.80.106.68, 2002:c0a8:64:0:4d04:a0f1:ed51:a3e2"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "unblock_ip",
                 "mock_result": "{\n    \"ip_not_exist\": [],\n    \"vdom_not_exist\": [],\n    \"newly_unblocked\": [\n      \"1.2.1.2\",\n      \"9.9.9.9\",\n      \"1.80.106.68\",\n      \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2\"\n    ],\n    \"error_with_unblock\": []\n  }",
@@ -763,7 +763,7 @@
                   "allow-routing": true,
                   "address_category": "IPv6 Address"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "create_address",
                 "mock_result": "{\n    \"mkey\": \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2\",\n    \"name\": \"address6\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"cc63d3decf227a4394dc8364c0c52ebc\",\n    \"http_method\": \"POST\",\n    \"http_status\": 200,\n    \"old_revision\": \"b824c9726d2a915f0fdf30a39b8fcf24\",\n    \"revision_changed\": true\n  }",
@@ -862,7 +862,7 @@
                   "ip_addresses": "1.2.1.2, 9.9.9.9, 1.80.106.68, 2002:c0a8:64:0:4d04:a0f1:ed51:a3e2",
                   "time_to_live": "1 Hour"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "block_ip_new",
                 "mock_result": "{\n    \"newly_blocked\": [\n      \"1.2.1.2\",\n      \"9.9.9.9\",\n      \"1.80.106.68\",\n      \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2\"],\n    \"vdom_not_exist\": [],\n    \"already_blocked\": [],\n    \"error_with_block\": []\n  }",
@@ -937,7 +937,7 @@
                   "new_name": "asdcv",
                   "address_category": "IPv6 Address"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "update_address",
                 "mock_result": "{\n    \"mkey\": \"asdcv\",\n    \"name\": \"address6\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"24191f2f7b3c5a3b9c7c58f8bfc985e3\",\n    \"http_method\": \"PUT\",\n    \"http_status\": 200,\n    \"old_revision\": \"cc63d3decf227a4394dc8364c0c52ebc\",\n    \"revision_changed\": true\n  }",
@@ -1035,7 +1035,7 @@
                   "group_name": "demogroup",
                   "address_group_category": "IPv6 Group"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "delete_address_group",
                 "mock_result": "{\n    \"mkey\": \"test6\",\n    \"name\": \"demogroup\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"6ee1c01adc12157f035ebda2944ae623\",\n    \"http_method\": \"DELETE\",\n    \"http_status\": 200,\n    \"old_revision\": \"be85cea2e39dd1a209b3521cec21b589\",\n    \"revision_changed\": true\n  }",
@@ -1162,7 +1162,7 @@
                   "entry": "c4:57:6e:a6:d0:db",
                   "description": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "quarantine_host",
                 "mock_result": "{\n    \"not_quarantine\": [],\n    \"newly_quarantine\": [\n      \"00:15:00:e8:27:25\",\n      \"00:15:00:e8:27:22\"\n    ],\n    \"already_quarantine\": []\n  }",
@@ -1257,7 +1257,7 @@
                   "url": "www.example.com",
                   "vdom": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "unblock_url",
                 "mock_result": "{\n    \"not_exist\": [],\n    \"not_unblock\": [],\n    \"newly_unblocked\": [\n      \"www.example.com\"\n    ]\n  }",
@@ -1355,7 +1355,7 @@
                   "name": "DNS",
                   "vdom": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_firewall_services",
                 "mock_result": "{\n    \"mkey\": \"DNS\",\n    \"name\": \"custom\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"results\": [\n      {\n        \"fqdn\": \"\",\n        \"name\": \"DNS\",\n        \"color\": 0,\n        \"proxy\": \"disable\",\n        \"helper\": \"auto\",\n        \"comment\": \"\",\n        \"iprange\": \"0.0.0.0\",\n        \"category\": \"Network Services\",\n        \"protocol\": \"TCP/UDP/SCTP\",\n        \"visibility\": \"enable\",\n        \"application\": [],\n        \"session-ttl\": \"0\",\n        \"app-category\": [],\n        \"q_origin_key\": \"DNS\",\n        \"fabric-object\": \"disable\",\n        \"tcp-portrange\": \"53\",\n        \"udp-portrange\": \"53\",\n        \"sctp-portrange\": \"\",\n        \"udp-idle-timer\": 0,\n        \"app-service-type\": \"disable\",\n        \"check-reset-range\": \"default\",\n        \"tcp-halfopen-timer\": 0,\n        \"tcp-timewait-timer\": 0,\n        \"tcp-halfclose-timer\": 0\n      }\n    ],\n    \"version\": \"v6.4.6\",\n    \"revision\": \"8f4f0ccaec9831718eb96c1081897ac2\",\n    \"http_method\": \"GET\",\n    \"http_status\": 200\n  }",
@@ -1453,7 +1453,7 @@
                   "vdom": "",
                   "address_category": "IPv6 Address"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_addresses",
                 "mock_result": "{\n    \"mkey\": \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2\",\n    \"name\": \"address6\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"results\": [\n      {\n        \"ip6\": \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2/128\",\n        \"sdn\": \"\",\n        \"fqdn\": \"\",\n        \"list\": [],\n        \"name\": \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2\",\n        \"type\": \"ipprefix\",\n        \"uuid\": \"ea5405a8-c172-51ec-542d-4b41c6a520b2\",\n        \"color\": 0,\n        \"end-ip\": \"::\",\n        \"obj-id\": \"\",\n        \"comment\": \"\",\n        \"country\": \"\",\n        \"end-mac\": \"00:00:00:00:00:00\",\n        \"tagging\": [],\n        \"template\": \"\",\n        \"cache-ttl\": 0,\n        \"host-type\": \"any\",\n        \"start-mac\": \"00:00:00:00:00:00\",\n        \"q_origin_key\": \"2002:c0a8:64:0:4d04:a0f1:ed51:a3e2\",\n        \"fabric-object\": \"disable\",\n        \"subnet-segment\": []\n      }\n    ],\n    \"version\": \"v6.4.6\",\n    \"revision\": \"cc63d3decf227a4394dc8364c0c52ebc\",\n    \"http_method\": \"GET\",\n    \"http_status\": 200\n  }",
@@ -1525,7 +1525,7 @@
                   "comment": "sample group created",
                   "members": "HTTP, HTTPS"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "create_service_group",
                 "mock_result": "{\n    \"mkey\": \"sample_service_grp\",\n    \"name\": \"group\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"40457ae9eeb53f9e3cfcb794c86c5436\",\n    \"http_method\": \"POST\",\n    \"http_status\": 200,\n    \"old_revision\": \"c77371e8920b4675c2965169d14ec580\",\n    \"revision_changed\": true\n  }",
@@ -1648,7 +1648,7 @@
                   "vdom": "",
                   "ngfw_mode": "Profile Based"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_list_of_policies",
                 "mock_result": "{\n  \"result\": [\n    {\n      \"name\": \"policy\",\n      \"path\": \"firewall\",\n      \"vdom\": \"root\",\n      \"build\": 1879,\n      \"serial\": \"FGVM02TM21013928\",\n      \"status\": \"success\",\n      \"results\": [\n        {\n          \"nat\": \"enable\",\n          \"tos\": \"0x00\",\n          \"dsri\": \"disable\",\n          \"name\": \"test\",\n          \"ntlm\": \"disable\",\n          \"uuid\": \"851f17dc-6ded-51ec-fd36-69a850d48d0c\",\n          \"wccp\": \"disable\",\n          \"label\": \"\",\n          \"natip\": \"0.0.0.0 0.0.0.0\",\n          \"users\": [],\n          \"action\": \"accept\",\n          \"groups\": [],\n          \"ippool\": \"disable\",\n          \"status\": \"enable\",\n          \"wanopt\": \"disable\",\n          \"dstaddr\": [\n            {\n              \"name\": \"derfb\",\n              \"q_origin_key\": \"derfb\"\n            }\n          ],\n          \"dstintf\": [\n            {\n              \"name\": \"port4\",\n              \"q_origin_key\": \"port4\"\n            }\n          ],\n          \"inbound\": \"disable\",\n          \"rtp-nat\": \"disable\",\n          \"service\": [\n            {\n              \"name\": \"ALL\",\n              \"q_origin_key\": \"ALL\"\n            }\n          ],\n          \"srcaddr\": [\n            {\n              \"name\": \"1.1.0.1/24\",\n              \"q_origin_key\": \"1.1.0.1/24\"\n            }\n          ],\n          \"srcintf\": [\n            {\n              \"name\": \"port2\",\n              \"q_origin_key\": \"port2\"\n            }\n          ],\n          \"comments\": \"Purged Policy from FortiSOAR\",\n          \"dstaddr6\": [],\n          \"outbound\": \"enable\",\n          \"policyid\": 2,\n          \"poolname\": [],\n          \"rtp-addr\": [],\n          \"schedule\": \"always\",\n          \"srcaddr6\": [],\n          \"tos-mask\": \"0x00\",\n          \"webcache\": \"disable\",\n          \"auth-cert\": \"\",\n          \"auth-path\": \"disable\",\n          \"fixedport\": \"disable\",\n          \"match-vip\": \"disable\",\n          \"poolname6\": [],\n          \"vpntunnel\": \"\",\n          \"av-profile\": \"\",\n          \"disclaimer\": \"disable\",\n          \"dlp-sensor\": \"\",\n          \"ips-sensor\": \"\",\n          \"logtraffic\": \"disable\",\n          \"natinbound\": \"disable\",\n          \"ntlm-guest\": \"disable\",\n          \"tos-negate\": \"disable\",\n          \"utm-status\": \"disable\",\n          \"anti-replay\": \"enable\",\n          \"fsso-groups\": [],\n          \"geoip-match\": \"physical-location\",\n          \"natoutbound\": \"disable\",\n          \"session-ttl\": \"0\",\n          \"vlan-filter\": \"\",\n          \"waf-profile\": \"\",\n          \"wanopt-peer\": \"\",\n          \"cifs-profile\": \"\",\n          \"global-label\": \"\",\n          \"icap-profile\": \"\",\n          \"profile-type\": \"single\",\n          \"q_origin_key\": 2,\n          \"redirect-url\": \"\",\n          \"vlan-cos-fwd\": 255,\n          \"vlan-cos-rev\": 255,\n          \"voip-profile\": \"\",\n          \"email-collect\": \"disable\",\n          \"geoip-anycast\": \"disable\",\n          \"per-ip-shaper\": \"\",\n          \"profile-group\": \"\",\n          \"capture-packet\": \"disable\",\n          \"dstaddr-negate\": \"disable\",\n          \"match-vip-only\": \"disable\",\n          \"service-negate\": \"disable\",\n          \"src-vendor-mac\": [],\n          \"srcaddr-negate\": \"disable\",\n          \"tcp-mss-sender\": 0,\n          \"traffic-shaper\": \"\",\n          \"wanopt-profile\": \"\",\n          \"webcache-https\": \"disable\",\n          \"dynamic-shaping\": \"disable\",\n          \"inspection-mode\": \"proxy\",\n          \"permit-any-host\": \"disable\",\n          \"ssl-ssh-profile\": \"no-inspection\",\n          \"application-list\": \"\",\n          \"diffserv-forward\": \"disable\",\n          \"diffserv-reverse\": \"disable\",\n          \"diffservcode-rev\": \"000000\",\n          \"internet-service\": \"disable\",\n          \"logtraffic-start\": \"enable\",\n          \"permit-stun-host\": \"disable\",\n          \"schedule-timeout\": \"disable\",\n          \"send-deny-packet\": \"disable\",\n          \"tcp-mss-receiver\": 0,\n          \"timeout-send-rst\": \"disable\",\n          \"wanopt-detection\": \"active\",\n          \"webproxy-profile\": \"\",\n          \"auto-asic-offload\": \"disable\",\n          \"custom-log-fields\": [],\n          \"dnsfilter-profile\": \"\",\n          \"webfilter-profile\": \"\",\n          \"auth-redirect-addr\": \"\",\n          \"block-notification\": \"disable\",\n          \"reputation-minimum\": 0,\n          \"ssh-filter-profile\": \"\",\n          \"wanopt-passive-opt\": \"default\",\n          \"emailfilter-profile\": \"\",\n          \"file-filter-profile\": \"\",\n          \"fsso-agent-for-ntlm\": \"\",\n          \"ssh-policy-redirect\": \"disable\",\n          \"diffservcode-forward\": \"000000\",\n          \"http-policy-redirect\": \"disable\",\n          \"identity-based-route\": \"\",\n          \"internet-service-src\": \"disable\",\n          \"reputation-direction\": \"destination\",\n          \"captive-portal-exempt\": \"disable\",\n          \"delay-tcp-npu-session\": \"disable\",\n          \"internet-service-name\": [],\n          \"ntlm-enabled-browsers\": [],\n          \"firewall-session-dirty\": \"check-all\",\n          \"internet-service-group\": [],\n          \"radius-mac-auth-bypass\": \"disable\",\n          \"traffic-shaper-reverse\": \"\",\n          \"internet-service-custom\": [],\n          \"internet-service-negate\": \"disable\",\n          \"tcp-session-without-syn\": \"disable\",\n          \"webproxy-forward-server\": \"\",\n          \"decrypted-traffic-mirror\": \"\",\n          \"profile-protocol-options\": \"default\",\n          \"internet-service-src-name\": [],\n          \"replacemsg-override-group\": \"\",\n          \"internet-service-src-group\": [],\n          \"internet-service-src-custom\": [],\n          \"internet-service-src-negate\": \"disable\",\n          \"internet-service-custom-group\": [],\n          \"internet-service-src-custom-group\": []\n        }\n      ],\n      \"version\": \"v6.4.6\",\n      \"revision\": \"97278e93b437f651e7ba9605025b8d87\",\n      \"http_method\": \"GET\",\n      \"http_status\": 200\n    }\n  ],\n  \"vdom_not_exist\": []\n}",
@@ -1754,7 +1754,7 @@
                   "protocol": "ICMP",
                   "visibility": "Disable"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "update_firewall_service",
                 "mock_result": "{\n    \"mkey\": \"Demo service\",\n    \"name\": \"custom\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"7ca5a10b8d4a2c54e0ce751f22bfd353\",\n    \"http_method\": \"PUT\",\n    \"http_status\": 200,\n    \"old_revision\": \"f28fa92ddb20dbe689c165a5fca4a0f4\",\n    \"revision_changed\": true\n  }",
@@ -1829,7 +1829,7 @@
                   "visibility": "",
                   "protocol-number": 21
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "create_firewall_service",
                 "mock_result": "{\n    \"mkey\": \"demo\",\n    \"name\": \"custom\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"8f4f0ccaec9831718eb96c1081897ac2\",\n    \"http_method\": \"POST\",\n    \"http_status\": 200,\n    \"old_revision\": \"8abca50ab117de5a2769bef5ad208ae4\",\n    \"revision_changed\": true\n  }",
@@ -1931,7 +1931,7 @@
                   "add_member": "DNS, IMAP",
                   "remove_member": "HTTP"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "update_service_group",
                 "mock_result": "{\n    \"mkey\": \"Demo Group123\",\n    \"name\": \"group\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"40457ae9eeb53f9e3cfcb794c86c5436\",\n    \"http_method\": \"PUT\",\n    \"http_status\": 200,\n    \"revision_changed\": false\n  }",
@@ -2082,7 +2082,7 @@
                     "Web Filter"
                   ]
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "update_policy",
                 "mock_result": "{\n    \"mkey\": \"12\",\n    \"name\": \"policy\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"d2579e3bff4511125899630a8966b96f\",\n    \"http_method\": \"PUT\",\n    \"http_status\": 200,\n    \"old_revision\": \"97278e93b437f651e7ba9605025b8d87\",\n    \"revision_changed\": true\n  }",
@@ -2177,7 +2177,7 @@
                   "vdom": "",
                   "app_list": "[\"webRDP\", \"vBulletin\"]"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "block_applications",
                 "mock_result": "[\n    {\n      \"name\": \"webRDP\",\n      \"status\": \"Failed\",\n      \"message\": \"Application not found in Fortinet FortiGate database\"\n    },\n    {\n      \"name\": \"vBulletin\",\n      \"status\": \"Successful\",\n      \"message\": \"Application blocked successfully\"\n    }\n  ]",
@@ -2281,7 +2281,7 @@
                   "allow-routing": "",
                   "address_group_category": "IPv6 Group"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "create_address_group",
                 "mock_result": "{\n    \"mkey\": \"demogrp\",\n    \"name\": \"addrgrp\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"0c62b8ae11282e5dd335a3fce87c8769\",\n    \"http_method\": \"POST\",\n    \"http_status\": 200,\n    \"old_revision\": \"adb5a57a1e37f398f701f3fab9dd13e1\",\n    \"revision_changed\": true\n  }",
@@ -2398,7 +2398,7 @@
                   ],
                   "profile-protocol-options": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "create_policy",
                 "mock_result": "{\n    \"mkey\": 12,\n    \"name\": \"policy\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"97278e93b437f651e7ba9605025b8d87\",\n    \"http_method\": \"POST\",\n    \"http_status\": 200,\n    \"old_revision\": \"ae329cc2a9df45e0692a342d7fb8e7ab\",\n    \"revision_changed\": true\n  }",
@@ -2467,7 +2467,7 @@
                   "name": "demo",
                   "vdom": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "delete_user",
                 "mock_result": "{\n    \"mkey\": \"new test\",\n    \"name\": \"local\",\n    \"path\": \"user\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"f888268a92a1dd2d1d6ab4c6d8404666\",\n    \"http_method\": \"DELETE\",\n    \"http_status\": 200,\n    \"old_revision\": \"c2d7c0be3f730e57024f76eaa26e0a46\",\n    \"revision_changed\": true\n  }",
@@ -2592,7 +2592,7 @@
                   "name": "",
                   "vdom": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_service_groups",
                 "mock_result": "{\n    \"name\": \"group\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"results\": [\n      {\n        \"name\": \"Demo Group123\",\n        \"color\": 0,\n        \"proxy\": \"disable\",\n        \"member\": [\n          {\n            \"name\": \"HTTPS\",\n            \"q_origin_key\": \"HTTPS\"\n          },\n          {\n            \"name\": \"IMAP\",\n            \"q_origin_key\": \"IMAP\"\n          },\n          {\n            \"name\": \"DNS\",\n            \"q_origin_key\": \"DNS\"\n          }\n        ],\n        \"comment\": \"\",\n        \"q_origin_key\": \"Demo Group123\",\n        \"fabric-object\": \"disable\"\n      },\n      {\n        \"name\": \"DemoGroup\",\n        \"color\": 0,\n        \"proxy\": \"disable\",\n        \"member\": [],\n        \"comment\": \"\",\n        \"q_origin_key\": \"DemoGroup\",\n        \"fabric-object\": \"disable\"\n      }\n    ],\n    \"version\": \"v6.4.6\",\n    \"revision\": \"40457ae9eeb53f9e3cfcb794c86c5436\",\n    \"http_method\": \"GET\",\n    \"http_status\": 200\n  }",
@@ -2661,7 +2661,7 @@
                   "url": "www.example.com",
                   "vdom": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "block_url",
                 "mock_result": "{\n    \"not_block\": [],\n    \"newly_blocked\": [\n      \"www.example.com\"\n    ],\n    \"already_blocked\": []\n  }",
@@ -2783,7 +2783,7 @@
                   "vdom": "",
                   "app_list": "[\"vBulletin\"]"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "unblock_applications",
                 "mock_result": "[\n    {\n      \"name\": \"vBulletin\",\n      \"status\": \"Successful\",\n      \"message\": \"Application unblock successfully\"\n    }\n  ]",
@@ -2878,7 +2878,7 @@
                 "params": {
                   "vdom": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_blocked_applications",
                 "mock_result": "[\n    {\n      \"id\": 16692,\n      \"name\": \"ASProxy\",\n      \"risk\": 5,\n      \"q_ref\": 0,\n      \"q_name\": \"name\",\n      \"q_path\": \"application\",\n      \"q_type\": 348,\n      \"vendor\": \"Other\",\n      \"weight\": 10,\n      \"q_class\": \"app_icon app16692\",\n      \"behavior\": \"Tunneling\",\n      \"category\": 6,\n      \"metadata\": [\n        {\n          \"id\": 0,\n          \"metaid\": 7,\n          \"valueid\": 2\n        }\n      ],\n      \"protocol\": \"TCP, HTTP\",\n      \"q_static\": true,\n      \"q_no_edit\": false,\n      \"parameters\": [],\n      \"popularity\": 3,\n      \"technology\": \"Browser-Based\",\n      \"q_mkey_type\": \"string\",\n      \"q_no_rename\": false,\n      \"q_origin_key\": \"ASProxy\",\n      \"q_global_entry\": false\n    },\n    {\n      \"id\": 23399,\n      \"name\": \"vBulletin\",\n      \"risk\": 2,\n      \"q_ref\": 0,\n      \"q_name\": \"name\",\n      \"q_path\": \"application\",\n      \"q_type\": 348,\n      \"vendor\": \"Other\",\n      \"weight\": 10,\n      \"q_class\": \"app_icon app23399\",\n      \"behavior\": \"\",\n      \"category\": 23,\n      \"metadata\": [\n        {\n          \"id\": 2,\n          \"metaid\": 18,\n          \"valueid\": 3875,\n          \"q_origin_key\": 2\n        }\n      ],\n      \"protocol\": \"TCP, HTTP\",\n      \"q_static\": true,\n      \"q_no_edit\": false,\n      \"parameters\": [],\n      \"popularity\": 4,\n      \"technology\": \"Browser-Based\",\n      \"q_mkey_type\": \"string\",\n      \"q_no_rename\": false,\n      \"q_origin_key\": \"vBulletin\",\n      \"q_global_entry\": false\n    }\n  ]",
@@ -2955,7 +2955,7 @@
                   "new_group_name": "demogroup",
                   "address_group_category": "IPv6 Group"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "update_address_group",
                 "mock_result": "{\n    \"mkey\": \"demogroup\",\n    \"name\": \"addrgrp6\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"c7a2fc0b16fe450e0de433fa8809350c\",\n    \"http_method\": \"PUT\",\n    \"http_status\": 200,\n    \"old_revision\": \"6b4261a562c618443dce6f9471909d24\",\n    \"revision_changed\": true\n  }",
@@ -3080,7 +3080,7 @@
                   "name": "Demo Group",
                   "vdom": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "delete_service_group",
                 "mock_result": "{\n    \"mkey\": \"Demo Group\",\n    \"name\": \"group\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"0505a5d093a4aff048f29a3de2b64b56\",\n    \"http_method\": \"DELETE\",\n    \"http_status\": 200,\n    \"old_revision\": \"40457ae9eeb53f9e3cfcb794c86c5436\",\n    \"revision_changed\": true\n  }",
@@ -3146,7 +3146,7 @@
                 "name": "Fortinet FortiGate",
                 "config": "",
                 "params": [],
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_quarantine_hosts",
                 "mock_result": "{\n  \"name\": \"quarantine\",\n  \"path\": \"user\",\n  \"vdom\": \"root\",\n  \"build\": 1879,\n  \"serial\": \"FGVM02TM21013928\",\n  \"status\": \"success\",\n  \"results\": {\n    \"targets\": [\n      {\n        \"macs\": [\n          {\n            \"mac\": \"00:0c:29:40:45:d2\",\n            \"drop\": \"disable\",\n            \"parent\": \"00:0c:29:40:45:d2\",\n            \"entry-id\": 2,\n            \"description\": \"Quarantined by FortiSOAR\",\n            \"q_origin_key\": \"00:0c:29:40:45:d2\"\n          }\n        ],\n        \"entry\": \"00:0c:29:40:45:d2\",\n        \"description\": \"Quarantined by FortiSOAR\",\n        \"q_origin_key\": \"00:0c:29:40:45:d2\"\n      }\n    ],\n    \"quarantine\": \"enable\",\n    \"traffic-policy\": \"\",\n    \"firewall-groups\": \"QuarantinedDevices\"\n  },\n  \"version\": \"v6.4.6\",\n  \"revision\": \"88068982a7a22a841b094609159d8107\",\n  \"http_method\": \"GET\",\n  \"http_status\": 200\n}",
@@ -3257,7 +3257,7 @@
                   "activation_method": "Email",
                   "send_activation_code": "Enable"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "create_user",
                 "mock_result": "{\n    \"mkey\": \"demo user\",\n    \"name\": \"local\",\n    \"path\": \"user\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"f24922e2256e8da60a0c05f318750942\",\n    \"http_method\": \"POST\",\n    \"http_status\": 200,\n    \"old_revision\": \"b6ed4b4304cccd10c0d82c253dad8fce\",\n    \"revision_changed\": true\n  }",
@@ -3354,7 +3354,7 @@
                   "name": "Demo service",
                   "vdom": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "delete_firewall_service",
                 "mock_result": "{\n    \"mkey\": \"Demo service\",\n    \"name\": \"custom\",\n    \"path\": \"firewall.service\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"1c53a0a5feeaad20755bad096c63ad90\",\n    \"http_method\": \"DELETE\",\n    \"http_status\": 200,\n    \"old_revision\": \"7ca5a10b8d4a2c54e0ce751f22bfd353\",\n    \"revision_changed\": true\n  }",
@@ -3452,7 +3452,7 @@
                   "vdom": "",
                   "address_category": "IPv6 Address"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "delete_address",
                 "mock_result": "{\n    \"mkey\": \"addr6\",\n    \"name\": \"addr6\",\n    \"path\": \"firewall\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"8d047d5b9653cc61c86d64e3769be51a\",\n    \"http_method\": \"DELETE\",\n    \"http_status\": 200,\n    \"old_revision\": \"24191f2f7b3c5a3b9c7c58f8bfc985e3\",\n    \"revision_changed\": true\n  }",
@@ -3572,7 +3572,7 @@
                 "name": "Fortinet FortiGate",
                 "config": "",
                 "params": [],
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_list_of_applications",
                 "mock_result": "{\n  \"name\": \"name\",\n  \"path\": \"application\",\n  \"vdom\": \"root\",\n  \"build\": 1879,\n  \"serial\": \"FGVM02TM21013928\",\n  \"status\": \"success\",\n  \"version\": \"v6.4.6\",\n  \"revision\": \"f085535b69a12752f9c55c99eba14fed\",\n  \"http_method\": \"GET\",\n  \"http_status\": 200,\n  \"results\": [\n    {\n      \"id\": 46289,\n      \"name\": \"Amazon.CloudFront\",\n      \"risk\": 3,\n      \"q_ref\": 0,\n      \"q_name\": \"name\",\n      \"q_path\": \"application\",\n      \"q_type\": 348,\n      \"vendor\": \"Amazon\",\n      \"weight\": 9,\n      \"q_class\": \"app_icon app46289\",\n      \"behavior\": \"Cloud\",\n      \"category\": 30,\n      \"metadata\": [\n        {\n          \"id\": 0,\n          \"metaid\": 7,\n          \"valueid\": 1\n        }\n      ],\n      \"protocol\": \"TCP, HTTP, SSL\",\n      \"q_static\": true,\n      \"q_no_edit\": false,\n      \"parameters\": [],\n      \"popularity\": 5,\n      \"technology\": \"Browser-Based\",\n      \"q_mkey_type\": \"string\",\n      \"q_no_rename\": false,\n      \"q_origin_key\": \"Amazon.CloudFront\",\n      \"q_global_entry\": false\n    },\n    {\n      \"id\": 38075,\n      \"name\": \"Amazon.Mobile\",\n      \"risk\": 2,\n      \"q_ref\": 0,\n      \"q_name\": \"name\",\n      \"q_path\": \"application\",\n      \"q_type\": 348,\n      \"vendor\": \"Amazon\",\n      \"weight\": 10,\n      \"q_class\": \"app_icon app38075\",\n      \"behavior\": \"\",\n      \"category\": 12,\n      \"metadata\": [\n        {\n          \"id\": 0,\n          \"metaid\": 7,\n          \"valueid\": 1\n        }\n      ],\n      \"protocol\": \"TCP, HTTP, SSL\",\n      \"q_static\": true,\n      \"q_no_edit\": false,\n      \"parameters\": [],\n      \"popularity\": 4,\n      \"technology\": \"Client-Server\",\n      \"q_mkey_type\": \"string\",\n      \"q_no_rename\": false,\n      \"q_origin_key\": \"Amazon.Mobile\",\n      \"q_global_entry\": false\n    }\n  ]\n}",
@@ -3645,7 +3645,7 @@
                   "ip_group_name": "demogrp1",
                   "ip_block_policy": "demo"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_blocked_ip",
                 "mock_result": "{\n    \"addrgrp\": [\n      {\n        \"name\": \"demogrp1\",\n        \"member\": [\n          \"v66\"\n        ]\n      }\n    ],\n    \"dstaddr\": [\n      \"1.1.0.1/24\"\n    ],\n    \"srcaddr\": [\n      \"1.1.0.1/24\"\n    ],\n    \"dstaddr6\": [\n      \"2002:c0a8:63:0:4d04:a0f1:ed51:a3e2/128\",\n      \"demogrp1\"\n    ],\n    \"srcaddr6\": [\n      \"2002:c0a8:63:0:4d04:a0f1:ed51:a3e2/128\",\n      \"demogrp1\"\n    ],\n    \"policy_name\": \"demo\",\n    \"addrgrp_not_exist\": []\n  }",
@@ -3774,7 +3774,7 @@
                   "username": "admin",
                   "private_key": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "execute_command",
                 "operationTitle": "Execute Command",
@@ -3869,7 +3869,7 @@
                 "params": {
                   "username": "admin"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_user_list_login_details",
                 "mock_result": "{\n    \"sn\": \"1651472000\",\n    \"tz\": \"-0700\",\n    \"ui\": \"https(10.132.17.28)\",\n    \"vd\": \"root\",\n    \"msg\": \"Administrator admin logged in successfully from https(10.132.17.28)\",\n    \"date\": \"2022-05-01\",\n    \"time\": \"23:13:20\",\n    \"type\": \"event\",\n    \"user\": \"admin\",\n    \"dstip\": \"192.168.63.28\",\n    \"level\": \"information\",\n    \"logid\": \"0100032001\",\n    \"srcip\": \"10.132.17.28\",\n    \"action\": \"login\",\n    \"method\": \"https\",\n    \"reason\": \"none\",\n    \"status\": \"success\",\n    \"logdesc\": \"Admin login successful\",\n    \"profile\": \"super_admin\",\n    \"subtype\": \"system\",\n    \"_metadata\": {\n      \"#\": 1,\n      \"roll\": 65504,\n      \"logid\": 32001,\n      \"timestamp\": 1651472000000\n    },\n    \"eventtime\": 1651472000137843000\n  }",
@@ -3945,7 +3945,7 @@
                   "tacacs+-server": "",
                   "user_group_name": "test"
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "update_user",
                 "mock_result": "{\n    \"mkey\": \"demo\",\n    \"name\": \"local\",\n    \"path\": \"user\",\n    \"vdom\": \"root\",\n    \"build\": 1879,\n    \"serial\": \"FGVM02TM21013928\",\n    \"status\": \"success\",\n    \"version\": \"v6.4.6\",\n    \"revision\": \"c840c55b7fe0154481ba3939719bd766\",\n    \"http_method\": \"PUT\",\n    \"http_status\": 200,\n    \"revision_changed\": false\n  }",
@@ -4045,7 +4045,7 @@
                   "status_only": false,
                   "include_notes": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "get_entries_from_edl",
                 "operationTitle": "Get Entries from External Dynamic List",
@@ -4139,7 +4139,7 @@
                   "action": "",
                   "entries": ""
                 },
-                "version": "1.0.0",
+                "version": "1.1.0",
                 "connector": "fortigatev2",
                 "operation": "modify_entries_in_edl",
                 "operationTitle": "Modify Entries in External Dynamic List",

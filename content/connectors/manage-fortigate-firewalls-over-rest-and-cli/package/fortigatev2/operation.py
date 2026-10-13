@@ -14,6 +14,7 @@ from .edl_actions import get_entries_from_edl, modify_entries_in_edl
 from .policy_actions import *
 from .policy_actions import _get_policy
 from .quarantine_actions import *
+from .rest_api_action import execute_api_request
 from .service_actions import *
 from .service_group_actions import *
 from .url_actions import *
@@ -434,6 +435,8 @@ fortigate_operations = {
     'get_system_events': get_system_events,
 
     'get_entries_from_edl': get_entries_from_edl,
-    'modify_entries_in_edl': modify_entries_in_edl
+    'modify_entries_in_edl': modify_entries_in_edl,
+
+    'execute_api_request': execute_api_request
 
 }

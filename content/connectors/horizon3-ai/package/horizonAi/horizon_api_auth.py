@@ -91,6 +91,37 @@ class HorizonAPI:
             logger.error(f"Error making request: {str(e)}")
             raise ConnectorError(str(e))
 
+    def execute_raw(self, query, variables=None, operation_name=None):
+        """POST a GraphQL document to the configured endpoint and return the
+        full response body (data and errors untouched). Re-authenticates once
+        on HTTP 401."""
+        payload = {'query': query}
+        if variables:
+            payload['variables'] = variables
+        if operation_name:
+            payload['operationName'] = operation_name
+        for attempt in (0, 1):
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {self._get_auth_token()}'
+            }
+            response = requests.post(
+                f"{self.base_url}/v1/graphql",
+                headers=headers,
+                json=payload,
+                verify=self.verify_ssl
+            )
+            if response.status_code == 401 and attempt == 0:
+                self._jwt_token = None
+                continue
+            break
+        if response.status_code != 200:
+            raise ConnectorError(f"HTTP Error: {response.status_code} - {response.text}")
+        try:
+            return response.json()
+        except ValueError:
+            raise ConnectorError("GraphQL response was not valid JSON")
+
     def check_health(self):
         """Check API health using hello query"""
         query = """

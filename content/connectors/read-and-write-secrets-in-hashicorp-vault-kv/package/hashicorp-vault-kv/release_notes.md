@@ -1,5 +1,12 @@
 # hashicorp-vault-kv release notes
 
+## 1.1.0
+
+- New operation **Execute API Request**: call any Vault HTTP API endpoint
+  (GET, POST, PUT, PATCH, DELETE and LIST) with the configured token. A full
+  URL, a `..` segment or a backslash is refused, so the token only goes to the
+  configured server.
+
 ## 1.0.1
 
 - Parameter description examples use generic secret paths (no lab-specific

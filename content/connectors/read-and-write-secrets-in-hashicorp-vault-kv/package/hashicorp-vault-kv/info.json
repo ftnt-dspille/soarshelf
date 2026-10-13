@@ -1,7 +1,7 @@
 {
   "name": "hashicorp-vault-kv",
   "label": "HashiCorp Vault KV",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "HashiCorp Vault KV v2 secrets engine connector. Reads, writes, lists and deletes key-value secrets through the KV version 2 mount, using token authentication. Unlike the official read-only hashicorp-vault connector, this connector can WRITE: write_secret creates a new version of a secret, so scheduled rotation flows can push fresh credentials into Vault and let downstream watchers pick up the new version. Operations: read secret (optionally a specific version), write secret, list secrets under a path, delete the latest version of a secret.",
   "publisher": "Fortinet",
   "category": "Analytics and SIEM",
@@ -223,6 +223,63 @@
         "type": "object",
         "properties": {}
       }
+    },
+    {
+      "operation": "execute_api_request",
+      "title": "Execute API Request",
+      "description": "Calls any Vault HTTP API endpoint with the configured token. A full URL is refused so the token only ever goes to the configured server.",
+      "enabled": true,
+      "annotation": "execute_api_request",
+      "category": "miscellaneous",
+      "parameters": [
+        {
+          "title": "Endpoint",
+          "type": "text",
+          "name": "endpoint",
+          "description": "Path on the Vault server, for example /v1/sys/health or /v1/secret/data/myapp. /v1 is added when missing.",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. /v1/sys/health"
+        },
+        {
+          "title": "Method",
+          "type": "select",
+          "name": "method",
+          "description": "HTTP method. Defaults to GET. LIST is Vault's list verb.",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "options": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "LIST"
+          ],
+          "value": "GET"
+        },
+        {
+          "title": "Query Parameters",
+          "type": "json",
+          "name": "query_params",
+          "description": "(Optional) JSON object of query string parameters.",
+          "required": false,
+          "editable": true,
+          "visible": true
+        },
+        {
+          "title": "Request Body",
+          "type": "json",
+          "name": "request_body",
+          "description": "(Optional) JSON object sent with POST, PUT and PATCH.",
+          "required": false,
+          "editable": true,
+          "visible": true
+        }
+      ],
+      "output_schema": {}
     }
   ]
 }

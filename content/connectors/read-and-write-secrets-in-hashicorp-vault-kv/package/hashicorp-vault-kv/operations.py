@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .connections import VaultClient
+from .connections import ConnectorError, VaultClient, json_object
 
 operations = {}
 
@@ -58,6 +58,23 @@ def delete_secret(config, params):
 
 
 operations['delete_secret'] = delete_secret
+
+
+def execute_api_request(config, params):
+    """Call any Vault HTTP API endpoint with the configured token.
+
+    `endpoint` is a path on the server (`/v1/sys/health`; `/v1` is added when
+    missing). Methods: GET, POST, PUT, PATCH, DELETE and LIST.
+    """
+    method = (params.get('method') or 'GET').upper()
+    if method not in ('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'LIST'):
+        raise ConnectorError('Method must be GET, POST, PUT, PATCH, DELETE or LIST')
+    return _client(config).raw(method, params.get('endpoint'),
+                               json_object(params.get('query_params'), 'Query Parameters'),
+                               json_object(params.get('request_body'), 'Request Body'))
+
+
+operations['execute_api_request'] = execute_api_request
 
 
 def _check_health(config):
