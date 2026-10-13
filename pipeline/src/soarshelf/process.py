@@ -498,7 +498,7 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
         from . import package
         results += _package_checks(up)
         body = package.build_tgz(up.members or {})
-        for i, (name, raw, w, h) in enumerate(package.screenshots(up.members or {}, up.package_top or "")):
+        for i, (name, raw, w, h) in enumerate(package.screenshots(up.members or {}, up.package_top or "", tuple(str(up.data.get(k) or "") for k in ("icon_small_name", "icon_large_name")))):
             ext = posixpath.splitext(name)[1].lower()
             assets[f"shots/{i + 1}{ext}"] = raw
             shots.append({"file": f"shots/{i + 1}{ext}", "width": w, "height": h, "name": name})

@@ -76,6 +76,16 @@ def test_connector_with_unreadable_playbooks_is_still_listed(tmp_path):
     assert "connector.playbooks" in {c["id"] for c in res.detail["checks"]}
 
 
+def test_declared_icons_are_not_screenshots(tmp_path):
+    manifest = {**CONNECTOR, "icon_small_name": "small_icon.png", "icon_large_name": "large_icon.png"}
+    files = _conn_files(**{"my-conn/info.json": json.dumps(manifest).encode(),
+                           "my-conn/images/small_icon.png": _png(150, 150),
+                           "my-conn/images/large_icon.png": _png(500, 500),
+                           "my-conn/docs/screen.png": _png(800, 500)})
+    d = process(dict(META), _write(tmp_path, files), "maintainer", HUB).detail
+    assert [s["name"] for s in d["screenshots"]] == ["docs/screen.png"]
+
+
 def test_manifest_alone_still_needs_source(tmp_path, write_json):
     res = process(dict(META), write_json(CONNECTOR, "info.json"), "maintainer", HUB)
     assert res.decision == "reject" and res.detail["download"] is None
