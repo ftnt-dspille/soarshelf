@@ -28,6 +28,13 @@ def jira(site):
 
 
 @pytest.fixture
+def pairs(site):
+    """pairs(populator, **params) -> the {title, value} options behind a dropdown (the editor sees titles only)."""
+    from jirav2 import operations as ops
+    return lambda name, **params: ops.operations[name].pairs(site.config, params)
+
+
+@pytest.fixture
 def needs_project(site):
     if not site.project:
         pytest.skip('no project on this site accepts a test issue (set JIRA_LIVE_PROJECT)')
@@ -168,13 +175,14 @@ def test_execute_api_request(jira, site):
 @pytest.mark.live_op('get_issue_type_id_options')
 @pytest.mark.live_op('get_link_type_options')
 @pytest.mark.live_op('get_user_options')
-def test_dropdown_populators_return_title_value_pairs(jira, site):
+def test_dropdown_populators_return_title_value_pairs(jira, pairs, site):
     for operation in ('get_project_options', 'get_issue_type_options', 'get_issue_type_id_options',
                       'get_link_type_options', 'get_user_options'):
-        options = jira(operation)
+        options = pairs(operation)
         assert options, operation
+        assert jira(operation) == [o['title'] for o in options], operation
         assert all(set(o) == {'title', 'value'} and o['title'] and o['value'] for o in options), operation
-    assert site.account_id in [o['value'] for o in jira('get_user_options')]
+    assert site.account_id in [o['value'] for o in pairs('get_user_options')]
 
 
 # -- the issue lifecycle ---------------------------------------------------
@@ -350,9 +358,9 @@ def desk(site):
 
 @pytest.mark.live_op('list_service_desks')
 @pytest.mark.live_op('get_service_desk_options')
-def test_service_desks(jira, desk):
+def test_service_desks(jira, pairs, desk):
     assert any(d['id'] == desk['id'] for d in jira('list_service_desks')['values'])
-    assert str(desk['id']) in [o['value'] for o in jira('get_service_desk_options')]
+    assert str(desk['id']) in [o['value'] for o in pairs('get_service_desk_options')]
 
 
 @pytest.mark.live_op('list_request_types')
@@ -401,32 +409,32 @@ def test_queues(jira, desk):
 
 @pytest.mark.live_op('get_issue_type_options')
 @pytest.mark.live_op('get_issue_type_id_options')
-def test_issue_type_dropdowns_follow_the_project(jira, site, needs_project):
+def test_issue_type_dropdowns_follow_the_project(jira, pairs, site, needs_project):
     own = {t['name'] for t in jira('list_issue_types', project_key=site.project)['issueTypes']}
-    names = {o['value'] for o in jira('get_issue_type_options', project_key=site.project)}
+    names = {o['value'] for o in pairs('get_issue_type_options', project_key=site.project)}
     assert names == own
-    ids = {o['value'] for o in jira('get_issue_type_id_options', project_key=site.project)}
+    ids = {o['value'] for o in pairs('get_issue_type_id_options', project_key=site.project)}
     assert str(site.issue_type['id']) in ids
     assert jira('get_issue_type_options', project_key='NOSUCHPROJECT') == []
 
 
 @pytest.mark.live_op('get_request_type_options')
 @pytest.mark.live_op('get_queue_options')
-def test_request_type_and_queue_dropdowns_follow_the_service_desk(jira, desk):
-    request_types = jira('get_request_type_options', service_desk_id=desk['id'])
+def test_request_type_and_queue_dropdowns_follow_the_service_desk(jira, pairs, desk):
+    request_types = pairs('get_request_type_options', service_desk_id=desk['id'])
     assert request_types and all(set(o) == {'title', 'value'} for o in request_types)
     wanted = {str(t['id']) for t in jira('list_request_types', service_desk_id=desk['id'])['values']}
     assert {o['value'] for o in request_types} == wanted
-    queues = jira('get_queue_options', service_desk_id=desk['id'])
+    queues = pairs('get_queue_options', service_desk_id=desk['id'])
     assert {o['value'] for o in queues} == {str(q['id']) for q in jira('list_queues', service_desk_id=desk['id'])['values']}
     assert jira('get_request_type_options') == [] and jira('get_queue_options') == []
 
 
 @pytest.mark.live_op('get_transition_options')
 @pytest.mark.live_op('get_transition_id_options')
-def test_transition_dropdowns_follow_the_issue(jira, site, needs_project):
+def test_transition_dropdowns_follow_the_issue(jira, pairs, site, needs_project):
     key = site.new_issue()
     real = jira('get_transitions', issue_key=key)['transitions']
-    assert {o['value'] for o in jira('get_transition_options', issue_key=key)} == {t['to']['name'] for t in real}
-    assert {o['value'] for o in jira('get_transition_id_options', issue_key=key)} == {str(t['id']) for t in real}
+    assert {o['value'] for o in pairs('get_transition_options', issue_key=key)} == {t['to']['name'] for t in real}
+    assert {o['value'] for o in pairs('get_transition_id_options', issue_key=key)} == {str(t['id']) for t in real}
     assert jira('get_transition_options') == []

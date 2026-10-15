@@ -1,16 +1,28 @@
 title: ThreatConnect
-summary: ThreatConnect connector for the v3 REST API.
+summary: 'ThreatConnect: indicator lookups and changes over the v3 REST API, and STIX 2.1 ingestion from
+  its TAXII server.'
 description: ''
 use_cases:
-- enrichment
 - ingestion
+- enrichment
 tags:
 - threatconnect
 - threat-intel
+- stix
+- taxii
 author: ftnt-dspille
-version: 2.2.0
+version: 2.3.0
 min_version: null
 license: MIT
 published: '2026-10-13'
 source: https://github.com/ftnt-dspille/connector-threatconnect
 author_id: 99558074
+updated: '2026-10-15'
+changelog:
+- version: 2.3.0
+  date: '2026-10-15'
+  notes: STIX ingestion from ThreatConnect's TAXII 2.1 server (new operations, TAXII credentials, STIX Ingest
+    playbooks); the v3 REST ingest playbooks are removed. Dropdowns list plain names.
+- version: 2.2.0
+  date: '2026-10-13'
+  notes: First published.

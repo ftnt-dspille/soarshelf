@@ -96,7 +96,7 @@ def render():
     line('### Dropdown helpers')
     line()
     line('Parameters that take a project, user, issue type, link type or service desk are dropdowns filled live '
-         'by hidden `get_*_options` actions (the same `apiOperation` mechanism as the FortiAIGate connector). '
+         'by hidden `get_*_options` actions (the same `apiOperation` mechanism as the FortiAIGate connector). The editor can only show plain text, so each list holds names such as `Operations (OPS)`; the connector turns the picked name back into the key or id when the action runs, and an action can also be given the bare key or id. '
          'They call the same endpoints as the matching read actions, so they need no extra permission:')
     line()
     line('| Helper | Calls | Granular scopes |')

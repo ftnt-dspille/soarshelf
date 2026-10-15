@@ -575,6 +575,71 @@ def list_queue_issues(config, params):
 # playbook stores the stable key or id.
 # ---------------------------------------------------------------------------
 
+# The step editor draws a dropdown from a plain list of strings and hands the action
+# exactly the text that was picked (a {title, value} object renders as "[object Object]").
+# Each populator below therefore builds {title, value} pairs and is registered as a
+# titles-only operation; resolve_dropdowns() maps a picked title back to its value
+# before the action runs. A value that is already bare (a key, an id) is left alone.
+_DROPDOWNS = {}
+# The populator that lists each parent parameter's choices, for populators that depend on a sibling.
+_PARENT_POPULATORS = {'project_key': 'get_project_options', 'service_desk_id': 'get_service_desk_options'}
+
+
+def _dropdown(is_value):
+    """Register a populator. `is_value(text)` is True when the text is already the value, not a title."""
+    def wrap(fn):
+        def titles(config, params):
+            return [o['title'] for o in fn(config, params)]
+        titles.__name__ = fn.__name__
+        titles.pairs = fn
+        _DROPDOWNS[fn.__name__] = (fn, is_value)
+        return titles
+    return wrap
+
+
+_NUMERIC = str.isdigit
+
+def _PLAIN(text):
+    """True for a bare key or id: every titled option of these dropdowns reads "Name (detail)"."""
+    return ' (' not in text
+
+
+_dropdown_spec = None
+
+
+def _dropdown_params():
+    """{operation: [(parameter, populator), ...]} from info.json, in form order (parents first)."""
+    global _dropdown_spec
+    if _dropdown_spec is None:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'info.json')) as handle:
+            manifest = json.load(handle)
+        _dropdown_spec = {
+            op['operation']: [(p['name'], p['apiOperation']) for p in op.get('parameters', []) if p.get('apiOperation')]
+            for op in manifest.get('operations', [])}
+    return _dropdown_spec
+
+
+def resolve_dropdowns(config, operation, params):
+    """Replace each picked dropdown title in `params` with the value the API needs."""
+    out = dict(params or {})
+    for name, populator in _dropdown_params().get(operation, []):
+        text = out.get(name)
+        if not isinstance(text, str) or _blank(text) or '{{' in text:
+            continue
+        text = text.strip()
+        pairs, is_value = _DROPDOWNS[populator]
+        if is_value(text):
+            continue
+        values = [o['value'] for o in pairs(config, out) if o['title'] == text]
+        if len(set(values)) > 1:
+            raise ConnectorError('More than one choice is called "%s" for %s; pass its value instead: %s'
+                                 % (text, name, ', '.join(str(v) for v in values)))
+        if values:
+            out[name] = values[0]
+    return out
+
+
+@_dropdown(_PLAIN)
 def get_project_options(config, params):
     client = JiraClient(config)
     projects = client.paginate_offset(API + '/project/search', {'maxResults': 100}, limit=MAX_FETCH_ALL)
@@ -599,8 +664,25 @@ def _issue_types(config, project_key=None):
     return unique
 
 
+def _parent_value(config, params, parent):
+    """The parent's real value. The editor hands a dependent populator the picked TITLE
+    ("Demo service space (DEMO)"), not the key the API wants, so map it back the way
+    resolve_dropdowns() does for an action. A bare key or id, or an unknown text, is used as typed."""
+    text = str(params.get(parent)).strip()
+    populator = _PARENT_POPULATORS.get(parent)
+    if populator:
+        pairs, is_value = _DROPDOWNS[populator]
+        if not is_value(text):
+            values = {o['value'] for o in pairs(config, {}) if o['title'] == text}
+            if len(values) == 1:
+                return values.pop()
+    return text
+
+
 def _dependent(config, params, parent, build):
     """Run a populator that needs a sibling parameter (the editor passes the form's values).
+
+    `build` gets the form's values with the parent replaced by its real value.
 
     Until the parent is chosen, or when it is an unresolved expression like
     {{vars.x}}, the dropdown is simply empty rather than an error. A parent that
@@ -611,7 +693,9 @@ def _dependent(config, params, parent, build):
     if _blank(params.get(parent)) or '{{' in str(params.get(parent)):
         return []
     try:
-        return build()
+        resolved = dict(params)
+        resolved[parent] = _parent_value(config, params, parent)
+        return build(resolved)
     except ConnectorError as err:
         if 'HTTP 401' in str(err) or 'HTTP 403' in str(err):
             raise
@@ -619,23 +703,25 @@ def _dependent(config, params, parent, build):
         return []
 
 
+@_dropdown(lambda t: not t.endswith(' (sub-task)'))
 def get_issue_type_options(config, params):
-    def build():
+    def build(p):
         return sorted(({'title': t['name'] + (' (sub-task)' if t.get('subtask') else ''), 'value': t['name']}
-                       for t in _issue_types(config, params.get('project_key'))),
+                       for t in _issue_types(config, p.get('project_key'))),
                       key=lambda o: o['title'].lower())
     if _blank(params.get('project_key')):
-        return build()
+        return build(params)
     return _dependent(config, params, 'project_key', build)
 
 
+@_dropdown(_NUMERIC)
 def get_issue_type_id_options(config, params):
-    def build():
-        return sorted(({'title': '%s [%s]' % (t['name'], t['id']), 'value': str(t['id'])}
-                       for t in _issue_types(config, params.get('project_key'))),
+    def build(p):
+        return sorted(({'title': t['name'], 'value': str(t['id'])}
+                       for t in _issue_types(config, p.get('project_key'))),
                       key=lambda o: o['title'].lower())
     if _blank(params.get('project_key')):
-        return build()
+        return build(params)
     return _dependent(config, params, 'project_key', build)
 
 
@@ -651,44 +737,50 @@ def _paged_values(client, path, page_size=100):
     return items
 
 
+@_dropdown(_NUMERIC)
 def get_request_type_options(config, params):
-    def build():
+    def build(p):
         types = _paged_values(JiraClient(config),
-                              '%s/servicedesk/%s/requesttype' % (JSM, _ident(params['service_desk_id'])))
+                              '%s/servicedesk/%s/requesttype' % (JSM, _ident(p['service_desk_id'])))
         return [{'title': t.get('name'), 'value': str(t['id'])} for t in types]
     return _dependent(config, params, 'service_desk_id', build)
 
 
+@_dropdown(_NUMERIC)
 def get_queue_options(config, params):
-    def build():
-        queues = _paged_values(JiraClient(config), '%s/servicedesk/%s/queue' % (JSM, _ident(params['service_desk_id'])))
+    def build(p):
+        queues = _paged_values(JiraClient(config), '%s/servicedesk/%s/queue' % (JSM, _ident(p['service_desk_id'])))
         return [{'title': q.get('name'), 'value': str(q['id'])} for q in queues]
     return _dependent(config, params, 'service_desk_id', build)
 
 
+@_dropdown(lambda t: ' (via ' not in t)
 def get_transition_options(config, params):
     """Target status names reachable from the issue's current status."""
-    def build():
-        found = _transitions(JiraClient(config), _ident(params['issue_key']))
+    def build(p):
+        found = _transitions(JiraClient(config), _ident(p['issue_key']))
         return [{'title': '%s (via %s)' % ((t.get('to') or {}).get('name'), t.get('name')),
                  'value': (t.get('to') or {}).get('name')} for t in found]
     return _dependent(config, params, 'issue_key', build)
 
 
+@_dropdown(_NUMERIC)
 def get_transition_id_options(config, params):
-    def build():
-        found = _transitions(JiraClient(config), _ident(params['issue_key']))
-        return [{'title': '%s -> %s [%s]' % (t.get('name'), (t.get('to') or {}).get('name'), t['id']),
+    def build(p):
+        found = _transitions(JiraClient(config), _ident(p['issue_key']))
+        return [{'title': '%s -> %s' % (t.get('name'), (t.get('to') or {}).get('name')),
                  'value': str(t['id'])} for t in found]
     return _dependent(config, params, 'issue_key', build)
 
 
+@_dropdown(_PLAIN)
 def get_link_type_options(config, params):
     types = JiraClient(config).request('GET', API + '/issueLinkType').get('issueLinkTypes') or []
     return [{'title': '%s (%s / %s)' % (t['name'], t.get('inward'), t.get('outward')), 'value': t['name']}
             for t in types]
 
 
+@_dropdown(_PLAIN)
 def get_user_options(config, params):
     client = JiraClient(config)
     users, start = [], 0
@@ -704,12 +796,12 @@ def get_user_options(config, params):
         if user.get('accountType') not in (None, 'atlassian') or user.get('active') is False:
             continue
         label = user.get('displayName') or user['accountId']
-        if user.get('emailAddress'):
-            label += ' (%s)' % user['emailAddress']
+        label += ' (%s)' % (user.get('emailAddress') or user['accountId'])
         options.append({'title': label, 'value': user['accountId']})
     return sorted(options, key=lambda o: o['title'].lower())
 
 
+@_dropdown(_NUMERIC)
 def get_service_desk_options(config, params):
     desks = JiraClient(config).request('GET', JSM + '/servicedesk', params={'limit': 100}).get('values') or []
     return [{'title': '%s (%s)' % (d.get('projectName'), d.get('projectKey')), 'value': str(d['id'])}

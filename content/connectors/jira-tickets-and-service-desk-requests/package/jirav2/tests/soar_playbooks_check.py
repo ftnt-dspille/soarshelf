@@ -18,7 +18,7 @@ import sys
 FSRPB_HOME = os.path.expanduser(os.environ.get('FSRPB_HOME', '~/PycharmProjects/fsr-playbook-framework'))
 INSTANCE = os.environ.get('PYFSR_INSTANCE', '159')
 PROJECT = os.environ.get('JIRA_PROJECT', 'KAN')
-COLLECTION = 'Sample - Jira v2 - 1.0.0'
+COLLECTION = 'Sample - Jira v2 - 1.0.2'
 created = []
 results = []
 

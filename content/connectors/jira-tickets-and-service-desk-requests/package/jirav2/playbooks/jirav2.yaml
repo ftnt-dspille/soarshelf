@@ -8,7 +8,7 @@
 # in tests/ without a module record behind it. Every operation used here is
 # exercised against a live site by tests/test_live.py.
 
-collection: Sample - Jira v2 - 1.0.0
+collection: Sample - Jira v2 - 1.0.2
 description: Create, work and poll Jira Cloud tickets and Jira Service Management requests with the Jira v2 connector.
 visible: true
 
