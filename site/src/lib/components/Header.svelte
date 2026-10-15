@@ -53,7 +53,7 @@
 
 <header class="sticky top-0 z-40 border-b border-line bg-bg/80 backdrop-blur-xl">
   <div class="mx-auto flex h-14 max-w-7xl items-center gap-6 px-4 sm:px-6">
-    <a href="/" class="rounded-lg" aria-label="Home"><Logo /></a>
+    <a href="/" class="flex rounded-lg" aria-label="Home"><Logo /></a>
 
     <nav class="hidden items-center gap-1 md:flex" aria-label="Main">
       {#each links as l (l.href)}

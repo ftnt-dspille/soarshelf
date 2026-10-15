@@ -106,7 +106,8 @@ def _interest(pb: dict[str, Any]) -> float:
             + (2 if "connector" in families else 0) + (1 if any(e["label"] for e in edges) else 0))
 
 
-def featured(details: list[tuple[dict[str, Any], dict[str, Any]]], hub: HubIndex, icons: dict[str, str] | None = None) -> dict[str, Any]:
+def featured(details: list[tuple[dict[str, Any], dict[str, Any]]], hub: HubIndex, icons: dict[str, str] | None = None,
+             labels: dict[str, str] | None = None) -> dict[str, Any]:
     """Pick the best playbook of each item, then the best items. ``meta.featured: true`` wins."""
     picks = []
     for detail, meta in details:
@@ -140,7 +141,7 @@ def featured(details: list[tuple[dict[str, Any], dict[str, Any]]], hub: HubIndex
     names = {n["connector"] for f in chosen for n in f["playbook"]["nodes"] if n.get("connector")}
     names |= {c for f in chosen for c in f["connectors"]}
     return {"items": chosen,
-            "connectorLabels": {c: (hub.connectors.get(c) or {}).get("label") or c for c in sorted(names)},
+            "connectorLabels": {c: (hub.connectors.get(c) or {}).get("label") or (labels or {}).get(c) or c for c in sorted(names)},
             "connectorIcons": {c: (icons or {})[c] for c in sorted(names) if c in (icons or {})}}
 
 
@@ -247,6 +248,7 @@ def build(content: Path, out: Path) -> int:
 
     summaries: list[dict[str, Any]] = []
     icons: dict[str, str] = {}      # connector machine name -> icon URL, from the connector's own package
+    labels: dict[str, str] = {}     # connector machine name -> its own label, for connectors not on the hub
     published: list[tuple[dict[str, Any], dict[str, Any]]] = []
     failures = 0
     for kind, item in item_dirs(content):
@@ -284,6 +286,8 @@ def build(content: Path, out: Path) -> int:
             dest.write_bytes(raw)
         if detail["type"] == "connector" and detail.get("icon") and res.detail.get("_name"):
             icons[res.detail["_name"]] = detail["icon"]
+        if detail["type"] == "connector" and detail.get("displayName") and res.detail.get("_name"):
+            labels[res.detail["_name"]] = detail["displayName"]
         summary = {k: detail[k] for k in SUMMARY_KEYS}
         # Playbook names per collection, so browse search finds an item by any playbook
         # inside it and can link to that playbook (#playbooks/<collection>:<playbook>).
@@ -303,7 +307,7 @@ def build(content: Path, out: Path) -> int:
         "counts": {t: sum(1 for s in summaries if s["type"] == t) for t in TYPE_DIRS.values()},
         "useCases": [{"id": i, "label": l, "description": d, "icon": ic} for i, l, d, ic in config.USE_CASES],
         "connectors": sorted(
-            ({"name": n, "label": (hub.connectors.get(n) or {}).get("label") or n,
+            ({"name": n, "label": (hub.connectors.get(n) or {}).get("label") or labels.get(n) or n,
               "category": (hub.connectors.get(n) or {}).get("category"),
               "onHub": n in hub.connectors, "count": c, "icon": icons.get(n)} for n, c in used.items()),
             key=lambda f: (-f["count"], f["label"].lower())),
@@ -314,7 +318,7 @@ def build(content: Path, out: Path) -> int:
     (data_dir / "activity.json").write_text(json.dumps(
         {"generated": index["generated"], "events": events}, indent=1, ensure_ascii=False))
     (out / "feed.xml").write_text(atom_feed(events[:FEED_MAX], index["generated"]))
-    (data_dir / "featured.json").write_text(json.dumps(featured(published, hub, icons), indent=1, ensure_ascii=False))
+    (data_dir / "featured.json").write_text(json.dumps(featured(published, hub, icons, labels), indent=1, ensure_ascii=False))
     lists, problems = curated(content, {d["slug"]: d for d, _ in published})
     for msg in problems:
         failures += 1

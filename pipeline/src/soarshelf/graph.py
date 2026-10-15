@@ -1,6 +1,7 @@
 """Turn parsed playbooks into the viewer's node/edge graph."""
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from . import config
@@ -38,10 +39,21 @@ def _text(v: Any, limit: int) -> str:
     return t if len(t) <= limit else t[: limit - 1].rstrip() + "…"
 
 
+def _named(name: str, steps: list) -> Any:
+    """The step a note's title names ("Note: KeyValid"), when exactly one name fits
+    best. The longest match wins, so "Check Key" doesn't take "Check Key Again"'s note."""
+    hits = [s for s in steps if s.name and re.search(rf"(?<!\w){re.escape(s.name)}(?!\w)", name, re.I)]
+    if not hits:
+        return None
+    longest = max(len(s.name) for s in hits)
+    best = [s for s in hits if len(s.name) == longest]
+    return best[0] if len(best) == 1 else None
+
+
 def _groups(pb: ParsedPlaybook) -> list[dict[str, Any]]:
     """The playbook's notes and blocks for the viewer. The viewer lays steps out
-    itself, so a note can't keep its canvas position: it is tied to the step it
-    sat closest to in the designer. A block lists the steps inside it."""
+    itself, so a note can't keep its canvas position: it is tied to the step its
+    title names, else the nearest step in its row, else the nearest step. A block lists the steps inside it."""
     blocks = {str(g.get("uuid")): g for g in pb.groups if g.get("type") != "note" and g.get("uuid")}
 
     def box(s) -> tuple[float, float, float, float]:
@@ -53,6 +65,11 @@ def _groups(pb: ParsedPlaybook) -> list[dict[str, Any]]:
         dx = max(0.0, a[0] - b[2], b[0] - a[2])
         dy = max(0.0, a[1] - b[3], b[1] - a[3])
         return (dx * dx + dy * dy) ** 0.5
+
+    def rowmate(a: tuple[float, float, float, float], b: tuple[float, float, float, float]) -> bool:
+        # Designers put a note beside its step, in the same row. A nearer step in
+        # the next row (a side branch, a note column far to the right) is not it.
+        return a[1] < b[3] and b[1] < a[3]
 
     out: list[dict[str, Any]] = []
     for g in pb.groups:
@@ -68,7 +85,7 @@ def _groups(pb: ParsedPlaybook) -> list[dict[str, Any]]:
             continue
         left, top = _num(g.get("left")), _num(g.get("top"))
         area = (left, top, left + _num(g.get("width")), top + _num(g.get("height")))
-        near = min(pb.steps, key=lambda s: (gap(area, box(s)), s.y, s.x))
+        near = _named(name, pb.steps) or min(pb.steps, key=lambda s: (not rowmate(area, box(s)), gap(area, box(s)), s.y, s.x))
         out.append({"id": gid, "kind": "note", "name": name, "text": text, "anchor": near.id})
     return out
 
