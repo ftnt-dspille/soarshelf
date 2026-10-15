@@ -1,6 +1,6 @@
 [project]
 name = "soarshelf"
-version = "0.1.0"
+version = "0.2.0"
 description = "Check, sanitize and build community SOAR playbook content for the soarshelf site."
 requires-python = ">=3.11"
 license = "MIT"
