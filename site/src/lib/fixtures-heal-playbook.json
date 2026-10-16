@@ -1,7 +1,7 @@
 {
  "nodes": [
   {
-   "id": "8891ecf1-32a7-510a-9fa1-c12d5c707736",
+   "id": "abc94d4b-1eda-523a-9790-8b8a20aa2327",
    "name": "Start",
    "label": "Referenced",
    "family": "trigger",
@@ -10,7 +10,7 @@
    "args": {}
   },
   {
-   "id": "4156ddff-53be-512f-8c01-a252ffee86e9",
+   "id": "ee27d413-a39b-515a-8784-5aecb6ffc75b",
    "name": "ResolvePath",
    "label": "Set variable",
    "family": "utility",
@@ -19,7 +19,7 @@
    "args": {}
   },
   {
-   "id": "2e6f9399-3402-5bdc-959a-beb0100647e5",
+   "id": "b5970aff-75e8-53f0-9fe3-cb7e0fde4664",
    "name": "ReadCurrentSecret",
    "label": "Connector",
    "family": "connector",
@@ -31,7 +31,7 @@
    "operationTitle": "Read Secret"
   },
   {
-   "id": "27caa8b0-f61f-5fc5-866c-85e661baf1aa",
+   "id": "50772d40-7011-5beb-9b28-be9c3cdb20c4",
    "name": "CheckCurrentKey",
    "label": "Connector",
    "family": "connector",
@@ -43,7 +43,7 @@
    "operationTitle": "Check API Key"
   },
   {
-   "id": "59d491ff-451f-5c65-ad4a-f63b2b58afba",
+   "id": "51cb83cf-19fc-5d4c-9420-2ae732d0f1ae",
    "name": "KeyValid",
    "label": "Decision",
    "family": "decision",
@@ -52,19 +52,19 @@
    "args": {}
   },
   {
-   "id": "bbafcc5a-1732-5170-ab3f-ff9a15574f62",
-   "name": "RotateKey",
+   "id": "b175a5d3-9e2a-5358-9d3f-dae0998f2e56",
+   "name": "ReplaceKey",
    "label": "Connector",
    "family": "connector",
    "x": 200,
    "y": 770,
    "args": {},
    "connector": "fortinet-fortiaigate",
-   "operation": "rotate_virtual_key",
-   "operationTitle": "Rotate Virtual Key"
+   "operation": "replace_virtual_key",
+   "operationTitle": "Replace Virtual Key"
   },
   {
-   "id": "269160ab-844c-53dc-8835-1e186af21ef1",
+   "id": "84314bf7-a8b3-5227-b0ba-83b4cee1a0e8",
    "name": "BuildPayload",
    "label": "Set variable",
    "family": "utility",
@@ -73,7 +73,7 @@
    "args": {}
   },
   {
-   "id": "bebb0171-d2d7-52dd-8c42-3b2bbeb0c71d",
+   "id": "f4228f02-1f80-5153-8909-4691589df183",
    "name": "WriteSecret",
    "label": "Connector",
    "family": "connector",
@@ -85,7 +85,7 @@
    "operationTitle": "Write Secret"
   },
   {
-   "id": "a26865ff-ab9b-5878-b5a0-57df77ec87d2",
+   "id": "05b52e8f-a557-56ba-8096-205b9920ea7f",
    "name": "VerifyNewKey",
    "label": "Connector",
    "family": "connector",
@@ -97,7 +97,7 @@
    "operationTitle": "Check API Key"
   },
   {
-   "id": "922b56ae-6105-5151-b2be-04b8239bd479",
+   "id": "e8757c3d-50bb-5fed-bc54-2b006c1dcdf4",
    "name": "NewKeyValid",
    "label": "Decision",
    "family": "decision",
@@ -106,7 +106,7 @@
    "args": {}
   },
   {
-   "id": "60e0ac37-72c4-54c7-a97f-5845512f55d4",
+   "id": "fe03d5f7-021c-50e7-bd41-e3acb5b92cfa",
    "name": "AlreadyHealthy",
    "label": "Set variable",
    "family": "utility",
@@ -115,7 +115,7 @@
    "args": {}
   },
   {
-   "id": "b57cc047-32dd-5217-82ca-9d07030f7fa7",
+   "id": "e880b871-3306-5bca-b235-32df9e0a0f14",
    "name": "FailRotation",
    "label": "Set variable",
    "family": "utility",
@@ -124,7 +124,7 @@
    "args": {}
   },
   {
-   "id": "b6f2fe9c-eaf0-5e24-bc3f-19f3a1ea728a",
+   "id": "3e345387-a2e4-5870-8de2-5a814523fe75",
    "name": "Done",
    "label": "Set variable",
    "family": "utility",
@@ -135,126 +135,133 @@
  ],
  "edges": [
   {
-   "id": "d6e6e473-d051-5969-b65a-7936b09b9cd1",
-   "source": "8891ecf1-32a7-510a-9fa1-c12d5c707736",
-   "target": "4156ddff-53be-512f-8c01-a252ffee86e9",
+   "id": "0a1794bf-6488-52af-855b-d8e73bd59e40",
+   "source": "abc94d4b-1eda-523a-9790-8b8a20aa2327",
+   "target": "ee27d413-a39b-515a-8784-5aecb6ffc75b",
    "label": null
   },
   {
-   "id": "c60a698c-3b6f-5014-a5f2-4138012672a0",
-   "source": "4156ddff-53be-512f-8c01-a252ffee86e9",
-   "target": "2e6f9399-3402-5bdc-959a-beb0100647e5",
+   "id": "6996ce37-1e99-5d91-a16d-66ed66535f09",
+   "source": "ee27d413-a39b-515a-8784-5aecb6ffc75b",
+   "target": "b5970aff-75e8-53f0-9fe3-cb7e0fde4664",
    "label": null
   },
   {
-   "id": "99a700d1-205e-5404-ae2d-84333005b0e9",
-   "source": "2e6f9399-3402-5bdc-959a-beb0100647e5",
-   "target": "27caa8b0-f61f-5fc5-866c-85e661baf1aa",
+   "id": "36672a28-11ef-56a6-993f-8f689cfa517e",
+   "source": "b5970aff-75e8-53f0-9fe3-cb7e0fde4664",
+   "target": "50772d40-7011-5beb-9b28-be9c3cdb20c4",
    "label": null
   },
   {
-   "id": "1d0dd367-67ce-53e6-921d-890954c5a15b",
-   "source": "27caa8b0-f61f-5fc5-866c-85e661baf1aa",
-   "target": "59d491ff-451f-5c65-ad4a-f63b2b58afba",
+   "id": "0821da7f-d3c4-597a-9891-a709a2b10574",
+   "source": "50772d40-7011-5beb-9b28-be9c3cdb20c4",
+   "target": "51cb83cf-19fc-5d4c-9420-2ae732d0f1ae",
    "label": null
   },
   {
-   "id": "7914b041-9b3d-559d-828e-529bad2d11c2",
-   "source": "59d491ff-451f-5c65-ad4a-f63b2b58afba",
-   "target": "bbafcc5a-1732-5170-ab3f-ff9a15574f62",
-   "label": "Invalid - rotate"
+   "id": "8238d1ff-91ad-567f-8d00-0a165338ac84",
+   "source": "51cb83cf-19fc-5d4c-9420-2ae732d0f1ae",
+   "target": "b175a5d3-9e2a-5358-9d3f-dae0998f2e56",
+   "label": "Invalid - replace"
   },
   {
-   "id": "3a6a5693-1e77-59f3-a928-9d12c8712470",
-   "source": "59d491ff-451f-5c65-ad4a-f63b2b58afba",
-   "target": "60e0ac37-72c4-54c7-a97f-5845512f55d4",
+   "id": "ca51694f-fa96-5b75-8ae0-a34a54573ba3",
+   "source": "51cb83cf-19fc-5d4c-9420-2ae732d0f1ae",
+   "target": "fe03d5f7-021c-50e7-bd41-e3acb5b92cfa",
    "label": "Valid - nothing to do"
   },
   {
-   "id": "d67ea7bf-f67f-5b7b-86ce-2788054b07fa",
-   "source": "bbafcc5a-1732-5170-ab3f-ff9a15574f62",
-   "target": "269160ab-844c-53dc-8835-1e186af21ef1",
+   "id": "e9e15ce8-5a60-5968-b532-bc196954a156",
+   "source": "b175a5d3-9e2a-5358-9d3f-dae0998f2e56",
+   "target": "84314bf7-a8b3-5227-b0ba-83b4cee1a0e8",
    "label": null
   },
   {
-   "id": "10e66574-cbc5-5b56-b289-7284c6f7e1aa",
-   "source": "269160ab-844c-53dc-8835-1e186af21ef1",
-   "target": "bebb0171-d2d7-52dd-8c42-3b2bbeb0c71d",
+   "id": "1225defd-6a34-5420-8d23-aa3dca39f6a8",
+   "source": "84314bf7-a8b3-5227-b0ba-83b4cee1a0e8",
+   "target": "f4228f02-1f80-5153-8909-4691589df183",
    "label": null
   },
   {
-   "id": "31bb7fa8-d91b-56a4-8e0b-0e4341d77a91",
-   "source": "bebb0171-d2d7-52dd-8c42-3b2bbeb0c71d",
-   "target": "a26865ff-ab9b-5878-b5a0-57df77ec87d2",
+   "id": "199f657d-0e12-582e-8fe1-ca7d6fd4b918",
+   "source": "f4228f02-1f80-5153-8909-4691589df183",
+   "target": "05b52e8f-a557-56ba-8096-205b9920ea7f",
    "label": null
   },
   {
-   "id": "cd7ff61c-ac54-518d-a68f-6f70de83b1ec",
-   "source": "a26865ff-ab9b-5878-b5a0-57df77ec87d2",
-   "target": "922b56ae-6105-5151-b2be-04b8239bd479",
+   "id": "78086f57-d217-5cb0-97a5-c12a7e0ba78d",
+   "source": "05b52e8f-a557-56ba-8096-205b9920ea7f",
+   "target": "e8757c3d-50bb-5fed-bc54-2b006c1dcdf4",
    "label": null
   },
   {
-   "id": "b9317673-021f-5e5b-9781-95aa17ecde59",
-   "source": "922b56ae-6105-5151-b2be-04b8239bd479",
-   "target": "b6f2fe9c-eaf0-5e24-bc3f-19f3a1ea728a",
+   "id": "8c86e4ec-d272-5b27-b150-f4fb2fceb52b",
+   "source": "e8757c3d-50bb-5fed-bc54-2b006c1dcdf4",
+   "target": "3e345387-a2e4-5870-8de2-5a814523fe75",
    "label": "New key valid"
   },
   {
-   "id": "3e0887a1-4fb6-5f8c-b54f-c4f97e3a411a",
-   "source": "922b56ae-6105-5151-b2be-04b8239bd479",
-   "target": "b57cc047-32dd-5217-82ca-9d07030f7fa7",
+   "id": "13684cb2-0d85-58cf-8180-6c490a4b48d7",
+   "source": "e8757c3d-50bb-5fed-bc54-2b006c1dcdf4",
+   "target": "e880b871-3306-5bca-b235-32df9e0a0f14",
    "label": "New key invalid - run failed"
   },
   {
-   "id": "3f82b75a-7dea-5eca-8efc-961514a14bf4",
-   "source": "60e0ac37-72c4-54c7-a97f-5845512f55d4",
-   "target": "b6f2fe9c-eaf0-5e24-bc3f-19f3a1ea728a",
+   "id": "438bf020-0861-5940-b7d1-0de8d1efe279",
+   "source": "fe03d5f7-021c-50e7-bd41-e3acb5b92cfa",
+   "target": "3e345387-a2e4-5870-8de2-5a814523fe75",
    "label": null
   }
  ],
  "groups": [
   {
-   "id": "89b1e964-8b16-5d87-bddd-842813ce2143",
+   "id": "31adc29f-74ee-53b8-8890-08b0453440ca",
    "kind": "note",
    "name": "Note: ResolvePath",
-   "text": "The Vault path of the secret holding the api_key; lab default lab/ai.",
-   "anchor": "4156ddff-53be-512f-8c01-a252ffee86e9"
+   "text": "The Vault path of the secret holding the key, and the field it is stored in.",
+   "anchor": "ee27d413-a39b-515a-8784-5aecb6ffc75b"
   },
   {
-   "id": "e2fa52d0-a02e-5252-a3f6-3717a21b130e",
+   "id": "455e7dfc-a5ff-5fb9-aecf-92bd5cae8868",
    "kind": "note",
    "name": "Note: KeyValid",
    "text": "Branch on the data-plane verdict for the stored key.",
-   "anchor": "59d491ff-451f-5c65-ad4a-f63b2b58afba"
+   "anchor": "51cb83cf-19fc-5d4c-9420-2ae732d0f1ae"
   },
   {
-   "id": "801a299a-de8d-5878-9b2a-7ec55c40a626",
+   "id": "6b13035a-490d-5330-bb8c-bef37b07af11",
+   "kind": "note",
+   "name": "Note: ReplaceKey",
+   "text": "An expired, revoked or suspended key cannot be rotated, so this issues a replacement key (an active key would be rotated in place).",
+   "anchor": "b175a5d3-9e2a-5358-9d3f-dae0998f2e56"
+  },
+  {
+   "id": "4f2a4394-6978-5a37-9f0f-0435789a220b",
    "kind": "note",
    "name": "Note: BuildPayload",
-   "text": "KV v2 writes create a new version and drop omitted fields, so the new secret data carries every original field with api_key replaced. Built as a JSON string because connector params are strings.",
-   "anchor": "269160ab-844c-53dc-8835-1e186af21ef1"
+   "text": "KV v2 writes create a new version and drop omitted fields, so the new secret data is the whole current secret with only the key field replaced. Built as a JSON string because connector params are strings.",
+   "anchor": "84314bf7-a8b3-5227-b0ba-83b4cee1a0e8"
   },
   {
-   "id": "41f29cef-844c-5995-9ecd-97ddc6e58ff5",
+   "id": "0f4d775a-1fd6-5f0c-8a07-876b2434cf7e",
    "kind": "note",
    "name": "Note: NewKeyValid",
    "text": "The rotated key must validate; anything else fails the run.",
-   "anchor": "922b56ae-6105-5151-b2be-04b8239bd479"
+   "anchor": "e8757c3d-50bb-5fed-bc54-2b006c1dcdf4"
   },
   {
-   "id": "e7894f65-5c55-5870-b2d2-28019d7e53ab",
+   "id": "8bbb6a68-437e-58c6-a07c-6618ad15e4e0",
    "kind": "note",
    "name": "Note: FailRotation",
    "text": "Reachable only when the rotated key does not validate.",
-   "anchor": "b57cc047-32dd-5217-82ca-9d07030f7fa7"
+   "anchor": "e880b871-3306-5bca-b235-32df9e0a0f14"
   },
   {
-   "id": "4c2fe7f2-598a-5cfc-9257-1b9179993c31",
+   "id": "00b7074a-85a9-56c7-aa71-7cfa753b392f",
    "kind": "note",
    "name": "Note: Done",
    "text": "Terminal summary.",
-   "anchor": "b6f2fe9c-eaf0-5e24-bc3f-19f3a1ea728a"
+   "anchor": "3e345387-a2e4-5870-8de2-5a814523fe75"
   }
  ]
 }

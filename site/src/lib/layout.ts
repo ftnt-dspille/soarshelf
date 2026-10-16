@@ -56,9 +56,19 @@ function run(nodes: PlaybookNode[], edges: PlaybookEdge[], dir: Direction): Layo
   // so the main chain stays straight instead of drifting into a staircase.
   const into = new Map<string, Set<string>>();
   for (const e of edges) into.set(e.target, (into.get(e.target) ?? new Set()).add(e.source));
+  // A short side branch (a decision's step that does nothing but lead to the point where the
+  // branches meet) belongs beside its decision; left to the ranker it is dragged down to the
+  // join, and its line from the decision then runs the whole length of the playbook. So the
+  // line that rejoins is the cheap one to stretch.
+  const outOf = new Map<string, number>();
+  for (const e of edges) outOf.set(e.source, (outOf.get(e.source) ?? 0) + 1);
+  const isBranch = (id: string) => (outOf.get(id) ?? 0) >= 2;
+  const sideStep = (id: string) =>
+    (into.get(id)?.size ?? 0) === 1 && (outOf.get(id) ?? 0) === 1 && [...(into.get(id) ?? [])].every(isBranch);
   for (const e of edges) {
     if (!g.hasNode(e.source) || !g.hasNode(e.target) || e.source === e.target) continue;
-    g.setEdge(e.source, e.target, { weight: (into.get(e.target)?.size ?? 0) >= 3 ? 1 : 8 });
+    const joins = (into.get(e.target)?.size ?? 0) >= 2;
+    g.setEdge(e.source, e.target, { weight: (into.get(e.target)?.size ?? 0) >= 3 || (sideStep(e.source) && joins) ? 1 : 8 });
   }
   dagre.layout(g);
   const positions = new Map<string, Point>();
@@ -236,11 +246,47 @@ export function fitZoom(l: Pick<Layout, 'width' | 'height'>, frameW: number, fra
 }
 
 /**
+ * How tangled a layout reads, as a score (lower is better): an arrow drawn through a step
+ * costs the most, then arrows crossing each other. Uses the lines the viewer draws.
+ */
+export function clutter(l: Layout, edges: PlaybookEdge[]): number {
+  const branching = branchSources(edges);
+  const drawn: { id: string; pts: Point[] }[] = [];
+  for (const e of edges) {
+    const pts = drawnPoints(l, e, branching);
+    if (pts) drawn.push({ id: e.id, pts });
+  }
+  const byId = new Map(edges.map((e) => [e.id, e]));
+  let score = 0;
+  for (const d of drawn) {
+    const e = byId.get(d.id)!;
+    for (const [id, p] of l.positions) {
+      if (id === e.source || id === e.target) continue;
+      const r = { x: p.x, y: p.y, w: NODE_W, h: NODE_H };
+      if (d.pts.some((q, i) => i > 0 && segHitsRect(d.pts[i - 1], q, r, 2))) score += 100;
+    }
+  }
+  for (let i = 0; i < drawn.length; i++) {
+    for (let j = i + 1; j < drawn.length; j++) {
+      const ei = byId.get(drawn[i].id)!, ej = byId.get(drawn[j].id)!;
+      // Arrows leaving or entering the same step meet there by design.
+      if (ei.source === ej.source || ei.target === ej.target || ei.source === ej.target || ei.target === ej.source) continue;
+      for (let a = 1; a < drawn[i].pts.length; a++) {
+        for (let b = 1; b < drawn[j].pts.length; b++) {
+          if (segCross(drawn[i].pts[a - 1], drawn[i].pts[a], drawn[j].pts[b - 1], drawn[j].pts[b])) score += 10;
+        }
+      }
+    }
+  }
+  return score;
+}
+
+/**
  * Pick the layout that shows the whole playbook largest in the given frame:
  * top-down, left-to-right, or top-down wrapped into columns. Top-down wins
  * ties because it reads most naturally.
  */
-export function autoLayout(nodes: PlaybookNode[], edges: PlaybookEdge[], frameW = 960, frameH = 600): Layout {
+export function autoLayout(nodes: PlaybookNode[], edges: PlaybookEdge[], frameW = 960, frameH = 600, { spread = true } = {}): Layout {
   const tb = run(nodes, edges, 'TB');
   if (nodes.length < 3) return routeSkips(tb, edges);
   const zoom = (l: Layout) => fitZoom(l, frameW, frameH);
@@ -260,7 +306,65 @@ export function autoLayout(nodes: PlaybookNode[], edges: PlaybookEdge[], frameW 
       if (zoom(w) > zoom(best) * bar) best = w;
     }
   }
-  return routeSkips(best, edges);
+  return routeSkips(best.dir === 'TB' && spread ? straighten(spreadBranches(best, edges), edges) : best, edges);
+}
+
+/**
+ * Steps a few px out of line with the step above them get a line with a tiny jog in it. Snap
+ * them into line so it drops straight, where that overlaps no step and tangles nothing.
+ */
+function straighten(l: Layout, edges: PlaybookEdge[]): Layout {
+  const branching = branchSources(edges);
+  for (const e of edges) {
+    if (branching.has(e.source) || e.source === e.target) continue;
+    const s = l.positions.get(e.source), t = l.positions.get(e.target);
+    if (!s || !t || t.y <= s.y) continue;
+    const dx = Math.abs(t.x - s.x);
+    if (dx === 0 || dx > 24) continue;
+    const moved = { x: s.x, y: t.y };
+    const hits = [...l.positions].some(
+      ([id, p]) => id !== e.target && Math.abs(p.x - moved.x) < NODE_W + 20 && Math.abs(p.y - moved.y) < NODE_H + 20
+    );
+    if (hits || moved.x < 0) continue;
+    const next: Layout = { ...l, positions: new Map(l.positions).set(e.target, moved) };
+    if (clutter(next, edges) <= clutter(l, edges)) l = next;
+  }
+  return l;
+}
+
+/**
+ * A decision whose branches all go one way, except one step parked straight beneath it, reads
+ * as a main line with a side exit rather than a choice. Nudge that step half a column the other
+ * way, so the branches fan out to both sides of the fork. Kept only where it overlaps no step
+ * and leaves the drawing no more tangled.
+ */
+function spreadBranches(l: Layout, edges: PlaybookEdge[]): Layout {
+  const branching = branchSources(edges);
+  const into = new Map<string, number>();
+  for (const e of edges) if (e.source !== e.target) into.set(e.target, (into.get(e.target) ?? 0) + 1);
+  const shift = NODE_W / 2 + 20;
+  for (const src of branching) {
+    const s = l.positions.get(src);
+    if (!s) continue;
+    const targets = [...new Set(edges.filter((e) => e.source === src && e.target !== src).map((e) => e.target))]
+      .map((id) => ({ id, p: l.positions.get(id) }))
+      .filter((t): t is { id: string; p: Point } => !!t.p && t.p.y > s.y);
+    const under = targets.filter((t) => Math.abs(t.p.x - s.x) < NODE_W / 4);
+    const others = targets.filter((t) => !under.includes(t));
+    if (under.length !== 1 || !others.length || into.get(under[0].id) !== 1) continue;
+    const left = others.every((t) => t.p.x < s.x), right = others.every((t) => t.p.x > s.x);
+    if (left === right) continue;
+    const moved = { x: under[0].p.x + (left ? shift : -shift), y: under[0].p.y };
+    if (moved.x < MARGIN) continue;
+    const hits = [...l.positions].some(
+      ([id, p]) => id !== under[0].id && Math.abs(p.x - moved.x) < NODE_W + 20 && Math.abs(p.y - moved.y) < NODE_H + 20
+    );
+    if (hits) continue;
+    const next: Layout = { ...l, positions: new Map(l.positions).set(under[0].id, moved) };
+    next.width = Math.max(l.width, moved.x + NODE_W + MARGIN);
+    if (clutter(next, edges) <= clutter(l, edges)) l = next;
+  }
+  return l;
 }
 
 // ---- Designer notes and blocks ----------------------------------------------
@@ -330,6 +434,38 @@ function segCross(a: Point, b: Point, c: Point, d: Point): boolean {
   return o(a, b, c) !== o(a, b, d) && o(c, d, a) !== o(c, d, b);
 }
 
+/** How far below a decision its branch lines bend sideways. */
+export const BRANCH_BEND = 26;
+
+/**
+ * Steps where only one way out is taken: two or more exits, labelled with the option each is
+ * for (a decision's branches, a manual input's responses). A step that fans out unlabelled
+ * runs all of its exits, so it is not one of these.
+ */
+export function branchSources(edges: PlaybookEdge[]): Set<string> {
+  const total = new Map<string, number>();
+  const labelled = new Map<string, number>();
+  for (const e of edges) {
+    if (e.source === e.target) continue;
+    total.set(e.source, (total.get(e.source) ?? 0) + 1);
+    if (e.label) labelled.set(e.source, (labelled.get(e.source) ?? 0) + 1);
+  }
+  return new Set([...total].filter(([id, c]) => c >= 2 && (labelled.get(id) ?? 0) >= 2).map(([id]) => id));
+}
+
+/** The corner points of the line the viewer draws for an edge, or null when an end is missing. */
+function drawnPoints(l: Layout, e: PlaybookEdge, branching: Set<string>): Point[] | null {
+  const s = l.positions.get(e.source), t = l.positions.get(e.target);
+  if (!s || !t || e.source === e.target) return null;
+  const lr = l.dir === 'LR' && !isRouted(l, e.id);
+  const a = lr ? { x: s.x + NODE_W, y: s.y + NODE_H / 2 } : { x: s.x + NODE_W / 2, y: s.y + NODE_H };
+  const b = lr ? { x: t.x, y: t.y + NODE_H / 2 } : { x: t.x + NODE_W / 2, y: t.y };
+  if (isRouted(l, e.id)) return jumpPoints(l, e.source, e.target, a, b, e.id);
+  if (lr) return [a, { x: (a.x + b.x) / 2, y: a.y }, { x: (a.x + b.x) / 2, y: b.y }, b];
+  const my = branching.has(e.source) ? Math.min(a.y + BRANCH_BEND, (a.y + b.y) / 2) : (a.y + b.y) / 2;
+  return [a, { x: a.x, y: my }, { x: b.x, y: my }, b];
+}
+
 /** A segment's bounding box, padded: edges and note links are obstacles a note must not sit on. */
 function segRect(a: Point, b: Point, pad: number): Rect {
   return { x: Math.min(a.x, b.x) - pad, y: Math.min(a.y, b.y) - pad, w: Math.abs(a.x - b.x) + 2 * pad, h: Math.abs(a.y - b.y) + 2 * pad };
@@ -337,18 +473,11 @@ function segRect(a: Point, b: Point, pad: number): Rect {
 
 /** The line each edge is drawn along, as axis-aligned segments (smoothstep approximated by its mid-bend). */
 function edgeSegments(l: Layout, edges: PlaybookEdge[]): [Point, Point][] {
+  const branching = branchSources(edges);
   const out: [Point, Point][] = [];
   for (const e of edges) {
-    const s = l.positions.get(e.source), t = l.positions.get(e.target);
-    if (!s || !t || e.source === e.target) continue;
-    const lr = l.dir === 'LR' && !isRouted(l, e.id);
-    const a = lr ? { x: s.x + NODE_W, y: s.y + NODE_H / 2 } : { x: s.x + NODE_W / 2, y: s.y + NODE_H };
-    const b = lr ? { x: t.x, y: t.y + NODE_H / 2 } : { x: t.x + NODE_W / 2, y: t.y };
-    const pts = isRouted(l, e.id)
-      ? jumpPoints(l, e.source, e.target, a, b, e.id)
-      : lr
-        ? [a, { x: (a.x + b.x) / 2, y: a.y }, { x: (a.x + b.x) / 2, y: b.y }, b]
-        : [a, { x: a.x, y: (a.y + b.y) / 2 }, { x: b.x, y: (a.y + b.y) / 2 }, b];
+    const pts = drawnPoints(l, e, branching);
+    if (!pts) continue;
     for (let i = 1; i < pts.length; i++) out.push([pts[i - 1], pts[i]]);
   }
   return out;

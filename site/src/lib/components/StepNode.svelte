@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Handle, Position, type NodeProps, type Node } from '@xyflow/svelte';
   import type { PlaybookNode } from '$lib/types';
-  import Plug from '@lucide/svelte/icons/plug';
   import { FAMILY_ICON } from '$lib/icons';
   import { humanizeKey } from '$lib/args';
   import { NODE_H, NODE_W } from '$lib/layout';
@@ -22,14 +21,10 @@
   <Handle type="target" position={across ? Position.Left : Position.Top} isConnectable={false} />
   <span class="icon" aria-hidden="true">{#if data.connectorIcon}<img src={data.connectorIcon} alt="" width="20" height="20" />{:else}<Icon size={16} />{/if}</span>
   <span class="min-w-0 flex-1">
-    {#if showConnector}
-      <!-- The plug stands in for the word "Connector", leaving the room for the connector's name. -->
-      <span class="kind" title="{step.label} · {data.connectorLabel}"
-        ><Plug size={11} strokeWidth={2.5} class="plug" aria-label="Connector" />{#if step.label !== 'Connector'}{step.label}{' · '}{/if}{data.connectorLabel}</span>
-    {:else}
-      <span class="kind">{step.label}</span>
-    {/if}
-    <span class="name" title={step.name}>{step.name}</span>
+    <!-- A connector step has no kind line: the plug icon and the operation below say what it is, and the
+         connector's name is in the tooltip and the inspector. -->
+    {#if !step.connector}<span class="kind">{step.label}</span>{/if}
+    <span class="name" title={showConnector ? `${step.name} · ${data.connectorLabel}` : step.name}>{step.name}</span>
     {#if data.childName}<span class="op" title="Runs the child playbook {data.childName}">↳ {data.childName}</span>{/if}
     {#if step.operation}<span class="op" title={step.operation}>{step.operationTitle ?? humanizeKey(step.operation)}</span>{/if}
   </span>
@@ -88,11 +83,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-  .kind :global(.plug) {
-    display: inline;
-    margin: -2px 4px 0 0;
-    vertical-align: middle;
   }
   .name {
     display: block;
