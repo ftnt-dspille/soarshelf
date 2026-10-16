@@ -49,6 +49,9 @@ changelog:
   date: '2026-10-15'
   notes: STIX ingestion from ThreatConnect's TAXII 2.1 server (new operations, TAXII credentials, STIX Ingest
     playbooks); the v3 REST ingest playbooks are removed. Dropdowns list plain names.
+- version: 2.2.1
+  date: '2026-10-13'
+  notes: 'Owner dropdown shows names instead of [object Object]; new indicator, group and tag actions, a generic API call and unified sample playbooks.'
 - version: 2.2.0
   date: '2026-10-13'
   notes: First published.

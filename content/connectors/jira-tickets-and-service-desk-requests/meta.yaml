@@ -1,6 +1,6 @@
 title: Jira tickets and service desk requests
-summary: 'Jira Cloud and Service Management: tickets, comments, transitions, JQL search and requests.
-  Scoped tokens, dependent dropdowns, per-endpoint scope docs.'
+summary: Create, update, search and transition Jira Cloud issues, and work with Jira Service Management
+  requests and queues.
 description: ''
 use_cases:
 - notification
@@ -22,6 +22,9 @@ changelog:
   date: '2026-10-15'
   notes: Dropdowns list plain names instead of [object Object] (1.0.1), and the Issue Type, Issue Type ID,
     Request Type and Queue dropdowns now fill in once a project or service desk is picked.
+- version: 1.0.1
+  date: '2026-10-13'
+  notes: 'Dropdowns show names instead of [object Object] and resolve to keys and ids when the action runs.'
 - version: 1.0.0
   date: '2026-10-13'
   notes: First published.
