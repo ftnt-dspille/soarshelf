@@ -1,7 +1,33 @@
 title: ThreatConnect
 summary: 'ThreatConnect: indicator lookups and changes over the v3 REST API, and STIX 2.1 ingestion from
   its TAXII server.'
-description: ''
+description: |
+  Connects FortiSOAR to ThreatConnect two ways.
+
+  **Lookups and changes over the v3 REST API.** Reputation lookups for IP, file hash, email, URL and host;
+  get, list, create, update and delete indicators; flag false positives and record observations; browse
+  owners, groups and tags. Any other endpoint can be called with *Invoke ThreatConnect REST API*, which signs
+  the request for you (HMAC with an Access ID and Secret Key, or an API token) and refuses a full URL, so
+  credentials only go to the configured server.
+
+  **STIX ingestion from the TAXII 2.1 server.** *Fetch STIX Indicators (Bulk)* reads a collection (one per
+  ThreatConnect owner), follows every page, and turns each indicator's STIX pattern into an Address, Host,
+  URL, EmailAddress or File record. The sample playbook `ThreatConnect > STIX Ingest` keeps a last-pull
+  cursor and writes the Threat Intel Feeds module; an indicator's own TLP marking and confidence are used when
+  it carries them. Patterns the feed cannot ingest (ASN, mutex, registry key) are skipped and counted.
+
+  **Set up.** Install the connector, then create a configuration with the server URL and either the Access ID
+  and Secret Key or an API token. For STIX ingestion also fill in the TAXII Username and Password: the TAXII
+  Server Service App in ThreatConnect authenticates a dedicated TAXII user with HTTP Basic, so these are
+  separate from the REST credentials. The TAXII base path defaults to the App 2.0 location
+  (`/api/services/taxii/v2/taxii`); use `/api/services/taxii/v1` for App 1.0. Schedule `ThreatConnect >
+  STIX Ingest` for a recurring pull. Ingestion needs the Threat Intel Management solution pack from the
+  Content Hub.
+
+  **Good to know.** ThreatConnect does not document the TAXII `added_after` filter, so the connector sends it
+  and also applies the cursor itself; a server that ignores it costs bandwidth, not duplicates. Tested against
+  a mock that follows ThreatConnect's documentation, not yet against a live tenant. Version 2.3.0 removes the
+  v3 REST ingest playbooks: ingestion is STIX only.
 use_cases:
 - ingestion
 - enrichment
