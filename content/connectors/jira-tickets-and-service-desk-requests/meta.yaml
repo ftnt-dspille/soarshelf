@@ -1,7 +1,22 @@
 title: Jira tickets and service desk requests
 summary: Create, update, search and transition Jira Cloud issues, and work with Jira Service Management
   requests and queues.
-description: ''
+description: |
+  Create, search, update and transition issues in **Jira Cloud**, and work with requests and queues in
+  **Jira Service Management**, from FortiSOAR playbooks.
+
+  It works with scoped API tokens (routed through `api.atlassian.com`, with the cloud id looked up for you)
+  as well as the usual email and API token, and with Bearer / OAuth 2.0. The health check calls `GET /myself`,
+  so it passes on a site with no projects and names Jira's own error when it fails. Search takes any bounded
+  JQL and can fetch every page; create takes an issue type by name or id; one action can comment and move an
+  issue to a new status, and lists the transitions that are available when the one you asked for is not.
+  Service desks, request types, requests, request comments and queues are covered for Jira Service
+  Management, and `Execute an API Request` calls any other endpoint with the configured credentials.
+
+  Project, user, issue type, link type, service desk, request type and queue dropdowns fill in live, showing
+  names while the action resolves them to keys and ids when it runs. Four sample playbooks cover creating a
+  ticket, commenting and transitioning, polling for updated tickets, and opening a service desk request.
+  Every action has an offline test.
 use_cases:
 - notification
 - case-management
