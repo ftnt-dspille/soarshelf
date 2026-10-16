@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { NODE_H, NODE_W, NOTE_W, autoLayout, fitZoom, jumpPoints, placeGroups } from './layout';
+import { NODE_H, NODE_W, NOTE_W, autoLayout, fitZoom, isRouted, jumpPoints, placeGroups } from './layout';
+import heal from './fixtures-heal-playbook.json';
 import type { PlaybookEdge, PlaybookNode } from './types';
 
 const n = (id: string): PlaybookNode => ({ id, name: id, label: 'Step', family: 'utility', x: 0, y: 0, args: {} });
@@ -144,5 +145,72 @@ describe('placeGroups', () => {
       expect(p.x >= box.x && p.y >= box.y && p.x + NODE_W <= box.x + box.w && p.y + NODE_H <= box.y + box.h).toBe(true);
     }
     expect(placeGroups(l, [{ id: 'b', kind: 'block', name: 'B', text: '', steps: ['s0', 's2'] }]).blocks.size).toBe(0);
+  });
+});
+
+describe('placeGroups on a wrapped playbook with six notes', () => {
+  const pb = heal as unknown as { nodes: PlaybookNode[]; edges: PlaybookEdge[]; groups: import('./types').PlaybookGroup[] };
+  const l = autoLayout(pb.nodes, pb.edges, 1440, 700);
+  const a = placeGroups(l, pb.groups, pb.edges);
+  const rect = (id: string) => ({ ...l.positions.get(id)!, w: NODE_W, h: NODE_H });
+  const inside = (p: { x: number; y: number }, r: { x: number; y: number; w: number; h: number }) =>
+    p.x > r.x && p.x < r.x + r.w && p.y > r.y && p.y < r.y + r.h;
+  const notes = pb.groups.filter((g) => g.kind === 'note');
+
+  it('places every note', () => {
+    expect(notes.length).toBe(6);
+    for (const g of notes) expect(a.notes.has(g.id)).toBe(true);
+  });
+
+  it('keeps each note off every step, other note and edge line', () => {
+    for (const g of notes) {
+      const r = a.notes.get(g.id)!;
+      for (const id of l.positions.keys()) {
+        const s = rect(id);
+        expect(r.x < s.x + s.w && s.x < r.x + r.w && r.y < s.y + s.h && s.y < r.y + r.h).toBe(false);
+      }
+      for (const e of pb.edges) {
+        const sp = l.positions.get(e.source)!, tp = l.positions.get(e.target)!;
+        const A = { x: sp.x + NODE_W / 2, y: sp.y + NODE_H }, B = { x: tp.x + NODE_W / 2, y: tp.y };
+        const pts = isRouted(l, e.id) ? jumpPoints(l, e.source, e.target, A, B, e.id) : [A, { x: A.x, y: (A.y + B.y) / 2 }, { x: B.x, y: (A.y + B.y) / 2 }, B];
+        for (let i = 1; i < pts.length; i++) {
+          // sample along the segment: none of it may be inside the note
+          for (let t = 0; t <= 1; t += 0.05) {
+            expect(inside({ x: pts[i - 1].x + (pts[i].x - pts[i - 1].x) * t, y: pts[i - 1].y + (pts[i].y - pts[i - 1].y) * t }, r)).toBe(false);
+          }
+        }
+      }
+    }
+  });
+
+  it('keeps every note link clear of the other steps', () => {
+    for (const g of notes) {
+      if (g.kind !== 'note') continue;
+      const r = a.notes.get(g.id)!, an = rect(g.anchor);
+      const before = r.x + r.w <= an.x;
+      const from = { x: before ? an.x : an.x + NODE_W, y: an.y + NODE_H / 2 };
+      const to = { x: before ? r.x + r.w : r.x, y: r.y + r.h / 2 };
+      for (const id of l.positions.keys()) {
+        if (id === g.anchor) continue;
+        const s = rect(id);
+        for (let t = 0; t <= 1; t += 0.02) {
+          expect(inside({ x: from.x + (to.x - from.x) * t, y: from.y + (to.y - from.y) * t }, s)).toBe(false);
+        }
+      }
+    }
+  });
+});
+
+describe('placeGroups when a note has no free room', () => {
+  // A step boxed in by its neighbours must still get a note within the canvas,
+  // not one flung past the far edge of the layout.
+  it('keeps a boxed-in note near the layout', () => {
+    const nodes = Array.from({ length: 9 }, (_, i) => n(`s${i}`));
+    const edges: PlaybookEdge[] = nodes.slice(1).map((x, i) => ({ id: `e${i}`, source: `s${i}`, target: x.id, label: null }));
+    const l = autoLayout(nodes, edges, 1440, 700);
+    const a = placeGroups(l, [{ id: 'g', kind: 'note', name: 'Note', text: 'x', anchor: 's4' }], edges);
+    const r = a.notes.get('g')!;
+    expect(r.x + r.w).toBeLessThan(l.width + 3 * NOTE_W);
+    expect(r.x).toBeGreaterThan(-3 * NOTE_W);
   });
 });

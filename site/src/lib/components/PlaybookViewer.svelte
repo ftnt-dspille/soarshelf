@@ -85,7 +85,7 @@ import MinimapNav from './MinimapNav.svelte';
   function groupNodes(): Node[] {
     if (!playbook?.groups?.length || !layout) return [];
     const l = layout;
-    const a = (extras = placeGroups(l, playbook.groups));
+    const a = (extras = placeGroups(l, playbook.groups, playbook.edges));
     noteAnchor = new Map();
     return playbook.groups.flatMap((g): Node[] => {
       const r = g.kind === 'note' ? a.notes.get(g.id) : a.blocks.get(g.id);
