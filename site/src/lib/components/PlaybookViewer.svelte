@@ -4,13 +4,16 @@
   import { untrack } from 'svelte';
   import type { Collection, PlaybookNode } from '$lib/types';
   import { theme } from '$lib/theme.svelte';
-  import { NODE_H, NODE_W, autoLayout, fitZoom, isRouted, jumpPoints, placeGroups, type Annotations, type Layout } from '$lib/layout';
+  import { NODE_H, NODE_W, autoLayout, branchSources, fitZoom, isRouted, jumpPoints, placeGroups, type Annotations, type Layout } from '$lib/layout';
+  import { GLOW_MODES, GLOW_SPEEDS, startEdgeGlow, type GlowSpeed } from '$lib/edgeGlow';
   import { FAMILY_ICON } from '$lib/icons';
   import { FAMILY_KEY } from '$lib/format';
   import StepNode from './StepNode.svelte';
   import NoteNode from './NoteNode.svelte';
   import BlockNode from './BlockNode.svelte';
   import JumpEdge from './JumpEdge.svelte';
+  import BranchEdge from './BranchEdge.svelte';
+  import { BRANCH_VARIANTS, branchStyle, type BranchVariant } from '$lib/branchStyle.svelte';
   import StepInspector from './StepInspector.svelte';
 import MinimapNav from './MinimapNav.svelte';
   import Zap from '@lucide/svelte/icons/zap';
@@ -65,7 +68,7 @@ import MinimapNav from './MinimapNav.svelte';
   const selected = $derived(playbook?.nodes.find((n) => n.id === selectedId) ?? null);
 
   const nodeTypes = { step: StepNode, note: NoteNode, block: BlockNode };
-  const edgeTypes = { jump: JumpEdge };
+  const edgeTypes = { jump: JumpEdge, branch: BranchEdge };
   let boxW = $state(0);
   let boxH = $state(0);
   let canvasEl: HTMLDivElement | undefined = $state();
@@ -101,7 +104,7 @@ import MinimapNav from './MinimapNav.svelte';
 
   function buildNodes(): Node[] {
     if (!playbook) return [];
-    layout = autoLayout(playbook.nodes, playbook.edges, frameW(), frameH());
+    layout = autoLayout(playbook.nodes, playbook.edges, frameW(), frameH(), { spread: branchStyle.spread });
     extras = null;
     const l = layout;
     return [...groupNodes(), ...playbook.nodes.map((n) => ({
@@ -138,12 +141,14 @@ import MinimapNav from './MinimapNav.svelte';
       target: id,
       targetHandle: before ? 'in-alt' : 'in',
       type: 'straight',
+      class: 'note-link',
       style: 'stroke: var(--faint); stroke-dasharray: 4 4;',
       deletable: false,
       selectable: false,
       focusable: false
       };
     });
+    const branching = branchSources(playbook.edges);
     return [...noteLinks, ...playbook.edges.map((e) => {
       const jump = !!l && isRouted(l, e.id);
       // The line runs along the gap between the two columns.
@@ -154,10 +159,10 @@ import MinimapNav from './MinimapNav.svelte';
       id: e.id,
       source: e.source,
       target: e.target,
-      type: jump ? 'jump' : 'smoothstep',
+      type: jump ? 'jump' : branching.has(e.source) && l?.dir === 'TB' ? 'branch' : 'smoothstep',
       data: jump ? { gx } : undefined,
       label: e.label ?? undefined,
-      markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16 },
+      markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16, ...(branching.has(e.source) && !jump && branchStyle.variant !== 'plain' && branchStyle.color ? { color: 'color-mix(in srgb, var(--fam-decision) 75%, var(--faint))' } : {}) },
       deletable: false,
       selectable: false
       };
@@ -168,7 +173,7 @@ import MinimapNav from './MinimapNav.svelte';
   // canvas is first measured, not on selection changes.
   let nodes = $state.raw<Node[]>([]);
   let edges = $state.raw<Edge[]>([]);
-  const viewKey = $derived(`${selectedKey}|${boxW > 0}|${tall}`);
+  const viewKey = $derived(`${selectedKey}|${boxW > 0}|${tall}|${branchStyle.variant}|${branchStyle.spread}|${branchStyle.color}`);
   // The canvas is re-created via renderKey only after nodes are rebuilt, so its
   // initial viewport is computed from the new playbook rather than the previous one.
   let renderKey = $state(0);
@@ -181,6 +186,30 @@ import MinimapNav from './MinimapNav.svelte';
       edges = buildEdges();
       renderKey++;
     });
+  });
+
+  // A long description is two lines until asked for, so the graph stays near the top of the page.
+  let descOpen = $state(false);
+  const longDesc = $derived((playbook?.description?.length ?? 0) > 200);
+  $effect(() => {
+    void playbook;
+    descOpen = false;
+  });
+
+  // A glow that travels the arrows from start to finish. It runs once the canvas has drawn them.
+  $effect(() => {
+    void renderKey;
+    const root = canvasEl;
+    const pb = playbook;
+    const { glow, sweep, speed } = branchStyle;
+    if (!root || !pb || !glow) return;
+    let stop = () => {};
+    // The edges are in the DOM a frame or two after the canvas is keyed in.
+    const t = setTimeout(() => (stop = startEdgeGlow(root, pb.nodes.map((n) => n.id), pb.edges, { mode: sweep, speed, force: import.meta.env.DEV })), 400);
+    return () => {
+      clearTimeout(t);
+      stop();
+    };
   });
 
   // Open on the whole playbook, centred, at the largest zoom that fits it
@@ -344,7 +373,14 @@ import MinimapNav from './MinimapNav.svelte';
       {/if}
     </div>
     {#if playbook.description}
-      <p class="border-b border-line px-4 py-2.5 text-sm text-muted">{playbook.description}</p>
+      <div class="border-b border-line px-4 py-2.5 text-sm text-muted">
+        <p class={descOpen || !longDesc ? '' : 'line-clamp-2'}>{playbook.description}</p>
+        {#if longDesc}
+          <button type="button" onclick={() => (descOpen = !descOpen)} class="mt-1 text-xs font-medium text-accent-text hover:underline" aria-expanded={descOpen}>
+            {descOpen ? 'Show less' : 'Show more'}
+          </button>
+        {/if}
+      </div>
     {/if}
     {#if role}
       <!-- How this playbook relates to the others in the item, with a way to jump to them. -->
@@ -372,10 +408,37 @@ import MinimapNav from './MinimapNav.svelte';
     <div class="flex flex-col lg:flex-row">
       <div
         bind:this={canvasEl}
-        class="min-w-0 flex-1 {tall ? 'h-[560px] sm:h-[min(85vh,860px)]' : 'h-[460px] sm:h-[600px]'}"
+        class="playbook-canvas relative min-w-0 flex-1 {tall ? 'h-[560px] sm:h-[min(85vh,860px)]' : 'h-[460px] sm:h-[600px]'}"
         bind:clientWidth={boxW}
         bind:clientHeight={boxH}
       >
+        {#if import.meta.env.DEV}
+          <!-- Dev only: compare ways of drawing decision branches. -->
+          <div class="branch-picker">
+            <span>Branches</span>
+            {#each Object.entries(BRANCH_VARIANTS) as [key, title] (key)}
+              <button type="button" {title} class:on={branchStyle.variant === key} onclick={() => (branchStyle.variant = key as BranchVariant)}>{key}</button>
+            {/each}
+            <label title="Nudge a step parked under its decision aside, and snap near-aligned steps straight">
+              <input type="checkbox" bind:checked={branchStyle.spread} /> spread
+            </label>
+            <label title="Draw decision branches in the decision's colour">
+              <input type="checkbox" bind:checked={branchStyle.color} /> colour
+            </label>
+            <span class="sep"></span>
+            <label title="Animate a glow along the arrows">
+              <input type="checkbox" bind:checked={branchStyle.glow} /> glow
+            </label>
+            {#each GLOW_MODES as m (m)}
+              <button type="button" class:on={branchStyle.sweep === m} disabled={!branchStyle.glow} onclick={() => (branchStyle.sweep = m)}>{m}</button>
+            {/each}
+            <select bind:value={branchStyle.speed} disabled={!branchStyle.glow} aria-label="Glow speed">
+              {#each Object.keys(GLOW_SPEEDS) as sp (sp)}
+                <option value={sp as GlowSpeed}>{sp}</option>
+              {/each}
+            </select>
+          </div>
+        {/if}
         {#key renderKey}
           {#if boxW && nodes.length}
           <SvelteFlow
@@ -441,3 +504,60 @@ import MinimapNav from './MinimapNav.svelte';
     {/if}
   </div>
 {/if}
+
+<style>
+  /* Every arrow is drawn at one weight; the dashed lines to designer notes stay hairlines. */
+  .playbook-canvas :global(.svelte-flow__edge-path) {
+    stroke-width: 1.6px;
+  }
+  .playbook-canvas :global(.note-link .svelte-flow__edge-path) {
+    stroke-width: 1px;
+  }
+  .branch-picker {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 6px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .branch-picker button {
+    padding: 1px 7px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+  }
+  .branch-picker button.on {
+    border-color: var(--fam-decision);
+    color: var(--fam-decision);
+  }
+  .branch-picker button:disabled,
+  .branch-picker select:disabled {
+    opacity: 0.4;
+  }
+  .branch-picker select {
+    padding: 0 4px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+  }
+  .branch-picker .sep {
+    width: 1px;
+    height: 14px;
+    margin: 0 4px;
+    background: var(--border);
+  }
+  .branch-picker label {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 4px;
+  }
+</style>

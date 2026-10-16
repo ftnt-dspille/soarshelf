@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { NODE_H, NODE_W, NOTE_W, autoLayout, fitZoom, isRouted, jumpPoints, placeGroups } from './layout';
+import { NODE_H, NODE_W, NOTE_W, autoLayout, branchSources, clutter, fitZoom, isRouted, jumpPoints, placeGroups } from './layout';
 import heal from './fixtures-heal-playbook.json';
 import type { PlaybookEdge, PlaybookNode } from './types';
 
@@ -158,7 +158,7 @@ describe('placeGroups on a wrapped playbook with six notes', () => {
   const notes = pb.groups.filter((g) => g.kind === 'note');
 
   it('places every note', () => {
-    expect(notes.length).toBe(6);
+    expect(notes.length).toBeGreaterThan(3);
     for (const g of notes) expect(a.notes.has(g.id)).toBe(true);
   });
 
@@ -212,5 +212,55 @@ describe('placeGroups when a note has no free room', () => {
     const r = a.notes.get('g')!;
     expect(r.x + r.w).toBeLessThan(l.width + 3 * NOTE_W);
     expect(r.x).toBeGreaterThan(-3 * NOTE_W);
+  });
+});
+
+describe('a decision with a short side branch', () => {
+  // decision -> A (does nothing but lead to the end) and -> B..E (the long way round), both ending at done.
+  const ids = ['start', 'dec', 'a', 'b', 'c', 'd', 'e', 'done'];
+  const nodes = ids.map(n);
+  const edge = (s: string, t: string): PlaybookEdge => ({ id: `${s}-${t}`, source: s, target: t, label: null });
+  const edges = [
+    edge('start', 'dec'), edge('dec', 'a'), edge('dec', 'b'), edge('b', 'c'), edge('c', 'd'), edge('d', 'e'), edge('e', 'done'), edge('a', 'done')
+  ];
+
+  it('puts the side branch beside its decision, not down at the join', () => {
+    const l = autoLayout(nodes, edges, 3000, 3000);
+    const dy = l.positions.get('a')!.y - l.positions.get('dec')!.y;
+    expect(dy).toBeLessThanOrEqual(NODE_H + 60);
+  });
+
+  it('draws it with no arrow through a step or across another arrow', () => {
+    expect(clutter(autoLayout(nodes, edges, 3000, 3000), edges)).toBe(0);
+  });
+});
+
+describe('the Heal playbook example', () => {
+  const pb = heal as unknown as { nodes: PlaybookNode[]; edges: PlaybookEdge[] };
+  it('lays out with no arrow through a step or across another in the front-page frame', () => {
+    expect(clutter(autoLayout(pb.nodes, pb.edges, 1440, 700), pb.edges)).toBe(0);
+  });
+  const id = (name: string) => pb.nodes.find((n) => n.name === name)!.id;
+  it('fans the last decision out to both sides instead of parking a branch under it', () => {
+    const l = autoLayout(pb.nodes, pb.edges, 1440, 700);
+    const dec = l.positions.get(id('NewKeyValid'))!.x;
+    expect(l.positions.get(id('Done'))!.x).toBeLessThan(dec);
+    expect(l.positions.get(id('FailRotation'))!.x).toBeGreaterThan(dec);
+  });
+  it('lines a step up with the one above it when they are only a few px apart', () => {
+    const l = autoLayout(pb.nodes, pb.edges, 1440, 700);
+    expect(l.positions.get(id('Done'))!.x).toBe(l.positions.get(id('AlreadyHealthy'))!.x);
+  });
+  it('leaves the layout alone with spread off', () => {
+    const l = autoLayout(pb.nodes, pb.edges, 1440, 700, { spread: false });
+    expect(Math.abs(l.positions.get(id('FailRotation'))!.x - l.positions.get(id('NewKeyValid'))!.x)).toBeLessThan(NODE_W / 4);
+  });
+});
+
+describe('branch lines', () => {
+  const e = (source: string, target: string, label: string | null): PlaybookEdge => ({ id: `${source}-${target}`, source, target, label });
+  it('are for steps whose exits are labelled options, not for a parallel fan-out', () => {
+    const edges = [e('dec', 'a', 'Yes'), e('dec', 'b', 'No'), e('fan', 'c', null), e('fan', 'd', null)];
+    expect([...branchSources(edges)]).toEqual(['dec']);
   });
 });

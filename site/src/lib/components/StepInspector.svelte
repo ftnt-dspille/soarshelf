@@ -37,6 +37,12 @@
   const kind = $derived(
     step.label.toLowerCase() === FAMILY_LABEL[step.family].toLowerCase() ? step.label : `${step.label} · ${FAMILY_LABEL[step.family]}`
   );
+  // The operation key is only worth showing when it says more than the title does:
+  // "Get EPSS Score By CVE ID" and get_epss_score_by_cve_id are the same words.
+  const slug = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  const showOperationKey = $derived(
+    !!a.operationTitle && !!step.operation && slug(a.operationTitle) !== slug(step.operation)
+  );
   let raw = $state(false);
 </script>
 
@@ -71,12 +77,19 @@
   {#if step.connector}
     <section class="border-b border-line p-4">
       <div class="rounded-lg border border-line bg-surface-2/60 p-3">
-        <p class="text-sm font-semibold">{connectorLabel ?? step.connector}</p>
+        <div class="flex items-start justify-between gap-2">
+          <p class="min-w-0 text-sm font-semibold [overflow-wrap:anywhere]">{connectorLabel ?? step.connector}</p>
+          {#if a.version}
+            <span
+              class="shrink-0 rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] font-medium text-muted"
+              title="The connector version this playbook was built with">v{a.version}</span
+            >
+          {/if}
+        </div>
         <p class="mt-0.5 text-sm text-muted">
           {a.operationTitle ?? step.operation}
-          {#if a.operationTitle && step.operation}<span class="ml-1 font-mono text-[11.5px] text-faint">{step.operation}</span>{/if}
+          {#if showOperationKey}<span class="ml-1 font-mono text-[11.5px] text-faint">{step.operation}</span>{/if}
         </p>
-        {#if a.version}<p class="mt-2 text-xs text-faint">Built with v{a.version}</p>{/if}
       </div>
     </section>
   {/if}
