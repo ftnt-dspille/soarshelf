@@ -9,7 +9,7 @@ both. tests/test_info.py checks the result against operations.py and scopes.py.
 import json
 import os
 
-VERSION = '1.0.1'
+VERSION = '1.0.2'
 
 SITE = 'the issue key or id, for example SEC-123'
 

@@ -581,6 +581,8 @@ def list_queue_issues(config, params):
 # titles-only operation; resolve_dropdowns() maps a picked title back to its value
 # before the action runs. A value that is already bare (a key, an id) is left alone.
 _DROPDOWNS = {}
+# The populator that lists each parent parameter's choices, for populators that depend on a sibling.
+_PARENT_POPULATORS = {'project_key': 'get_project_options', 'service_desk_id': 'get_service_desk_options'}
 
 
 def _dropdown(is_value):
@@ -662,8 +664,25 @@ def _issue_types(config, project_key=None):
     return unique
 
 
+def _parent_value(config, params, parent):
+    """The parent's real value. The editor hands a dependent populator the picked TITLE
+    ("Demo service space (DEMO)"), not the key the API wants, so map it back the way
+    resolve_dropdowns() does for an action. A bare key or id, or an unknown text, is used as typed."""
+    text = str(params.get(parent)).strip()
+    populator = _PARENT_POPULATORS.get(parent)
+    if populator:
+        pairs, is_value = _DROPDOWNS[populator]
+        if not is_value(text):
+            values = {o['value'] for o in pairs(config, {}) if o['title'] == text}
+            if len(values) == 1:
+                return values.pop()
+    return text
+
+
 def _dependent(config, params, parent, build):
     """Run a populator that needs a sibling parameter (the editor passes the form's values).
+
+    `build` gets the form's values with the parent replaced by its real value.
 
     Until the parent is chosen, or when it is an unresolved expression like
     {{vars.x}}, the dropdown is simply empty rather than an error. A parent that
@@ -674,7 +693,9 @@ def _dependent(config, params, parent, build):
     if _blank(params.get(parent)) or '{{' in str(params.get(parent)):
         return []
     try:
-        return build()
+        resolved = dict(params)
+        resolved[parent] = _parent_value(config, params, parent)
+        return build(resolved)
     except ConnectorError as err:
         if 'HTTP 401' in str(err) or 'HTTP 403' in str(err):
             raise
@@ -684,23 +705,23 @@ def _dependent(config, params, parent, build):
 
 @_dropdown(lambda t: not t.endswith(' (sub-task)'))
 def get_issue_type_options(config, params):
-    def build():
+    def build(p):
         return sorted(({'title': t['name'] + (' (sub-task)' if t.get('subtask') else ''), 'value': t['name']}
-                       for t in _issue_types(config, params.get('project_key'))),
+                       for t in _issue_types(config, p.get('project_key'))),
                       key=lambda o: o['title'].lower())
     if _blank(params.get('project_key')):
-        return build()
+        return build(params)
     return _dependent(config, params, 'project_key', build)
 
 
 @_dropdown(_NUMERIC)
 def get_issue_type_id_options(config, params):
-    def build():
+    def build(p):
         return sorted(({'title': t['name'], 'value': str(t['id'])}
-                       for t in _issue_types(config, params.get('project_key'))),
+                       for t in _issue_types(config, p.get('project_key'))),
                       key=lambda o: o['title'].lower())
     if _blank(params.get('project_key')):
-        return build()
+        return build(params)
     return _dependent(config, params, 'project_key', build)
 
 
@@ -718,17 +739,17 @@ def _paged_values(client, path, page_size=100):
 
 @_dropdown(_NUMERIC)
 def get_request_type_options(config, params):
-    def build():
+    def build(p):
         types = _paged_values(JiraClient(config),
-                              '%s/servicedesk/%s/requesttype' % (JSM, _ident(params['service_desk_id'])))
+                              '%s/servicedesk/%s/requesttype' % (JSM, _ident(p['service_desk_id'])))
         return [{'title': t.get('name'), 'value': str(t['id'])} for t in types]
     return _dependent(config, params, 'service_desk_id', build)
 
 
 @_dropdown(_NUMERIC)
 def get_queue_options(config, params):
-    def build():
-        queues = _paged_values(JiraClient(config), '%s/servicedesk/%s/queue' % (JSM, _ident(params['service_desk_id'])))
+    def build(p):
+        queues = _paged_values(JiraClient(config), '%s/servicedesk/%s/queue' % (JSM, _ident(p['service_desk_id'])))
         return [{'title': q.get('name'), 'value': str(q['id'])} for q in queues]
     return _dependent(config, params, 'service_desk_id', build)
 
@@ -736,8 +757,8 @@ def get_queue_options(config, params):
 @_dropdown(lambda t: ' (via ' not in t)
 def get_transition_options(config, params):
     """Target status names reachable from the issue's current status."""
-    def build():
-        found = _transitions(JiraClient(config), _ident(params['issue_key']))
+    def build(p):
+        found = _transitions(JiraClient(config), _ident(p['issue_key']))
         return [{'title': '%s (via %s)' % ((t.get('to') or {}).get('name'), t.get('name')),
                  'value': (t.get('to') or {}).get('name')} for t in found]
     return _dependent(config, params, 'issue_key', build)
@@ -745,8 +766,8 @@ def get_transition_options(config, params):
 
 @_dropdown(_NUMERIC)
 def get_transition_id_options(config, params):
-    def build():
-        found = _transitions(JiraClient(config), _ident(params['issue_key']))
+    def build(p):
+        found = _transitions(JiraClient(config), _ident(p['issue_key']))
         return [{'title': '%s -> %s' % (t.get('name'), (t.get('to') or {}).get('name')),
                  'value': str(t['id'])} for t in found]
     return _dependent(config, params, 'issue_key', build)

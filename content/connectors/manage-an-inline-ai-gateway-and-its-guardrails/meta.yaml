@@ -16,11 +16,13 @@ license: MIT
 published: '2026-10-13'
 source: https://github.com/ftnt-dspille/fortinet-fortiaigate
 author_id: 99558074
-updated: '2026-10-13'
+updated: '2026-10-15'
 changelog:
 - version: 1.3.4
-  date: '2026-10-13'
-  notes: 'Dropdowns show names instead of [object Object]; new Replace Virtual Key (rotate or reissue) and a playbook that heals an expired key in Vault; Revoke sends the required reason; Execute API Request.'
+  date: '2026-10-15'
+  notes: Dropdowns list names instead of [object Object] and resolve to ids at run time; Replace Virtual Key
+    (fails closed for revoked keys and keys with model limits), a revoke reason, and a playbook that replaces
+    expired keys and updates Vault.
 - version: 1.3.0
   date: '2026-10-13'
   notes: Updated.

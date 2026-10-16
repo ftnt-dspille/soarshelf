@@ -5,11 +5,11 @@
   "data": [
     {
       "@type": "WorkflowCollection",
-      "name": "Sample - Jira v2 - 1.0.1",
+      "name": "Sample - Jira v2 - 1.0.2",
       "description": "Create, work and poll Jira Cloud tickets and Jira Service Management requests with the Jira v2 connector.",
       "visible": true,
       "image": null,
-      "uuid": "8a3ca0cc-370f-56a4-a187-0ab8003d5cfe",
+      "uuid": "c5b1236a-401e-5e87-a760-704890ba5a4e",
       "recordTags": [],
       "workflows": [
         {
@@ -30,10 +30,10 @@
             "description"
           ],
           "synchronous": false,
-          "lastModifyDate": 1791924097,
-          "collection": "/api/3/workflow_collections/8a3ca0cc-370f-56a4-a187-0ab8003d5cfe",
+          "lastModifyDate": 1792108088,
+          "collection": "/api/3/workflow_collections/c5b1236a-401e-5e87-a760-704890ba5a4e",
           "versions": [],
-          "triggerStep": "/api/3/workflow_steps/f2fe5c48-02f4-5d4a-9905-e6546a4249d0",
+          "triggerStep": "/api/3/workflow_steps/4849bd80-bd63-508e-a790-22ca0fc1aee9",
           "steps": [
             {
               "@type": "WorkflowStep",
@@ -51,7 +51,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
               "group": null,
-              "uuid": "f2fe5c48-02f4-5d4a-9905-e6546a4249d0"
+              "uuid": "4849bd80-bd63-508e-a790-22ca0fc1aee9"
             },
             {
               "@type": "WorkflowStep",
@@ -68,7 +68,7 @@
                   "ticket_description": "{{ vars.input.params.description }}",
                   "labels": "jirav2-sample"
                 },
-                "version": "1.0.1",
+                "version": "1.0.2",
                 "name": "Jira v2",
                 "operationTitle": "Create Ticket",
                 "step_variables": [],
@@ -79,7 +79,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
               "group": null,
-              "uuid": "853081e3-3a02-5260-985a-e70c01f5f72d"
+              "uuid": "16eff068-6813-523c-913b-1014419c2875"
             },
             {
               "@type": "WorkflowStep",
@@ -94,7 +94,7 @@
                   "fields": "summary,status,issuetype",
                   "include_text": true
                 },
-                "version": "1.0.1",
+                "version": "1.0.2",
                 "name": "Jira v2",
                 "operationTitle": "Get Ticket Details",
                 "step_variables": [],
@@ -105,7 +105,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
               "group": null,
-              "uuid": "fa05314f-f92a-5abb-be0f-1b1e4b188b15"
+              "uuid": "a2ade7fd-d887-5e82-bdcf-01cfd549c1f0"
             },
             {
               "@type": "WorkflowStep",
@@ -121,46 +121,46 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
               "group": null,
-              "uuid": "3156f49e-f373-50b4-9eb7-a744383b674b"
+              "uuid": "679d05f6-ef45-5357-a946-dac6efe65153"
             }
           ],
           "routes": [
             {
               "@type": "WorkflowRoute",
               "name": "start -> Create Ticket",
-              "targetStep": "/api/3/workflow_steps/853081e3-3a02-5260-985a-e70c01f5f72d",
-              "sourceStep": "/api/3/workflow_steps/f2fe5c48-02f4-5d4a-9905-e6546a4249d0",
+              "targetStep": "/api/3/workflow_steps/16eff068-6813-523c-913b-1014419c2875",
+              "sourceStep": "/api/3/workflow_steps/4849bd80-bd63-508e-a790-22ca0fc1aee9",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "a3892125-0355-50a4-bb63-72b08ac09862"
+              "uuid": "9de4c9d1-ea52-565d-a003-dd7f75fff556"
             },
             {
               "@type": "WorkflowRoute",
               "name": "Create Ticket -> Read Ticket",
-              "targetStep": "/api/3/workflow_steps/fa05314f-f92a-5abb-be0f-1b1e4b188b15",
-              "sourceStep": "/api/3/workflow_steps/853081e3-3a02-5260-985a-e70c01f5f72d",
+              "targetStep": "/api/3/workflow_steps/a2ade7fd-d887-5e82-bdcf-01cfd549c1f0",
+              "sourceStep": "/api/3/workflow_steps/16eff068-6813-523c-913b-1014419c2875",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "82434f72-c666-5199-be31-6af823d1e124"
+              "uuid": "d2ee5d3c-ee13-552a-bdc6-4aaae7f2368a"
             },
             {
               "@type": "WorkflowRoute",
               "name": "Read Ticket -> Summarize",
-              "targetStep": "/api/3/workflow_steps/3156f49e-f373-50b4-9eb7-a744383b674b",
-              "sourceStep": "/api/3/workflow_steps/fa05314f-f92a-5abb-be0f-1b1e4b188b15",
+              "targetStep": "/api/3/workflow_steps/679d05f6-ef45-5357-a946-dac6efe65153",
+              "sourceStep": "/api/3/workflow_steps/a2ade7fd-d887-5e82-bdcf-01cfd549c1f0",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "cd85b498-bf8a-55ee-a0db-643ebc9b2794"
+              "uuid": "37657e51-caeb-5aec-9236-1f25d3b5816b"
             }
           ],
           "groups": [],
           "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
           "playbookOrigin": null,
           "isEditable": true,
-          "uuid": "126b8a09-611b-54bf-b4b1-65f80974df54",
+          "uuid": "3dd776bf-7576-5116-b60f-fed3dcd9703b",
           "owners": [],
           "isPrivate": false
         },
@@ -181,10 +181,10 @@
             "status"
           ],
           "synchronous": false,
-          "lastModifyDate": 1791924097,
-          "collection": "/api/3/workflow_collections/8a3ca0cc-370f-56a4-a187-0ab8003d5cfe",
+          "lastModifyDate": 1792108088,
+          "collection": "/api/3/workflow_collections/c5b1236a-401e-5e87-a760-704890ba5a4e",
           "versions": [],
-          "triggerStep": "/api/3/workflow_steps/f65d800b-23d1-530c-9b69-880ad39359a3",
+          "triggerStep": "/api/3/workflow_steps/3380c106-fd30-5e80-9510-fcc718a45212",
           "steps": [
             {
               "@type": "WorkflowStep",
@@ -202,7 +202,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
               "group": null,
-              "uuid": "f65d800b-23d1-530c-9b69-880ad39359a3"
+              "uuid": "3380c106-fd30-5e80-9510-fcc718a45212"
             },
             {
               "@type": "WorkflowStep",
@@ -216,7 +216,7 @@
                   "issue_key": "{{ vars.input.params.issue_key }}",
                   "comment": "{{ vars.input.params.comment }}"
                 },
-                "version": "1.0.1",
+                "version": "1.0.2",
                 "name": "Jira v2",
                 "operationTitle": "Add Comment",
                 "step_variables": [],
@@ -227,7 +227,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
               "group": null,
-              "uuid": "6cc6c552-05d3-5ecd-a45a-67e5c0168133"
+              "uuid": "b08cc9eb-7bd8-5622-bf4b-1fc07be5eebc"
             },
             {
               "@type": "WorkflowStep",
@@ -240,7 +240,7 @@
                 "params": {
                   "issue_key": "{{ vars.input.params.issue_key }}"
                 },
-                "version": "1.0.1",
+                "version": "1.0.2",
                 "name": "Jira v2",
                 "operationTitle": "Get Transitions",
                 "step_variables": [],
@@ -251,7 +251,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
               "group": null,
-              "uuid": "08263690-10df-5db6-a6c4-923f5978b754"
+              "uuid": "5bb23ed6-3954-57c7-b3dd-676089211b37"
             },
             {
               "@type": "WorkflowStep",
@@ -265,7 +265,7 @@
                   "issue_key": "{{ vars.input.params.issue_key }}",
                   "status": "{{ vars.input.params.status }}"
                 },
-                "version": "1.0.1",
+                "version": "1.0.2",
                 "name": "Jira v2",
                 "operationTitle": "Set Ticket Status",
                 "step_variables": [],
@@ -276,7 +276,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
               "group": null,
-              "uuid": "e49351d4-95e2-55a1-a0a9-0c37404234e3"
+              "uuid": "f33aec3e-5f02-5461-ab05-c9781b1873db"
             },
             {
               "@type": "WorkflowStep",
@@ -290,7 +290,7 @@
                   "issue_key": "{{ vars.input.params.issue_key }}",
                   "fields": "status"
                 },
-                "version": "1.0.1",
+                "version": "1.0.2",
                 "name": "Jira v2",
                 "operationTitle": "Get Ticket Details",
                 "step_variables": [],
@@ -301,7 +301,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
               "group": null,
-              "uuid": "ea51261d-bbee-5cb3-b614-fba0f43a934e"
+              "uuid": "47c3efbc-dd5d-5d5d-b160-a8d08836c5a9"
             },
             {
               "@type": "WorkflowStep",
@@ -317,66 +317,66 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
               "group": null,
-              "uuid": "a5c9d8e6-ee3e-5710-8587-0169a5094516"
+              "uuid": "6aa7bfbe-6ba4-5a19-92aa-9962a721c274"
             }
           ],
           "routes": [
             {
               "@type": "WorkflowRoute",
               "name": "start -> Add Comment",
-              "targetStep": "/api/3/workflow_steps/6cc6c552-05d3-5ecd-a45a-67e5c0168133",
-              "sourceStep": "/api/3/workflow_steps/f65d800b-23d1-530c-9b69-880ad39359a3",
+              "targetStep": "/api/3/workflow_steps/b08cc9eb-7bd8-5622-bf4b-1fc07be5eebc",
+              "sourceStep": "/api/3/workflow_steps/3380c106-fd30-5e80-9510-fcc718a45212",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "e63c7c9b-3967-50b8-886e-207d62bd05d7"
+              "uuid": "13c9673b-783d-5644-b29b-694fdab8e41c"
             },
             {
               "@type": "WorkflowRoute",
               "name": "Add Comment -> List Transitions",
-              "targetStep": "/api/3/workflow_steps/08263690-10df-5db6-a6c4-923f5978b754",
-              "sourceStep": "/api/3/workflow_steps/6cc6c552-05d3-5ecd-a45a-67e5c0168133",
+              "targetStep": "/api/3/workflow_steps/5bb23ed6-3954-57c7-b3dd-676089211b37",
+              "sourceStep": "/api/3/workflow_steps/b08cc9eb-7bd8-5622-bf4b-1fc07be5eebc",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "6f63bf43-f55d-5362-88fb-8ca91acea872"
+              "uuid": "93a05ab0-9ad7-575a-83e7-5a633079c498"
             },
             {
               "@type": "WorkflowRoute",
               "name": "List Transitions -> Move Ticket",
-              "targetStep": "/api/3/workflow_steps/e49351d4-95e2-55a1-a0a9-0c37404234e3",
-              "sourceStep": "/api/3/workflow_steps/08263690-10df-5db6-a6c4-923f5978b754",
+              "targetStep": "/api/3/workflow_steps/f33aec3e-5f02-5461-ab05-c9781b1873db",
+              "sourceStep": "/api/3/workflow_steps/5bb23ed6-3954-57c7-b3dd-676089211b37",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "384eac95-4e50-52b0-8358-8919650a3653"
+              "uuid": "6e333aa6-94de-5ecb-926b-8a6a952310a2"
             },
             {
               "@type": "WorkflowRoute",
               "name": "Move Ticket -> Read Back",
-              "targetStep": "/api/3/workflow_steps/ea51261d-bbee-5cb3-b614-fba0f43a934e",
-              "sourceStep": "/api/3/workflow_steps/e49351d4-95e2-55a1-a0a9-0c37404234e3",
+              "targetStep": "/api/3/workflow_steps/47c3efbc-dd5d-5d5d-b160-a8d08836c5a9",
+              "sourceStep": "/api/3/workflow_steps/f33aec3e-5f02-5461-ab05-c9781b1873db",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "9d0a644e-0327-52ac-9c54-ec363a56d0a7"
+              "uuid": "9de6fdf9-d487-55c6-b3c0-0417b704e590"
             },
             {
               "@type": "WorkflowRoute",
               "name": "Read Back -> Summarize",
-              "targetStep": "/api/3/workflow_steps/a5c9d8e6-ee3e-5710-8587-0169a5094516",
-              "sourceStep": "/api/3/workflow_steps/ea51261d-bbee-5cb3-b614-fba0f43a934e",
+              "targetStep": "/api/3/workflow_steps/6aa7bfbe-6ba4-5a19-92aa-9962a721c274",
+              "sourceStep": "/api/3/workflow_steps/47c3efbc-dd5d-5d5d-b160-a8d08836c5a9",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "e4b8cbb0-6ab4-5048-b36e-3b81cb9430e3"
+              "uuid": "efdfd0d9-42d9-579f-b878-c59a976253d3"
             }
           ],
           "groups": [],
           "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
           "playbookOrigin": null,
           "isEditable": true,
-          "uuid": "a51a1dd1-fef3-543d-875f-8caa281386d1",
+          "uuid": "268cd6f5-a4e8-570c-8cd3-8e8493010d8c",
           "owners": [],
           "isPrivate": false
         },
@@ -395,10 +395,10 @@
             "jql_query"
           ],
           "synchronous": false,
-          "lastModifyDate": 1791924097,
-          "collection": "/api/3/workflow_collections/8a3ca0cc-370f-56a4-a187-0ab8003d5cfe",
+          "lastModifyDate": 1792108088,
+          "collection": "/api/3/workflow_collections/c5b1236a-401e-5e87-a760-704890ba5a4e",
           "versions": [],
-          "triggerStep": "/api/3/workflow_steps/57c7f6c3-eb1a-5cce-a1ec-c999d684c05d",
+          "triggerStep": "/api/3/workflow_steps/4a628473-9f7c-5f6e-88c2-b7eda72aa6c9",
           "steps": [
             {
               "@type": "WorkflowStep",
@@ -416,7 +416,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
               "group": null,
-              "uuid": "57c7f6c3-eb1a-5cce-a1ec-c999d684c05d"
+              "uuid": "4a628473-9f7c-5f6e-88c2-b7eda72aa6c9"
             },
             {
               "@type": "WorkflowStep",
@@ -432,7 +432,7 @@
                   "fetch_all": true,
                   "max_total": 500
                 },
-                "version": "1.0.1",
+                "version": "1.0.2",
                 "name": "Jira v2",
                 "operationTitle": "List Tickets",
                 "step_variables": [],
@@ -443,7 +443,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
               "group": null,
-              "uuid": "fbafdd91-9e5f-531c-b105-168457ab52dd"
+              "uuid": "c4126748-8566-53a7-8e6b-4fa817d2901c"
             },
             {
               "@type": "WorkflowStep",
@@ -458,36 +458,36 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
               "group": null,
-              "uuid": "f6c41645-433c-55f8-b829-4c6d87a0129f"
+              "uuid": "26b11375-79a5-523a-8eb4-f5ead12deb5d"
             }
           ],
           "routes": [
             {
               "@type": "WorkflowRoute",
               "name": "start -> Search",
-              "targetStep": "/api/3/workflow_steps/fbafdd91-9e5f-531c-b105-168457ab52dd",
-              "sourceStep": "/api/3/workflow_steps/57c7f6c3-eb1a-5cce-a1ec-c999d684c05d",
+              "targetStep": "/api/3/workflow_steps/c4126748-8566-53a7-8e6b-4fa817d2901c",
+              "sourceStep": "/api/3/workflow_steps/4a628473-9f7c-5f6e-88c2-b7eda72aa6c9",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "575d783d-b3cd-5f89-a711-7729b7b824f8"
+              "uuid": "95ffdff7-6720-59fa-b6e3-41f5632da0c5"
             },
             {
               "@type": "WorkflowRoute",
               "name": "Search -> Summarize",
-              "targetStep": "/api/3/workflow_steps/f6c41645-433c-55f8-b829-4c6d87a0129f",
-              "sourceStep": "/api/3/workflow_steps/fbafdd91-9e5f-531c-b105-168457ab52dd",
+              "targetStep": "/api/3/workflow_steps/26b11375-79a5-523a-8eb4-f5ead12deb5d",
+              "sourceStep": "/api/3/workflow_steps/c4126748-8566-53a7-8e6b-4fa817d2901c",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "39227abb-a754-5a94-8d18-fa1391686053"
+              "uuid": "fbeedb0a-097c-56d9-8279-1f2c4b2cc0ee"
             }
           ],
           "groups": [],
           "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
           "playbookOrigin": null,
           "isEditable": true,
-          "uuid": "d563522b-9b7a-5501-b42b-f828b1291d52",
+          "uuid": "1deab204-ec1b-5331-81b5-5fcecdfffa2a",
           "owners": [],
           "isPrivate": false
         },
@@ -509,10 +509,10 @@
             "description"
           ],
           "synchronous": false,
-          "lastModifyDate": 1791924097,
-          "collection": "/api/3/workflow_collections/8a3ca0cc-370f-56a4-a187-0ab8003d5cfe",
+          "lastModifyDate": 1792108088,
+          "collection": "/api/3/workflow_collections/c5b1236a-401e-5e87-a760-704890ba5a4e",
           "versions": [],
-          "triggerStep": "/api/3/workflow_steps/d13468c2-2bd4-509f-8fe4-26235ad70110",
+          "triggerStep": "/api/3/workflow_steps/722170ae-0a5b-592e-a364-69ca3b08f806",
           "steps": [
             {
               "@type": "WorkflowStep",
@@ -530,7 +530,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
               "group": null,
-              "uuid": "d13468c2-2bd4-509f-8fe4-26235ad70110"
+              "uuid": "722170ae-0a5b-592e-a364-69ca3b08f806"
             },
             {
               "@type": "WorkflowStep",
@@ -546,7 +546,7 @@
                   "summary": "{{ vars.input.params.summary }}",
                   "description": "{{ vars.input.params.description }}"
                 },
-                "version": "1.0.1",
+                "version": "1.0.2",
                 "name": "Jira v2",
                 "operationTitle": "Create Customer Request",
                 "step_variables": [],
@@ -557,7 +557,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
               "group": null,
-              "uuid": "837d6039-3374-568f-b7d8-67b1c4ef6d5e"
+              "uuid": "58c1c747-57d7-597f-86d3-2b91bee6d3b2"
             },
             {
               "@type": "WorkflowStep",
@@ -572,7 +572,7 @@
                   "comment": "Received by FortiSOAR, an analyst is looking at it.",
                   "public": true
                 },
-                "version": "1.0.1",
+                "version": "1.0.2",
                 "name": "Jira v2",
                 "operationTitle": "Add Request Comment",
                 "step_variables": [],
@@ -583,7 +583,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
               "group": null,
-              "uuid": "f044163b-2d44-54f4-9be6-9ae4f5aadd7c"
+              "uuid": "460bfcc6-5578-55a3-a7bf-93cddcbb6e56"
             },
             {
               "@type": "WorkflowStep",
@@ -596,7 +596,7 @@
                 "params": {
                   "issue_key": "{{ vars.steps.Open_Request.data.issueKey }}"
                 },
-                "version": "1.0.1",
+                "version": "1.0.2",
                 "name": "Jira v2",
                 "operationTitle": "Get Customer Request",
                 "step_variables": [],
@@ -607,7 +607,7 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
               "group": null,
-              "uuid": "68b370c0-9c72-5265-a854-69e02f8ace07"
+              "uuid": "4727cc38-c704-5488-af3c-b57ce64f6b0a"
             },
             {
               "@type": "WorkflowStep",
@@ -622,56 +622,56 @@
               "left": "200",
               "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
               "group": null,
-              "uuid": "9bdbb5bf-8fa1-5523-9ac0-1a725a89f051"
+              "uuid": "285990ae-b071-5f66-a0fd-b54af393a66c"
             }
           ],
           "routes": [
             {
               "@type": "WorkflowRoute",
               "name": "start -> Open Request",
-              "targetStep": "/api/3/workflow_steps/837d6039-3374-568f-b7d8-67b1c4ef6d5e",
-              "sourceStep": "/api/3/workflow_steps/d13468c2-2bd4-509f-8fe4-26235ad70110",
+              "targetStep": "/api/3/workflow_steps/58c1c747-57d7-597f-86d3-2b91bee6d3b2",
+              "sourceStep": "/api/3/workflow_steps/722170ae-0a5b-592e-a364-69ca3b08f806",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "5b66d6c1-3a8f-5e04-a12e-8b26ab9ff766"
+              "uuid": "af4850da-32fb-520c-a6fd-65862a8de8cf"
             },
             {
               "@type": "WorkflowRoute",
               "name": "Open Request -> Reply",
-              "targetStep": "/api/3/workflow_steps/f044163b-2d44-54f4-9be6-9ae4f5aadd7c",
-              "sourceStep": "/api/3/workflow_steps/837d6039-3374-568f-b7d8-67b1c4ef6d5e",
+              "targetStep": "/api/3/workflow_steps/460bfcc6-5578-55a3-a7bf-93cddcbb6e56",
+              "sourceStep": "/api/3/workflow_steps/58c1c747-57d7-597f-86d3-2b91bee6d3b2",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "ec346f9e-3118-53d3-96dd-f6468657cf1c"
+              "uuid": "d5db4e8a-57d0-508a-930c-79e4f6617798"
             },
             {
               "@type": "WorkflowRoute",
               "name": "Reply -> Read Request",
-              "targetStep": "/api/3/workflow_steps/68b370c0-9c72-5265-a854-69e02f8ace07",
-              "sourceStep": "/api/3/workflow_steps/f044163b-2d44-54f4-9be6-9ae4f5aadd7c",
+              "targetStep": "/api/3/workflow_steps/4727cc38-c704-5488-af3c-b57ce64f6b0a",
+              "sourceStep": "/api/3/workflow_steps/460bfcc6-5578-55a3-a7bf-93cddcbb6e56",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "b9cd6212-06f4-5b6c-ade4-575028fcaaa6"
+              "uuid": "e995e2dc-005d-5afd-be24-b8564da29bb8"
             },
             {
               "@type": "WorkflowRoute",
               "name": "Read Request -> Summarize",
-              "targetStep": "/api/3/workflow_steps/9bdbb5bf-8fa1-5523-9ac0-1a725a89f051",
-              "sourceStep": "/api/3/workflow_steps/68b370c0-9c72-5265-a854-69e02f8ace07",
+              "targetStep": "/api/3/workflow_steps/285990ae-b071-5f66-a0fd-b54af393a66c",
+              "sourceStep": "/api/3/workflow_steps/4727cc38-c704-5488-af3c-b57ce64f6b0a",
               "label": null,
               "isExecuted": false,
               "group": null,
-              "uuid": "eec18611-67ab-5b23-a5f7-c946d20d36d3"
+              "uuid": "36651f46-b681-54e7-a750-890e9b5dd8f6"
             }
           ],
           "groups": [],
           "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
           "playbookOrigin": null,
           "isEditable": true,
-          "uuid": "c8ebcafc-c3bf-5e46-b315-676ad391eb7c",
+          "uuid": "2596918f-0ca6-5fb0-b831-ccda479c0a7c",
           "owners": [],
           "isPrivate": false
         }

@@ -114,6 +114,36 @@ def test_issue_type_id_options_follow_the_chosen_project(fake, pairs):
 
 
 @pytest.mark.op('get_issue_type_options')
+def test_issue_type_options_accept_the_project_title_the_editor_passes(fake, pairs):
+    """The editor hands this populator the picked project's TITLE, not its key. Looking up the
+    title as if it were a key 404s and the dropdown came back empty."""
+    fake.on('GET', '/rest/api/3/project/search', {'isLast': True, 'values': [
+        {'key': 'ETSP', 'name': 'Enterprise Support'}]})
+    fake.on('GET', '/rest/api/3/issue/createmeta/ETSP/issuetypes', {'issueTypes': [
+        {'id': '10341', 'name': 'Service request', 'subtask': False}]})
+    assert pairs('get_issue_type_options', project_key='Enterprise Support (ETSP)') == [
+        {'title': 'Service request', 'value': 'Service request'}]
+
+
+@pytest.mark.op('get_issue_type_id_options')
+def test_issue_type_id_options_accept_the_project_title_the_editor_passes(fake, pairs):
+    fake.on('GET', '/rest/api/3/project/search', {'isLast': True, 'values': [
+        {'key': 'ETSP', 'name': 'Enterprise Support'}]})
+    fake.on('GET', '/rest/api/3/issue/createmeta/ETSP/issuetypes', {'issueTypes': [
+        {'id': '10341', 'name': 'Service request'}]})
+    assert pairs('get_issue_type_id_options', project_key='Enterprise Support (ETSP)') == [
+        {'title': 'Service request', 'value': '10341'}]
+
+
+@pytest.mark.op('get_issue_type_options')
+def test_a_bare_project_key_does_not_cost_a_project_lookup(fake, pairs):
+    fake.on('GET', '/rest/api/3/issue/createmeta/ETSP/issuetypes', {'issueTypes': [
+        {'id': '1', 'name': 'Task'}]})
+    pairs('get_issue_type_options', project_key='ETSP')
+    assert [c for c in fake.calls if 'project/search' in str(c)] == []
+
+
+@pytest.mark.op('get_issue_type_options')
 def test_issue_type_options_for_an_unreadable_project_are_empty_not_an_error(fake, pairs):
     fake.on('GET', '/rest/api/3/issue/createmeta/NOPE/issuetypes', {'errorMessages': ['no']}, status=404)
     assert pairs('get_issue_type_options', project_key='NOPE') == []
@@ -132,6 +162,26 @@ def test_request_type_options_follow_the_service_desk(fake, pairs):
         {'id': '25', 'name': 'Get IT help'}, {'id': '26', 'name': 'Report a bug'}]})
     assert pairs('get_request_type_options', service_desk_id='4') == [
         {'title': 'Get IT help', 'value': '25'}, {'title': 'Report a bug', 'value': '26'}]
+
+
+@pytest.mark.op('get_request_type_options')
+def test_request_type_options_accept_the_service_desk_title_the_editor_passes(fake, pairs):
+    fake.on('GET', '/rest/servicedeskapi/servicedesk', {'values': [
+        {'id': 4, 'projectName': 'Enterprise Support', 'projectKey': 'ETSP'}]})
+    fake.on('GET', '/rest/servicedeskapi/servicedesk/4/requesttype', {'isLastPage': True, 'values': [
+        {'id': '25', 'name': 'Get IT help'}]})
+    assert pairs('get_request_type_options', service_desk_id='Enterprise Support (ETSP)') == [
+        {'title': 'Get IT help', 'value': '25'}]
+
+
+@pytest.mark.op('get_queue_options')
+def test_queue_options_accept_the_service_desk_title_the_editor_passes(fake, pairs):
+    fake.on('GET', '/rest/servicedeskapi/servicedesk', {'values': [
+        {'id': 4, 'projectName': 'Enterprise Support', 'projectKey': 'ETSP'}]})
+    fake.on('GET', '/rest/servicedeskapi/servicedesk/4/queue', {'isLastPage': True, 'values': [
+        {'id': '9', 'name': 'All open'}]})
+    assert pairs('get_queue_options', service_desk_id='Enterprise Support (ETSP)') == [
+        {'title': 'All open', 'value': '9'}]
 
 
 @pytest.mark.op('get_request_type_options')

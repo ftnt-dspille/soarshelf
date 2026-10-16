@@ -10,14 +10,18 @@ tags:
 - ticketing
 - jsm
 author: ftnt-dspille
-version: 1.0.1
+version: 1.0.2
 min_version: null
 license: MIT
 published: '2026-10-13'
 source: https://github.com/ftnt-dspille/connector-jirav2
 author_id: 99558074
-updated: '2026-10-13'
+updated: '2026-10-15'
 changelog:
+- version: 1.0.2
+  date: '2026-10-15'
+  notes: Dropdowns list plain names instead of [object Object] (1.0.1), and the Issue Type, Issue Type ID,
+    Request Type and Queue dropdowns now fill in once a project or service desk is picked.
 - version: 1.0.1
   date: '2026-10-13'
   notes: 'Dropdowns show names instead of [object Object] and resolve to keys and ids when the action runs.'

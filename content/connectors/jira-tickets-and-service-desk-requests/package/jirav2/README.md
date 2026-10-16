@@ -75,7 +75,7 @@ Server speak REST v2 and are not supported.
 
 ## Sample playbooks
 
-The connector ships a collection, `Sample - Jira v2 - 1.0.1`, that FortiSOAR imports with it. Each
+The connector ships a collection, `Sample - Jira v2 - 1.0.2`, that FortiSOAR imports with it. Each
 playbook takes plain parameters, so it runs from a button, from another playbook, or on its own.
 
 | Playbook | Parameters | What it does |
@@ -185,13 +185,13 @@ Parameters that take a project, user, issue type, link type or service desk are 
 | Helper | Calls | Granular scopes |
 |---|---|---|
 | `get_project_options` | `GET /rest/api/3/project/search` | `read:application-role:jira`, `read:avatar:jira`, `read:group:jira`, `read:issue-type-hierarchy:jira`, `read:issue-type:jira`, `read:project-category:jira`, `read:project-version:jira`, `read:project.component:jira`, `read:project.property:jira`, `read:project:jira`, `read:user:jira` |
-| `get_issue_type_options` | `GET /rest/api/3/issuetype`<br>`GET /rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes` | `read:avatar:jira`, `read:field-configuration:jira`, `read:issue-meta:jira`, `read:issue-type:jira`, `read:project-category:jira`, `read:project:jira` |
-| `get_issue_type_id_options` | `GET /rest/api/3/issuetype`<br>`GET /rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes` | `read:avatar:jira`, `read:field-configuration:jira`, `read:issue-meta:jira`, `read:issue-type:jira`, `read:project-category:jira`, `read:project:jira` |
+| `get_issue_type_options` | `GET /rest/api/3/issuetype`<br>`GET /rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes`<br>`GET /rest/api/3/project/search` | `read:application-role:jira`, `read:avatar:jira`, `read:field-configuration:jira`, `read:group:jira`, `read:issue-meta:jira`, `read:issue-type-hierarchy:jira`, `read:issue-type:jira`, `read:project-category:jira`, `read:project-version:jira`, `read:project.component:jira`, `read:project.property:jira`, `read:project:jira`, `read:user:jira` |
+| `get_issue_type_id_options` | `GET /rest/api/3/issuetype`<br>`GET /rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes`<br>`GET /rest/api/3/project/search` | `read:application-role:jira`, `read:avatar:jira`, `read:field-configuration:jira`, `read:group:jira`, `read:issue-meta:jira`, `read:issue-type-hierarchy:jira`, `read:issue-type:jira`, `read:project-category:jira`, `read:project-version:jira`, `read:project.component:jira`, `read:project.property:jira`, `read:project:jira`, `read:user:jira` |
 | `get_link_type_options` | `GET /rest/api/3/issueLinkType` | `read:issue-link-type:jira` |
 | `get_user_options` | `GET /rest/api/3/users/search` | `read:application-role:jira`, `read:avatar:jira`, `read:group:jira`, `read:user:jira` |
 | `get_service_desk_options` | `GET /rest/servicedeskapi/servicedesk` | `read:servicedesk:jira-service-management` |
-| `get_request_type_options` | `GET /rest/servicedeskapi/servicedesk/{serviceDeskId}/requesttype` | `read:requesttype:jira-service-management` |
-| `get_queue_options` | `GET /rest/servicedeskapi/servicedesk/{serviceDeskId}/queue` | `read:jql:jira`, `read:queue:jira-service-management`, `read:user:jira` |
+| `get_request_type_options` | `GET /rest/servicedeskapi/servicedesk/{serviceDeskId}/requesttype`<br>`GET /rest/servicedeskapi/servicedesk` | `read:requesttype:jira-service-management`, `read:servicedesk:jira-service-management` |
+| `get_queue_options` | `GET /rest/servicedeskapi/servicedesk/{serviceDeskId}/queue`<br>`GET /rest/servicedeskapi/servicedesk` | `read:jql:jira`, `read:queue:jira-service-management`, `read:servicedesk:jira-service-management`, `read:user:jira` |
 | `get_transition_options` | `GET /rest/api/3/issue/{issueIdOrKey}/transitions` | `read:field-configuration:jira`, `read:issue.transition:jira`, `read:status:jira` |
 | `get_transition_id_options` | `GET /rest/api/3/issue/{issueIdOrKey}/transitions` | `read:field-configuration:jira`, `read:issue.transition:jira`, `read:status:jira` |
 

@@ -60,16 +60,22 @@ OPERATION_ENDPOINTS = {
     'execute_api_request': None,
     # dropdown populators (hidden operations)
     'get_project_options': ['GET /rest/api/3/project/search'],
-    # these two read the project's own types when Project Key is set, else the whole site's
+    # these two read the project's own types when Project Key is set, else the whole site's; the
+    # editor passes the picked project's title, so it is looked up in the project list for its key
     'get_issue_type_options': ['GET /rest/api/3/issuetype',
-                               'GET /rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes'],
+                               'GET /rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes',
+                               'GET /rest/api/3/project/search'],
     'get_issue_type_id_options': ['GET /rest/api/3/issuetype',
-                                  'GET /rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes'],
+                                  'GET /rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes',
+                                  'GET /rest/api/3/project/search'],
     'get_link_type_options': ['GET /rest/api/3/issueLinkType'],
     'get_user_options': ['GET /rest/api/3/users/search'],
     'get_service_desk_options': ['GET /rest/servicedeskapi/servicedesk'],
-    'get_request_type_options': ['GET /rest/servicedeskapi/servicedesk/{serviceDeskId}/requesttype'],
-    'get_queue_options': ['GET /rest/servicedeskapi/servicedesk/{serviceDeskId}/queue'],
+    # the editor passes the picked service desk's title, so it is looked up in the desk list for its id
+    'get_request_type_options': ['GET /rest/servicedeskapi/servicedesk/{serviceDeskId}/requesttype',
+                                 'GET /rest/servicedeskapi/servicedesk'],
+    'get_queue_options': ['GET /rest/servicedeskapi/servicedesk/{serviceDeskId}/queue',
+                          'GET /rest/servicedeskapi/servicedesk'],
     'get_transition_options': ['GET ' + TRANSITIONS],
     'get_transition_id_options': ['GET ' + TRANSITIONS],
 }
