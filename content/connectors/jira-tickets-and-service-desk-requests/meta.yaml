@@ -1,6 +1,6 @@
 title: Jira tickets and service desk requests
-summary: 'Jira Cloud and Service Management: tickets, comments, transitions, JQL search and requests.
-  Scoped tokens, dependent dropdowns, per-endpoint scope docs.'
+summary: Create, update, search and transition Jira Cloud issues, and work with Jira Service Management
+  requests and queues.
 description: ''
 use_cases:
 - notification
@@ -10,9 +10,17 @@ tags:
 - ticketing
 - jsm
 author: ftnt-dspille
-version: 1.0.0
+version: 1.0.1
 min_version: null
 license: MIT
 published: '2026-10-13'
 source: https://github.com/ftnt-dspille/connector-jirav2
 author_id: 99558074
+updated: '2026-10-13'
+changelog:
+- version: 1.0.1
+  date: '2026-10-13'
+  notes: 'Dropdowns show names instead of [object Object] and resolve to keys and ids when the action runs.'
+- version: 1.0.0
+  date: '2026-10-13'
+  notes: First published.

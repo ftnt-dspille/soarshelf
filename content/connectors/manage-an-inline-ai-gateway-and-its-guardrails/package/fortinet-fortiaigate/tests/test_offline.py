@@ -100,6 +100,12 @@ def test_revoke_virtual_key(fake, config):
     assert result['status'] == 'revoked'
     record = ops.get_virtual_key(config, {'key_id': 'k-1'})
     assert record['status'] == 'revoked'
+    assert fake.last_revoke_body == {'reason': 'Revoked from FortiSOAR'}
+
+
+def test_revoke_sends_the_given_reason(fake, config):
+    ops.revoke_virtual_key(config, {'key_id': 'k-1', 'reason': 'leaked in a ticket'})
+    assert fake.last_revoke_body == {'reason': 'leaked in a ticket'}
 
 
 def test_check_key_valid(fake, config):
@@ -225,32 +231,53 @@ def test_audit_log_filter_options(fake, config):
     assert 'action' in options
 
 
-def test_workspace_options_prefer_memberships(fake, config):
-    options = ops.get_workspace_options(config, {})
-    # me/workspaces (Default) takes precedence over the org-wide list
-    assert options == [{'title': 'Default', 'value': 'ws-1'}]
+def test_options_are_plain_names(fake, config):
+    # a {title, value} object renders as "[object Object]" in the step editor
+    assert ops.get_workspace_options(config, {}) == ['Default']
+    assert ops.get_virtual_key_options(config, {}) == ['alpha', 'beta', 'gamma']
+    assert ops.get_policy_options(config, {}) == ['owasp-guard', 'dlp']
+    assert sorted(ops.get_guardrail_options(config, {})) == ['dlp-guard', 'general-owasp-guardrail']
+    assert ops.get_detector_options(config, {}) == ['OWASP Agentic Top 10', 'GDPR', 'Prompt Injection Detector']
 
 
-def test_virtual_key_options_carry_status(fake, config):
-    options = ops.get_virtual_key_options(config, {})
-    titles = dict((o['value'], o['title']) for o in options)
-    assert 'k-2' in titles and '(revoked)' in titles['k-2']
-    assert 'k-1' in titles
+def test_a_picked_name_runs_the_action_with_its_id(fake, config):
+    from fortiaigate.connector import FortiAIGate
+    result = FortiAIGate().execute(config, 'rotate_virtual_key', {'key_id': 'alpha'})
+    # the gateway rotated record k-1, so the name "alpha" reached it as the id
+    assert result['id'] == 'k-1'
+    assert result['new_secret'].startswith('faig_rotated_')
 
 
-def test_policy_and_guardrail_options(fake, config):
-    policies = ops.get_policy_options(config, {})
-    guardrails = ops.get_guardrail_options(config, {})
-    assert [o['value'] for o in policies] == ['pol-1', 'pol-2']
-    assert 'dlp (pending)' in [o['title'] for o in policies]
-    assert sorted(o['value'] for o in guardrails) == ['gr-1', 'gr-2']
+def test_resolve_names_covers_every_dropdown(fake, config):
+    client = ops._client(config)
+    out = ops.resolve_names(client, {'workspace_id': 'Default', 'key_id': 'beta', 'guardrail_id': 'dlp-guard',
+                                     'policy_ids': ['dlp', 'pol-1'], 'detector_ids': ['GDPR', 'cut-1']})
+    assert out == {'workspace_id': 'ws-1', 'key_id': 'k-2', 'guardrail_id': 'gr-2',
+                   'policy_ids': ['pol-2', 'pol-1'], 'detector_ids': ['gdpr', 'cut-1']}
 
 
-def test_detector_options_builtin_then_custom(fake, config):
-    options = ops.get_detector_options(config, {})
-    assert [o['value'] for o in options] == ['owasp-agentic-top-10', 'gdpr', 'cut-1']
-    assert 'built-in' in options[0]['title']
-    assert 'workspace' in options[2]['title']
+def test_bare_ids_pass_through_without_a_lookup(fake, config):
+    client = ops._client(config)
+    uuid = '9f8e7d6c-5b4a-3928-1706-f1e2d3c4b5a6'
+
+    def no_lookup(self):
+        raise AssertionError('listed keys for a bare id')
+
+    client.list_virtual_keys = no_lookup.__get__(client)
+    assert ops.resolve_names(client, {'key_id': uuid, 'workspace_id': '', 'policy_ids': None})['key_id'] == uuid
+
+
+def test_unknown_name_is_passed_on_for_the_api_to_report(fake, config):
+    client = ops._client(config)
+    assert ops.resolve_names(client, {'key_id': 'no-such-key'})['key_id'] == 'no-such-key'
+
+
+def test_duplicate_names_are_an_error(fake, config, monkeypatch):
+    from fortiaigate.connections import ConnectorError
+    monkeypatch.setattr(ops, '_key_rows', lambda c: [('twin', 'a-1'), ('twin', 'a-2')])
+    monkeypatch.setitem(ops.NAMED_PARAMS, 'key_id', ('virtual key', ops._key_rows))
+    with pytest.raises(ConnectorError, match='pass its id'):
+        ops.resolve_names(ops._client(config), {'key_id': 'twin'})
 
 
 def test_model_options_from_groups(fake, config):
@@ -389,3 +416,87 @@ def test_execute_api_request_does_not_follow_redirects(fake, config, monkeypatch
     monkeypatch.setattr(requests.Session, 'request', request)
     with pytest.raises(ConnectorError, match='redirect'):
         ops.execute_api_request(config, {'endpoint': '/api/v1/admin/workspaces'})
+
+
+def _expired_key(fake, status='expired', **extra):
+    fake.keys['old-1'] = dict({
+        'id': 'old-1', 'keyName': 'svc-key', 'status': status,
+        'createdAt': '2026-01-01T00:00:00.000Z', 'expiresAt': '2026-01-31T00:00:00.000Z',
+        'workspace': {'id': 'ws-1', 'name': 'Default'}, 'tpm': 1000, 'rpm': None,
+        'policyIds': [{'id': 'org-pol', 'assignedByOrg': True}, {'id': 'own-pol', 'assignedByOrg': False}],
+        'modelGroups': [], 'providerAccess': []}, **extra)
+
+
+def test_replace_rotates_an_active_key_in_place(fake, config):
+    result = ops.replace_virtual_key(config, {'key_id': 'k-1'})
+    assert result['method'] == 'rotated' and result['new_key_id'] == 'k-1'
+    assert result['new_secret'].startswith('faig_rotated_')
+
+
+def test_a_rotate_of_an_expired_key_is_refused_by_the_gateway(fake, config):
+    from fortiaigate.connections import ConnectorError
+    _expired_key(fake)
+    with pytest.raises(ConnectorError, match='cannot be rotated'):
+        ops.rotate_virtual_key(config, {'key_id': 'old-1'})
+
+
+def test_replace_reissues_an_expired_key_with_the_same_shape(fake, config):
+    _expired_key(fake)
+    result = ops.replace_virtual_key(config, {'key_id': 'old-1'})
+    assert result['method'] == 'reissued' and result['old_status'] == 'expired'
+    assert result['new_key_id'] != 'old-1' and result['new_secret'].startswith('faig_')
+    body = fake.last_create_body
+    assert body['workspaceId'] == 'ws-1' and body['keyName'] == 'svc-key' and body['tpm'] == '1000'
+    assert 'rpm' not in body
+    assert body['expiresAt']                      # the same 30-day lifetime again, from now
+    assert fake.last_put_body['policyIds'] == ['own-pol']     # org policies attach themselves
+    assert result['old_revoked'] is False and fake.last_revoke_body is None
+
+
+def test_replace_takes_the_key_secret_and_a_new_lifetime(fake, config):
+    _expired_key(fake)
+    fake.keys['9f8e7d6c-5b4a-3928-1706-f1e2d3c4b5a6'] = dict(fake.keys.pop('old-1'), id='9f8e7d6c-5b4a-3928-1706-f1e2d3c4b5a6')
+    result = ops.replace_virtual_key(config, {'api_key': 'faig_9f8e7d6c5b4a39281706f1e2d3c4b5a6_secret', 'expires_in_days': '90',
+                                              'new_key_name': 'svc-key-2'})
+    assert result['method'] == 'reissued' and fake.last_create_body['keyName'] == 'svc-key-2'
+
+
+def test_replace_revokes_a_suspended_key_after_its_replacement_exists(fake, config):
+    _expired_key(fake, status='suspended', expiresAt=None)
+    result = ops.replace_virtual_key(config, {'key_id': 'old-1'})
+    assert result['old_revoked'] is True and fake.last_revoke_body['reason'].startswith('Replaced by key ')
+    assert 'expiresAt' not in fake.last_create_body or not fake.last_create_body['expiresAt']
+
+
+def test_replace_refuses_when_model_limits_could_not_be_carried_over(fake, config):
+    from fortiaigate.connections import ConnectorError
+    _expired_key(fake, modelGroups=[{'id': 'mg-1'}])
+    with pytest.raises(ConnectorError, match='could reach more than the'):
+        ops.replace_virtual_key(config, {'key_id': 'old-1'})
+    assert fake.last_create_body is None          # nothing was created
+    result = ops.replace_virtual_key(config, {'key_id': 'old-1', 'allow_uncopied': True})
+    assert result['not_copied'] == ['modelGroups']
+
+
+def test_replace_never_revives_a_revoked_key_unasked(fake, config):
+    from fortiaigate.connections import ConnectorError
+    _expired_key(fake, status='revoked')
+    with pytest.raises(ConnectorError, match='deliberate'):
+        ops.replace_virtual_key(config, {'key_id': 'old-1'})
+    assert fake.last_create_body is None
+    assert ops.replace_virtual_key(config, {'key_id': 'old-1', 'allow_revoked': True})['method'] == 'reissued'
+
+
+@pytest.mark.parametrize('secret', ['', 'nope', 'faig_short_x', 'other_9f8e7d6c5b4a39281706f1e2d3c4b5a6_x',
+                                    'faig_zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz_x'])
+def test_a_malformed_secret_is_not_turned_into_an_id(fake, config, secret):
+    from fortiaigate.connections import ConnectorError, key_id_from_secret
+    with pytest.raises(ConnectorError, match='not a FortiAIGate virtual key secret'):
+        key_id_from_secret(secret)
+
+
+def test_a_renewed_key_keeps_its_name_and_the_active_one_is_chosen(fake, config):
+    _expired_key(fake)
+    fake.keys['new-1'] = {'id': 'new-1', 'keyName': 'svc-key', 'status': 'active'}
+    assert ops.resolve_names(ops._client(config), {'key_id': 'svc-key'})['key_id'] == 'new-1'
+    assert ops.get_virtual_key_options(config, {}).count('svc-key') == 1

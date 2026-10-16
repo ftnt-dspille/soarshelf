@@ -8,9 +8,17 @@ tags:
 - threatconnect
 - threat-intel
 author: ftnt-dspille
-version: 2.2.0
+version: 2.2.1
 min_version: null
 license: MIT
 published: '2026-10-13'
 source: https://github.com/ftnt-dspille/connector-threatconnect
 author_id: 99558074
+updated: '2026-10-13'
+changelog:
+- version: 2.2.1
+  date: '2026-10-13'
+  notes: 'Owner dropdown shows names instead of [object Object]; new indicator, group and tag actions, a generic API call and unified sample playbooks.'
+- version: 2.2.0
+  date: '2026-10-13'
+  notes: First published.

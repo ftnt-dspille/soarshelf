@@ -575,6 +575,69 @@ def list_queue_issues(config, params):
 # playbook stores the stable key or id.
 # ---------------------------------------------------------------------------
 
+# The step editor draws a dropdown from a plain list of strings and hands the action
+# exactly the text that was picked (a {title, value} object renders as "[object Object]").
+# Each populator below therefore builds {title, value} pairs and is registered as a
+# titles-only operation; resolve_dropdowns() maps a picked title back to its value
+# before the action runs. A value that is already bare (a key, an id) is left alone.
+_DROPDOWNS = {}
+
+
+def _dropdown(is_value):
+    """Register a populator. `is_value(text)` is True when the text is already the value, not a title."""
+    def wrap(fn):
+        def titles(config, params):
+            return [o['title'] for o in fn(config, params)]
+        titles.__name__ = fn.__name__
+        titles.pairs = fn
+        _DROPDOWNS[fn.__name__] = (fn, is_value)
+        return titles
+    return wrap
+
+
+_NUMERIC = str.isdigit
+
+def _PLAIN(text):
+    """True for a bare key or id: every titled option of these dropdowns reads "Name (detail)"."""
+    return ' (' not in text
+
+
+_dropdown_spec = None
+
+
+def _dropdown_params():
+    """{operation: [(parameter, populator), ...]} from info.json, in form order (parents first)."""
+    global _dropdown_spec
+    if _dropdown_spec is None:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'info.json')) as handle:
+            manifest = json.load(handle)
+        _dropdown_spec = {
+            op['operation']: [(p['name'], p['apiOperation']) for p in op.get('parameters', []) if p.get('apiOperation')]
+            for op in manifest.get('operations', [])}
+    return _dropdown_spec
+
+
+def resolve_dropdowns(config, operation, params):
+    """Replace each picked dropdown title in `params` with the value the API needs."""
+    out = dict(params or {})
+    for name, populator in _dropdown_params().get(operation, []):
+        text = out.get(name)
+        if not isinstance(text, str) or _blank(text) or '{{' in text:
+            continue
+        text = text.strip()
+        pairs, is_value = _DROPDOWNS[populator]
+        if is_value(text):
+            continue
+        values = [o['value'] for o in pairs(config, out) if o['title'] == text]
+        if len(set(values)) > 1:
+            raise ConnectorError('More than one choice is called "%s" for %s; pass its value instead: %s'
+                                 % (text, name, ', '.join(str(v) for v in values)))
+        if values:
+            out[name] = values[0]
+    return out
+
+
+@_dropdown(_PLAIN)
 def get_project_options(config, params):
     client = JiraClient(config)
     projects = client.paginate_offset(API + '/project/search', {'maxResults': 100}, limit=MAX_FETCH_ALL)
@@ -619,6 +682,7 @@ def _dependent(config, params, parent, build):
         return []
 
 
+@_dropdown(lambda t: not t.endswith(' (sub-task)'))
 def get_issue_type_options(config, params):
     def build():
         return sorted(({'title': t['name'] + (' (sub-task)' if t.get('subtask') else ''), 'value': t['name']}
@@ -629,9 +693,10 @@ def get_issue_type_options(config, params):
     return _dependent(config, params, 'project_key', build)
 
 
+@_dropdown(_NUMERIC)
 def get_issue_type_id_options(config, params):
     def build():
-        return sorted(({'title': '%s [%s]' % (t['name'], t['id']), 'value': str(t['id'])}
+        return sorted(({'title': t['name'], 'value': str(t['id'])}
                        for t in _issue_types(config, params.get('project_key'))),
                       key=lambda o: o['title'].lower())
     if _blank(params.get('project_key')):
@@ -651,6 +716,7 @@ def _paged_values(client, path, page_size=100):
     return items
 
 
+@_dropdown(_NUMERIC)
 def get_request_type_options(config, params):
     def build():
         types = _paged_values(JiraClient(config),
@@ -659,6 +725,7 @@ def get_request_type_options(config, params):
     return _dependent(config, params, 'service_desk_id', build)
 
 
+@_dropdown(_NUMERIC)
 def get_queue_options(config, params):
     def build():
         queues = _paged_values(JiraClient(config), '%s/servicedesk/%s/queue' % (JSM, _ident(params['service_desk_id'])))
@@ -666,6 +733,7 @@ def get_queue_options(config, params):
     return _dependent(config, params, 'service_desk_id', build)
 
 
+@_dropdown(lambda t: ' (via ' not in t)
 def get_transition_options(config, params):
     """Target status names reachable from the issue's current status."""
     def build():
@@ -675,20 +743,23 @@ def get_transition_options(config, params):
     return _dependent(config, params, 'issue_key', build)
 
 
+@_dropdown(_NUMERIC)
 def get_transition_id_options(config, params):
     def build():
         found = _transitions(JiraClient(config), _ident(params['issue_key']))
-        return [{'title': '%s -> %s [%s]' % (t.get('name'), (t.get('to') or {}).get('name'), t['id']),
+        return [{'title': '%s -> %s' % (t.get('name'), (t.get('to') or {}).get('name')),
                  'value': str(t['id'])} for t in found]
     return _dependent(config, params, 'issue_key', build)
 
 
+@_dropdown(_PLAIN)
 def get_link_type_options(config, params):
     types = JiraClient(config).request('GET', API + '/issueLinkType').get('issueLinkTypes') or []
     return [{'title': '%s (%s / %s)' % (t['name'], t.get('inward'), t.get('outward')), 'value': t['name']}
             for t in types]
 
 
+@_dropdown(_PLAIN)
 def get_user_options(config, params):
     client = JiraClient(config)
     users, start = [], 0
@@ -704,12 +775,12 @@ def get_user_options(config, params):
         if user.get('accountType') not in (None, 'atlassian') or user.get('active') is False:
             continue
         label = user.get('displayName') or user['accountId']
-        if user.get('emailAddress'):
-            label += ' (%s)' % user['emailAddress']
+        label += ' (%s)' % (user.get('emailAddress') or user['accountId'])
         options.append({'title': label, 'value': user['accountId']})
     return sorted(options, key=lambda o: o['title'].lower())
 
 
+@_dropdown(_NUMERIC)
 def get_service_desk_options(config, params):
     desks = JiraClient(config).request('GET', JSM + '/servicedesk', params={'limit': 100}).get('values') or []
     return [{'title': '%s (%s)' % (d.get('projectName'), d.get('projectKey')), 'value': str(d['id'])}

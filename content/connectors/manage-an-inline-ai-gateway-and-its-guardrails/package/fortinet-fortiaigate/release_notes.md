@@ -1,5 +1,45 @@
 # fortinet-fortiaigate release notes
 
+## 1.3.4
+
+- **Replace Virtual Key** now fails closed. A revoked key is shut off on purpose, so it is
+  not replaced unless **Allow Replacing a Revoked Key** is on. A key with model groups or
+  provider access is not replaced unless **Allow Replacement Without Model Access Limits**
+  is on, because those limits are not copied and the new key could reach more than the old
+  one; nothing is created in either case. The sample playbook leaves both off, so it stops
+  with a clear message for such keys.
+- A key secret that is not `faig_<32 hex>_...` is rejected instead of being turned into an id.
+
+## 1.3.3
+
+- New operation **Replace Virtual Key**: FortiAIGate only rotates a key that is still
+  active; an expired, revoked or suspended key "cannot be rotated: mint a new key
+  instead". Replace Virtual Key rotates an active key in place and otherwise creates a
+  new key in the same workspace with the same name, limits and policies (a suspended
+  key is revoked afterwards), and returns `new_secret`. Pass the key (name or id) or its
+  secret.
+- The sample playbook **Heal Expired FortiAIGate Key in Vault** now does the real job:
+  when the key stored in Vault has expired, been revoked or been suspended, it issues
+  a replacement, writes it to the same Vault path as a new version, keeping every other
+  field of the secret, and verifies the new key. It takes `secret_path` and an optional
+  `key_field`, and reports `rotated`, `new_key_id` and `key_method`.
+- When several keys share a name (a renewed key keeps its name), a key dropdown value
+  resolves to the single active one.
+
+## 1.3.2
+
+- Fixed: **Revoke Virtual Key** failed on FortiAIGate 8.0.2 with "expected required
+  property reason to be present". It now sends a reason, set with the new optional
+  **Reason** parameter (default "Revoked from FortiSOAR").
+
+## 1.3.1
+
+- Fixed: the workspace, key, policy, guardrail and detector dropdowns showed
+  "[object Object]" for every entry. They now list plain names. A picked name
+  is resolved to its id when the action runs (a bare id still works, so existing
+  playbooks keep working, and a name shared by two items is an error that lists
+  the ids).
+
 ## 1.3.0
 
 - New operation **Execute API Request**: call any FortiAIGate management API

@@ -10,7 +10,7 @@ tags:
 - llm
 - gateway
 author: ftnt-dspille
-version: 1.3.0
+version: 1.3.4
 min_version: null
 license: MIT
 published: '2026-10-13'
@@ -18,6 +18,9 @@ source: https://github.com/ftnt-dspille/fortinet-fortiaigate
 author_id: 99558074
 updated: '2026-10-13'
 changelog:
+- version: 1.3.4
+  date: '2026-10-13'
+  notes: 'Dropdowns show names instead of [object Object]; new Replace Virtual Key (rotate or reissue) and a playbook that heals an expired key in Vault; Revoke sends the required reason; Execute API Request.'
 - version: 1.3.0
   date: '2026-10-13'
   notes: Updated.
