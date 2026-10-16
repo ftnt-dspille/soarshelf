@@ -200,3 +200,17 @@ describe('placeGroups on a wrapped playbook with six notes', () => {
     }
   });
 });
+
+describe('placeGroups when a note has no free room', () => {
+  // A step boxed in by its neighbours must still get a note within the canvas,
+  // not one flung past the far edge of the layout.
+  it('keeps a boxed-in note near the layout', () => {
+    const nodes = Array.from({ length: 9 }, (_, i) => n(`s${i}`));
+    const edges: PlaybookEdge[] = nodes.slice(1).map((x, i) => ({ id: `e${i}`, source: `s${i}`, target: x.id, label: null }));
+    const l = autoLayout(nodes, edges, 1440, 700);
+    const a = placeGroups(l, [{ id: 'g', kind: 'note', name: 'Note', text: 'x', anchor: 's4' }], edges);
+    const r = a.notes.get('g')!;
+    expect(r.x + r.w).toBeLessThan(l.width + 3 * NOTE_W);
+    expect(r.x).toBeGreaterThan(-3 * NOTE_W);
+  });
+});

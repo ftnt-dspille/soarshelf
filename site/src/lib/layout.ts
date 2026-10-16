@@ -416,22 +416,40 @@ export function placeGroups(l: Layout, groups: PlaybookGroup[], edges: PlaybookE
         }
       }
     }
-    let placed: Rect | null = null;
-    let bestScore = Infinity;
-    for (const r of cands) {
-      if (others.some((t) => hits(r, t)) || lines.some((s) => hits(r, segRect(s[0], s[1], 4), 0))) continue;
+    // Score a spot: null when it sits on something; the link crossing a step is a
+    // blocker in the strict pass and a heavy penalty in the relaxed one.
+    const score = (r: Rect, strict: boolean): number | null => {
+      if (others.some((t) => hits(r, t)) || lines.some((s) => hits(r, segRect(s[0], s[1], 4), 0))) return null;
       const before = across ? r.y + r.h <= a.y : r.x + r.w <= a.x;
       const from = across ? { x: anchorMid.x, y: before ? a.y : a.y + NODE_H } : { x: before ? a.x : a.x + NODE_W, y: anchorMid.y };
       const to = across ? { x: r.x + r.w / 2, y: before ? r.y + r.h : r.y } : { x: before ? r.x + r.w : r.x, y: r.y + r.h / 2 };
-      const blockers = others.filter((t) => t !== nodeRectOf.get(g.anchor) && segHitsRect(from, to, t, 4));
-      if (blockers.length) continue;
+      const blockers = others.filter((t) => t !== nodeRectOf.get(g.anchor) && segHitsRect(from, to, t, 4)).length;
+      if (blockers && strict) return null;
       const crossed = lines.filter((s) => segCross(from, to, s[0], s[1])).length;
-      const out = Math.max(0, r.x + r.w - l.width, -r.x);
-      const score = Math.hypot(to.x - from.x, to.y - from.y) + crossed * 40 + out * 0.6;
-      if (score < bestScore) {
-        bestScore = score;
-        placed = r;
+      // Reaching past the canvas shrinks the zoom the whole playbook is shown at, and the
+      // frame is wider than tall, so a pixel of height costs about twice a pixel of width.
+      const out = 0.5 * Math.max(0, r.x + r.w - l.width, -r.x) + Math.max(0, r.y + r.h - l.height, -r.y);
+      return Math.hypot(to.x - from.x, to.y - from.y) + crossed * 40 + blockers * 250 + out;
+    };
+    let placed: Rect | null = null;
+    let bestScore = Infinity;
+    const best = (rs: Iterable<Rect>, strict: boolean) => {
+      for (const r of rs) {
+        const sc = score(r, strict);
+        if (sc !== null && sc < bestScore) {
+          bestScore = sc;
+          placed = r;
+        }
       }
+    };
+    best(cands, true);
+    if (!placed) {
+      // Boxed in by its neighbours: take the best spot anywhere around the playbook.
+      const wide: Rect[] = [];
+      for (let x = -NOTE_W - NOTE_GAP; x <= l.width + NOTE_GAP; x += 40) {
+        for (let y = -h - NOTE_GAP; y <= l.height + NOTE_GAP; y += 24) wide.push({ x, y, w: NOTE_W, h });
+      }
+      best(wide, false);
     }
     placed ??= across
       ? { x: a.x + (NODE_W - NOTE_W) / 2, y: Math.max(...taken.map((t) => t.y + t.h)) + NOTE_GAP, w: NOTE_W, h }
