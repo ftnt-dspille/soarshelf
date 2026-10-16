@@ -1,7 +1,23 @@
 title: Fortinet FortiAIGate
 summary: Fortinet FortiAIGate is an inline AI gateway that brokers and guards access to large language
   model providers.
-description: ''
+description: |
+  Manage a **FortiAIGate** inline AI gateway from FortiSOAR: the virtual keys client applications use to reach
+  the gateway's OpenAI-compatible endpoint, and the guardrails and policies that govern them.
+
+  Actions list workspaces; list, get, create, update, rotate and revoke virtual keys; check a key against the
+  data plane; send guarded chat completions; list guardrails and scan text with them without calling a model;
+  list and attach policies; read provider health, workspace budgets and the admin audit log; and call any other
+  management endpoint with `Execute API Request`, which refuses a full URL so the login never leaves the
+  configured server. **Replace Virtual Key** rotates an active key in place and, for an expired or suspended
+  one, creates a replacement with the same workspace, name, limits and policies. It stops without creating
+  anything for a revoked key, or for one with model limits or provider access, unless you allow it. Revoke
+  sends the reason the gateway requires.
+
+  Workspace, key, policy, guardrail, detector and model dropdowns list names and resolve them to ids when the
+  action runs, and a playbook can pass either. The included playbook, **Heal Expired FortiAIGate Key in
+  Vault**, reads a key from a HashiCorp Vault KV v2 secret, validates it, replaces it if it is no longer valid,
+  writes the new secret back as a new version and verifies it.
 use_cases:
 - utility
 - reporting
