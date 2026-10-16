@@ -1,0 +1,260 @@
+{
+ "nodes": [
+  {
+   "id": "8891ecf1-32a7-510a-9fa1-c12d5c707736",
+   "name": "Start",
+   "label": "Referenced",
+   "family": "trigger",
+   "x": 200,
+   "y": 120,
+   "args": {}
+  },
+  {
+   "id": "4156ddff-53be-512f-8c01-a252ffee86e9",
+   "name": "ResolvePath",
+   "label": "Set variable",
+   "family": "utility",
+   "x": 200,
+   "y": 250,
+   "args": {}
+  },
+  {
+   "id": "2e6f9399-3402-5bdc-959a-beb0100647e5",
+   "name": "ReadCurrentSecret",
+   "label": "Connector",
+   "family": "connector",
+   "x": 200,
+   "y": 380,
+   "args": {},
+   "connector": "hashicorp-vault-kv",
+   "operation": "read_secret",
+   "operationTitle": "Read Secret"
+  },
+  {
+   "id": "27caa8b0-f61f-5fc5-866c-85e661baf1aa",
+   "name": "CheckCurrentKey",
+   "label": "Connector",
+   "family": "connector",
+   "x": 200,
+   "y": 510,
+   "args": {},
+   "connector": "fortinet-fortiaigate",
+   "operation": "check_key",
+   "operationTitle": "Check API Key"
+  },
+  {
+   "id": "59d491ff-451f-5c65-ad4a-f63b2b58afba",
+   "name": "KeyValid",
+   "label": "Decision",
+   "family": "decision",
+   "x": 200,
+   "y": 640,
+   "args": {}
+  },
+  {
+   "id": "bbafcc5a-1732-5170-ab3f-ff9a15574f62",
+   "name": "RotateKey",
+   "label": "Connector",
+   "family": "connector",
+   "x": 200,
+   "y": 770,
+   "args": {},
+   "connector": "fortinet-fortiaigate",
+   "operation": "rotate_virtual_key",
+   "operationTitle": "Rotate Virtual Key"
+  },
+  {
+   "id": "269160ab-844c-53dc-8835-1e186af21ef1",
+   "name": "BuildPayload",
+   "label": "Set variable",
+   "family": "utility",
+   "x": 200,
+   "y": 900,
+   "args": {}
+  },
+  {
+   "id": "bebb0171-d2d7-52dd-8c42-3b2bbeb0c71d",
+   "name": "WriteSecret",
+   "label": "Connector",
+   "family": "connector",
+   "x": 200,
+   "y": 1030,
+   "args": {},
+   "connector": "hashicorp-vault-kv",
+   "operation": "write_secret",
+   "operationTitle": "Write Secret"
+  },
+  {
+   "id": "a26865ff-ab9b-5878-b5a0-57df77ec87d2",
+   "name": "VerifyNewKey",
+   "label": "Connector",
+   "family": "connector",
+   "x": 200,
+   "y": 1160,
+   "args": {},
+   "connector": "fortinet-fortiaigate",
+   "operation": "check_key",
+   "operationTitle": "Check API Key"
+  },
+  {
+   "id": "922b56ae-6105-5151-b2be-04b8239bd479",
+   "name": "NewKeyValid",
+   "label": "Decision",
+   "family": "decision",
+   "x": 200,
+   "y": 1290,
+   "args": {}
+  },
+  {
+   "id": "60e0ac37-72c4-54c7-a97f-5845512f55d4",
+   "name": "AlreadyHealthy",
+   "label": "Set variable",
+   "family": "utility",
+   "x": 880,
+   "y": 770,
+   "args": {}
+  },
+  {
+   "id": "b57cc047-32dd-5217-82ca-9d07030f7fa7",
+   "name": "FailRotation",
+   "label": "Set variable",
+   "family": "utility",
+   "x": 1220,
+   "y": 1420,
+   "args": {}
+  },
+  {
+   "id": "b6f2fe9c-eaf0-5e24-bc3f-19f3a1ea728a",
+   "name": "Done",
+   "label": "Set variable",
+   "family": "utility",
+   "x": 880,
+   "y": 1420,
+   "args": {}
+  }
+ ],
+ "edges": [
+  {
+   "id": "d6e6e473-d051-5969-b65a-7936b09b9cd1",
+   "source": "8891ecf1-32a7-510a-9fa1-c12d5c707736",
+   "target": "4156ddff-53be-512f-8c01-a252ffee86e9",
+   "label": null
+  },
+  {
+   "id": "c60a698c-3b6f-5014-a5f2-4138012672a0",
+   "source": "4156ddff-53be-512f-8c01-a252ffee86e9",
+   "target": "2e6f9399-3402-5bdc-959a-beb0100647e5",
+   "label": null
+  },
+  {
+   "id": "99a700d1-205e-5404-ae2d-84333005b0e9",
+   "source": "2e6f9399-3402-5bdc-959a-beb0100647e5",
+   "target": "27caa8b0-f61f-5fc5-866c-85e661baf1aa",
+   "label": null
+  },
+  {
+   "id": "1d0dd367-67ce-53e6-921d-890954c5a15b",
+   "source": "27caa8b0-f61f-5fc5-866c-85e661baf1aa",
+   "target": "59d491ff-451f-5c65-ad4a-f63b2b58afba",
+   "label": null
+  },
+  {
+   "id": "7914b041-9b3d-559d-828e-529bad2d11c2",
+   "source": "59d491ff-451f-5c65-ad4a-f63b2b58afba",
+   "target": "bbafcc5a-1732-5170-ab3f-ff9a15574f62",
+   "label": "Invalid - rotate"
+  },
+  {
+   "id": "3a6a5693-1e77-59f3-a928-9d12c8712470",
+   "source": "59d491ff-451f-5c65-ad4a-f63b2b58afba",
+   "target": "60e0ac37-72c4-54c7-a97f-5845512f55d4",
+   "label": "Valid - nothing to do"
+  },
+  {
+   "id": "d67ea7bf-f67f-5b7b-86ce-2788054b07fa",
+   "source": "bbafcc5a-1732-5170-ab3f-ff9a15574f62",
+   "target": "269160ab-844c-53dc-8835-1e186af21ef1",
+   "label": null
+  },
+  {
+   "id": "10e66574-cbc5-5b56-b289-7284c6f7e1aa",
+   "source": "269160ab-844c-53dc-8835-1e186af21ef1",
+   "target": "bebb0171-d2d7-52dd-8c42-3b2bbeb0c71d",
+   "label": null
+  },
+  {
+   "id": "31bb7fa8-d91b-56a4-8e0b-0e4341d77a91",
+   "source": "bebb0171-d2d7-52dd-8c42-3b2bbeb0c71d",
+   "target": "a26865ff-ab9b-5878-b5a0-57df77ec87d2",
+   "label": null
+  },
+  {
+   "id": "cd7ff61c-ac54-518d-a68f-6f70de83b1ec",
+   "source": "a26865ff-ab9b-5878-b5a0-57df77ec87d2",
+   "target": "922b56ae-6105-5151-b2be-04b8239bd479",
+   "label": null
+  },
+  {
+   "id": "b9317673-021f-5e5b-9781-95aa17ecde59",
+   "source": "922b56ae-6105-5151-b2be-04b8239bd479",
+   "target": "b6f2fe9c-eaf0-5e24-bc3f-19f3a1ea728a",
+   "label": "New key valid"
+  },
+  {
+   "id": "3e0887a1-4fb6-5f8c-b54f-c4f97e3a411a",
+   "source": "922b56ae-6105-5151-b2be-04b8239bd479",
+   "target": "b57cc047-32dd-5217-82ca-9d07030f7fa7",
+   "label": "New key invalid - run failed"
+  },
+  {
+   "id": "3f82b75a-7dea-5eca-8efc-961514a14bf4",
+   "source": "60e0ac37-72c4-54c7-a97f-5845512f55d4",
+   "target": "b6f2fe9c-eaf0-5e24-bc3f-19f3a1ea728a",
+   "label": null
+  }
+ ],
+ "groups": [
+  {
+   "id": "89b1e964-8b16-5d87-bddd-842813ce2143",
+   "kind": "note",
+   "name": "Note: ResolvePath",
+   "text": "The Vault path of the secret holding the api_key; lab default lab/ai.",
+   "anchor": "4156ddff-53be-512f-8c01-a252ffee86e9"
+  },
+  {
+   "id": "e2fa52d0-a02e-5252-a3f6-3717a21b130e",
+   "kind": "note",
+   "name": "Note: KeyValid",
+   "text": "Branch on the data-plane verdict for the stored key.",
+   "anchor": "59d491ff-451f-5c65-ad4a-f63b2b58afba"
+  },
+  {
+   "id": "801a299a-de8d-5878-9b2a-7ec55c40a626",
+   "kind": "note",
+   "name": "Note: BuildPayload",
+   "text": "KV v2 writes create a new version and drop omitted fields, so the new secret data carries every original field with api_key replaced. Built as a JSON string because connector params are strings.",
+   "anchor": "269160ab-844c-53dc-8835-1e186af21ef1"
+  },
+  {
+   "id": "41f29cef-844c-5995-9ecd-97ddc6e58ff5",
+   "kind": "note",
+   "name": "Note: NewKeyValid",
+   "text": "The rotated key must validate; anything else fails the run.",
+   "anchor": "922b56ae-6105-5151-b2be-04b8239bd479"
+  },
+  {
+   "id": "e7894f65-5c55-5870-b2d2-28019d7e53ab",
+   "kind": "note",
+   "name": "Note: FailRotation",
+   "text": "Reachable only when the rotated key does not validate.",
+   "anchor": "b57cc047-32dd-5217-82ca-9d07030f7fa7"
+  },
+  {
+   "id": "4c2fe7f2-598a-5cfc-9257-1b9179993c31",
+   "kind": "note",
+   "name": "Note: Done",
+   "text": "Terminal summary.",
+   "anchor": "b6f2fe9c-eaf0-5e24-bc3f-19f3a1ea728a"
+  }
+ ]
+}

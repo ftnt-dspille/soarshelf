@@ -302,13 +302,67 @@ export interface Annotations {
   height: number;
 }
 
-export function placeGroups(l: Layout, groups: PlaybookGroup[]): Annotations {
+/** Does the segment a-b pass through (a padded) rect? Liang-Barsky clip. */
+function segHitsRect(a: Point, b: Point, r: Rect, pad = 0): boolean {
+  const x0 = r.x - pad, x1 = r.x + r.w + pad, y0 = r.y - pad, y1 = r.y + r.h + pad;
+  let t0 = 0, t1 = 1;
+  const dx = b.x - a.x, dy = b.y - a.y;
+  for (const [p, q] of [[-dx, a.x - x0], [dx, x1 - a.x], [-dy, a.y - y0], [dy, y1 - a.y]]) {
+    if (p === 0) {
+      if (q < 0) return false;
+    } else {
+      const t = q / p;
+      if (p < 0) {
+        if (t > t1) return false;
+        if (t > t0) t0 = t;
+      } else {
+        if (t < t0) return false;
+        if (t < t1) t1 = t;
+      }
+    }
+  }
+  return t0 <= t1;
+}
+
+/** Do two segments cross? */
+function segCross(a: Point, b: Point, c: Point, d: Point): boolean {
+  const o = (p: Point, q: Point, r: Point) => Math.sign((q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x));
+  return o(a, b, c) !== o(a, b, d) && o(c, d, a) !== o(c, d, b);
+}
+
+/** A segment's bounding box, padded: edges and note links are obstacles a note must not sit on. */
+function segRect(a: Point, b: Point, pad: number): Rect {
+  return { x: Math.min(a.x, b.x) - pad, y: Math.min(a.y, b.y) - pad, w: Math.abs(a.x - b.x) + 2 * pad, h: Math.abs(a.y - b.y) + 2 * pad };
+}
+
+/** The line each edge is drawn along, as axis-aligned segments (smoothstep approximated by its mid-bend). */
+function edgeSegments(l: Layout, edges: PlaybookEdge[]): [Point, Point][] {
+  const out: [Point, Point][] = [];
+  for (const e of edges) {
+    const s = l.positions.get(e.source), t = l.positions.get(e.target);
+    if (!s || !t || e.source === e.target) continue;
+    const lr = l.dir === 'LR' && !isRouted(l, e.id);
+    const a = lr ? { x: s.x + NODE_W, y: s.y + NODE_H / 2 } : { x: s.x + NODE_W / 2, y: s.y + NODE_H };
+    const b = lr ? { x: t.x, y: t.y + NODE_H / 2 } : { x: t.x + NODE_W / 2, y: t.y };
+    const pts = isRouted(l, e.id)
+      ? jumpPoints(l, e.source, e.target, a, b, e.id)
+      : lr
+        ? [a, { x: (a.x + b.x) / 2, y: a.y }, { x: (a.x + b.x) / 2, y: b.y }, b]
+        : [a, { x: a.x, y: (a.y + b.y) / 2 }, { x: b.x, y: (a.y + b.y) / 2 }, b];
+    for (let i = 1; i < pts.length; i++) out.push([pts[i - 1], pts[i]]);
+  }
+  return out;
+}
+
+export function placeGroups(l: Layout, groups: PlaybookGroup[], edges: PlaybookEdge[] = []): Annotations {
   const nodeRect = (id: string): Rect | null => {
     const p = l.positions.get(id);
     return p ? { x: p.x, y: p.y, w: NODE_W, h: NODE_H } : null;
   };
   const steps = [...l.positions.keys()].map((id) => ({ id, r: nodeRect(id)! }));
   const taken: Rect[] = steps.map((s) => s.r);
+  const nodeRectOf = new Map(steps.map((s) => [s.id, s.r]));
+  const lines = edgeSegments(l, edges);
   const blocks = new Map<string, Rect>();
   const notes = new Map<string, Rect>();
 
@@ -343,30 +397,45 @@ export function placeGroups(l: Layout, groups: PlaybookGroup[]): Annotations {
   for (const g of ordered) {
     const a = l.positions.get(g.anchor)!;
     const h = noteHeight(g.text);
-    // Start beside the step (then the other side of it, then further out) and slide along.
-    // Centred on the step, so the note sits evenly beside it and the link runs straight.
-    const mid = across ? a.x + (NODE_W - NOTE_W) / 2 : a.y + (NODE_H - h) / 2;
-    const starts: Rect[] = across
-      ? [a.y + NODE_H + NOTE_GAP, a.y - NOTE_GAP - h, a.y + NODE_H + 2 * NOTE_GAP + h].map((y) => ({ x: mid, y, w: NOTE_W, h }))
-      : [a.x + NODE_W + NOTE_GAP, a.x - NOTE_GAP - NOTE_W, a.x + NODE_W + 2 * NOTE_GAP + NOTE_W].map((x) => ({ x, y: mid, w: NOTE_W, h }));
-    let placed: Rect | null = null;
-    for (const start of starts) {
-      let r = start;
-      for (let i = 0; i < 40; i++) {
-        const hit = [...taken, ...blocks.values()].find((t) => hits(r, t));
-        if (!hit) {
-          placed = r;
-          break;
+    // Candidates around the step (both sides, several distances and offsets); keep the
+    // nearest one that sits on no step, note, block or edge line and whose link to the
+    // step runs clear of every other step and note.
+    const anchorMid = { x: a.x + NODE_W / 2, y: a.y + NODE_H / 2 };
+    const others = [...taken, ...blocks.values()];
+    const cands: Rect[] = [];
+    for (let k = 0; k < 14; k++) {
+      for (let j = -14; j <= 14; j++) {
+        const off = j * 24;
+        const away = NOTE_GAP + k * 28;
+        if (across) {
+          const x = a.x + (NODE_W - NOTE_W) / 2 + off;
+          cands.push({ x, y: a.y + NODE_H + away, w: NOTE_W, h }, { x, y: a.y - away - h, w: NOTE_W, h });
+        } else {
+          const y = a.y + (NODE_H - h) / 2 + off;
+          cands.push({ x: a.x + NODE_W + away, y, w: NOTE_W, h }, { x: a.x - away - NOTE_W, y, w: NOTE_W, h });
         }
-        r = across ? { ...r, x: hit.x + hit.w + 12 } : { ...r, y: hit.y + hit.h + 12 };
-        // Too far from its step to read as its note: try the next start.
-        if (across ? r.x - a.x > NODE_W * 2 : r.y - a.y > NODE_H * 3) break;
       }
-      if (placed) break;
+    }
+    let placed: Rect | null = null;
+    let bestScore = Infinity;
+    for (const r of cands) {
+      if (others.some((t) => hits(r, t)) || lines.some((s) => hits(r, segRect(s[0], s[1], 4), 0))) continue;
+      const before = across ? r.y + r.h <= a.y : r.x + r.w <= a.x;
+      const from = across ? { x: anchorMid.x, y: before ? a.y : a.y + NODE_H } : { x: before ? a.x : a.x + NODE_W, y: anchorMid.y };
+      const to = across ? { x: r.x + r.w / 2, y: before ? r.y + r.h : r.y } : { x: before ? r.x + r.w : r.x, y: r.y + r.h / 2 };
+      const blockers = others.filter((t) => t !== nodeRectOf.get(g.anchor) && segHitsRect(from, to, t, 4));
+      if (blockers.length) continue;
+      const crossed = lines.filter((s) => segCross(from, to, s[0], s[1])).length;
+      const out = Math.max(0, r.x + r.w - l.width, -r.x);
+      const score = Math.hypot(to.x - from.x, to.y - from.y) + crossed * 40 + out * 0.6;
+      if (score < bestScore) {
+        bestScore = score;
+        placed = r;
+      }
     }
     placed ??= across
-      ? { x: mid, y: Math.max(...taken.map((t) => t.y + t.h)) + NOTE_GAP, w: NOTE_W, h }
-      : { x: Math.max(...taken.map((t) => t.x + t.w)) + NOTE_GAP, y: mid, w: NOTE_W, h };
+      ? { x: a.x + (NODE_W - NOTE_W) / 2, y: Math.max(...taken.map((t) => t.y + t.h)) + NOTE_GAP, w: NOTE_W, h }
+      : { x: Math.max(...taken.map((t) => t.x + t.w)) + NOTE_GAP, y: a.y + (NODE_H - h) / 2, w: NOTE_W, h };
     notes.set(g.id, placed);
     taken.push(placed);
   }
