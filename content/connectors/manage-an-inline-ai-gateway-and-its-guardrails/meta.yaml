@@ -28,7 +28,7 @@ tags:
 - llm
 - gateway
 author: ftnt-dspille
-version: 1.6.3
+version: 1.6.10
 min_version: null
 license: MIT
 published: '2026-10-13'
@@ -36,6 +36,24 @@ source: https://github.com/ftnt-dspille/fortinet-fortiaigate
 author_id: 99558074
 updated: '2026-10-16'
 changelog:
+- version: 1.6.10
+  date: 2026-10-17
+  notes: Replay protection on the revocation playbook. BlockVerified now also requires the log's timeStamp to fall within the last 15 minutes, so a privileged caller cannot reuse an old block uuid to revoke a key later. A stale uuid lands on verification_failed. De-duplication of a repeated fresh request_id is open for a future rev.
+- version: 1.6.9
+  date: 2026-10-17
+  notes: Two security fixes to the 1.6.8 get_traffic_log op. Key resolution requires the log's keyPrefix to match the key's keyPreview whenever the log has a prefix (including the single-candidate case) - no fallback. The op no longer returns the raw traffic log, the prompt, the response or detector details.
+- version: 1.6.8
+  date: 2026-10-17
+  notes: The revocation playbook now cross-checks the request against FortiAIGate traffic logs before acting. The caller must send a request_id; the playbook calls the new get_traffic_log operation on that uuid and proceeds only if the log's keyId matches the caller's key_id and verdict is block, else verification_failed.
+- version: 1.6.6
+  date: 2026-10-17
+  notes: Clamp caller-controlled limits on the revocation playbook. extend_days 1-30, max_peers 1-50, a secret_folder with '.' or '..' refused.
+- version: 1.6.5
+  date: 2026-10-17
+  notes: Security fixes to 1.6.4. Peer-rotation workspace comes from the bad secret's own faig_workspace_id tag in Vault. Empty workspace never fans out. Failed revoke_virtual_key is a terminal revoke_failed that leaves Vault untouched. Metadata patches skip empty values.
+- version: 1.6.4
+  date: 2026-10-17
+  notes: New sample playbook Revoke FortiAIGate Key on Guardrail Block. On a FortiAIGate guardrail block, revokes the key, clears its Vault secret with api_key=REVOKED, stamps faig_revoked_at/_policy/_request, and rotates every peer tagged with the same faig_workspace_id through the existing child renewal. Onboarding also stamps faig_workspace_id; includes a one-time backfill script for pre-1.6.4 secrets.
 - version: 1.6.3
   date: '2026-10-16'
   notes: 'Renew keys before they expire: List Expiring Virtual Keys, Renew moves a too-soon expiry out, and new
