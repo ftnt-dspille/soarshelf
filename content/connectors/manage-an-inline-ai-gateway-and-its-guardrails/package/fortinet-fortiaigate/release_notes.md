@@ -1,5 +1,56 @@
 # fortinet-fortiaigate release notes
 
+## 1.6.6
+
+More hardening on the revocation playbook:
+
+- `extend_days` and `max_peers` from the request body are clamped to safe
+  ranges (`1-30` days, `1-50` peers), so a caller cannot bypass the fan-out
+  cap or push the whole fleet's expiry out past the policy.
+- `secret_folder` is rejected if it contains a `.` or `..` segment, so a
+  caller cannot escape the configured app folder when searching for peers.
+- The verification of a request as a real FortiAIGate block (lookup by
+  `request_id` in the traffic logs) is left as a documented future
+  enhancement; for now the route's SOAR token is the control, so give it
+  only to systems authorized to revoke a key.
+
+## 1.6.5
+
+Security fixes to the new revocation playbook from 1.6.4:
+
+- The workspace used for peer rotation now comes from the bad secret's own
+  Vault metadata (set by onboarding, trusted). The `workspace_id` in the
+  caller's request body is ignored - a caller could otherwise point peer
+  rotation at a different workspace.
+- An empty workspace never fans out. If the bad secret has no
+  `faig_workspace_id` tag, the run ends on `revoked_no_peers` instead of
+  looking for secrets tagged with "".
+- A failed `revoke_virtual_key` is now a terminal `revoke_failed`, not a
+  success. On the error path the Vault secret is NOT cleared (the app would
+  otherwise fail-closed while the attacker's key is still live) and no peers
+  are rotated. A person is paged.
+- Metadata patches skip empty values so Vault's non-empty-value check
+  doesn't fail the stamp (`faig_revoked_request` is optional).
+
+## 1.6.4
+
+- New sample playbook **Revoke FortiAIGate Key on Guardrail Block**: an
+  `api_endpoint` playbook that revokes the virtual key named in a FortiAIGate
+  guardrail-block event, clears its Vault secret with `api_key=REVOKED` and
+  stamps `faig_revoked_at` / `faig_revoked_policy` / `faig_revoked_request`,
+  then rotates every peer secret tagged with the same `faig_workspace_id` so
+  the blast radius is contained. Peers are rotated through the existing child
+  **Renew FortiAIGate Key in Vault**, so each keeps its key id, policies,
+  limits and model access and only the Vault secret's `api_key` field
+  changes. Outcomes: `revoked_and_rotated`, `revoked_no_peers`,
+  `revoked_orphan` (no tagged secret), `too_many_peers` (over `max_peers`),
+  `conflict` (two secrets tagged to the same bad key) and `bad_request`.
+- **Onboard FortiAIGate Key to Vault** also stamps `faig_workspace_id` on the
+  new secret, from the key's resolved workspace id. The renewal playbooks are
+  unaffected (they match on `faig_key_id`), but revocation needs this join
+  column. A one-time backfill script (`scripts/backfill_workspace_tag.py`)
+  adds it to pre-1.6.4 secrets.
+
 ## 1.6.3
 
 - **Onboard FortiAIGate Key to Vault** checks the secret path before any Vault

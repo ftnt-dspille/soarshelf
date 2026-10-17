@@ -28,7 +28,7 @@ tags:
 - llm
 - gateway
 author: ftnt-dspille
-version: 1.6.3
+version: 1.6.6
 min_version: null
 license: MIT
 published: '2026-10-13'
@@ -36,6 +36,15 @@ source: https://github.com/ftnt-dspille/fortinet-fortiaigate
 author_id: 99558074
 updated: '2026-10-16'
 changelog:
+- version: 1.6.6
+  date: 2026-10-17
+  notes: Clamp caller-controlled limits on the revocation playbook. extend_days is clamped to 1-30, max_peers to 1-50, and a secret_folder with a '.' or '..' segment is refused. The route's SOAR token remains the trust boundary; cross-checking request_id against FortiAIGate traffic logs is a documented future enhancement.
+- version: 1.6.5
+  date: 2026-10-17
+  notes: Security fixes to the 1.6.4 revocation playbook. The peer-rotation workspace now comes from the bad secret's own faig_workspace_id tag in Vault (set by onboarding), not the caller's body - a caller cannot point peer rotation at a workspace they do not own. An empty workspace never fans out (ends on revoked_no_peers). A failed revoke_virtual_key is now a terminal revoke_failed that leaves Vault untouched and alerts a person, instead of a silent success. Metadata patches skip empty values.
+- version: 1.6.4
+  date: 2026-10-17
+  notes: New sample playbook Revoke FortiAIGate Key on Guardrail Block - an api_endpoint playbook that revokes the key in a FortiAIGate guardrail block (DLP, ATLAS, any detector verdict), clears its Vault secret with api_key=REVOKED and stamps faig_revoked_at/_policy/_request, then rotates every peer secret under the same faig_workspace_id through the existing child renewal, so the blast radius is contained. Onboarding also stamps faig_workspace_id. Includes a one-time backfill script for pre-1.6.4 secrets.
 - version: 1.6.3
   date: '2026-10-16'
   notes: 'Renew keys before they expire: List Expiring Virtual Keys, Renew moves a too-soon expiry out, and new
