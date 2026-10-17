@@ -14,6 +14,10 @@ operations = {}
 
 
 def _client(config):
+    # One execute() shares one client (connector.py), so the login, its role and its
+    # workspace are looked up once per action, not once for the names and again for the call.
+    if config.get('_faig_client') is not None:
+        return config['_faig_client']
     return FaigClient(
         server=config['server'],
         username=config['username'],
@@ -21,6 +25,7 @@ def _client(config):
         verify_ssl=config.get('verify_ssl', True),
         data_plane_base=config.get('data_plane_base') or None,
         timeout=config.get('timeout') or 30,
+        workspace=config.get('workspace') or None,
     )
 
 
@@ -145,6 +150,37 @@ def list_virtual_keys(config, params):
 operations['list_virtual_keys'] = list_virtual_keys
 
 
+def list_expiring_virtual_keys(config, params):
+    """Keys that expire within N days, and (by default) keys that already have.
+
+    A key with no expiry never expires, and a revoked or suspended key was shut
+    off on purpose, so neither is listed. Soonest first.
+    """
+    from datetime import datetime, timedelta, timezone
+    within = _days(params, 'within_days', 7, 'Within (Days)', allow_zero=True)
+    include_expired = str(_opt(params, 'include_expired') if _opt(params, 'include_expired') is not None
+                          else True).lower() not in ('false', '0', 'no')
+    now = datetime.now(timezone.utc)
+    horizon = now + timedelta(days=within)
+    keys = []
+    for record in _client(config).list_virtual_keys(workspace_id=_opt(params, 'workspace_id')):
+        expires = _parse_time(record.get('expiresAt'))
+        status = record.get('status')
+        if expires is None or status not in ('active', 'expired') or expires > horizon:
+            continue
+        expired = status == 'expired' or expires <= now
+        if expired and not include_expired:
+            continue
+        keys.append(dict(record, expired=expired,
+                         days_left=round((expires - now).total_seconds() / 86400, 2)))
+    keys.sort(key=lambda k: k['days_left'])
+    return {'keys': keys, 'key_ids': [k['id'] for k in keys], 'count': len(keys),
+            'within_days': within, 'checked_at': _iso(now)}
+
+
+operations['list_expiring_virtual_keys'] = list_expiring_virtual_keys
+
+
 def get_virtual_key(config, params):
     if not params.get('key_id'):
         raise ValueError('key_id is required')
@@ -155,14 +191,21 @@ operations['get_virtual_key'] = get_virtual_key
 
 
 def create_virtual_key(config, params):
-    if not params.get('workspace_id') or not params.get('key_name'):
+    client = _client(config)
+    if not params.get('key_name') or (client.org_scope and not params.get('workspace_id')):
         raise ValueError('workspace_id and key_name are required')
-    return _client(config).create_virtual_key(
-        workspace_id=params['workspace_id'],
+    expires_at = _opt(params, 'expires_at')
+    if not expires_at and _opt(params, 'expires_in_days') not in (None, ''):
+        from datetime import datetime, timedelta, timezone
+        days = _days(params, 'expires_in_days', 30, 'Expires In (Days)')
+        expires_at = _iso(datetime.now(timezone.utc) + timedelta(days=days))
+    return client.create_virtual_key(
+        workspace_id=_opt(params, 'workspace_id'),
         key_name=params['key_name'],
-        expires_at=_opt(params, 'expires_at'),
+        expires_at=expires_at,
         tpm=_opt(params, 'tpm'),
         rpm=_opt(params, 'rpm'),
+        provider_ids=_ids_list(params.get('provider_ids')),
     )
 
 
@@ -198,10 +241,6 @@ def rotate_virtual_key(config, params):
 operations['rotate_virtual_key'] = rotate_virtual_key
 
 
-def _flag(params, name):
-    return params.get(name) in (True, 'true', 'True', 1, '1')
-
-
 def _parse_time(value):
     from datetime import datetime, timezone
     if not value:
@@ -212,15 +251,32 @@ def _parse_time(value):
         return None
 
 
-def replace_virtual_key(config, params):
-    """Issue a working replacement for a virtual key and return its new secret.
+def _days(params, name, default, title, allow_zero=False):
+    value = _opt(params, name)
+    try:
+        days = float(value) if value not in (None, '') else float(default)
+    except (TypeError, ValueError):
+        raise ConnectorError('{0} must be a number of days'.format(title))
+    if not 0 <= days <= 3650 or (days == 0 and not allow_zero):
+        raise ConnectorError('{0} must be between 0 and 3650, not {1:g}'.format(title, days))
+    return days
 
-    FortiAIGate only rotates a key that is still active; an expired, revoked or
-    suspended key "cannot be rotated: mint a new key instead". So an active key is
-    rotated in place (same id), and any other key is replaced by a new key in the
-    same workspace with the same name, limits and policies. A suspended key is
-    revoked once its replacement exists. The new secret is shown once - store it
-    straight away (for example in HashiCorp Vault).
+
+def _iso(moment):
+    return moment.strftime('%Y-%m-%dT%H:%M:%S.000Z')
+
+
+def renew_virtual_key(config, params):
+    """Give a virtual key a new secret, keeping its id, name, limits and policies.
+
+    The key's expiry is moved to Extend By (Days) from now when it would come
+    sooner - so a key renewed before it expires does not expire anyway a few
+    days later - and is never shortened. An expired key needs this too:
+    FortiAIGate only rotates an active key ("cannot be rotated: mint a new key
+    instead"), and an expired key becomes active again when its expiry moves
+    into the future. Then the key is rotated. A key with no expiry is only
+    rotated. A revoked or suspended key is refused and left untouched. The new
+    secret is shown once - store it straight away (for example in HashiCorp Vault).
     """
     from datetime import datetime, timedelta, timezone
     key_id = _opt(params, 'key_id')
@@ -229,58 +285,44 @@ def replace_virtual_key(config, params):
         key_id = key_id_from_secret(api_key)
     if not key_id:
         raise ValueError('key_id or api_key is required')
+    days = _days(params, 'expires_in_days', 30, 'Extend By (Days)')
     client = _client(config)
     old = client.get_virtual_key(key_id)
+    status = old.get('status')
     now = datetime.now(timezone.utc)
     expires = _parse_time(old.get('expiresAt'))
-    if old.get('status') == 'active' and not (expires and expires <= now):
+    expired = status == 'expired' or (status == 'active' and expires is not None and expires <= now)
+    if not expired and status != 'active':
+        raise ConnectorError(
+            'Key {0} is {1}; only an active or expired key can be renewed.{2}'.format(
+                key_id, status, ' A revoked key was shut off on purpose.' if status == 'revoked' else ''))
+    target = now + timedelta(days=days)
+    extend = expired or (expires is not None and expires < target)
+    new_expiry = _iso(target) if extend else None
+    if extend:
+        client.update_virtual_key(key_id, expires_at=new_expiry)
+    try:
         rotated = client.rotate_virtual_key(key_id)
-        return {'method': 'rotated', 'old_key_id': key_id, 'new_key_id': key_id,
-                'new_secret': rotated.get('new_secret'), 'key': rotated}
-
-    # A revoked key was shut off on purpose (often a leaked key): never bring it back unasked.
-    if old.get('status') == 'revoked' and not _flag(params, 'allow_revoked'):
-        raise ConnectorError(
-            'Key {0} was revoked, which is deliberate; it is not replaced automatically. '
-            'Set Allow Replacing a Revoked Key to replace it anyway.'.format(key_id))
-    # Model groups and provider access restrict what a key may use and cannot be copied here:
-    # a replacement without them could reach more than the original. Refuse rather than widen.
-    uncopied = [name for name in ('modelGroups', 'providerAccess') if old.get(name)]
-    if uncopied and not _flag(params, 'allow_uncopied'):
-        raise ConnectorError(
-            'Key {0} has {1} that a replacement would not inherit, so it could reach more than the '
-            'original. Nothing was created. Set Allow Replacement Without Model Access Limits to '
-            'create it anyway and apply them yourself.'.format(key_id, ' and '.join(uncopied)))
-    workspace = (old.get('workspace') or {}).get('id')
-    if not workspace:
-        raise ConnectorError('Key {0} has no workspace to create its replacement in'.format(key_id))
-    days = _opt(params, 'expires_in_days')
-    new_expiry = None
-    if days:
-        new_expiry = now + timedelta(days=float(days))
-    elif expires and _parse_time(old.get('createdAt')):
-        new_expiry = now + (expires - _parse_time(old.get('createdAt')))   # the same lifetime again
-    created = client.create_virtual_key(
-        workspace_id=workspace,
-        key_name=_opt(params, 'new_key_name') or old.get('keyName') or 'renewed-key',
-        expires_at=new_expiry.strftime('%Y-%m-%dT%H:%M:%S.000Z') if new_expiry else None,
-        tpm=None if old.get('tpm') is None else str(old['tpm']),
-        rpm=None if old.get('rpm') is None else str(old['rpm']))
-    new_id = created.get('id')
-    own_policies = [p['id'] for p in (old.get('policyIds') or []) if isinstance(p, dict) and not p.get('assignedByOrg')]
-    if own_policies:
-        client.update_virtual_key(new_id, policy_ids=own_policies)
-    not_copied = uncopied
-    revoked = False
-    if old.get('status') == 'suspended' and params.get('revoke_old', True) not in (False, 'false', 'False'):
-        client.revoke_virtual_key(key_id, 'Replaced by key {0}'.format(new_id))
-        revoked = True
-    return {'method': 'reissued', 'old_key_id': key_id, 'old_status': old.get('status'), 'old_revoked': revoked,
-            'new_key_id': new_id, 'new_secret': created.get('secretKey') or created.get('new_secret'),
-            'not_copied': not_copied, 'key': created}
+    except Exception:
+        # Undo the extend. For an expired key it made the OLD secret work again, so
+        # never leave it that way: put the original expiry back (a past date expires
+        # the key again) or, failing that, revoke.
+        if extend:
+            try:
+                if not old.get('expiresAt'):
+                    raise ConnectorError('no original expiry to restore')
+                client.update_virtual_key(key_id, expires_at=old['expiresAt'])
+            except Exception:
+                if expired:
+                    client.revoke_virtual_key(key_id, 'Renewal failed after the expiry was extended')
+        raise
+    return {'method': 'extended_and_rotated' if extend else 'rotated', 'key_id': key_id,
+            'old_status': status, 'old_expires_at': old.get('expiresAt'),
+            'expires_at': new_expiry or old.get('expiresAt'),
+            'new_secret': rotated.get('new_secret'), 'key': rotated}
 
 
-operations['replace_virtual_key'] = replace_virtual_key
+operations['renew_virtual_key'] = renew_virtual_key
 
 
 def revoke_virtual_key(config, params):
@@ -390,9 +432,13 @@ operations['list_ai_providers'] = list_ai_providers
 
 
 def get_workspace_budget(config, params):
-    if not params.get('workspace_id'):
-        raise ValueError('workspace_id is required')
-    return _client(config).get_workspace_budget(params['workspace_id'])
+    client = _client(config)
+    workspace_id = _opt(params, 'workspace_id')
+    if not workspace_id:
+        if client.org_scope:
+            raise ValueError('workspace_id is required')
+        workspace_id = client.default_workspace()
+    return client.get_workspace_budget(workspace_id)
 
 
 operations['get_workspace_budget'] = get_workspace_budget

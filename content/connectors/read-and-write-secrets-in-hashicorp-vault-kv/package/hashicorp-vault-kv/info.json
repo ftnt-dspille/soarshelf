@@ -1,8 +1,8 @@
 {
   "name": "hashicorp-vault-kv",
   "label": "HashiCorp Vault KV",
-  "version": "1.1.0",
-  "description": "HashiCorp Vault KV v2 secrets engine connector. Reads, writes, lists and deletes key-value secrets through the KV version 2 mount, using token authentication. Unlike the official read-only hashicorp-vault connector, this connector can WRITE: write_secret creates a new version of a secret, so scheduled rotation flows can push fresh credentials into Vault and let downstream watchers pick up the new version. Operations: read secret (optionally a specific version), write secret, list secrets under a path, delete the latest version of a secret.",
+  "version": "1.2.1",
+  "description": "HashiCorp Vault KV v2 secrets engine connector. Reads, writes, lists and deletes key-value secrets through the KV version 2 mount, using token authentication. Unlike the official read-only hashicorp-vault connector, this connector can WRITE: write_secret creates a new version of a secret, so scheduled rotation flows can push fresh credentials into Vault and let downstream watchers pick up the new version. Operations: read secret (optionally a specific version), write secret, update only some fields of a secret (PATCH), list secrets under a path, delete the latest version of a secret, read and update a secret's custom metadata, and find the secrets under a path whose custom metadata carries a tag - without reading any secret value, so a rotation flow can run with a token that may update secrets but never read them.",
   "publisher": "Fortinet",
   "category": "Analytics and SIEM",
   "cs_compatible": true,
@@ -30,7 +30,7 @@
         "editable": true,
         "visible": true,
         "required": true,
-        "description": "Vault token used for authentication. It must carry a policy that grants read/write/list on the KV mount.",
+        "description": "Vault token used for authentication. Grant only what your playbooks use: read/list on metadata and patch on data is enough to find tagged secrets and update them without being able to read them.",
         "isOnChange": false,
         "onchange": {}
       },
@@ -161,6 +161,16 @@
           "required": true,
           "editable": true,
           "visible": true
+        },
+        {
+          "title": "Create Only",
+          "type": "checkbox",
+          "name": "create_only",
+          "description": "Refuse the write if a secret already exists at the path (Vault check-and-set 0), so a new secret never overwrites one.",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": false
         }
       ],
       "output_schema": {
@@ -168,6 +178,248 @@
         "properties": {
           "version": {
             "type": "integer"
+          }
+        }
+      }
+    },
+    {
+      "operation": "patch_secret",
+      "title": "Update Secret Fields",
+      "description": "Change only the given fields of an existing secret, keeping every other field (an HTTP PATCH, which creates a new version). Needs only the patch capability on the data path - not read. Retried on network errors and server errors; a refused policy (403) or a missing secret (404) is not retried.",
+      "enabled": true,
+      "annotation": "patch_secret",
+      "category": "containment",
+      "parameters": [
+        {
+          "title": "Secret Path",
+          "type": "text",
+          "name": "path",
+          "description": "Path of an existing secret under the mount.",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. apps/openwebui"
+        },
+        {
+          "title": "Fields (JSON)",
+          "type": "text",
+          "name": "secret_data",
+          "description": "JSON object of only the fields to change. Fields you leave out keep their current values.",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. {\"api_key\": \"faig_...\"}"
+        },
+        {
+          "title": "Retries",
+          "type": "integer",
+          "name": "retries",
+          "description": "(Optional) Extra attempts after a network or server error. Default 3, at most 10.",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "placeholder": "3"
+        }
+      ],
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "attempts": {
+            "type": "integer"
+          },
+          "fields": {
+            "type": "array"
+          }
+        }
+      }
+    },
+    {
+      "operation": "read_metadata",
+      "title": "Get Secret Metadata",
+      "description": "Read a secret's metadata: its custom metadata tags, current version and whether that version is deleted. Never returns the secret's value.",
+      "enabled": true,
+      "annotation": "read_metadata",
+      "category": "investigation",
+      "parameters": [
+        {
+          "title": "Secret Path",
+          "type": "text",
+          "name": "path",
+          "description": "Path of the secret under the mount.",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. apps/openwebui"
+        },
+        {
+          "title": "Missing Is OK",
+          "type": "checkbox",
+          "name": "missing_ok",
+          "description": "Answer exists=false for a path with no secret, instead of failing.",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": false
+        }
+      ],
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "custom_metadata": {
+            "type": "object"
+          },
+          "current_version": {
+            "type": "integer"
+          },
+          "current_deleted": {
+            "type": "boolean"
+          },
+          "created_time": {
+            "type": "string"
+          },
+          "updated_time": {
+            "type": "string"
+          },
+          "exists": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "operation": "patch_metadata",
+      "title": "Update Secret Metadata",
+      "description": "Add or change custom metadata tags on a secret, keeping its other tags. Set a tag to null to remove it. Values are stored as text. Does not create a new secret version.",
+      "enabled": true,
+      "annotation": "patch_metadata",
+      "category": "containment",
+      "parameters": [
+        {
+          "title": "Secret Path",
+          "type": "text",
+          "name": "path",
+          "description": "Path of the secret under the mount.",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. apps/openwebui"
+        },
+        {
+          "title": "Custom Metadata (JSON)",
+          "type": "text",
+          "name": "custom_metadata",
+          "description": "JSON object of tags to set, for example {\"faig_key_id\": \"<uuid>\"}. A null value removes that tag.",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. {\"owner\": \"ai-platform\"}"
+        }
+      ],
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "custom_metadata": {
+            "type": "object"
+          },
+          "current_version": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    {
+      "operation": "find_secrets_by_metadata",
+      "title": "Find Secrets by Metadata",
+      "description": "Find the secrets under a path whose custom metadata carries a tag, and its value. Vault cannot search, so this lists every secret under the path (including sub-folders) and reads each one's metadata - never a secret value. A secret whose latest version is deleted does not count. Given values, sorts each into matches (exactly one secret), unmatched (none) and conflicts (more than one).",
+      "enabled": true,
+      "annotation": "find_secrets_by_metadata",
+      "category": "investigation",
+      "parameters": [
+        {
+          "title": "Path",
+          "type": "text",
+          "name": "path",
+          "description": "(Optional) Folder to search, including its sub-folders. Empty searches the whole mount.",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. apps"
+        },
+        {
+          "title": "Metadata Key",
+          "type": "text",
+          "name": "metadata_key",
+          "description": "Custom metadata tag to look for.",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. faig_key_id"
+        },
+        {
+          "title": "Values",
+          "type": "text",
+          "name": "values",
+          "description": "(Optional) Tag values to look up, as a JSON array or comma-separated text. Adds matches, unmatched and conflicts to the result.",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "placeholder": "e.g. [\"<uuid>\", \"<uuid>\"]"
+        },
+        {
+          "title": "Max Secrets",
+          "type": "integer",
+          "name": "max_paths",
+          "description": "(Optional) Stop with an error past this many secrets, so a wrong path cannot walk the whole mount. Default 1000.",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "placeholder": "1000"
+        }
+      ],
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "prefix": {
+            "type": "string"
+          },
+          "metadata_key": {
+            "type": "string"
+          },
+          "scanned": {
+            "type": "integer"
+          },
+          "tagged": {
+            "type": "array"
+          },
+          "by_value": {
+            "type": "object"
+          },
+          "untagged": {
+            "type": "array"
+          },
+          "deleted": {
+            "type": "array"
+          },
+          "matches": {
+            "type": "array"
+          },
+          "unmatched": {
+            "type": "array"
+          },
+          "conflicts": {
+            "type": "array"
           }
         }
       }

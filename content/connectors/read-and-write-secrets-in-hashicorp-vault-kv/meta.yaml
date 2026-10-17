@@ -7,14 +7,19 @@ tags:
 - secrets
 - vault
 author: ftnt-dspille
-version: 1.1.0
+version: 1.2.1
 min_version: null
 license: MIT
 published: '2026-10-13'
 source: https://github.com/ftnt-dspille/hashicorp-vault-kv
 author_id: 99558074
-updated: '2026-10-13'
+updated: '2026-10-16'
 changelog:
+- version: 1.2.1
+  date: '2026-10-16'
+  notes: Find secrets by a custom metadata tag, read and update metadata, update only some fields (PATCH) and create-only
+    writes, so a rotation flow can run on a token that never reads a secret; secret paths that could leave the mount
+    are refused.
 - version: 1.1.0
   date: '2026-10-13'
   notes: Updated.

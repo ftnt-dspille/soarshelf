@@ -1,5 +1,103 @@
 # fortinet-fortiaigate release notes
 
+## 1.6.3
+
+- **Onboard FortiAIGate Key to Vault** checks the secret path before any Vault
+  call, so a path with a `.` or `..` segment returns `secret_path_not_allowed` to
+  the caller instead of failing the run (`hashicorp-vault-kv` 1.2.1 refuses such
+  a path itself). Sample playbooks are built against `hashicorp-vault-kv` 1.2.1.
+
+## 1.6.2
+
+- An id of `.` or `..` (or an empty one) is refused before any API call. URL
+  encoding leaves dots alone, so in 1.6.1 an id of exactly `..` could still climb
+  one level of the API path.
+
+## 1.6.1
+
+- Every id put into an API path (key, workspace, policy, guardrail, detector) is
+  URL-encoded. Ids now reach paths from playbook input - a Vault metadata tag, an
+  onboarding API body - and a value such as `../../admin/...` could otherwise
+  steer the connector's session to another route.
+- **Onboard FortiAIGate Key to Vault** refuses a `secret_path` containing `..`
+  (`secret_path_not_allowed`).
+- README: who may write the Vault tags, and who may call the onboarding route.
+
+## 1.6.0
+
+- New operation **List Expiring Virtual Keys**: keys that expire within
+  **Within (Days)** (default 7), soonest first, and by default the ones already
+  expired. Keys with no expiry and revoked or suspended keys are never listed.
+- **Renew Virtual Key** now also moves out an expiry that would come within
+  **Extend By (Days)**, so a key renewed before it expires no longer expires a
+  few days later anyway. An expiry is never shortened; a key with no expiry is
+  only rotated. Output adds `old_expires_at`.
+- **Create Virtual Key** takes **Providers** (FortiAIGate 8.0.2 refuses a key
+  with no model access) and **Expires In (Days)**, and returns the secret as
+  `new_secret` as well as the gateway's own field.
+- Fixed: **Create Virtual Key** failed on 8.0.2 for an organization administrator
+  with HTTP 404 "the key owner is not a member of this workspace", even for a
+  member. Keys are now always created through the workspace route.
+- New sample playbooks **Renew Expiring FortiAIGate Keys in Vault**, **Renew
+  FortiAIGate Key in Vault** and **Onboard FortiAIGate Key to Vault** (an API
+  endpoint): keys are linked to their Vault secrets by a `faig_key_id` metadata
+  tag, renewed before they expire, and written back without reading any secret.
+  They need `hashicorp-vault-kv` 1.2.0. They replace the sample playbook **Heal
+  Expired FortiAIGate Key in Vault**, which is removed: the renewal covers expired
+  keys too, and Heal read the secret, which the renewal never does. All sample
+  playbooks run in debug mode so
+  an API caller can read the results; see the README for what that keeps in the
+  run history.
+
+## 1.5.1
+
+- **Renew Virtual Key** never leaves an expired key's old secret working. Extending the
+  expiry reactivates the old secret until the rotate replaces it; if the rotate fails, the
+  original expiry is put back (the key is expired again) and, if that fails too, the key is
+  revoked. **Extend By (Days)** must be between 0 and 3650.
+
+## 1.5.0
+
+- **Renew Virtual Key** replaces **Replace Virtual Key**, and no longer creates a new key.
+  FortiAIGate only rotates an active key, but an expired key becomes active again when its
+  expiry moves into the future. So an expired key is extended (**Extend By (Days)**,
+  default 30) and then rotated; an active key is rotated. The key keeps its id, name,
+  limits, policies and model access, so nothing has to be copied and nothing is left
+  behind. A revoked or suspended key is refused and left untouched. The New Key Name,
+  Revoke Old Key, Allow Replacing a Revoked Key and Allow Replacement Without Model Access
+  Limits options are gone. A playbook that calls `replace_virtual_key` must switch to
+  `renew_virtual_key`; its output has `key_id` in place of `old_key_id`/`new_key_id`.
+- The sample playbook **Heal Expired FortiAIGate Key in Vault** renews the key and writes
+  the new secret back to Vault as before; it returns `key_id` instead of `new_key_id`, and
+  `key_method` is `rotated` or `extended_and_rotated`. It also takes `secret_path` and
+  `key_field` as top-level variables, so an API trigger (which does not fill the playbook
+  parameters) no longer falls back to the default path.
+- Fixed: **Update Virtual Key** failed on 8.0.2 with HTTP 422 for every key. It resent the
+  whole record, read-only fields (`status`, `updatedAt`, ...) and policies as objects
+  included. It now sends only the writable fields, and keeps organization-assigned
+  policies when **Policy IDs** replaces the key's own (leaving one out reads as detaching
+  it, which only an organization administrator may do).
+
+## 1.4.0
+
+- **Works with a workspace login.** The connector reads the login's role (`GET /api/v1/user`).
+  An organization administrator keeps the `/api/v1/admin` API and sees every workspace. Any
+  other login (a workspace admin or member) is detected automatically and works in its own
+  workspace through `/api/v1/workspaces/<id>`. That covers virtual keys (list, get, create,
+  update, rotate, replace, revoke), guardrails and guardrail tests, policies, detectors,
+  budget and audit logs. Before 1.4.0 such a login could only list its workspaces; every
+  other action failed with HTTP 403 "Organization-level access required".
+- New optional configuration field **Workspace** (name or id). A login with one workspace
+  uses it without being told. A login with several uses the configured one, or the
+  workspace an action names. The health check fails if the login is not a member of the
+  configured workspace.
+- **Create Virtual Key** and **Get Workspace Budget** no longer require a workspace for a
+  workspace login.
+- Actions that need an organization administrator (List AI Providers, admin paths in
+  Execute API Request) now say so and name the login, instead of a bare 403.
+- One action logs in and looks up the role and workspace once, not once for the dropdown
+  names and again for the call.
+
 ## 1.3.4
 
 - **Replace Virtual Key** now fails closed. A revoked key is shut off on purpose, so it is

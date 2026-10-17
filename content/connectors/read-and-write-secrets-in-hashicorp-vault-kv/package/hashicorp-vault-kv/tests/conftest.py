@@ -73,6 +73,11 @@ class FakeState:
                                  'model': 'gpt-x'},
                        'version': 2},
         }
+        # path -> custom_metadata; 'deleted' paths have a soft-deleted current version
+        self.metadata = {}
+        self.deleted = set()
+        self.requests = []          # (method, path) for every call
+        self.patch_failures = 0     # answer this many PATCH data calls with a 503
 
 
 STATE = FakeState()
@@ -98,6 +103,7 @@ class Handler(BaseHTTPRequestHandler):
         return json.loads(self.rfile.read(length)) if length else {}
 
     def do_GET(self):
+        STATE.requests.append((self.command, self.path))
         if not self._authorized():
             self._send(403, {'errors': ['permission denied']})
             return
@@ -105,12 +111,29 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, {'data': {'policies': ['lab-lab'],
                                       'display_name': 'root'}})
             return
-        if self.path.startswith('/v1/secret/metadata'):
-            if 'list=true' not in (self.path.split('?', 1) + [''])[1]:
-                self._send(404, {'errors': ['not found']})
+        if self.path.startswith('/v1/secret/metadata/') and \
+                'list=true' not in (self.path.split('?', 1) + [''])[1]:
+            key = self.path.split('?')[0][len('/v1/secret/metadata/'):]
+            if key not in STATE.store:
+                self._send(404, {'errors': []})
                 return
+            version = STATE.store[key]['version']
+            self._send(200, {'data': {
+                'current_version': version,
+                'custom_metadata': STATE.metadata.get(key),
+                'created_time': '2020-01-01T00:00:00Z',
+                'updated_time': '2020-01-02T00:00:00Z',
+                'versions': {str(version): {
+                    'deletion_time': '2020-01-03T00:00:00Z' if key in STATE.deleted else '',
+                    'destroyed': False}},
+            }})
+            return
+        if self.path.startswith('/v1/secret/metadata'):
             prefix = self.path.split('?', 1)[0][len('/v1/secret/metadata'):]
             prefix = prefix.strip('/')
+            if prefix and not any(p.startswith(prefix + '/') for p in STATE.store):
+                self._send(404, {'errors': []})
+                return
             keys = set()
             for path in STATE.store:
                 if prefix:
@@ -149,13 +172,58 @@ class Handler(BaseHTTPRequestHandler):
         self.path = self.path.split('?')[0] + '?list=true'
         self.do_GET()
 
+    def do_PATCH(self):
+        STATE.requests.append((self.command, self.path))
+        if not self._authorized():
+            self._send(403, {'errors': ['permission denied']})
+            return
+        if self.headers.get('Content-Type') != 'application/merge-patch+json':
+            self._send(415, {'errors': ['unsupported content type']})
+            return
+        body = self._body()
+        if self.path.startswith('/v1/secret/data/'):
+            key = self.path[len('/v1/secret/data/'):]
+            if STATE.patch_failures:
+                STATE.patch_failures -= 1
+                self._send(503, {'errors': ['Vault is sealed']})
+                return
+            if key not in STATE.store:
+                self._send(404, {'errors': []})
+                return
+            STATE.next_version += 1
+            merged = dict(STATE.store[key]['value'])
+            merged.update(body.get('data', {}))
+            STATE.store[key] = {'value': merged, 'version': STATE.next_version}
+            self._send(200, {'data': {'version': STATE.next_version}})
+            return
+        if self.path.startswith('/v1/secret/metadata/'):
+            key = self.path[len('/v1/secret/metadata/'):]
+            if key not in STATE.store:
+                self._send(404, {'errors': []})
+                return
+            tags = dict(STATE.metadata.get(key) or {})
+            for name, value in (body.get('custom_metadata') or {}).items():
+                if value is None:
+                    tags.pop(name, None)
+                else:
+                    tags[name] = value
+            STATE.metadata[key] = tags
+            self._send(204, {})
+            return
+        self._send(404, {'errors': ['not found']})
+
     def do_POST(self):
+        STATE.requests.append((self.command, self.path))
         if not self._authorized():
             self._send(403, {'errors': ['permission denied']})
             return
         if self.path.startswith('/v1/secret/data/'):
             key = self.path[len('/v1/secret/data/'):]
             body = self._body()
+            cas = (body.get('options') or {}).get('cas')
+            if cas is not None and cas != (STATE.store.get(key) or {}).get('version', 0):
+                self._send(400, {'errors': ['check-and-set parameter did not match the current version']})
+                return
             STATE.next_version += 1
             STATE.store[key] = {'value': body.get('data', {}),
                                'version': STATE.next_version}
