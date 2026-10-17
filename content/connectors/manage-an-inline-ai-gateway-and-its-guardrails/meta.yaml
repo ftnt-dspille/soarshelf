@@ -1,23 +1,25 @@
 title: Fortinet FortiAIGate
-summary: Fortinet FortiAIGate is an inline AI gateway that brokers and guards access to large language
-  model providers.
+summary: Fortinet FortiAIGate is an inline AI gateway that brokers and guards access to large language model providers.
 description: |
   Manage a **FortiAIGate** inline AI gateway from FortiSOAR: the virtual keys client applications use to reach
   the gateway's OpenAI-compatible endpoint, and the guardrails and policies that govern them.
 
-  Actions list workspaces; list, get, create, update, rotate and revoke virtual keys; check a key against the
-  data plane; send guarded chat completions; list guardrails and scan text with them without calling a model;
-  list and attach policies; read provider health, workspace budgets and the admin audit log; and call any other
-  management endpoint with `Execute API Request`, which refuses a full URL so the login never leaves the
-  configured server. **Replace Virtual Key** rotates an active key in place and, for an expired or suspended
-  one, creates a replacement with the same workspace, name, limits and policies. It stops without creating
-  anything for a revoked key, or for one with model limits or provider access, unless you allow it. Revoke
-  sends the reason the gateway requires.
+  Actions list workspaces; list, get, create, update, rotate, renew and revoke virtual keys; list the keys that
+  expire within N days; check a key against the data plane; send guarded chat completions; list guardrails and
+  scan text with them without calling a model; list and attach policies; read provider health, workspace budgets
+  and the admin audit log; and call any other management endpoint with `Execute API Request`, which refuses a
+  full URL so the login never leaves the configured server. **Renew Virtual Key** keeps the key's id, name,
+  limits, policies and model access: it moves an expiry that would come too soon out, extends an expired key, and
+  rotates it. A revoked key is never brought back.
 
-  Workspace, key, policy, guardrail, detector and model dropdowns list names and resolve them to ids when the
-  action runs, and a playbook can pass either. The included playbook, **Heal Expired FortiAIGate Key in
-  Vault**, reads a key from a HashiCorp Vault KV v2 secret, validates it, replaces it if it is no longer valid,
-  writes the new secret back as a new version and verifies it.
+  The included playbooks keep app keys stored in HashiCorp Vault (with the **HashiCorp Vault KV** connector,
+  1.2.1 or later) renewed before they expire, without SOAR ever reading a secret. Each Vault secret is tagged in
+  its custom metadata with the key it holds. **Renew Expiring FortiAIGate Keys in Vault** (run it on a schedule)
+  finds the keys expiring within two days, matches them to the tagged secrets in a folder, renews each one and
+  writes only the new `api_key` back. A key no secret is tagged with is left to expire, and a key tagged on two
+  secrets is reported, not touched. **Onboard FortiAIGate Key to Vault** is an API endpoint that creates a key
+  for a new app, stores it tagged in a new secret and returns the key name and Vault path. The README lists the
+  Vault policy and permissions these need.
 use_cases:
 - utility
 - reporting
@@ -26,19 +28,25 @@ tags:
 - llm
 - gateway
 author: ftnt-dspille
-version: 1.3.4
+version: 1.6.3
 min_version: null
 license: MIT
 published: '2026-10-13'
 source: https://github.com/ftnt-dspille/fortinet-fortiaigate
 author_id: 99558074
-updated: '2026-10-15'
+updated: '2026-10-16'
 changelog:
+- version: 1.6.3
+  date: '2026-10-16'
+  notes: 'Renew keys before they expire: List Expiring Virtual Keys, Renew moves a too-soon expiry out, and new
+    sample playbooks renew Vault-stored keys by metadata tag (never reading a secret) and onboard new keys through
+    an API endpoint; Create Virtual Key grants model access and works for an org admin on 8.0.2; ids are URL-encoded
+    in API paths. Replaces Replace Virtual Key and the Heal playbook.'
 - version: 1.3.4
   date: '2026-10-15'
-  notes: Dropdowns list names instead of [object Object] and resolve to ids at run time; Replace Virtual Key
-    (fails closed for revoked keys and keys with model limits), a revoke reason, and a playbook that replaces
-    expired keys and updates Vault.
+  notes: Dropdowns list names instead of [object Object] and resolve to ids at run time; Replace Virtual Key (fails
+    closed for revoked keys and keys with model limits), a revoke reason, and a playbook that replaces expired keys
+    and updates Vault.
 - version: 1.3.0
   date: '2026-10-13'
   notes: Updated.
