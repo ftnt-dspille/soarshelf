@@ -235,6 +235,30 @@ describe('a decision with a short side branch', () => {
   });
 });
 
+describe('a decision that runs one step or skips it', () => {
+  // The FortiAIGate key renewal shape: find -> any? -> (renew -> summary) or straight to summary.
+  const ids = ['start', 'resolve', 'valid', 'list', 'refuse', 'find', 'any', 'renew', 'summary'];
+  const nodes = ids.map(n);
+  const edge = (s: string, t: string, label: string | null = null): PlaybookEdge => ({ id: `${s}-${t}`, source: s, target: t, label });
+  const edges = [
+    edge('start', 'resolve'), edge('resolve', 'valid'), edge('valid', 'list', 'ok'), edge('valid', 'refuse', 'no'), edge('list', 'find'),
+    edge('find', 'any'), edge('any', 'renew', 'Keys to renew'), edge('any', 'summary', 'Nothing to renew'), edge('renew', 'summary')
+  ];
+
+  it('drops the skip straight down and sets the optional step clear beside it', () => {
+    const l = autoLayout(nodes, edges, 1180, 530);
+    const any = l.positions.get('any')!, renew = l.positions.get('renew')!;
+    expect(l.positions.get('summary')!.x).toBe(any.x);
+    expect(renew.x).toBeGreaterThan(any.x + NODE_W / 2);
+    expect(l.sideX?.has('any-summary') ?? false).toBe(false);
+    expect(overlaps(l.positions)).toBe(false);
+  });
+
+  it('draws it with no arrow through a step or across another arrow', () => {
+    expect(clutter(autoLayout(nodes, edges, 1180, 530), edges)).toBe(0);
+  });
+});
+
 describe('the Heal playbook example', () => {
   const pb = heal as unknown as { nodes: PlaybookNode[]; edges: PlaybookEdge[] };
   it('lays out with no arrow through a step or across another in the front-page frame', () => {

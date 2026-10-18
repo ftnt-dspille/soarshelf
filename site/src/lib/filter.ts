@@ -98,7 +98,15 @@ export function createSearch(items: ItemSummary[], connectors: ConnectorFacet[],
   const ms = new MiniSearch<Record<string, string>>({
     idField: 'slug',
     fields: ['title', 'displayName', 'summary', 'tags', 'connectors', 'triggers', 'useCases', 'playbooks'],
+    // Product names are one word with a vendor prefix ("FortiAIGate"), and matching only works
+    // from the start of a word: index the name without the prefix too, so "aigate" finds it.
+    processTerm: (term: string) => {
+      const t = term.toLowerCase();
+      const m = /^forti(\w{2,})$/.exec(t);
+      return m ? [t, m[1]] : t;
+    },
     searchOptions: {
+      processTerm: (term: string) => term.toLowerCase(),
       boost: { title: 3, displayName: 3, connectors: 2, tags: 1.5, playbooks: 1.5 },
       prefix: true,
       // Typo tolerance only for longer words: on a short one a single edit is
