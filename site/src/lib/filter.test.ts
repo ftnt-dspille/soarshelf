@@ -64,6 +64,13 @@ describe('search', () => {
     expect(run({ q: 'phishnig' })).toContain('phishing-response-kit');
   });
 
+  it('finds a vendor-prefixed product name by the name alone', () => {
+    const gate = { ...idx.items[0], slug: 'aigate-keys', title: 'Renew FortiAIGate keys', connectors: [], tags: [] };
+    const s = createSearch([...idx.items, gate], idx.connectors, idx.useCases);
+    for (const q of ['aigate', 'AIGate', 'fortiaigate', 'fortiai']) expect(s.scores(q)?.has('aigate-keys')).toBe(true);
+    expect(s.scores('forti')?.has('aigate-keys')).toBe(true);
+  });
+
   it('falls back to OR when no item has every word', () => {
     expect(run({ q: 'virustotal ticketing' }).length).toBeGreaterThan(0);
   });
