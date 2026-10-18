@@ -28,7 +28,7 @@ tags:
 - llm
 - gateway
 author: ftnt-dspille
-version: 1.6.10
+version: 1.6.12
 min_version: null
 license: MIT
 published: '2026-10-13'
@@ -36,6 +36,12 @@ source: https://github.com/ftnt-dspille/fortinet-fortiaigate
 author_id: 99558074
 updated: '2026-10-16'
 changelog:
+- version: 1.6.12
+  date: 2026-10-18
+  notes: Fixes state drift in 1.6.11. The replay gate now trips on a new faig_remediation_complete marker written only after RotatePeers (or NoPeers) succeeds; faig_revoked_request still records the revoke time for audit but is not the dedup key. A crashed run between RevokeKey and RotatePeers now resumes on the next call instead of being refused as a replay. The already-revoked branch no longer exits early; the playbook skips RevokeKey only and continues through ClearSecret, StampRevoked and RotatePeers so remediation finishes. Orphan already-revoked keeps the terminal (nothing to remediate).
+- version: 1.6.11
+  date: 2026-10-17
+  notes: Idempotency and already-revoked guards on the revocation playbook (superseded by 1.6.12 - the stamp was written before peer rotation; 1.6.12 moves it to after).
 - version: 1.6.10
   date: 2026-10-17
   notes: Replay protection on the revocation playbook. BlockVerified now also requires the log's timeStamp to fall within the last 15 minutes, so a privileged caller cannot reuse an old block uuid to revoke a key later. A stale uuid lands on verification_failed. De-duplication of a repeated fresh request_id is open for a future rev.
