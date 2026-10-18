@@ -306,7 +306,7 @@ export function autoLayout(nodes: PlaybookNode[], edges: PlaybookEdge[], frameW 
       if (zoom(w) > zoom(best) * bar) best = w;
     }
   }
-  return routeSkips(best.dir === 'TB' && spread ? straighten(spreadBranches(best, edges), edges) : best, edges);
+  return routeSkips(best.dir === 'TB' && spread ? straighten(clearOptionalSteps(spreadBranches(best, edges), edges), edges) : best, edges);
 }
 
 /**
@@ -363,6 +363,51 @@ function spreadBranches(l: Layout, edges: PlaybookEdge[]): Layout {
     const next: Layout = { ...l, positions: new Map(l.positions).set(under[0].id, moved) };
     next.width = Math.max(l.width, moved.x + NODE_W + MARGIN);
     if (clutter(next, edges) <= clutter(l, edges)) l = next;
+  }
+  return l;
+}
+
+/**
+ * A decision that either runs one step or skips straight to the step after it ("Keys to renew"
+ * vs "Nothing to renew"). The ranker parks the optional step half a column off the decision's
+ * line, which is too little to clear it: the skip then can't drop straight to where the branches
+ * meet and is sent down a side lane instead. Move the optional step clear of that line, on the
+ * side it already leans to, so the skip drops straight and the step sits beside it.
+ */
+function clearOptionalSteps(l: Layout, edges: PlaybookEdge[]): Layout {
+  const branching = branchSources(edges);
+  const outs = (id: string) => [...new Set(edges.filter((e) => e.source === id && e.target !== id).map((e) => e.target))];
+  const into = new Map<string, number>();
+  for (const e of edges) if (e.source !== e.target) into.set(e.target, (into.get(e.target) ?? 0) + 1);
+  const clear = NODE_W / 2 + 24;
+  for (const src of branching) {
+    const s = l.positions.get(src);
+    const targets = outs(src);
+    if (!s || targets.length !== 2) continue;
+    for (const [a, b] of [targets, [...targets].reverse()]) {
+      const pa = l.positions.get(a), pb = l.positions.get(b);
+      if (!pa || !pb || into.get(a) !== 1 || outs(a).join() !== b) continue;
+      if (!(s.y < pa.y && pa.y < pb.y) || Math.abs(pb.x - s.x) > 2 || Math.abs(pa.x - s.x) >= clear) continue;
+      const side = pa.x >= s.x ? 1 : -1;
+      const moved = { x: s.x + side * clear, y: pa.y };
+      if (moved.x < MARGIN) continue;
+      const hits = [...l.positions].some(
+        ([id, p]) => id !== a && Math.abs(p.x - moved.x) < NODE_W + 20 && Math.abs(p.y - moved.y) < NODE_H + 20
+      );
+      // In a wrapped layout, stay out of the gap the column jumps run along.
+      const c = l.colOf?.get(src);
+      const cols = l.columns;
+      const next = c !== undefined && cols ? cols[c + 1] : undefined;
+      const prev = c !== undefined && cols ? cols[c - 1] : undefined;
+      if (hits || (next && moved.x + NODE_W > next.left - COL_GAP / 2) || (prev && moved.x < prev.right + COL_GAP / 2)) continue;
+      const out: Layout = { ...l, positions: new Map(l.positions).set(a, moved) };
+      out.width = Math.max(l.width, moved.x + NODE_W + MARGIN);
+      if (c !== undefined && cols) {
+        out.columns = cols.map((col, i) => (i === c ? { left: Math.min(col.left, moved.x), right: Math.max(col.right, moved.x + NODE_W) } : col));
+      }
+      if (clutter(out, edges) <= clutter(l, edges)) l = out;
+      break;
+    }
   }
   return l;
 }
