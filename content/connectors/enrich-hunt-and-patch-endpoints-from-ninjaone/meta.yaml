@@ -89,3 +89,4 @@ tested:
     build failed its first live run (inputs were never bound - the start step lacked inputVariables);
     fixed in this package and re-verified. Values must reach the run as top-level trigger body keys.'
   sha256: 84d1c6a42c3564ca397bcdd9a6ae6e9effb23350f9550dabc8a3d2c33ad435b0
+source: https://github.com/ftnt-dspille/connector-ninjaone
