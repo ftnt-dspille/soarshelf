@@ -452,7 +452,7 @@
         {/if}
       </div>
       <aside class="space-y-6 text-sm">
-        {#if item.type === 'playbook' || item.type === 'solution-pack'}
+        {#if item.type === 'playbook' || item.type === 'solution-pack' || item.type === 'connector'}
           <div id="tested" class="scroll-mt-20 rounded-xl border p-4 {best?.result === 'ran' ? 'border-accent/40 bg-accent-soft/40' : 'border-line'}">
             <h2 class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-faint">
               <FlaskConical size={13} aria-hidden="true" />Verification
