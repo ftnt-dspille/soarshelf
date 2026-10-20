@@ -311,7 +311,8 @@ import MinimapNav from './MinimapNav.svelte';
         ]);
       else await navigator.clipboard.writeText(await text);
       copyState = 'copied';
-    } catch {
+    } catch (e) {
+      console.error('Copy steps failed:', e);
       copyState = 'failed';
     }
     copyTimer = setTimeout(() => (copyState = 'idle'), 12_000);

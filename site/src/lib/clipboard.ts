@@ -12,7 +12,7 @@
 // Steps can take the viewer's layout instead of the export's own coordinates, which
 // are often a staircase or a pile; the viewer's step size is close to the designer's.
 
-import { zipEntries } from './archive';
+import { tgzEntries, zipEntries } from './archive';
 
 type Obj = Record<string, unknown>;
 type StepTypes = Record<string, Obj>;
@@ -27,7 +27,8 @@ const isObj = (v: unknown): v is Obj => !!v && typeof v === 'object' && !Array.i
 const clone = <T>(v: T): T => structuredClone(v);
 const tail = (iri: unknown) => (typeof iri === 'string' ? iri.slice(iri.lastIndexOf('/') + 1) : '');
 
-/** The playbook with this uuid inside a download: a playbook export (.json) or a solution pack (.zip). */
+/** The playbook with this uuid inside a download: a playbook export (.json), a solution pack
+ * (.zip), or a connector/widget pack (.tgz / .tar.gz). */
 export async function findWorkflow(bytes: Uint8Array, filename: string, uuid: string): Promise<Obj | null> {
   const parse = (b: Uint8Array): unknown => {
     try {
@@ -39,7 +40,16 @@ export async function findWorkflow(bytes: Uint8Array, filename: string, uuid: st
   // Exactly one match, or nothing: two playbooks claiming one uuid means we can't
   // be sure the copy is the one the viewer showed.
   const only = (found: Obj[]) => (found.length === 1 ? found[0] : null);
-  if (filename.toLowerCase().endsWith('.zip')) {
+  const name = filename.toLowerCase();
+  const inCollections = (doc: unknown): Obj[] => {
+    const collections = isObj(doc) && Array.isArray(doc.data) ? doc.data : [];
+    const found: Obj[] = [];
+    for (const c of collections)
+      for (const w of isObj(c) && Array.isArray(c.workflows) ? c.workflows : [])
+        if (isObj(w) && w.uuid === uuid) found.push(w);
+    return found;
+  };
+  if (name.endsWith('.zip')) {
     // The pipeline's rule (process.py _pack): under the folder holding info.json,
     // playbooks/**.json with @type Workflow. Only those were sanitized and graphed.
     const entries = await zipEntries(bytes);
@@ -54,13 +64,21 @@ export async function findWorkflow(bytes: Uint8Array, filename: string, uuid: st
     }
     return only(found);
   }
-  const doc = parse(bytes);
-  const collections = isObj(doc) && Array.isArray(doc.data) ? doc.data : [];
-  const found: Obj[] = [];
-  for (const c of collections)
-    for (const w of isObj(c) && Array.isArray(c.workflows) ? c.workflows : [])
-      if (isObj(w) && w.uuid === uuid) found.push(w);
-  return only(found);
+  if (name.endsWith('.tgz') || name.endsWith('.tar.gz')) {
+    // Connector / widget pack: info.json at the pack root, workflows in one collection
+    // file under playbooks/ (playbooks.json), same shape as a playbook export.
+    const entries = await tgzEntries(bytes);
+    const info = entries.find((e) => e.path.split('/').at(-1) === 'info.json' && e.path.split('/').length <= 2);
+    if (!info) return null;
+    const root = info.path.slice(0, -'info.json'.length);
+    const found: Obj[] = [];
+    for (const e of entries) {
+      if (!e.path.startsWith(root + 'playbooks/') || !e.path.endsWith('.json')) continue;
+      found.push(...inCollections(parse(e.data)));
+    }
+    return only(found);
+  }
+  return only(inCollections(parse(bytes)));
 }
 
 const MARGIN = 40;

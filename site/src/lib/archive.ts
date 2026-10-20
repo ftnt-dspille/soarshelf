@@ -61,6 +61,30 @@ async function inflateRaw(data: Uint8Array): Promise<Uint8Array> {
   return out;
 }
 
+/** Files in a gzipped tar (a connector or widget pack's .tgz / .tar.gz). */
+export async function tgzEntries(tgz: Uint8Array): Promise<Entry[]> {
+  const reader = new Blob([tgz as BlobPart]).stream().pipeThrough(new DecompressionStream('gzip')).getReader();
+  const parts: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.length;
+    if (total > MAX_ENTRY * MAX_ENTRIES) {
+      await reader.cancel();
+      return [];
+    }
+    parts.push(value);
+  }
+  const tar = new Uint8Array(total);
+  let off = 0;
+  for (const part of parts) {
+    tar.set(part, off);
+    off += part.length;
+  }
+  return tarEntries(tar);
+}
+
 /** Files in a zip (stored or deflated), read from the central directory. Skips what it can't read. */
 export async function zipEntries(zip: Uint8Array): Promise<Entry[]> {
   const v = new DataView(zip.buffer, zip.byteOffset, zip.byteLength);

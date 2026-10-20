@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { findWorkflow, toClipboard } from './clipboard';
 import stepTypes from './stepTypes.json';
-import { zip } from './testZip';
+import { tgz, zip } from './testZip';
 
 const types = stepTypes as unknown as Record<string, Record<string, unknown>>;
 const enc = new TextEncoder();
@@ -114,6 +114,16 @@ describe('findWorkflow', () => {
   });
 
   const wf = JSON.stringify({ '@type': 'Workflow', ...workflow });
+
+  it('finds a playbook in a connector pack (.tgz)', async () => {
+    const collection = JSON.stringify({ data: [{ workflows: [{ uuid: 'other' }, workflow] }] });
+    const pack = tgz({
+      'fortinet-fortiaigate/info.json': '{}',
+      'fortinet-fortiaigate/playbooks/playbooks.json': collection
+    });
+    expect((await findWorkflow(pack, 'fortinet-fortiaigate_1.6.12.tgz', 'wf-1'))?.name).toBe('Route');
+    expect(await findWorkflow(pack, 'x.tar.gz', 'missing')).toBeNull();
+  });
 
   it('finds a playbook in a solution pack', async () => {
     const pack = zip({

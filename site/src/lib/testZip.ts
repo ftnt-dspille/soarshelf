@@ -1,5 +1,5 @@
 // Test helper: a minimal deflated zip, enough for archive.ts to read.
-import { deflateRawSync } from 'node:zlib';
+import { deflateRawSync, gzipSync } from 'node:zlib';
 
 const enc = new TextEncoder();
 
@@ -35,4 +35,37 @@ export function zip(files: Record<string, string>): Uint8Array {
   end.setUint32(12, cdSize, true);
   end.setUint32(16, off, true);
   return Buffer.concat([...parts, ...central, new Uint8Array(end.buffer)]);
+}
+
+/** A minimal gzipped tar: ustar headers (name ≤ 100 chars), 512-byte blocks, two zero blocks. */
+export function tgz(files: Record<string, string>): Uint8Array {
+  const blocks: Uint8Array[] = [];
+  for (const [name, text] of Object.entries(files)) {
+    const data = enc.encode(text);
+    const header = new Uint8Array(512);
+    const write = (off: number, s: string, len: number) => {
+      const b = enc.encode(s);
+      header.set(b.subarray(0, Math.min(b.length, len)), off);
+    };
+    write(0, name, 100);
+    write(100, '0000644\0', 8);
+    write(108, '0000000\0', 8);
+    write(116, '0000000\0', 8);
+    write(124, data.length.toString(8).padStart(11, '0') + '\0', 12);
+    write(136, '00000000000\0', 12);
+    for (let i = 148; i < 156; i++) header[i] = 0x20;
+    header[156] = 0x30; // typeflag '0' (regular file)
+    write(257, 'ustar\0', 6);
+    write(263, '00', 2);
+    let sum = 0;
+    for (const b of header) sum += b;
+    write(148, sum.toString(8).padStart(6, '0') + '\0 ', 8);
+    blocks.push(header);
+    blocks.push(data);
+    const pad = (512 - (data.length % 512)) % 512;
+    if (pad) blocks.push(new Uint8Array(pad));
+  }
+  blocks.push(new Uint8Array(1024));
+  const tar = Buffer.concat(blocks);
+  return new Uint8Array(gzipSync(tar));
 }
