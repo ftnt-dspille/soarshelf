@@ -1,0 +1,79 @@
+title: Enrich, hunt and patch endpoints from NinjaOne
+summary: Resolve devices from an IP, hostname or user, find where an advisory's product is unpatched,
+  and apply OS or software patches with approval.
+description: 'NinjaOne is a unified endpoint management (RMM) platform: it inventories every managed endpoint,
+  keeps software and patch state current, and runs monitoring that raises alerts. This connector brings
+  that estate data into SOAR so endpoint questions become playbook questions.
+
+
+  ## What it covers
+
+
+  56 operations across the NinjaOne Public API v2, grouped as:
+
+
+  - **Investigate (40)** — resolve devices by hostname, IP, owner or organization; read device detail,
+  approvals, custom fields, network interfaces, disks, processors, last logged-on user, installed software
+  and OS/software patch state; list alerts, activities, jobs and automation scripts; open the device''s
+  console deep link.
+
+  - **Remediate (16)** — approve and apply OS and software patches, reboot with maintenance windows and
+  monitoring suppression, run and track automation/script jobs, manage device approvals and maintenance
+  mode.
+
+
+  ## Sample playbooks (5)
+
+
+  The connector ships a playbook collection, `Sample - NinjaOne - 1.0.0`:
+
+
+  | Playbook | Steps | What it does |
+
+  |---|---|---|
+
+  | Enrich Asset | 8 | Resolve a hostname, IP or logged-on user to a device; pull identity, owner and
+  console deep link |
+
+  | Find Exposed Endpoints | 7 | Given a product name from an advisory, find where it exists and where
+  it is unpatched |
+
+  | Patch Endpoint with Approval | 13 | Show pending patches, ask for approval, then scan and apply |
+
+  | Reboot Endpoint with Approval | 10 | Approve, suppress monitoring during the reboot, reboot, confirm
+  the endpoint returns |
+
+  | Restart Windows Service | 6 | Restart a named Windows service and verify it is running again |
+
+
+  ## Good to know
+
+
+  - **Auth**: OAuth client credentials (access key ID + secret). Every operation in the collection and
+  every documented example was executed against a live tenant with an enrolled Windows endpoint; the full
+  pass/fail matrix with the reason for each failure is in the repository''s `COVERAGE.md`.
+
+  - **`run_script` needs a user-context token**: machine-to-machine (client-credentials) tokens receive
+  403 "Access key does not have user context" for script execution. The sample collection deliberately
+  builds nothing on it.
+
+  - **"Patch Endpoint with Approval" requires patching enabled** in the device''s NinjaOne policy. That
+  is a one-time tenant setting, not a connector limit — the playbook is the reason to go turn it on.
+
+  - **Approvals are real gates**: the remediation playbooks stop at a manual input step and wait for a
+  human before anything changes on the endpoint.'
+use_cases:
+- enrichment
+- vulnerability
+- containment
+tags:
+- endpoint
+- patching
+- rmm
+- inventory
+author: ftnt-dspille
+version: 1.0.0
+min_version: null
+license: MIT
+published: '2026-10-20'
+author_id: 99558074
