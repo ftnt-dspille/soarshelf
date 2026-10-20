@@ -27,7 +27,7 @@
             "hostname"
           ],
           "synchronous": false,
-          "lastModifyDate": 1792503982,
+          "lastModifyDate": 1792505497,
           "collection": "/api/3/workflow_collections/5f1a009c-081c-5a54-8929-c68b24bd1eb5",
           "versions": [],
           "triggerStep": "/api/3/workflow_steps/c7f12810-be7b-5341-a589-abaf02558b32",
@@ -37,16 +37,50 @@
               "name": "start",
               "description": null,
               "arguments": {
+                "inputVariables": [
+                  {
+                    "name": "hostname"
+                  },
+                  {
+                    "name": "hostname"
+                  }
+                ],
+                "title": "NinjaOne - Enrich Asset",
+                "resources": [
+                  "assets"
+                ],
+                "route": "07300e96-fb36-5fd6-b2cf-c03e149c7a38",
                 "step_variables": {
                   "input": {
-                    "params": []
+                    "params": {
+                      "hostname": "{{vars.request.data[\"hostname\"]}}"
+                    },
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false,
+                "noRecordExecution": true,
+                "singleRecordExecution": false,
+                "__triggerLimit": true,
+                "executeButtonText": "Execute",
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "displayConditions": {
+                  "assets": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
                   }
                 }
               },
               "status": null,
               "top": "120",
               "left": "200",
-              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
               "group": null,
               "uuid": "c7f12810-be7b-5341-a589-abaf02558b32"
             },
@@ -305,7 +339,7 @@
             "product"
           ],
           "synchronous": false,
-          "lastModifyDate": 1792503982,
+          "lastModifyDate": 1792505497,
           "collection": "/api/3/workflow_collections/5f1a009c-081c-5a54-8929-c68b24bd1eb5",
           "versions": [],
           "triggerStep": "/api/3/workflow_steps/f22dbdf7-ec05-5cb9-9ca1-cd5e56a7c605",
@@ -315,16 +349,50 @@
               "name": "start",
               "description": null,
               "arguments": {
+                "inputVariables": [
+                  {
+                    "name": "product"
+                  },
+                  {
+                    "name": "product"
+                  }
+                ],
+                "title": "NinjaOne - Find Exposed Endpoints",
+                "resources": [
+                  "assets"
+                ],
+                "route": "73589248-8447-5bf1-bd97-07cec928cf91",
                 "step_variables": {
                   "input": {
-                    "params": []
+                    "params": {
+                      "product": "{{vars.request.data[\"product\"]}}"
+                    },
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false,
+                "noRecordExecution": true,
+                "singleRecordExecution": false,
+                "__triggerLimit": true,
+                "executeButtonText": "Execute",
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "displayConditions": {
+                  "assets": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
                   }
                 }
               },
               "status": null,
               "top": "120",
               "left": "200",
-              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
               "group": null,
               "uuid": "f22dbdf7-ec05-5cb9-9ca1-cd5e56a7c605"
             },
@@ -548,7 +616,7 @@
             "device_id"
           ],
           "synchronous": false,
-          "lastModifyDate": 1792503982,
+          "lastModifyDate": 1792505497,
           "collection": "/api/3/workflow_collections/5f1a009c-081c-5a54-8929-c68b24bd1eb5",
           "versions": [],
           "triggerStep": "/api/3/workflow_steps/d927a311-6e53-5c59-9f96-555cb4f99e04",
@@ -558,16 +626,50 @@
               "name": "start",
               "description": null,
               "arguments": {
+                "inputVariables": [
+                  {
+                    "name": "device_id"
+                  },
+                  {
+                    "name": "device_id"
+                  }
+                ],
+                "title": "NinjaOne - Patch Endpoint with Approval",
+                "resources": [
+                  "assets"
+                ],
+                "route": "4d56ce27-31b4-5159-bcde-1df80ad143bb",
                 "step_variables": {
                   "input": {
-                    "params": []
+                    "params": {
+                      "device_id": "{{vars.request.data[\"device_id\"]}}"
+                    },
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false,
+                "noRecordExecution": true,
+                "singleRecordExecution": false,
+                "__triggerLimit": true,
+                "executeButtonText": "Execute",
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "displayConditions": {
+                  "assets": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
                   }
                 }
               },
               "status": null,
               "top": "120",
               "left": "200",
-              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
               "group": null,
               "uuid": "d927a311-6e53-5c59-9f96-555cb4f99e04"
             },
@@ -1022,7 +1124,7 @@
             "device_id"
           ],
           "synchronous": false,
-          "lastModifyDate": 1792503982,
+          "lastModifyDate": 1792505497,
           "collection": "/api/3/workflow_collections/5f1a009c-081c-5a54-8929-c68b24bd1eb5",
           "versions": [],
           "triggerStep": "/api/3/workflow_steps/7767776d-af78-5756-8d9a-3b735560034f",
@@ -1032,16 +1134,50 @@
               "name": "start",
               "description": null,
               "arguments": {
+                "inputVariables": [
+                  {
+                    "name": "device_id"
+                  },
+                  {
+                    "name": "device_id"
+                  }
+                ],
+                "title": "NinjaOne - Reboot Endpoint with Approval",
+                "resources": [
+                  "assets"
+                ],
+                "route": "bd7991d1-2a68-54a3-8a3b-ad642d9f4a8b",
                 "step_variables": {
                   "input": {
-                    "params": []
+                    "params": {
+                      "device_id": "{{vars.request.data[\"device_id\"]}}"
+                    },
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false,
+                "noRecordExecution": true,
+                "singleRecordExecution": false,
+                "__triggerLimit": true,
+                "executeButtonText": "Execute",
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "displayConditions": {
+                  "assets": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
                   }
                 }
               },
               "status": null,
               "top": "120",
               "left": "200",
-              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
               "group": null,
               "uuid": "7767776d-af78-5756-8d9a-3b735560034f"
             },
@@ -1397,7 +1533,7 @@
             "service_name"
           ],
           "synchronous": false,
-          "lastModifyDate": 1792503982,
+          "lastModifyDate": 1792505497,
           "collection": "/api/3/workflow_collections/5f1a009c-081c-5a54-8929-c68b24bd1eb5",
           "versions": [],
           "triggerStep": "/api/3/workflow_steps/a6200c72-e883-598b-b5f1-3fd26db6a531",
@@ -1407,16 +1543,57 @@
               "name": "start",
               "description": null,
               "arguments": {
+                "inputVariables": [
+                  {
+                    "name": "device_id"
+                  },
+                  {
+                    "name": "service_name"
+                  },
+                  {
+                    "name": "device_id"
+                  },
+                  {
+                    "name": "service_name"
+                  }
+                ],
+                "title": "NinjaOne - Restart Windows Service",
+                "resources": [
+                  "assets"
+                ],
+                "route": "68b07996-3b5a-5c2d-9904-b737285a2466",
                 "step_variables": {
                   "input": {
-                    "params": []
+                    "params": {
+                      "device_id": "{{vars.request.data[\"device_id\"]}}",
+                      "service_name": "{{vars.request.data[\"service_name\"]}}"
+                    },
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false,
+                "noRecordExecution": true,
+                "singleRecordExecution": false,
+                "__triggerLimit": true,
+                "executeButtonText": "Execute",
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "displayConditions": {
+                  "assets": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
                   }
                 }
               },
               "status": null,
               "top": "120",
               "left": "200",
-              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
               "group": null,
               "uuid": "a6200c72-e883-598b-b5f1-3fd26db6a531"
             },

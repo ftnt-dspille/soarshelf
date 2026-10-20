@@ -77,3 +77,15 @@ min_version: null
 license: MIT
 published: '2026-10-20'
 author_id: 99558074
+tested:
+- platform: 8.0.0
+  version: 1.0.0
+  result: ran
+  playbooks:
+  - NinjaOne - Enrich Asset
+  - NinjaOne - Find Exposed Endpoints
+  notes: 'Ran on a live FortiSOAR with the connector configured against a live NinjaOne tenant: Enrich
+    Asset resolved the enrolled endpoint and Find Exposed Endpoints completed its estate search. The first
+    build failed its first live run (inputs were never bound - the start step lacked inputVariables);
+    fixed in this package and re-verified. Values must reach the run as top-level trigger body keys.'
+  sha256: 84d1c6a42c3564ca397bcdd9a6ae6e9effb23350f9550dabc8a3d2c33ad435b0
