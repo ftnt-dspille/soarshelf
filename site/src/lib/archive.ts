@@ -61,6 +61,10 @@ async function inflateRaw(data: Uint8Array): Promise<Uint8Array> {
   return out;
 }
 
+/** Decompressed tar must fit in this cap, matching the pipeline's MAX_ZIP_UNCOMPRESSED,
+ * so a tiny .tgz cannot expand into something that eats the browser tab's memory. */
+export const MAX_TGZ_UNCOMPRESSED = 100 * 1024 * 1024;
+
 /** Files in a gzipped tar (a connector or widget pack's .tgz / .tar.gz). */
 export async function tgzEntries(tgz: Uint8Array): Promise<Entry[]> {
   const reader = new Blob([tgz as BlobPart]).stream().pipeThrough(new DecompressionStream('gzip')).getReader();
@@ -70,7 +74,7 @@ export async function tgzEntries(tgz: Uint8Array): Promise<Entry[]> {
     const { done, value } = await reader.read();
     if (done) break;
     total += value.length;
-    if (total > MAX_ENTRY * MAX_ENTRIES) {
+    if (total > MAX_TGZ_UNCOMPRESSED) {
       await reader.cancel();
       return [];
     }
