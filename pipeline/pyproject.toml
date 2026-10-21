@@ -5,7 +5,7 @@ description = "Check, sanitize and build community SOAR playbook content for the
 requires-python = ">=3.11"
 license = "MIT"
 dependencies = [
-    "pyfsr>=0.23.1",
+    "pyfsr>=0.26.0",
     # Pinned exactly: the YAML views under content/ are generated with it, and a new release can word
     # things differently, which CI (`soarshelf yaml --check`) would report as every view being stale.
     "fsr-playbooks==0.6.62",

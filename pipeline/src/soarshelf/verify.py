@@ -23,6 +23,8 @@ import io
 import json
 import posixpath
 import re
+import tarfile
+import time
 import uuid as uuidlib
 import zipfile
 from collections import defaultdict
@@ -64,7 +66,20 @@ def collections_from_download(kind: str, body: bytes) -> list[dict[str, Any]]:
             else:
                 pbs[folder].append(json.loads(z.read(n)))
         return [{**meta.get(f, {"name": posixpath.basename(f)}), "workflows": w} for f, w in pbs.items()]
-    raise VerifyError(f"live testing covers playbooks and solution packs, not {kind}s")
+    if kind in ("connector", "widget"):
+        # A connector/widget tgz carries its sample playbook collections under
+        # <pkg>/playbooks/*.json as regular export docs. Members are only read,
+        # never extracted, so archive paths can't escape anywhere.
+        out: list[dict[str, Any]] = []
+        with tarfile.open(fileobj=io.BytesIO(body), mode="r:*") as z:
+            for n in sorted(z.getnames()):
+                if "playbooks" in n.split("/") and n.endswith(".json"):
+                    doc = json.load(z.extractfile(n))
+                    out += [c for c in doc.get("data") or [] if isinstance(c, dict)]
+        if not out:
+            raise VerifyError(f"the {kind} package ships no playbook collections to test")
+        return out
+    raise VerifyError(f"live testing covers playbooks, solution packs and connectors, not {kind}s")
 
 
 def _defined_uuids(collections: list[dict[str, Any]]) -> set[str]:
@@ -86,9 +101,12 @@ def scratch_copy(collections: list[dict[str, Any]], run: set[str]) -> tuple[list
     """Fresh UUIDs everywhere, prefixed names, and only safe triggers switched on.
     Returns the copy and {playbook name: new uuid}."""
     copy = json.loads(_remap(json.dumps(collections), _defined_uuids(collections)))
+    stamp = time.strftime("%Y%m%d-%H%M%S")
     names: dict[str, str] = {}
     for c in copy:
-        c["name"] = PREFIX + str(c.get("name") or "collection")
+        # A deleted scratch collection lives on in the recycle bin, and its name
+        # still holds the uniqueness constraint -- so stamp every run's copy.
+        c["name"] = f"{PREFIX}{stamp} {str(c.get('name') or 'collection')}"
         c.pop("id", None)
         c.pop("@id", None)
         for w in c.get("workflows") or []:
@@ -231,7 +249,11 @@ def run(item: Path, *, instance: str | None, playbooks: list[str], calls: list[s
         ran = []
         on = {"record_uuid": record_uuid, "module": module} if module else {}
         for name in playbooks:
-            r = client.playbooks.run_and_wait(playbook_uuid=uuids[name], inputs=inputs.get(name),
+            # Values go as top-level trigger body keys (pyfsr ``env=``): that is
+            # the shape that populates ``vars.input.params.<name>`` for a start
+            # step with declared ``inputVariables`` -- the UI Execute dialog's
+            # shape. ``inputs=`` would land as ``vars.inputs`` and never bind.
+            r = client.playbooks.run_and_wait(playbook_uuid=uuids[name], env=inputs.get(name) or None,
                                               answers=answers or None, timeout=timeout, **on)
             print(f"  ran {name}: {r.status}")
             if not r.succeeded:
