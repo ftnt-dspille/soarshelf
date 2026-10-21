@@ -2,7 +2,7 @@ title: Investigate and remediate FortiSIEM incidents
 summary: Investigate an incident's artifacts, then remediate confirmed ones - reset or disable compromised
   Active Directory accounts, block or quarantine source IPs on FortiGate, Palo Alto, Cisco ASA or Check
   Point, and catch rogue Domain Admin additions - with manual approval gates before anything disruptive.
-description: 'Incident response flows for a FortiSIEM estate, in two collections.
+description: 'Incident response flows for a FortiSIEM estate, in four collections.
 
 
   **Investigate** (one playbook): on an incident, extract the unique artifacts, enrich them and set a
@@ -25,11 +25,23 @@ description: 'Incident response flows for a FortiSIEM estate, in two collections
   `AllowedDomainAdmins` lookup table first and only alarms on strangers; two config playbooks create
   that table (service-provider and enterprise variants).
 
+  **Enrich** (one playbook, 55 steps): investigate an incident''s IOCs end to end - look each artifact
+  up against VirusTotal, whois/abuse contact and reputation sources, parse the answers into a per-IOC
+  verdict and write the findings back to the incident. Its steps carry sample lookup results so you can
+  exercise the flow before wiring the connectors; the samples use documentation-only values
+  (example.com contacts, RFC 5737 addresses).
+
+  **AD user response** (one playbook): on an unauthorized new AD user (or Domain Admin) alert, pull the
+  account from AD, open and update a FortiSIEM case, email the response team and - after a manual
+  approve - disable the account and remove it from Domain Admins.
+
 
   The playbooks came out of a Fortinet FNDN training environment and were converted from the Automation
   Service format. Connector configurations and agents are deliberately not bundled: bind your own
   FortiSIEM, Active Directory, SMTP, JIRA and firewall connections after import, and point the
-  incident-driven starts at your own incident module.'
+  incident-driven starts at your own incident module. Sample data inside the playbooks uses example
+  values only - contact addresses sit under `example.com`/`example.net`, IP addresses in the RFC 5737
+  documentation ranges and the ASN is a private one.'
 use_cases:
 - containment
 - identity
@@ -39,18 +51,30 @@ tags:
 - active-directory
 - firewall
 author: ftnt-dspille
-version: 1.0.0
+version: 1.1.0
 min_version: 7.6.0
 license: MIT
 published: '2026-10-21'
 author_id: 99558074
 tested:
+- platform: 8.0.2
+  version: 1.1.0
+  result: imported
+  sha256: 39282d0b3100ab7e5227e3c4c2f584ffc58747de3d16d772935990a343b4593f
 - platform: 8.0.0
   version: 1.0.0
   result: imported
   sha256: 5ff0830fe887f636f002496801b116d0aebc3eb10223b1a160a40068c1ac909b
 updated: '2026-10-21'
 changelog:
+- version: 1.1.0
+  date: '2026-10-21'
+  notes: 'Adds two collections: Enrich (Incident IOC investigations - look each artifact up against
+    VirusTotal, whois/abuse and reputation sources and write findings back to the incident; steps carry
+    sample lookup results for dry runs) and AD User Response (unauthorized new AD user or Domain Admin:
+    pull the account, open and update a FortiSIEM case, email the team and disable the account after a
+    manual approve). Personal and customer details that were baked into the originals are replaced with
+    example values - example.com/example.net contacts, RFC 5737 documentation IPs, a private ASN.'
 - version: 1.0.0
   date: '2026-10-21'
   notes: First published. Converted from the FortiSOAR Automation Service format; agent bindings
