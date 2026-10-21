@@ -37,7 +37,7 @@ _SECRET_KEY = re.compile(
     r"access[_-]?token|refresh[_-]?token|auth[_-]?token|token|private[_-]?key|secret[_-]?key)$",
     re.I,
 )
-_TEMPLATE = re.compile(r"\{\{.*?\}\}|\{%.*?%\}", re.S)
+_TEMPLATE = re.compile(r"\{\{.*?\}\}|\{%.*?%\}|\{#.*?#\}", re.S)
 _PLACEHOLDER = re.compile(r"^\s*(<[^>]+>|\$\{[^}]+\}|x{3,}|\*{3,}|changeme|your[_ -].*|example.*)\s*$", re.I)
 
 _IPV4 = re.compile(r"(?<![\d.])((?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3})(/\d{1,2})?(?![\d.])")
