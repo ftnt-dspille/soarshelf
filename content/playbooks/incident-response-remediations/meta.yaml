@@ -36,7 +36,7 @@ description: 'Incident response flows for a FortiSIEM estate, in four collection
   approve - disable the account and remove it from Domain Admins.
 
 
-  The playbooks came out of a Fortinet FNDN training environment and were converted from the Automation
+  The playbooks came out of a Fortinet training environment and were converted from the Automation
   Service format. Connector configurations and agents are deliberately not bundled: bind your own
   FortiSIEM, Active Directory, SMTP, JIRA and firewall connections after import, and point the
   incident-driven starts at your own incident module. Sample data inside the playbooks uses example

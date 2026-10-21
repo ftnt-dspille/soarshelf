@@ -23,8 +23,7 @@ description: 'Six collections, one per intelligence topic, all driven by the For
 
 
   Most playbooks take the topic (a group, CVE or CERT name) as an input parameter, fetch the reports,
-  parse the hits into a flat list and send the digest by email. The playbooks came out of a Fortinet
-  FNDN training environment and were converted from the Automation Service format; bind your own
+  parse the hits into a flat list and send the digest by email. The playbooks came out of a Fortinet training environment and were converted from the Automation Service format; bind your own
   FortiRecon ACI and email connections after import. Agent bindings were cleared.'
 use_cases:
 - enrichment
