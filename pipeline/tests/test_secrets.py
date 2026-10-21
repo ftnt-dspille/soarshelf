@@ -79,6 +79,14 @@ def test_structural_names_inside_arguments_are_content():
 def test_literal_secret_around_template_still_blocks():
     assert ids({"params": {"password": FAKE_PW + "{{ vars.suffix }}"}})["secrets.literal-secret"] == "block"
     assert "secrets.literal-secret" not in ids({"params": {"password": " {{ vars.creds.password }} "}})
+    # Jinja comments are code, not literal secret text: a multi-line password
+    # generator built from {%- ... -%} blocks and {# notes #} must not trip the
+    # literal check on the words inside the comments.
+    generator = ("{%- set raw = (uuid() ~ uuid()).replace(\"-\", \"\") | list -%}\n"
+                 "{%- set specials = \"!@#$%^&*?\" | list -%}\n"
+                 "{# Pick 2 random specials #}\n"
+                 "{{ (raw[:6] + specials[:2]) | join }}")
+    assert "secrets.literal-secret" not in ids({"params": {"new_password": generator}})
 
 
 def test_location_reported():
