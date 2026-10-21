@@ -19,7 +19,11 @@ description: |
   writes only the new `api_key` back. A key no secret is tagged with is left to expire, and a key tagged on two
   secrets is reported, not touched. **Onboard FortiAIGate Key to Vault** is an API endpoint that creates a key
   for a new app, stores it tagged in a new secret and returns the key name and Vault path. The README lists the
-  Vault policy and permissions these need.
+  Vault policy and permissions these need. **FortiAIGate > Ingest** (1.7.0) pulls the gateway's blocked requests
+  on a schedule and files them as alerts, so guardrail denials become records the revocation playbook can act on:
+  posting a block's `request_id` and `key_id` to its API endpoint revokes the key, clears its Vault secret and
+  rotates the workspace's other keys, refusing replays older than 15 minutes and re-processing the same block
+  only once.
 use_cases:
 - utility
 - reporting
@@ -28,14 +32,46 @@ tags:
 - llm
 - gateway
 author: ftnt-dspille
-version: 1.6.12
+version: 1.7.1
 min_version: null
 license: MIT
 published: '2026-10-13'
 source: https://github.com/ftnt-dspille/fortinet-fortiaigate
 author_id: 99558074
-updated: '2026-10-16'
+updated: '2026-10-21'
+tested:
+- platform: 8.0.2
+  version: 1.7.1
+  result: ran
+  playbooks:
+  - Revoke FortiAIGate Key on Guardrail Block
+  notes: 'Live-verified on an 8.0.x appliance with the gateway and Vault configured: a real guardrail
+    block (sensitive-information policy) on a Vault-managed key was fed to the playbook''s API endpoint;
+    it verified the fresh block in the traffic logs, revoked the key, cleared and stamped its Vault
+    secret, rotated the workspace peers and wrote the faig_remediation_complete marker, and an immediate
+    replay of the same request short-circuited to already_processed. The first 1.7.1 artifact shipped
+    two stale pyfortiaigate call sites (get_traffic_log among them) that raised AttributeError
+    mid-remediation on a live box; fixed and re-released, with a new offline test that parses
+    operations.py and requires every client method it calls to exist on the pyfortiaigate client.'
+  sha256: 45e8d4078ad9f3e718de69e79afeef2a4dd5c9028e7c9e116547c17d791093fa
 changelog:
+- version: 1.7.1
+  date: 2026-10-21
+  notes: Writes the faig_remediation_complete dedup marker on the peer path too (a new StampComplete
+    step after RotatePeers; ignore_errors keeps a failed metadata write from masking a finished rotation),
+    so a replay of a successful revocation-with-peers short-circuits to already_processed as the release
+    notes always promised. The freshness window uses arrow's int_timestamp for exact integer millisecond
+    math. Also fixes two stale pyfortiaigate call sites left by the 1.7.0 merge (list_virtual_keys was
+    renamed to virtual_keys in the library): list_expiring_virtual_keys and get_traffic_log's key
+    resolution raised AttributeError on a live appliance, and get_traffic_log sits directly in the
+    revocation path. New offline test pins every client method operations.py calls to the real
+    pyfortiaigate client.
+- version: 1.7.0
+  date: 2026-10-20
+  notes: Unifies the security-hardening line with scheduled data ingestion (Get Blocked Traffic plus the
+    Data Ingestion sample playbooks ingest blocked requests as alerts on a schedule). Every gateway call
+    now routes through the pyfortiaigate library; the legacy connections.py module is gone. The sample
+    collection carries all 8 workflows (Vault lifecycle + ingestion).
 - version: 1.6.12
   date: 2026-10-18
   notes: Fixes state drift in 1.6.11. The replay gate now trips on a new faig_remediation_complete marker written only after RotatePeers (or NoPeers) succeeds; faig_revoked_request still records the revoke time for audit but is not the dedup key. A crashed run between RevokeKey and RotatePeers now resumes on the next call instead of being refused as a replay. The already-revoked branch no longer exits early; the playbook skips RevokeKey only and continues through ClearSecret, StampRevoked and RotatePeers so remediation finishes. Orphan already-revoked keeps the terminal (nothing to remediate).
