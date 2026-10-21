@@ -1,0 +1,1529 @@
+{
+ "type": "workflow_collections",
+ "data": [
+  {
+   "description": "This collection of playbooks is focused towards creating ticket for alerts that are created for various threats which are reported by FortiRecon.",
+   "name": "Ticketing Automation",
+   "recordTags": [
+    "FortiRecon Solution Pack"
+   ],
+   "image": null,
+   "@type": "WorkflowCollection",
+   "visible": true,
+   "workflows": [
+    {
+     "description": "This playbook helps analyst to create custom tickets in respective ticketing platform for High-risk issues found in Brand Protection > Code Repo Exposure.",
+     "synchronous": false,
+     "isPrivate": false,
+     "parameters": null,
+     "recordTags": [
+      "FortiRecon Solution Pack",
+      "BP - Code Repo Exposure"
+     ],
+     "steps": [
+      {
+       "arguments": {
+        "arguments": {
+         "htmlTable": "{{ vars.steps[\"Convert Response To HTML Table\"].data }}",
+         "markdownTable": "{{ vars.markdownTable }}"
+        },
+        "pass_parent_env": false,
+        "pass_input_record": false,
+        "workflowReference": "/api/workflow/playbooks/a256c599-0731-411b-bc4b-0cdd84458301/"
+       },
+       "description": null,
+       "top": "570",
+       "left": "300",
+       "name": "Create JIRA Tickets",
+       "status": null,
+       "uuid": "1453981b-fac1-4376-afa6-53ef421c66da",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+       "group": null
+      },
+      {
+       "arguments": {
+        "__triggerLimit": true,
+        "step_variables": {
+         "input": {
+          "params": []
+         }
+        },
+        "triggerOnSource": true,
+        "triggerOnReplicate": false
+       },
+       "description": null,
+       "top": "30",
+       "left": "300",
+       "name": "Start",
+       "status": null,
+       "uuid": "1c012cf7-d1d4-4cec-9505-6d6820a989b6",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+       "group": null
+      },
+      {
+       "arguments": {
+        "summaryJSON": "{%- for item in vars.recordMetaData -%}\n{%- set _tableRow = {\n\"Repo Name\": item.data.repoName or \"NA\",\n\"Matched Domain\": item.data.matchedDomain or \"NA\",\n\"Attribute\": item.data.attribute or \"NA\",\n\"Attribute Type\": item.data.attributeType or \"NA\",\n\"Risk Level\": item.data.riskLevel or \"NA\",\n\"File Count\": item.data.fileCount or \"NA\",\n\"Status\": item.data.status or \"NA\",\n\"Date\": item.data.date or \"NA\"\n} -%}\n{%- do vars.tableSummary.append(_tableRow) -%}\n{%- endfor -%}{{ vars.tableSummary }}"
+       },
+       "description": null,
+       "top": "300",
+       "left": "300",
+       "name": "Compute Summary",
+       "status": null,
+       "uuid": "6097c3aa-d095-4916-b1be-14c826f6613e",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "tableSummary": "[]",
+        "recordMetaData": "{{ vars.input.records }}"
+       },
+       "description": null,
+       "top": "165",
+       "left": "300",
+       "name": "Configuration",
+       "status": null,
+       "uuid": "808ecaec-57b2-4d72-87cf-06de3448cdd5",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "name": "Utilities",
+        "config": "",
+        "params": {
+         "data": "{{ vars.summaryJSON }}",
+         "display": "Horizontal",
+         "styling": false,
+         "template": "Stylized with row selection",
+         "row_fields": "",
+         "show_button": true
+        },
+        "version": "3.6.0",
+        "connector": "cyops_utilities",
+        "operation": "json_to_html",
+        "pickFromTenant": false,
+        "step_variables": {
+         "markdownTable": "{%- set data = vars.summaryJSON -%}{%- set headers = data[0].keys() -%}  | {{ headers | join(' | ') }} |\n| \n{%- for _ in headers %} --- {%- if not loop.last %} | {%- endif %}{% endfor %} |\n{%- for row in data %}\n| {%- for h in headers %} {{ row[h] }} {%- if not loop.last %} | {%- endif %}{%- endfor %} |{%- endfor %}"
+        }
+       },
+       "description": null,
+       "top": "435",
+       "left": "300",
+       "name": "Convert Response To HTML Table",
+       "status": null,
+       "uuid": "925998e1-b467-4397-956c-450e28cfe9be",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+       "group": null
+      }
+     ],
+     "routes": [
+      {
+       "@type": "WorkflowRoute",
+       "name": "35d184bf-5cc5-47f0-99bd-d68883fae9bd",
+       "targetStep": "/api/3/workflow_steps/6097c3aa-d095-4916-b1be-14c826f6613e",
+       "sourceStep": "/api/3/workflow_steps/808ecaec-57b2-4d72-87cf-06de3448cdd5",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "a3ffbbe7-e920-467b-a7ab-d9a6d96231e2"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "b242177f-a291-4d50-99f6-131aea386bfb",
+       "targetStep": "/api/3/workflow_steps/808ecaec-57b2-4d72-87cf-06de3448cdd5",
+       "sourceStep": "/api/3/workflow_steps/1c012cf7-d1d4-4cec-9505-6d6820a989b6",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "e12c6463-1662-4095-b9dc-f3a035e63bd7"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "a6d07744-555a-4d85-8a55-fa9d0d5a362d",
+       "targetStep": "/api/3/workflow_steps/925998e1-b467-4397-956c-450e28cfe9be",
+       "sourceStep": "/api/3/workflow_steps/6097c3aa-d095-4916-b1be-14c826f6613e",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "eb289607-c04a-4e12-8036-d5407e98b818"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "Convert Response To HTML Table->Create JIRA Tickets",
+       "targetStep": "/api/3/workflow_steps/1453981b-fac1-4376-afa6-53ef421c66da",
+       "sourceStep": "/api/3/workflow_steps/925998e1-b467-4397-956c-450e28cfe9be",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "b4f793dc-d32a-4da6-ba01-d1c87a5ea639"
+      }
+     ],
+     "isActive": false,
+     "groups": [],
+     "tag": null,
+     "uuid": "b939e309-2492-49fd-9ac4-40b9c17b8795",
+     "triggerStep": "/api/3/workflow_steps/1c012cf7-d1d4-4cec-9505-6d6820a989b6",
+     "singleRecordExecution": false,
+     "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+     "debug": true,
+     "remoteExecutableFlag": false,
+     "@type": "Workflow",
+     "name": "Create Ticket for Code Repo Exposure Alerts",
+     "importedBy": [],
+     "triggerLimit": null,
+     "aliasName": null
+    },
+    {
+     "description": "This playbook helps Analyst to create custom tickets in respective ticketing platform for security issues that are reported by FortiRecon EASM module.",
+     "synchronous": false,
+     "isPrivate": false,
+     "parameters": null,
+     "recordTags": [
+      "FortiRecon Solution Pack",
+      "EASM - Security Issues"
+     ],
+     "steps": [
+      {
+       "arguments": {
+        "summaryJSON": "{%- set new_list = [] -%}\n{%- for item in vars.recordMetaData -%}    \n{%- set _itemDict = { \n'Asset': item.data.asset_name, \n'Created On': item.data.created_ts or \"NA\", \n'Open Port': item.data.issue_data[0].port or \"NA\",\n'Raw Data': item.data.issue_data[0].raw_data or \"NA\",\n'Issue Result': item.data.issue_data[0].issue_result or \"NA\",\n'NVD Severity': item.data.nvd_severity or \"NA\",\n'FortiRecon Severity': item.data.recon_severity or \"NA\"\n} -%}{%- do new_list.append(_itemDict) -%}{%- endfor -%}{{ new_list }}"
+       },
+       "description": null,
+       "top": "300",
+       "left": "300",
+       "name": "Compute Summary",
+       "status": null,
+       "uuid": "3acecdbd-d7ed-488f-9bc3-2cc2d19e64aa",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "arguments": {
+         "htmlTable": "{{ vars.steps[\"Convert Response To HTML Table\"].data }}",
+         "markdownTable": "{{ vars.markdownTable }}"
+        },
+        "pass_parent_env": false,
+        "pass_input_record": false,
+        "workflowReference": "/api/workflow/playbooks/a256c599-0731-411b-bc4b-0cdd84458301/"
+       },
+       "description": null,
+       "top": "570",
+       "left": "300",
+       "name": "Create JIRA Tickets",
+       "status": null,
+       "uuid": "5fa0edd2-e8be-4bfe-80c4-3846c0ebd22b",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+       "group": null
+      },
+      {
+       "arguments": {
+        "tableSummary": "[]",
+        "recordMetaData": "{{ vars.input.records }}"
+       },
+       "description": null,
+       "top": "165",
+       "left": "300",
+       "name": "Configuration",
+       "status": null,
+       "uuid": "90e244fb-8647-4705-a362-2484613f06a3",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "name": "Utilities",
+        "config": "",
+        "params": {
+         "data": "{{ vars.summaryJSON }}",
+         "display": "Horizontal",
+         "styling": false,
+         "template": "Stylized with row selection",
+         "row_fields": "",
+         "show_button": true
+        },
+        "version": "3.6.0",
+        "connector": "cyops_utilities",
+        "operation": "json_to_html",
+        "pickFromTenant": false,
+        "step_variables": {
+         "markdownTable": "{%- set data = vars.summaryJSON -%}{%- set headers = data[0].keys() -%}  | {{ headers | join(' | ') }} |\n| \n{%- for _ in headers %} --- {%- if not loop.last %} | {%- endif %}{% endfor %} |\n{%- for row in data %}\n| {%- for h in headers %} {{ row[h] }} {%- if not loop.last %} | {%- endif %}{%- endfor %} |{%- endfor %}"
+        }
+       },
+       "description": null,
+       "top": "435",
+       "left": "300",
+       "name": "Convert Response To HTML Table",
+       "status": null,
+       "uuid": "9aa2c40c-c777-4a21-9796-a4a575eb7ef6",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+       "group": null
+      },
+      {
+       "arguments": {
+        "__triggerLimit": true,
+        "step_variables": {
+         "input": {
+          "params": []
+         }
+        },
+        "triggerOnSource": true,
+        "triggerOnReplicate": false
+       },
+       "description": null,
+       "top": "30",
+       "left": "300",
+       "name": "Start",
+       "status": null,
+       "uuid": "e3f853c1-6f47-4943-b737-be00f128c01a",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+       "group": null
+      }
+     ],
+     "routes": [
+      {
+       "@type": "WorkflowRoute",
+       "name": "88fddb2b-c4c2-4869-a5cc-94b70337a107",
+       "targetStep": "/api/3/workflow_steps/3acecdbd-d7ed-488f-9bc3-2cc2d19e64aa",
+       "sourceStep": "/api/3/workflow_steps/90e244fb-8647-4705-a362-2484613f06a3",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "f5f88037-4778-49ee-b5f9-725c99931c19"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "ff98e1f3-c0d0-4642-a4fa-69ce30bbcbad",
+       "targetStep": "/api/3/workflow_steps/90e244fb-8647-4705-a362-2484613f06a3",
+       "sourceStep": "/api/3/workflow_steps/e3f853c1-6f47-4943-b737-be00f128c01a",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "97257292-a2d1-4dbf-8188-dc2824e8ea3d"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "3f92b033-d534-4ccd-91d0-62896cd565d5",
+       "targetStep": "/api/3/workflow_steps/5fa0edd2-e8be-4bfe-80c4-3846c0ebd22b",
+       "sourceStep": "/api/3/workflow_steps/9aa2c40c-c777-4a21-9796-a4a575eb7ef6",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "36fdda60-38c4-42d7-839d-55d57388f2e4"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "34befc31-98f9-4ab6-87bc-a34cfe0adfe1",
+       "targetStep": "/api/3/workflow_steps/9aa2c40c-c777-4a21-9796-a4a575eb7ef6",
+       "sourceStep": "/api/3/workflow_steps/3acecdbd-d7ed-488f-9bc3-2cc2d19e64aa",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "6d16608f-2815-44a6-b3ec-a4458382058f"
+      }
+     ],
+     "isActive": false,
+     "groups": [],
+     "tag": null,
+     "uuid": "f2a0b955-e8f7-4bf2-a4e1-51d29780dc80",
+     "triggerStep": "/api/3/workflow_steps/e3f853c1-6f47-4943-b737-be00f128c01a",
+     "singleRecordExecution": false,
+     "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+     "debug": true,
+     "remoteExecutableFlag": false,
+     "@type": "Workflow",
+     "name": "Create Ticket for EASM Security Issues",
+     "importedBy": [],
+     "triggerLimit": null,
+     "aliasName": null
+    },
+    {
+     "description": "This playbook helps Analyst to create custom tickets in respective ticketing platform for threats that are reported by FortiRecon EASM > Leaked Credentials module.",
+     "synchronous": false,
+     "isPrivate": false,
+     "parameters": null,
+     "recordTags": [
+      "FortiRecon Solution Pack",
+      "EASM - Leaked Credentials"
+     ],
+     "steps": [
+      {
+       "arguments": {
+        "arguments": {
+         "htmlTable": "{{ vars.steps[\"Convert Response To HTML Table\"].data }}",
+         "markdownTable": "{{ vars.markdownTable }}"
+        },
+        "pass_parent_env": false,
+        "pass_input_record": false,
+        "workflowReference": "/api/workflow/playbooks/a256c599-0731-411b-bc4b-0cdd84458301/"
+       },
+       "description": null,
+       "top": "570",
+       "left": "300",
+       "name": "Create JIRA Tickets",
+       "status": null,
+       "uuid": "2cf27377-e0c3-4344-bd5b-c1852abe17b0",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+       "group": null
+      },
+      {
+       "arguments": {
+        "summaryJSON": "{%- for item in vars.recordMetaData -%}\n{%- set _tableRow = {\n\"Domain\": item.data.domain or \"NA\",\n\"Email Address\": item.data.emailAddr or \"NA\",\n\"Breach Name\": item.data.breachName or \"NA\",\n\"Breach Date\": item.data.breachDate or \"NA\",\n\"Has Password\": item.data.hasPassword or \"NA\",\n\"Added On\": item.data.addedOn or \"NA\"\n} -%}\n{%- do vars.tableSummary.append(_tableRow) -%}\n{%- endfor -%}{{ vars.tableSummary }}"
+       },
+       "description": null,
+       "top": "300",
+       "left": "300",
+       "name": "Compute Summary",
+       "status": null,
+       "uuid": "781f458a-be1a-47c8-8208-eee62216abfc",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "tableSummary": "[]",
+        "recordMetaData": "{{ vars.input.records }}"
+       },
+       "description": null,
+       "top": "165",
+       "left": "300",
+       "name": "Configuration",
+       "status": null,
+       "uuid": "a4731b15-7ff1-42d6-9500-ca03e51a0b27",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "name": "Utilities",
+        "config": "",
+        "params": {
+         "data": "{{ vars.summaryJSON }}",
+         "display": "Horizontal",
+         "styling": false,
+         "template": "Stylized with row selection",
+         "row_fields": "",
+         "show_button": true
+        },
+        "version": "3.6.0",
+        "connector": "cyops_utilities",
+        "operation": "json_to_html",
+        "pickFromTenant": false,
+        "step_variables": {
+         "markdownTable": "{%- set data = vars.summaryJSON -%}{%- set headers = data[0].keys() -%}  | {{ headers | join(' | ') }} |\n| \n{%- for _ in headers %} --- {%- if not loop.last %} | {%- endif %}{% endfor %} |\n{%- for row in data %}\n| {%- for h in headers %} {{ row[h] }} {%- if not loop.last %} | {%- endif %}{%- endfor %} |{%- endfor %}"
+        }
+       },
+       "description": null,
+       "top": "435",
+       "left": "300",
+       "name": "Convert Response To HTML Table",
+       "status": null,
+       "uuid": "9da4efdd-8aee-40a0-ab70-0f301af59ce0",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+       "group": null
+      },
+      {
+       "arguments": {
+        "__triggerLimit": true,
+        "step_variables": {
+         "input": {
+          "params": []
+         }
+        },
+        "triggerOnSource": true,
+        "triggerOnReplicate": false
+       },
+       "description": null,
+       "top": "30",
+       "left": "300",
+       "name": "Start",
+       "status": null,
+       "uuid": "ed4f67b4-8cd0-4598-bc91-3a6bab1147f6",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+       "group": null
+      }
+     ],
+     "routes": [
+      {
+       "@type": "WorkflowRoute",
+       "name": "bf63c29a-0e43-4c73-a027-91f78e7fbd0a",
+       "targetStep": "/api/3/workflow_steps/a4731b15-7ff1-42d6-9500-ca03e51a0b27",
+       "sourceStep": "/api/3/workflow_steps/ed4f67b4-8cd0-4598-bc91-3a6bab1147f6",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "9bb8c83e-5054-4b08-93c3-40062d015fd0"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "5c69008e-7376-4f07-8443-90bc2accdffd",
+       "targetStep": "/api/3/workflow_steps/781f458a-be1a-47c8-8208-eee62216abfc",
+       "sourceStep": "/api/3/workflow_steps/a4731b15-7ff1-42d6-9500-ca03e51a0b27",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "f28cc137-070d-4203-90d0-f13b945457ae"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "4efe3311-1d4d-48b3-b5d7-9a3a61e8ab78",
+       "targetStep": "/api/3/workflow_steps/9da4efdd-8aee-40a0-ab70-0f301af59ce0",
+       "sourceStep": "/api/3/workflow_steps/781f458a-be1a-47c8-8208-eee62216abfc",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "8e176203-84e5-4286-bb14-832dc97d476d"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "ef4e7aec-cfe3-48b3-8420-9f4760d5e088",
+       "targetStep": "/api/3/workflow_steps/2cf27377-e0c3-4344-bd5b-c1852abe17b0",
+       "sourceStep": "/api/3/workflow_steps/9da4efdd-8aee-40a0-ab70-0f301af59ce0",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "ff71c72c-7781-4e9c-94f0-99642cada67d"
+      }
+     ],
+     "isActive": false,
+     "groups": [],
+     "tag": null,
+     "uuid": "9f2cbab7-e4bb-41ba-9734-a122e811e835",
+     "triggerStep": "/api/3/workflow_steps/ed4f67b4-8cd0-4598-bc91-3a6bab1147f6",
+     "singleRecordExecution": false,
+     "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+     "debug": true,
+     "remoteExecutableFlag": false,
+     "@type": "Workflow",
+     "name": "Create Ticket for Leaked Credential Alerts",
+     "importedBy": [],
+     "triggerLimit": null,
+     "aliasName": null
+    },
+    {
+     "description": "This playbook helps Analyst to create custom tickets in respective ticketing platform for threats that are reported by FortiRecon Brand Protection > Open Bucket Exposure module.",
+     "synchronous": false,
+     "isPrivate": false,
+     "parameters": null,
+     "recordTags": [
+      "FortiRecon Solution Pack",
+      "BP - Open Bucket Exposure"
+     ],
+     "steps": [
+      {
+       "arguments": {
+        "tableSummary": "[]",
+        "recordMetaData": "{{ vars.input.records }}"
+       },
+       "description": null,
+       "top": "165",
+       "left": "300",
+       "name": "Configuration",
+       "status": null,
+       "uuid": "0bf40bba-3b0d-4894-ae77-9e378c1e03cf",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "arguments": {
+         "htmlTable": "{{ vars.steps[\"Convert Response To HTML Table\"].data }}",
+         "markdownTable": "{{ vars.markdownTable }}"
+        },
+        "pass_parent_env": false,
+        "pass_input_record": false,
+        "workflowReference": "/api/workflow/playbooks/a256c599-0731-411b-bc4b-0cdd84458301/"
+       },
+       "description": null,
+       "top": "570",
+       "left": "300",
+       "name": "Create JIRA Tickets",
+       "status": null,
+       "uuid": "0550fdf4-ba9d-448d-a756-cea9b32bdf62",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+       "group": null
+      },
+      {
+       "arguments": {
+        "summaryJSON": "{%- for item in vars.recordMetaData -%}\n{%- set _tableRow = {\n  \"File Name\": item.data.fileName or \"NA\",\n  \"File URL\": item.data.fileUrl or \"NA\",\n  \"File Type\": item.data.fileType or \"NA\",\n  \"Bucket Name\": item.data.bucketName or \"NA\",\n  \"Bucket Type\": item.data.bucketType or \"NA\",\n  \"File Status\": item.data.fileStatus or \"NA\",\n  \"Date\": item.data.date or \"NA\"\n} -%}\n{%- do vars.tableSummary.append(_tableRow) -%}\n{%- endfor -%}{{ vars.tableSummary }}"
+       },
+       "description": null,
+       "top": "300",
+       "left": "300",
+       "name": "Compute Summary",
+       "status": null,
+       "uuid": "4c992c26-07ad-4595-93be-4f7bb656b5ff",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "__triggerLimit": true,
+        "step_variables": {
+         "input": {
+          "params": []
+         }
+        },
+        "triggerOnSource": true,
+        "triggerOnReplicate": false
+       },
+       "description": null,
+       "top": "30",
+       "left": "300",
+       "name": "Start",
+       "status": null,
+       "uuid": "670be9ad-ffc9-438e-8ae5-e03299ec9e39",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+       "group": null
+      },
+      {
+       "arguments": {
+        "name": "Utilities",
+        "config": "",
+        "params": {
+         "data": "{{ vars.summaryJSON }}",
+         "display": "Horizontal",
+         "styling": false,
+         "template": "Stylized with row selection",
+         "row_fields": "",
+         "show_button": true
+        },
+        "version": "3.6.0",
+        "connector": "cyops_utilities",
+        "operation": "json_to_html",
+        "pickFromTenant": false,
+        "step_variables": {
+         "markdownTable": "{%- set data = vars.summaryJSON -%}{%- set headers = data[0].keys() -%}  | {{ headers | join(' | ') }} |\n| \n{%- for _ in headers %} --- {%- if not loop.last %} | {%- endif %}{% endfor %} |\n{%- for row in data %}\n| {%- for h in headers %} {{ row[h] }} {%- if not loop.last %} | {%- endif %}{%- endfor %} |{%- endfor %}"
+        }
+       },
+       "description": null,
+       "top": "435",
+       "left": "300",
+       "name": "Convert Response To HTML Table",
+       "status": null,
+       "uuid": "aa74af57-207f-4d19-a879-e084730dd4ee",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+       "group": null
+      }
+     ],
+     "routes": [
+      {
+       "@type": "WorkflowRoute",
+       "name": "03340cfc-67f0-43ca-bbfe-4f0b67a951ff",
+       "targetStep": "/api/3/workflow_steps/4c992c26-07ad-4595-93be-4f7bb656b5ff",
+       "sourceStep": "/api/3/workflow_steps/0bf40bba-3b0d-4894-ae77-9e378c1e03cf",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "85cbb1ed-de42-4d13-8104-c86d072fe11b"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "41af18b1-8919-4d05-b21e-8bb06d8f5355",
+       "targetStep": "/api/3/workflow_steps/aa74af57-207f-4d19-a879-e084730dd4ee",
+       "sourceStep": "/api/3/workflow_steps/4c992c26-07ad-4595-93be-4f7bb656b5ff",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "56dfcdbd-dc48-424c-b291-809588ff71b1"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "d7ed9d87-1dbc-481c-ad03-edfa079b9515",
+       "targetStep": "/api/3/workflow_steps/0550fdf4-ba9d-448d-a756-cea9b32bdf62",
+       "sourceStep": "/api/3/workflow_steps/aa74af57-207f-4d19-a879-e084730dd4ee",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "4d50e82d-20cf-4439-af0d-b8586f0572e1"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "876991ed-7fb6-43cb-87f1-4fb3b76bb0a8",
+       "targetStep": "/api/3/workflow_steps/0bf40bba-3b0d-4894-ae77-9e378c1e03cf",
+       "sourceStep": "/api/3/workflow_steps/670be9ad-ffc9-438e-8ae5-e03299ec9e39",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "4fdf8619-77c3-4abf-a6ae-da3ea1ddd0ee"
+      }
+     ],
+     "isActive": false,
+     "groups": [],
+     "tag": null,
+     "uuid": "861da325-57ed-4bc4-b8f7-8427572285e6",
+     "triggerStep": "/api/3/workflow_steps/670be9ad-ffc9-438e-8ae5-e03299ec9e39",
+     "singleRecordExecution": false,
+     "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+     "debug": true,
+     "remoteExecutableFlag": false,
+     "@type": "Workflow",
+     "name": "Create Ticket for Open Bucket Exposure Alerts",
+     "importedBy": [],
+     "triggerLimit": null,
+     "aliasName": null
+    },
+    {
+     "description": "This playbook helps Analyst to create custom tickets in respective ticketing platform for threats that are reported by FortiRecon Brand Protection > Rogue Mobile Apps module.",
+     "synchronous": false,
+     "isPrivate": false,
+     "parameters": null,
+     "recordTags": [
+      "FortiRecon Solution Pack",
+      "BP - Rogue Mobile Apps"
+     ],
+     "steps": [
+      {
+       "arguments": {
+        "__triggerLimit": true,
+        "step_variables": {
+         "input": {
+          "params": []
+         }
+        },
+        "triggerOnSource": true,
+        "triggerOnReplicate": false
+       },
+       "description": null,
+       "top": "30",
+       "left": "300",
+       "name": "Start",
+       "status": null,
+       "uuid": "37e51b32-82ba-4e61-8cf4-8bbd1e3812c3",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+       "group": null
+      },
+      {
+       "arguments": {
+        "name": "Utilities",
+        "config": "",
+        "params": {
+         "data": "{{ vars.summaryJSON }}",
+         "display": "Horizontal",
+         "styling": false,
+         "template": "Stylized with row selection",
+         "row_fields": "",
+         "show_button": true
+        },
+        "version": "3.6.0",
+        "connector": "cyops_utilities",
+        "operation": "json_to_html",
+        "pickFromTenant": false,
+        "step_variables": {
+         "markdownTable": "{%- set data = vars.summaryJSON -%}{%- set headers = data[0].keys() -%}  | {{ headers | join(' | ') }} |\n| \n{%- for _ in headers %} --- {%- if not loop.last %} | {%- endif %}{% endfor %} |\n{%- for row in data %}\n| {%- for h in headers %} {{ row[h] }} {%- if not loop.last %} | {%- endif %}{%- endfor %} |{%- endfor %}"
+        }
+       },
+       "description": null,
+       "top": "435",
+       "left": "300",
+       "name": "Convert Response To HTML Table",
+       "status": null,
+       "uuid": "39731ecc-8479-4983-83cd-f42615b6102e",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+       "group": null
+      },
+      {
+       "arguments": {
+        "tableSummary": "[]",
+        "recordMetaData": "{{ vars.input.records }}"
+       },
+       "description": null,
+       "top": "165",
+       "left": "300",
+       "name": "Configuration",
+       "status": null,
+       "uuid": "62718c64-3946-473b-82f2-9320031a6ac5",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "summaryJSON": "{%- for item in vars.recordMetaData -%}\n{%- set _tableRow = {\n  \"App Name\": item.data.appName or \"NA\",\n  \"App Size\": item.data.appSize or \"NA\",\n  \"Keyword\": item.data.keyword or \"NA\",\n  \"First Seen\": item.data.firstSeen or \"NA\",\n  \"Source Name\": item.data.sourceName or \"NA\",\n  \"Status Flag\": item.data.statusFlag or \"NA\",\n  \"Download URL\": item.data.downloadUrl or \"NA\",\n  \"Developer Name\": item.data.developerName or \"NA\",\n  \"Download Count\": item.data.downloadCount or \"NA\"\n} -%}\n{%- do vars.tableSummary.append(_tableRow) -%}\n{%- endfor -%}{{ vars.tableSummary }}"
+       },
+       "description": null,
+       "top": "300",
+       "left": "300",
+       "name": "Compute Summary",
+       "status": null,
+       "uuid": "812197e7-277f-479a-83e0-9fa1369d367d",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "arguments": {
+         "htmlTable": "{{ vars.steps[\"Convert Response To HTML Table\"].data }}",
+         "markdownTable": "{{ vars.markdownTable }}"
+        },
+        "pass_parent_env": false,
+        "pass_input_record": false,
+        "workflowReference": "/api/workflow/playbooks/a256c599-0731-411b-bc4b-0cdd84458301/"
+       },
+       "description": null,
+       "top": "570",
+       "left": "300",
+       "name": "Create JIRA Tickets",
+       "status": null,
+       "uuid": "b7a4c6b2-10ba-4a47-823e-47f41965ea69",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+       "group": null
+      }
+     ],
+     "routes": [
+      {
+       "@type": "WorkflowRoute",
+       "name": "3732636f-49d4-407c-b8f3-7781d8a1c86c",
+       "targetStep": "/api/3/workflow_steps/812197e7-277f-479a-83e0-9fa1369d367d",
+       "sourceStep": "/api/3/workflow_steps/62718c64-3946-473b-82f2-9320031a6ac5",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "a666a354-12aa-4a61-9750-ce828f5cbb8f"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "64b3c4a2-a85b-49e9-a651-3df6344f5603",
+       "targetStep": "/api/3/workflow_steps/39731ecc-8479-4983-83cd-f42615b6102e",
+       "sourceStep": "/api/3/workflow_steps/812197e7-277f-479a-83e0-9fa1369d367d",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "bed1ed92-fbf2-497a-93ef-041db3454015"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "d68c5b1a-3f38-494a-810c-99a52472cf7a",
+       "targetStep": "/api/3/workflow_steps/62718c64-3946-473b-82f2-9320031a6ac5",
+       "sourceStep": "/api/3/workflow_steps/37e51b32-82ba-4e61-8cf4-8bbd1e3812c3",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "ccaa2d0c-27f6-4081-8635-525fa554c9c4"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "40f03ebb-8e73-49a0-ab3f-0500f36a2596",
+       "targetStep": "/api/3/workflow_steps/b7a4c6b2-10ba-4a47-823e-47f41965ea69",
+       "sourceStep": "/api/3/workflow_steps/39731ecc-8479-4983-83cd-f42615b6102e",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "a0370f95-f7ef-40ee-baed-4c1c6639320f"
+      }
+     ],
+     "isActive": false,
+     "groups": [],
+     "tag": null,
+     "uuid": "8e690132-3780-4dd7-ad8e-2c7800e35675",
+     "triggerStep": "/api/3/workflow_steps/37e51b32-82ba-4e61-8cf4-8bbd1e3812c3",
+     "singleRecordExecution": false,
+     "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+     "debug": true,
+     "remoteExecutableFlag": false,
+     "@type": "Workflow",
+     "name": "Create Ticket for Rogue Mobile Application Alerts",
+     "importedBy": [],
+     "triggerLimit": null,
+     "aliasName": null
+    },
+    {
+     "description": "This playbook helps Analyst to create custom tickets in respective ticketing platform for threats that are reported by FortiRecon Brand Protection > Social Media Impersonation module.",
+     "synchronous": false,
+     "isPrivate": false,
+     "parameters": null,
+     "recordTags": [
+      "FortiRecon Solution Pack",
+      "BP - Social Media Threats"
+     ],
+     "steps": [
+      {
+       "arguments": {
+        "tableSummary": "[]",
+        "recordMetaData": "{{ vars.input.records }}"
+       },
+       "description": null,
+       "top": "165",
+       "left": "300",
+       "name": "Configuration",
+       "status": null,
+       "uuid": "5f61d4ab-9e05-41d5-85a8-3c01929779c3",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "__triggerLimit": true,
+        "step_variables": {
+         "input": {
+          "params": []
+         }
+        },
+        "triggerOnSource": true,
+        "triggerOnReplicate": false
+       },
+       "description": null,
+       "top": "30",
+       "left": "300",
+       "name": "Start",
+       "status": null,
+       "uuid": "7aab00b1-afb6-4801-b731-896769d77bb9",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+       "group": null
+      },
+      {
+       "arguments": {
+        "arguments": {
+         "htmlTable": "{{ vars.steps[\"Convert Response To HTML Table\"].data }}",
+         "markdownTable": "{{ vars.markdownTable }}"
+        },
+        "pass_parent_env": false,
+        "pass_input_record": false,
+        "workflowReference": "/api/workflow/playbooks/a256c599-0731-411b-bc4b-0cdd84458301/"
+       },
+       "description": null,
+       "top": "570",
+       "left": "300",
+       "name": "Create JIRA Tickets",
+       "status": null,
+       "uuid": "3f38f3a7-8082-4fb6-9a29-828eb71d5ce6",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+       "group": null
+      },
+      {
+       "arguments": {
+        "name": "Utilities",
+        "config": "",
+        "params": {
+         "data": "{{ vars.summaryJSON }}",
+         "display": "Horizontal",
+         "styling": false,
+         "template": "Stylized with row selection",
+         "row_fields": "",
+         "show_button": true
+        },
+        "version": "3.6.0",
+        "connector": "cyops_utilities",
+        "operation": "json_to_html",
+        "pickFromTenant": false,
+        "step_variables": {
+         "markdownTable": "{%- set data = vars.summaryJSON -%}{%- set headers = data[0].keys() -%}  | {{ headers | join(' | ') }} |\n| \n{%- for _ in headers %} --- {%- if not loop.last %} | {%- endif %}{% endfor %} |\n{%- for row in data %}\n| {%- for h in headers %} {{ row[h] }} {%- if not loop.last %} | {%- endif %}{%- endfor %} |{%- endfor %}"
+        }
+       },
+       "description": null,
+       "top": "435",
+       "left": "300",
+       "name": "Convert Response To HTML Table",
+       "status": null,
+       "uuid": "683c9e0a-5600-40e3-9661-4f4d36f9b66f",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+       "group": null
+      },
+      {
+       "arguments": {
+        "summaryJSON": "{%- for item in vars.recordMetaData -%}\n{%- set _tableRow = {\n  \"Profile Name\": item.data.profile_name or \"NA\",\n  \"Profile URL\": item.data.profile_url or \"NA\",\n  \"Handle Name\": item.data.handle_name or \"NA\",\n  \"Location\": item.data.location or \"NA\",\n  \"Media Type\": item.data.media_type or \"NA\",\n  \"Verified\": item.data.is_verified or \"NA\",\n  \"Posts Count\": item.data.posts_count or \"NA\",\n  \"Friends Count\": item.data.friends_count or \"NA\",\n  \"Followers Count\": item.data.followers_count or \"NA\",\n  \"Comments Count\": item.data.comments_count or \"NA\",\n  \"Date\": item.data.date or \"NA\"\n} -%}\n{%- do vars.tableSummary.append(_tableRow) -%}\n{%- endfor -%}{{ vars.tableSummary }}"
+       },
+       "description": null,
+       "top": "300",
+       "left": "300",
+       "name": "Compute Summary",
+       "status": null,
+       "uuid": "e37a7b52-db88-44b0-9bfa-ff1fc7af4d9c",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      }
+     ],
+     "routes": [
+      {
+       "@type": "WorkflowRoute",
+       "name": "a51306fc-71d1-4015-81f5-4d324425dfc8",
+       "targetStep": "/api/3/workflow_steps/e37a7b52-db88-44b0-9bfa-ff1fc7af4d9c",
+       "sourceStep": "/api/3/workflow_steps/5f61d4ab-9e05-41d5-85a8-3c01929779c3",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "609e1f4e-d955-4d7b-b531-3fcedef2755d"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "bca46ef0-bc10-4716-bbaf-c7c83359458e",
+       "targetStep": "/api/3/workflow_steps/683c9e0a-5600-40e3-9661-4f4d36f9b66f",
+       "sourceStep": "/api/3/workflow_steps/e37a7b52-db88-44b0-9bfa-ff1fc7af4d9c",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "c674e08a-baad-429f-9f96-d2a367a30876"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "4b51d62a-81a6-45f1-9bb9-7c1df06ce0e6",
+       "targetStep": "/api/3/workflow_steps/5f61d4ab-9e05-41d5-85a8-3c01929779c3",
+       "sourceStep": "/api/3/workflow_steps/7aab00b1-afb6-4801-b731-896769d77bb9",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "50061970-ac60-45bb-b84a-ef95c092e899"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "f3c508a0-c52e-476a-a177-3bd67dbbe584",
+       "targetStep": "/api/3/workflow_steps/3f38f3a7-8082-4fb6-9a29-828eb71d5ce6",
+       "sourceStep": "/api/3/workflow_steps/683c9e0a-5600-40e3-9661-4f4d36f9b66f",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "9f62e058-3f87-4de5-b46e-5cf074106935"
+      }
+     ],
+     "isActive": false,
+     "groups": [],
+     "tag": null,
+     "uuid": "1850ff35-a999-4ca4-8cf3-b36a998c1ecd",
+     "triggerStep": "/api/3/workflow_steps/7aab00b1-afb6-4801-b731-896769d77bb9",
+     "singleRecordExecution": false,
+     "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+     "debug": true,
+     "remoteExecutableFlag": false,
+     "@type": "Workflow",
+     "name": "Create Ticket for Social Media Impersonation Alerts",
+     "importedBy": [],
+     "triggerLimit": null,
+     "aliasName": null
+    },
+    {
+     "description": "This playbook helps Analyst to create custom tickets in respective ticketing platform for threats that are reported by FortiRecon Adversary Centric Intelligence > Stealer Infections (Leaked) module.",
+     "synchronous": false,
+     "isPrivate": false,
+     "parameters": null,
+     "recordTags": [
+      "FortiRecon Solution Pack",
+      "ACI - Stealer Infections"
+     ],
+     "steps": [
+      {
+       "arguments": {
+        "__triggerLimit": true,
+        "step_variables": {
+         "input": {
+          "params": []
+         }
+        },
+        "triggerOnSource": true,
+        "triggerOnReplicate": false
+       },
+       "description": null,
+       "top": "30",
+       "left": "300",
+       "name": "Start",
+       "status": null,
+       "uuid": "2f528fe5-a9e8-49d9-af76-c48cd0e4638d",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+       "group": null
+      },
+      {
+       "arguments": {
+        "tableSummary": "[]",
+        "recordMetaData": "{{ vars.input.records }}"
+       },
+       "description": null,
+       "top": "165",
+       "left": "300",
+       "name": "Configuration",
+       "status": null,
+       "uuid": "8a00fc3d-d321-46d6-a362-a2e15e599c46",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "arguments": {
+         "htmlTable": "{{ vars.steps[\"Convert Response To HTML Table\"].data }}",
+         "markdownTable": "{{ vars.markdownTable }}"
+        },
+        "pass_parent_env": false,
+        "pass_input_record": false,
+        "workflowReference": "/api/workflow/playbooks/a256c599-0731-411b-bc4b-0cdd84458301/"
+       },
+       "description": null,
+       "top": "570",
+       "left": "300",
+       "name": "Create JIRA Tickets",
+       "status": null,
+       "uuid": "b3580299-73b3-4463-ae23-b703f431fc33",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+       "group": null
+      },
+      {
+       "arguments": {
+        "summaryJSON": "{%- for item in vars.recordMetaData -%}\n{%- set _tableRow = {\n  \"IP\": item.data.ip or \"NA\",\n  \"URL\": item.data.url or \"NA\",\n  \"Country\": item.data.country or \"NA\",\n  \"User Name\": item.data.user_name or \"NA\",\n  \"Discovery Timestamp\": item.data.discovery_ts or \"NA\",\n  \"Infection Timestamp\": item.data.infection_ts or \"NA\",\n  \"Stealer Name\": item.data.stealer_name or \"NA\"\n} -%}\n{%- do vars.tableSummary.append(_tableRow) -%}\n{%- endfor -%}{{ vars.tableSummary }}"
+       },
+       "description": null,
+       "top": "300",
+       "left": "300",
+       "name": "Compute Summary",
+       "status": null,
+       "uuid": "bea035a7-2465-49af-9496-e7ae52c73a9b",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "name": "Utilities",
+        "config": "",
+        "params": {
+         "data": "{{ vars.summaryJSON }}",
+         "display": "Horizontal",
+         "styling": false,
+         "template": "Stylized with row selection",
+         "row_fields": "",
+         "show_button": true
+        },
+        "version": "3.6.0",
+        "connector": "cyops_utilities",
+        "operation": "json_to_html",
+        "pickFromTenant": false,
+        "step_variables": {
+         "markdownTable": "{%- set data = vars.summaryJSON -%}{%- set headers = data[0].keys() -%}  | {{ headers | join(' | ') }} |\n| \n{%- for _ in headers %} --- {%- if not loop.last %} | {%- endif %}{% endfor %} |\n{%- for row in data %}\n| {%- for h in headers %} {{ row[h] }} {%- if not loop.last %} | {%- endif %}{%- endfor %} |{%- endfor %}"
+        }
+       },
+       "description": null,
+       "top": "435",
+       "left": "300",
+       "name": "Convert Response To HTML Table",
+       "status": null,
+       "uuid": "f63ea666-fd6b-40c2-91bc-3f7bc5aa8115",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+       "group": null
+      }
+     ],
+     "routes": [
+      {
+       "@type": "WorkflowRoute",
+       "name": "a0a72f48-4271-4a93-835b-4048c3d9b9a8",
+       "targetStep": "/api/3/workflow_steps/bea035a7-2465-49af-9496-e7ae52c73a9b",
+       "sourceStep": "/api/3/workflow_steps/8a00fc3d-d321-46d6-a362-a2e15e599c46",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "de353b03-cc3a-4e7b-9b11-0fc5ea962be5"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "c7070fdc-6677-45e5-8ec1-38bf54a2024d",
+       "targetStep": "/api/3/workflow_steps/f63ea666-fd6b-40c2-91bc-3f7bc5aa8115",
+       "sourceStep": "/api/3/workflow_steps/bea035a7-2465-49af-9496-e7ae52c73a9b",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "63833d88-642a-4b7b-ae48-dfe0ae4ee897"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "368e012d-c4c0-4ed1-b40f-017f6def734c",
+       "targetStep": "/api/3/workflow_steps/8a00fc3d-d321-46d6-a362-a2e15e599c46",
+       "sourceStep": "/api/3/workflow_steps/2f528fe5-a9e8-49d9-af76-c48cd0e4638d",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "0ca4f880-bc99-4f46-b28c-f9dccdb0b16c"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "a61df852-7e36-49ef-b27f-b1e699d7e5b6",
+       "targetStep": "/api/3/workflow_steps/b3580299-73b3-4463-ae23-b703f431fc33",
+       "sourceStep": "/api/3/workflow_steps/f63ea666-fd6b-40c2-91bc-3f7bc5aa8115",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "3024c11b-01ce-4839-8323-9ca325b0e256"
+      }
+     ],
+     "isActive": false,
+     "groups": [],
+     "tag": null,
+     "uuid": "6373487a-8df2-4aa1-a3b9-e78943a141f6",
+     "triggerStep": "/api/3/workflow_steps/2f528fe5-a9e8-49d9-af76-c48cd0e4638d",
+     "singleRecordExecution": false,
+     "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+     "debug": true,
+     "remoteExecutableFlag": false,
+     "@type": "Workflow",
+     "name": "Create Ticket for Stealer Infection Leaked Alerts",
+     "importedBy": [],
+     "triggerLimit": null,
+     "aliasName": null
+    },
+    {
+     "description": "This playbook helps Analyst to create custom tickets in respective ticketing platform for threats that are reported by FortiRecon Adversary Centric Intelligence > Stealer Infections (On Sale) module.",
+     "synchronous": false,
+     "isPrivate": false,
+     "parameters": null,
+     "recordTags": [
+      "FortiRecon Solution Pack",
+      "ACI - Stealer Infections"
+     ],
+     "steps": [
+      {
+       "arguments": {
+        "__triggerLimit": true,
+        "step_variables": {
+         "input": {
+          "params": []
+         }
+        },
+        "triggerOnSource": true,
+        "triggerOnReplicate": false
+       },
+       "description": null,
+       "top": "30",
+       "left": "300",
+       "name": "Start",
+       "status": null,
+       "uuid": "63ed94b2-dcc2-46ff-b508-6a7d0d020f07",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+       "group": null
+      },
+      {
+       "arguments": {
+        "arguments": {
+         "htmlTable": "{{ vars.steps[\"Convert Response To HTML Table\"].data }}",
+         "markdownTable": "{{ vars.markdownTable }}"
+        },
+        "pass_parent_env": false,
+        "pass_input_record": false,
+        "workflowReference": "/api/workflow/playbooks/a256c599-0731-411b-bc4b-0cdd84458301/"
+       },
+       "description": null,
+       "top": "570",
+       "left": "300",
+       "name": "Create JIRA Tickets",
+       "status": null,
+       "uuid": "4027f6e4-f92e-4116-aa1a-6629015692dc",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+       "group": null
+      },
+      {
+       "arguments": {
+        "tableSummary": "[]",
+        "recordMetaData": "{{ vars.input.records }}"
+       },
+       "description": null,
+       "top": "165",
+       "left": "300",
+       "name": "Configuration",
+       "status": null,
+       "uuid": "5a5b6710-9da3-48fc-ae63-51d39201742f",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "name": "Utilities",
+        "config": "",
+        "params": {
+         "data": "{{ vars.summaryJSON }}",
+         "display": "Horizontal",
+         "styling": false,
+         "template": "Stylized with row selection",
+         "row_fields": "",
+         "show_button": true
+        },
+        "version": "3.6.0",
+        "connector": "cyops_utilities",
+        "operation": "json_to_html",
+        "pickFromTenant": false,
+        "step_variables": {
+         "markdownTable": "{%- set data = vars.summaryJSON -%}{%- set headers = data[0].keys() -%}  | {{ headers | join(' | ') }} |\n| \n{%- for _ in headers %} --- {%- if not loop.last %} | {%- endif %}{% endfor %} |\n{%- for row in data %}\n| {%- for h in headers %} {{ row[h] }} {%- if not loop.last %} | {%- endif %}{%- endfor %} |{%- endfor %}"
+        }
+       },
+       "description": null,
+       "top": "435",
+       "left": "300",
+       "name": "Convert Response To HTML Table",
+       "status": null,
+       "uuid": "250395df-0c02-4ab3-a7f3-844be2738a14",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+       "group": null
+      },
+      {
+       "arguments": {
+        "summaryJSON": "{%- for item in vars.recordMetaData -%}\n{%- set _tableRow = {\n  \"ISP\": item.data.isp or \"NA\",\n  \"Sites\": item.data.sites | join(', ') or \"NA\",\n  \"State\": item.data.state or \"NA\",\n  \"Vendor\": item.data.vendor or \"NA\",\n  \"Currency\": item.data.currency or \"NA\",\n  \"Discovery Timestamp\": item.data.discovery_ts or \"NA\",\n  \"Marketplace\": item.data.marketplace or \"NA\",\n  \"Country Code\": item.data.country_code or \"NA\",\n  \"Country Name\": item.data.country_name or \"NA\",\n  \"Stealer Name\": item.data.stealer_name or \"NA\",\n  \"Matched Domains\": item.data.matched_domains | join(', ') or \"NA\"\n} -%}\n{%- do vars.tableSummary.append(_tableRow) -%}\n{%- endfor -%}{{ vars.tableSummary }}"
+       },
+       "description": null,
+       "top": "300",
+       "left": "300",
+       "name": "Compute Summary",
+       "status": null,
+       "uuid": "e0f98bbb-b80a-40e1-af0d-11772a7e00df",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      }
+     ],
+     "routes": [
+      {
+       "@type": "WorkflowRoute",
+       "name": "f5abe0e8-9fad-441d-b2be-a6eaab411b77",
+       "targetStep": "/api/3/workflow_steps/4027f6e4-f92e-4116-aa1a-6629015692dc",
+       "sourceStep": "/api/3/workflow_steps/250395df-0c02-4ab3-a7f3-844be2738a14",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "a40d458e-15b4-4c98-b604-e1412ffbc660"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "ac0a7356-7d33-4d35-a160-1a2617750430",
+       "targetStep": "/api/3/workflow_steps/250395df-0c02-4ab3-a7f3-844be2738a14",
+       "sourceStep": "/api/3/workflow_steps/e0f98bbb-b80a-40e1-af0d-11772a7e00df",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "27693315-31ef-4bd0-b376-052ea2c851a4"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "823d584b-d906-4a32-aa84-6181aa638e5a",
+       "targetStep": "/api/3/workflow_steps/e0f98bbb-b80a-40e1-af0d-11772a7e00df",
+       "sourceStep": "/api/3/workflow_steps/5a5b6710-9da3-48fc-ae63-51d39201742f",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "bdea7e05-2c3d-4a39-8b77-95d74ba06e68"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "cf96f84f-7d6d-4eac-b773-0a837b387b15",
+       "targetStep": "/api/3/workflow_steps/5a5b6710-9da3-48fc-ae63-51d39201742f",
+       "sourceStep": "/api/3/workflow_steps/63ed94b2-dcc2-46ff-b508-6a7d0d020f07",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "c6797c33-7856-4da4-8117-f95e6d3c8bfd"
+      }
+     ],
+     "isActive": false,
+     "groups": [],
+     "tag": null,
+     "uuid": "bb2000c7-cc94-4f2e-85ec-999192edad9d",
+     "triggerStep": "/api/3/workflow_steps/63ed94b2-dcc2-46ff-b508-6a7d0d020f07",
+     "singleRecordExecution": false,
+     "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+     "debug": true,
+     "remoteExecutableFlag": false,
+     "@type": "Workflow",
+     "name": "Create Ticket for Stealer Infection On Sale Alerts",
+     "importedBy": [],
+     "triggerLimit": null,
+     "aliasName": null
+    },
+    {
+     "description": "This playbook helps Analyst to create custom tickets in respective ticketing platform for threats that are reported by FortiRecon Brand Protection > Domain Threats module.",
+     "synchronous": false,
+     "isPrivate": false,
+     "parameters": null,
+     "recordTags": [
+      "FortiRecon Solution Pack",
+      "BP - Domain Threats"
+     ],
+     "steps": [
+      {
+       "arguments": {
+        "name": "Utilities",
+        "config": "",
+        "params": {
+         "data": "{{ vars.summaryJSON }}",
+         "display": "Horizontal",
+         "styling": false,
+         "template": "Stylized with row selection",
+         "row_fields": "",
+         "show_button": true
+        },
+        "version": "3.6.0",
+        "connector": "cyops_utilities",
+        "operation": "json_to_html",
+        "pickFromTenant": false,
+        "step_variables": {
+         "markdownTable": "{%- set data = vars.summaryJSON -%}{%- set headers = data[0].keys() -%}  | {{ headers | join(' | ') }} |\n| \n{%- for _ in headers %} --- {%- if not loop.last %} | {%- endif %}{% endfor %} |\n{%- for row in data %}\n| {%- for h in headers %} {{ row[h] }} {%- if not loop.last %} | {%- endif %}{%- endfor %} |{%- endfor %}"
+        }
+       },
+       "description": null,
+       "top": "435",
+       "left": "300",
+       "name": "Convert Response To HTML Table",
+       "status": null,
+       "uuid": "aa54154e-c317-4074-8a2d-d0de9473513e",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+       "group": null
+      },
+      {
+       "arguments": {
+        "__triggerLimit": true,
+        "step_variables": {
+         "input": {
+          "params": []
+         }
+        },
+        "triggerOnSource": true,
+        "triggerOnReplicate": false
+       },
+       "description": null,
+       "top": "30",
+       "left": "300",
+       "name": "Start",
+       "status": null,
+       "uuid": "b7379120-b03a-493f-b453-3626f75f6ac4",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+       "group": null
+      },
+      {
+       "arguments": {
+        "arguments": {
+         "htmlTable": "{{ vars.steps[\"Convert Response To HTML Table\"].data }}",
+         "markdownTable": "{{ vars.markdownTable }}"
+        },
+        "pass_parent_env": false,
+        "pass_input_record": false,
+        "workflowReference": "/api/workflow/playbooks/a256c599-0731-411b-bc4b-0cdd84458301/"
+       },
+       "description": null,
+       "top": "570",
+       "left": "300",
+       "name": "Create JIRA Tickets",
+       "status": null,
+       "uuid": "d1344191-7c10-4233-8307-928a88e8f4b0",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+       "group": null
+      },
+      {
+       "arguments": {
+        "tableSummary": "[]",
+        "recordMetaData": "{{ vars.input.records }}"
+       },
+       "description": null,
+       "top": "165",
+       "left": "300",
+       "name": "Configuration",
+       "status": null,
+       "uuid": "d512c98c-4bdc-48d6-8f47-9b2cfa3379a6",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      },
+      {
+       "arguments": {
+        "summaryJSON": "{%- for item in vars.recordMetaData -%}\n{%- set _tableRow = {\n\"Typo Squatted Domain\": item.data.domainThreat or \"NA\",\n\"Original Domain\": item.data.originalDomain or \"NA\",\n\"Tags\": item.data.tags[0].name or \"NA\",\n\"Online Status\": item.data.onlineStatus or \"NA\",\n\"Date\": item.data.date or \"NA\"\n} -%}\n{%- do vars.tableSummary.append(_tableRow) -%}\n{%- endfor -%}{{ vars.tableSummary }}"
+       },
+       "description": null,
+       "top": "300",
+       "left": "300",
+       "name": "Compute Summary",
+       "status": null,
+       "uuid": "db525901-5574-40d0-90cc-0013e5629154",
+       "@type": "WorkflowStep",
+       "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+       "group": null
+      }
+     ],
+     "routes": [
+      {
+       "@type": "WorkflowRoute",
+       "name": "Start->Configuration",
+       "targetStep": "/api/3/workflow_steps/d512c98c-4bdc-48d6-8f47-9b2cfa3379a6",
+       "sourceStep": "/api/3/workflow_steps/b7379120-b03a-493f-b453-3626f75f6ac4",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "186fb1e7-8109-4926-a6c3-73d46660a694"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "c2e2bec1-711f-4b99-92a1-4e32a9c85357",
+       "targetStep": "/api/3/workflow_steps/db525901-5574-40d0-90cc-0013e5629154",
+       "sourceStep": "/api/3/workflow_steps/d512c98c-4bdc-48d6-8f47-9b2cfa3379a6",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "85c67555-9bc4-4de8-b6ad-dc2f32fffeaa"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "4fc6ed07-dff9-41de-b04a-c4d2fc88f5a0",
+       "targetStep": "/api/3/workflow_steps/d1344191-7c10-4233-8307-928a88e8f4b0",
+       "sourceStep": "/api/3/workflow_steps/aa54154e-c317-4074-8a2d-d0de9473513e",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "87a91565-fa8a-4742-a47f-98851d194476"
+      },
+      {
+       "@type": "WorkflowRoute",
+       "name": "aee245bc-b0cb-4cc9-b3b9-a84974f97a39",
+       "targetStep": "/api/3/workflow_steps/aa54154e-c317-4074-8a2d-d0de9473513e",
+       "sourceStep": "/api/3/workflow_steps/db525901-5574-40d0-90cc-0013e5629154",
+       "label": null,
+       "isExecuted": false,
+       "group": null,
+       "uuid": "833a7f94-9428-40cf-9777-70c653f0be6c"
+      }
+     ],
+     "isActive": false,
+     "groups": [],
+     "tag": null,
+     "uuid": "93964844-bb9e-4656-85a2-9537f249c1cd",
+     "triggerStep": "/api/3/workflow_steps/b7379120-b03a-493f-b453-3626f75f6ac4",
+     "singleRecordExecution": false,
+     "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+     "debug": true,
+     "remoteExecutableFlag": false,
+     "@type": "Workflow",
+     "name": "Create Ticket for Typosquat Domain Threat Alerts",
+     "importedBy": [],
+     "triggerLimit": null,
+     "aliasName": null
+    }
+   ]
+  }
+ ]
+}

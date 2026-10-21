@@ -1,0 +1,57 @@
+title: Investigate and remediate FortiSIEM incidents
+summary: Investigate an incident's artifacts, then remediate confirmed ones - reset or disable compromised
+  Active Directory accounts, block or quarantine source IPs on FortiGate, Palo Alto, Cisco ASA or Check
+  Point, and catch rogue Domain Admin additions - with manual approval gates before anything disruptive.
+description: 'Incident response flows for a FortiSIEM estate, in two collections.
+
+
+  **Investigate** (one playbook): on an incident, extract the unique artifacts, enrich them and set a
+  summary output for the responder.
+
+
+  **Remediate** (fourteen playbooks):
+
+
+  - **Compromised AD user**: reset the user''s password, or reset and optionally disable the account,
+  with a manual gate; a no-users-found path keeps the run honest.
+
+  - **Block or quarantine a source IP**: one playbook per firewall - FortiGate, Palo Alto, Cisco ASA,
+  Check Point - each with an approval step before the block, a Not Blocked escape hatch, comments back
+  onto the incident and a clean close. A variant quarantines at FortiGate and lets you pick the IP and
+  assign the task to a team member.
+
+  - **Rogue Domain Admin**: extract the new member from the audit XML, look up the account in AD,
+  disable it and remove it from the group. The advanced variant checks the member against an
+  `AllowedDomainAdmins` lookup table first and only alarms on strangers; two config playbooks create
+  that table (service-provider and enterprise variants).
+
+
+  The playbooks came out of a Fortinet FNDN training environment and were converted from the Automation
+  Service format. Connector configurations and agents are deliberately not bundled: bind your own
+  FortiSIEM, Active Directory, SMTP, JIRA and firewall connections after import, and point the
+  incident-driven starts at your own incident module.'
+use_cases:
+- containment
+- identity
+tags:
+- incident-response
+- fortisiem
+- active-directory
+- firewall
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.6.0
+license: MIT
+published: '2026-10-21'
+author_id: 99558074
+tested:
+- platform: 8.0.0
+  version: 1.0.0
+  result: imported
+  sha256: 5ff0830fe887f636f002496801b116d0aebc3eb10223b1a160a40068c1ac909b
+updated: '2026-10-21'
+changelog:
+- version: 1.0.0
+  date: '2026-10-21'
+  notes: First published. Converted from the FortiSOAR Automation Service format; agent bindings
+    cleared so each importer uses their own agents.

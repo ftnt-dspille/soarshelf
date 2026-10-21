@@ -1,0 +1,51 @@
+title: FortiRecon intelligence briefings by email
+summary: Fetch FortiRecon intelligence reports on a topic - ransomware groups, APT groups, exploited CVEs,
+  malware and infostealers, strategic intelligence, CERT advisories - parse the hits and email a digest;
+  drill into a group or a CVE for its profile, IOCs and affected vulnerabilities.
+description: 'Six collections, one per intelligence topic, all driven by the Fortinet FortiRecon ACI
+  connector and closed with an email notification.
+
+
+  - **Ransomware**: reports on a ransomware group, the group''s profile, exploited vulnerabilities,
+  IOCs from report IDs, and supply-chain vendor watchlist matches.
+
+  - **APT**: intelligence reports on an APT group and the group''s IOCs.
+
+  - **Vulnerability**: severity and context of a CVE, data-source stats, intelligence reports on
+  exploited CVEs and their IOCs.
+
+  - **Malware**: intelligence reports on malware and on infostealers, and the IOCs of infostealer
+  reports.
+
+  - **Strategic**: strategic intelligence reportings.
+
+  - **CERT**: advisories of a chosen CERT source, parsed for the digest.
+
+
+  Most playbooks take the topic (a group, CVE or CERT name) as an input parameter, fetch the reports,
+  parse the hits into a flat list and send the digest by email. The playbooks came out of a Fortinet
+  FNDN training environment and were converted from the Automation Service format; bind your own
+  FortiRecon ACI and email connections after import. Agent bindings were cleared.'
+use_cases:
+- enrichment
+- notification
+tags:
+- fortirecon
+- threat-intelligence
+- email
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.6.0
+license: MIT
+published: '2026-10-21'
+author_id: 99558074
+tested:
+- platform: 8.0.0
+  version: 1.0.0
+  result: imported
+  sha256: f06c6fd2952195c20f43ca26d47c35a63a5a50a14248b681de99a4f48bee977f
+updated: '2026-10-21'
+changelog:
+- version: 1.0.0
+  date: '2026-10-21'
+  notes: First published. Converted from the FortiSOAR Automation Service format; agent bindings cleared.

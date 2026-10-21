@@ -1,0 +1,39 @@
+title: Create JIRA tickets from FortiRecon alerts
+summary: One playbook per FortiRecon alert family - code repo exposure, EASM issues, leaked credentials,
+  open buckets, rogue mobile apps, social media impersonation, stealer infections (loose and on sale) and
+  typosquat domains. Each computes a summary of the new alerts and opens a JIRA ticket with an HTML table.
+description: 'Nine sibling playbooks that turn FortiRecon external-exposure alerts into JIRA tickets.
+  Every playbook follows the same shape: read the new alerts of one family, compute a summary, convert
+  the response to an HTML table and create the JIRA ticket with that table in the description.
+
+
+  The families: code repository exposure, EASM security issues, leaked credentials, open cloud buckets,
+  rogue mobile applications, social media impersonation, stealer infection - leaked data, stealer
+  infection - data on sale, and typosquat domains.
+
+
+  The playbooks came out of a Fortinet FNDN training environment and were converted from the Automation
+  Service format. Bind your own FortiRecon ACI and JIRA connections after import; agent bindings were
+  cleared so each importer uses their own agents.'
+use_cases:
+- notification
+tags:
+- fortirecon
+- jira
+- ticketing
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.6.0
+license: MIT
+published: '2026-10-21'
+author_id: 99558074
+tested:
+- platform: 8.0.0
+  version: 1.0.0
+  result: imported
+  sha256: f687c950fbba9507f7eb6d66c0d3e99dbe5466d468648732fe5e5f64186618cd
+updated: '2026-10-21'
+changelog:
+- version: 1.0.0
+  date: '2026-10-21'
+  notes: First published. Converted from the FortiSOAR Automation Service format; agent bindings cleared.
