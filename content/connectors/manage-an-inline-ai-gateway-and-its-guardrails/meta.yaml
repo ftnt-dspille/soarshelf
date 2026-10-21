@@ -61,10 +61,10 @@ changelog:
     step after RotatePeers; ignore_errors keeps a failed metadata write from masking a finished rotation),
     so a replay of a successful revocation-with-peers short-circuits to already_processed as the release
     notes always promised. The freshness window uses arrow's int_timestamp for exact integer millisecond
-    math. Also fixes two stale pyfortiaigate call sites left by the 1.7.0 merge (list_virtual_keys was
-    renamed to virtual_keys in the library): list_expiring_virtual_keys and get_traffic_log's key
-    resolution raised AttributeError on a live appliance, and get_traffic_log sits directly in the
-    revocation path. New offline test pins every client method operations.py calls to the real
+    math. Also fixes two stale pyfortiaigate call sites left by the 1.7.0 merge (the library renamed
+    list_virtual_keys to virtual_keys, and the merge kept two master-side callers) - list_expiring_virtual_keys
+    and get_traffic_log's key resolution raised AttributeError on a live appliance, and get_traffic_log sits
+    directly in the revocation path. New offline test pins every client method operations.py calls to the real
     pyfortiaigate client.
 - version: 1.7.0
   date: 2026-10-20
