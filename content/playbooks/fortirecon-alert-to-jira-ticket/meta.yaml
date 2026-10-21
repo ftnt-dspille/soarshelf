@@ -12,7 +12,7 @@ description: 'Nine sibling playbooks that turn FortiRecon external-exposure aler
   infection - data on sale, and typosquat domains.
 
 
-  The playbooks came out of a Fortinet FNDN training environment and were converted from the Automation
+  The playbooks came out of a Fortinet training environment and were converted from the Automation
   Service format. Bind your own FortiRecon ACI and JIRA connections after import; agent bindings were
   cleared so each importer uses their own agents.'
 use_cases:
