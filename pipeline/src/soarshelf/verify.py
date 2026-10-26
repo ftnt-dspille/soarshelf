@@ -206,9 +206,9 @@ def run(item: Path, *, instance: str | None, playbooks: list[str], calls: list[s
     from pyfsr.instances import InstanceRegistry
 
     from .build import load_trust, process_item
-    from .hubindex import HubIndex
+    from .hubindex import hub_index
 
-    res = process_item(item, load_trust(item.parent.parent), HubIndex.load())
+    res = process_item(item, load_trust(item.parent.parent), hub_index())
     if res.download is None or res.decision == "reject":
         raise VerifyError(f"{item.name} doesn't build: {'; '.join(res.reasons)}")
     kind = res.detail["type"]

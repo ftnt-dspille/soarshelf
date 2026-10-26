@@ -24,7 +24,7 @@ from typing import Any
 import yaml
 
 from . import SITE_NAME, SITE_URL, config
-from .hubindex import HubIndex
+from .hubindex import hub_index
 from .process import Processed, process
 
 TYPE_DIRS = {"playbooks": "playbook", "solution-packs": "solution-pack", "connectors": "connector", "widgets": "widget"}
@@ -238,7 +238,7 @@ def atom_feed(events: list[dict[str, Any]], generated: str) -> str:
 
 
 def build(content: Path, out: Path) -> int:
-    hub = HubIndex.load()
+    hub = hub_index()
     trust_map = load_trust(content)
     data_dir, dl_dir = out / "data", out / "downloads"
     for d in (data_dir, dl_dir):

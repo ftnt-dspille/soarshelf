@@ -36,5 +36,9 @@ jobs:
           git checkout -b "$branch"
           git add pipeline/data/hub-index.json
           git commit -m "hub: refresh Content Hub snapshot"
+          # A same-day re-run cannot push over its old branch; delete it first.
+          git push origin --delete "$branch" 2>/dev/null || true
           git push -u origin "$branch"
           gh pr create --fill --label hub-refresh
+          # Zero-touch: merge as soon as checks allow. The PR stays for audit.
+          gh pr merge --auto --squash --delete-branch "$branch" || true

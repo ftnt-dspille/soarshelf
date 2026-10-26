@@ -92,6 +92,9 @@ jobs:
         # it gets no secrets, so nothing it starts can read one.
         env:
           INTERNAL_TOKEN: ""
+          # Check against the live public catalog; the committed snapshot is
+          # only the offline fallback.
+          SOARSHELF_HUB_LIVE: "1"
         run: |
           # Against main's content/, so slugs can't collide and trust tiers come from main.
           mkdir -p /tmp/out/content

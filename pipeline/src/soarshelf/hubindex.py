@@ -71,6 +71,36 @@ def _first(v: Any) -> str | None:
     return str(v) if v else None
 
 
+def hub_index() -> HubIndex:
+    """The committed snapshot (offline default), or a live-built index.
+
+    ``SOARSHELF_HUB_LIVE`` makes checks fetch the public catalog at run time
+    instead of reading the committed snapshot - the submission and build
+    Actions set it, so what a submission is checked against is always
+    current. Any failure to fetch (offline, hub down, malformed catalog)
+    falls back to the committed snapshot with a note on stderr: a check
+    must not fail because the Hub is unreachable.
+    """
+    import os
+    import sys
+
+    if os.environ.get("SOARSHELF_HUB_LIVE") not in ("1", "true", "yes"):
+        return HubIndex.load()
+    try:
+        hub = build_hub_index(fetch_catalog())
+        index = HubIndex(snapshot=hub["snapshot"], connectors=hub["connectors"],
+                         packs=hub["solutionPacks"], widgets=hub.get("widgets") or {})
+    except Exception as exc:  # noqa: BLE001 - network/format failures fall back
+        print(f"note: live Content Hub fetch failed ({exc}); using the committed snapshot",
+              file=sys.stderr)
+        return HubIndex.load()
+    if FINGERPRINTS.exists():
+        fp = json.loads(FINGERPRINTS.read_text())
+        index.official_uuids = set(fp.get("uuids", []))
+        index.official_structures = fp.get("structures", {})
+    return index
+
+
 def build_hub_index(catalog: list[dict[str, Any]]) -> dict[str, Any]:
     """Reduce the public Content Hub catalog to names, versions and operations."""
     connectors: dict[str, Any] = {}
