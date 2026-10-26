@@ -7,9 +7,17 @@ tags:
 - http
 - rest
 author: ftnt-dspille
-version: 3.0.2
+version: 3.1.0
 min_version: null
 license: MIT
 published: '2026-10-06'
 source: https://github.com/ftnt-dspille/connector-generic-http
 author_id: 99558074
+updated: '2026-10-26'
+changelog:
+- version: 3.1.0
+  date: '2026-10-26'
+  notes: Download File no longer leaves its staging copy in /tmp; concurrent downloads no longer corrupt each other; truncated responses are detected; new optional Max Size (MB) cap.
+- version: 3.0.2
+  date: '2026-10-06'
+  notes: First published.
