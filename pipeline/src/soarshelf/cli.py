@@ -12,13 +12,13 @@ _ICON = {"pass": "✓", "info": "·", "warn": "!", "block": "✗"}
 
 
 def _check(args: argparse.Namespace) -> int:
-    from .hubindex import HubIndex
+    from .hubindex import hub_index
     from .process import process
 
     meta = yaml.safe_load(Path(args.meta).read_text()) if args.meta else {
         "title": args.file.stem, "summary": "self-check", "use_cases": ["utility"]}
     meta.setdefault("slug", args.file.stem)
-    res = process(meta, args.file, args.trust, HubIndex.load())
+    res = process(meta, args.file, args.trust, hub_index())
     if args.clean_out and res.download is not None:
         args.clean_out.write_bytes(res.download)
         print(f"cleaned file written to {args.clean_out}", file=sys.stderr)

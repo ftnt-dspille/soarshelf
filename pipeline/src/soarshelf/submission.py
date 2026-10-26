@@ -17,7 +17,7 @@ from typing import Any
 import yaml
 
 from .build import load_trust, tier_for
-from .hubindex import HubIndex
+from .hubindex import hub_index
 from .model import CheckResult, ParsedCollection, Severity
 from .process import process
 
@@ -123,7 +123,7 @@ def intake(file: Path, form: dict[str, Any], author: str, content: Path,
     if not form.get("rightsConfirmed"):
         return IntakeResult("reject", ["Rights confirmation is required"], [], None, None, False, None)
 
-    hub = hub or HubIndex.load()
+    hub = hub or hub_index()
     meta = to_meta(form, author)
     slug = unique_slug(content, slugify(meta["title"]))
     meta["slug"] = slug
