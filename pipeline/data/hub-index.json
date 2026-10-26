@@ -1,5 +1,5 @@
 {
- "snapshot": "2026-10-19",
+ "snapshot": "2026-10-26",
  "source": "https://repo.fortisoar.fortinet.com/content-hub/content-hub.json",
  "connectors": {
   "abnormal-security": {
@@ -6085,17 +6085,20 @@
   },
   "fortinet-fortirecon-easm": {
    "label": "Fortinet FortiRecon EASM",
-   "version": "1.2.2",
+   "version": "1.3.0",
    "versions": [
     "1.0.0",
     "1.0.1",
     "1.1.0",
     "1.2.0",
     "1.2.1",
-    "1.2.2"
+    "1.2.2",
+    "1.3.0"
    ],
    "category": null,
    "operations": [
+    "add_issue_comments",
+    "assign_tag",
     "create_task",
     "generate_report",
     "get_archived_assets",
@@ -6129,6 +6132,7 @@
     "get_subdomains",
     "get_tag_by_id",
     "get_tags",
+    "unassign_tag",
     "update_archived_asset",
     "update_archived_issue",
     "update_asn_asset_status_to_false_positive",
@@ -6614,12 +6618,13 @@
   },
   "gitlab": {
    "label": "GitLab",
-   "version": "2.1.0",
+   "version": "2.2.0",
    "versions": [
     "1.0.0",
     "2.0.0",
     "2.0.1",
-    "2.1.0"
+    "2.1.0",
+    "2.2.0"
    ],
    "category": "DevOps and Digital Operations",
    "operations": [
@@ -16041,7 +16046,7 @@
   },
   "exportTemplateWizard": {
    "label": "Export Template Wizard",
-   "version": "1.0.0"
+   "version": "1.1.0"
   },
   "feedConfigurationSettings": {
    "label": "Feed Configuration Settings",
