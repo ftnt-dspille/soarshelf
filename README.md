@@ -50,3 +50,11 @@ never the raw export. See [CONTRIBUTING.md](CONTRIBUTING.md).
 soarshelf hub-index                                    # from the public catalog
 soarshelf hub-index --packs-dir /path/to/unpacked/packs   # also rebuild official-content fingerprints
 ```
+
+The snapshot also records where each hub connector's icon lives. Refresh the
+icons the site serves with:
+
+```bash
+soarshelf build --out /tmp/site-static                 # learn which connectors the content uses
+soarshelf hub-icons --index /tmp/site-static/data/index.json
+```

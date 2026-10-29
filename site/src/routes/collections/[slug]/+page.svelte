@@ -1,6 +1,6 @@
 <script lang="ts">
   import { SITE } from '$lib/config';
-  import { connectorLabels } from '$lib/data';
+  import { connectorIcons, connectorLabels } from '$lib/data';
   import { plural } from '$lib/format';
   import type { ItemSummary } from '$lib/types';
   import ItemCard from '$lib/components/ItemCard.svelte';
@@ -11,6 +11,7 @@
   let { data } = $props();
   const c = $derived(data.collection);
   const labels = $derived(connectorLabels(data.index));
+  const icons = $derived(connectorIcons(data.index));
   const bySlug = $derived(new Map(data.index.items.map((i) => [i.slug, i])));
   type Entry = { slug: string; note: string; item: ItemSummary };
   const entries = $derived(
@@ -46,7 +47,7 @@
         <div>
           {#if e.note}<p class="mb-2.5 text-sm text-muted"><span class="font-semibold text-fg sm:hidden">{i + 1}. </span>{e.note}</p>{/if}
           <!-- Own box: the card is h-full, which would otherwise stretch it by the note's height. -->
-          <div><ItemCard item={e.item} {labels} /></div>
+          <div><ItemCard item={e.item} {labels} {icons} /></div>
         </div>
       </li>
     {/each}

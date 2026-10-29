@@ -10,14 +10,23 @@
   let {
     item,
     labels,
+    icons = {},
     matched = null
-  }: { item: ItemSummary; labels: Map<string, string>; matched?: { name: string; key: string } | null } = $props();
+  }: {
+    item: ItemSummary;
+    labels: Map<string, string>;
+    /** connector machine name -> icon URL, the same ones the playbook canvas shows. */
+    icons?: Record<string, string>;
+    matched?: { name: string; key: string } | null;
+  } = $props();
   // Built-in connectors (utilities, code snippet) are in nearly every playbook, so the
   // card leads with the ones that tell you what it integrates with.
   const external = $derived(item.connectors.filter((c) => !BUILTIN_CONNECTORS.has(c)));
   const shown = $derived(external.slice(0, 2));
   const more = $derived(external.length - shown.length);
   const change = $derived(lastChange(item));
+  // A connector item lists its own machine name first; that icon is its product's logo.
+  const ownIcon = $derived(item.type === 'connector' ? icons[item.connectors[0] ?? ''] : undefined);
 </script>
 
 <a
@@ -48,9 +57,14 @@
 
   {#if item.displayName}
     <!-- Connectors and widgets are looked for by name, so the name leads. -->
-    <h3 class="mt-3.5 truncate text-base font-semibold tracking-tight text-fg group-hover:text-accent-text">
-      {item.displayName}
-    </h3>
+    <div class="mt-3.5 flex min-w-0 items-center gap-2.5">
+      {#if ownIcon}
+        <img src={ownIcon} alt="" width="24" height="24" loading="lazy" class="size-6 shrink-0 rounded-[5px] object-contain" />
+      {/if}
+      <h3 class="truncate text-base font-semibold tracking-tight text-fg group-hover:text-accent-text">
+        {item.displayName}
+      </h3>
+    </div>
     {#if item.title !== item.displayName}<p class="mt-0.5 text-sm leading-snug text-fg">{item.title}</p>{/if}
   {:else}
     <h3 class="mt-3.5 text-[15px] font-semibold leading-snug tracking-tight text-fg group-hover:text-accent-text">
@@ -69,7 +83,12 @@
     <div class="mt-4 flex min-w-0 items-center gap-1.5" title={external.map((c) => labels.get(c) ?? c).join(', ')}>
       {#each shown as c, i (c)}
         <!-- The first chip keeps its name; a long second one is cut short instead. -->
-        <span class="truncate rounded-full border border-line px-2 py-0.5 text-xs text-muted {i === 0 && shown.length > 1 ? 'max-w-[65%] shrink-0' : 'min-w-0'}">{labels.get(c) ?? c}</span>
+        <span
+          class="inline-flex min-w-0 items-center gap-1 rounded-full border border-line px-2 py-0.5 text-xs text-muted {i === 0 && shown.length > 1 ? 'max-w-[65%] shrink-0' : 'min-w-0'}"
+        >
+          {#if icons[c]}<img src={icons[c]} alt="" width="14" height="14" loading="lazy" class="size-3.5 shrink-0 rounded-[3px] object-contain" />{/if}
+          <span class="min-w-0 truncate">{labels.get(c) ?? c}</span>
+        </span>
       {/each}
       {#if more > 0}<span class="shrink-0 rounded-full px-1.5 py-0.5 text-xs text-faint">+{more}</span>{/if}
     </div>

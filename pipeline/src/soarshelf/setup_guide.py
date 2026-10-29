@@ -66,21 +66,24 @@ def steps(kind: str, connectors: list[dict[str, Any]], packs: list[dict[str, Any
     bundled = [c for c in connectors if pack and c["hub"] != "missing" and c["name"] != "cyops_utilities"]
     configure: list[dict[str, str]] = []
     for c in connectors:
-        ops = ", ".join(f"`{o}`" for o in c["operations"]) or "none"
+        ops = ", ".join(f"`{o}`" for o in c["operations"])
+        ops_note = f" Operations used: {ops}." if ops else ""
         if c in bundled:
             pass
         elif c["hub"] == "missing":
             out.append(_step("install-connector", f"Get the {c['label']} connector",
                              f"**Not on the Content Hub.** You'll need this custom connector "
-                             f"(built with {c['version'] or 'an unknown version'}). Operations used: {ops}."))
+                             f"(built with {c['version'] or 'an unknown version'}).{ops_note}"))
         else:
             note = ""
             if c["hub"] == "version-mismatch":
                 note = (f" This item was built with {c['version']}; the hub has {c['hubVersion']}. "
                         "Check the operations below exist in the version you install.")
+            if c.get("declared"):
+                note = (" The item declares it because the calls happen outside its own steps -"
+                        " in a playbook it references, or upstream of it.")
             out.append(_step("install-connector", f"Install the {c['label']} connector",
-                             f"Find **{c['label']}** on the Content Hub and install it.{note} "
-                             f"Operations used: {ops}."))
+                             f"Find **{c['label']}** on the Content Hub and install it.{note}{ops_note}"))
         (configure if pack else out).append(_step(
             "configure-connector", f"Configure {c['label']} and set a default",
             "Connector configuration links are removed from downloads, so each step uses "
@@ -108,6 +111,14 @@ def steps(kind: str, connectors: list[dict[str, Any]], packs: list[dict[str, Any
         out.append(_step("import", "Import the playbook collection",
                          "Open **Settings › Import Wizard**, upload the JSON file and review "
                          "the summary before importing."))
+
+    # A playbook can call a playbook that ships with another item; importing this
+    # item alone leaves that step pointing at nothing until the other item is in.
+    for slug in sorted({r.item for r in deps.resolved_refs}):
+        out.append(_step("import", f"Get the {slug} item",
+                         "A playbook in this collection calls a playbook that ships with that item. "
+                         "Import it from this site and activate the playbook it provides "
+                         "before activating this one."))
 
     if has_code:
         out.append(_step("note", "Read the code steps",

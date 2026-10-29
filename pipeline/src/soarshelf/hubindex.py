@@ -3,8 +3,13 @@
 Both files under ``pipeline/data/`` are generated and committed:
 
 * ``hub-index.json`` - from the public Content Hub catalog: connector names,
-  versions, categories and operation names, plus solution pack names and
-  versions. Facts only: no descriptions, icons, documentation or code.
+  versions, categories, operation names and each connector's icon file, plus
+  solution pack names and versions. Facts only: no descriptions, documentation
+  or code.
+* ``icons/`` - the connector icons the snapshot points at, downloaded once per
+  refresh by ``soarshelf hub-icons`` and cleaned like an uploaded one
+  (re-drawn PNG, no larger than 96px, no metadata). The build is offline: it
+  only copies these files; it never downloads anything.
 * ``official-fingerprints.json`` - SHA-256 hashes of the collection and
   playbook UUIDs and step structures found in official solution packs, so a
   re-upload of official content can be recognised without republishing it.
@@ -13,14 +18,18 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
+import urllib.request
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 HUB_INDEX = DATA_DIR / "hub-index.json"
 FINGERPRINTS = DATA_DIR / "official-fingerprints.json"
+ICON_DIR = DATA_DIR / "icons"
 
 
 def _h(s: str) -> str:
@@ -118,6 +127,7 @@ def build_hub_index(catalog: list[dict[str, Any]]) -> dict[str, Any]:
                 "category": _first(e.get("category")),
                 "operations": sorted({str(o["operation"]) for o in e.get("operations") or []
                                       if isinstance(o, dict) and o.get("operation")}),
+                "icon": e.get("iconLarge"),
             }
         elif e.get("type") == "solutionpack":
             packs[name] = {"label": e.get("label") or name, "version": e.get("version"),
@@ -158,3 +168,63 @@ def build_fingerprints(pack_dirs: list[Path]) -> dict[str, Any]:
                 if len(steps) >= 3:          # tiny playbooks collide by accident
                     structures[structure_key(steps)] = label
     return {"uuids": sorted(uuids), "structures": dict(sorted(structures.items()))}
+
+
+# --- connector icons (soarshelf hub-icons; the weekly hub refresh runs it) -------
+
+_ICON_FILE = re.compile(r"[a-z0-9][a-z0-9_-]{0,80}\.png")
+
+
+def _fetch_icon(path: str) -> bytes:
+    """One hub icon, from the host the public catalog lives on."""
+    origin = f"https://{urlsplit(CATALOG_URL).netloc}"
+    with urllib.request.urlopen(origin + path, timeout=30) as r:   # noqa: S310 - fixed https host
+        return r.read(256 * 1024)          # icons are tiny; refuse anything large
+
+
+def hub_icons(names: list[str] | set[str], out: Path = ICON_DIR,
+              fetch=_fetch_icon, hub: HubIndex | None = None) -> dict[str, Any]:
+    """Download and clean a hub connector icon for every name in ``names``.
+
+    The snapshot records where each connector's icon lives; this fetches it there and
+    re-draws it as a fresh PNG exactly like an uploaded connector icon (no metadata,
+    anything hidden in the file is dropped). The directory mirrors what it is asked
+    for: a connector the hub lists no icon for (or that isn't on the hub at all) gets
+    no file, and a leftover file for it is removed.
+
+    A connector that can't be fetched is skipped, not an error: the next refresh
+    retries it, and the build just shows that connector without an icon.
+    Returns a report with ``kept``, ``written``, ``removed`` and ``failed`` counts.
+    """
+    from .process import _clean_icon
+
+    hub = hub if hub is not None else HubIndex.load()
+    keep: set[str] = set()
+    written = 0
+    failed: list[str] = []
+    for name in sorted(names):
+        path = (hub.connectors.get(name) or {}).get("icon")
+        if not (isinstance(path, str) and path.startswith("/content-hub/") and ".." not in path):
+            continue                      # not on the hub, or the catalog names no icon
+        keep.add(f"{name}.png")
+        dest = out / f"{name}.png"
+        try:
+            png = _clean_icon(fetch(path))
+        except Exception:                 # noqa: BLE001 - a bad download skips one icon
+            failed.append(name)
+            continue
+        if png is None:
+            failed.append(name)
+            continue
+        if not dest.is_file() or dest.read_bytes() != png:
+            out.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(png)
+            written += 1
+    # The directory mirrors the names asked for; anything else is a leftover.
+    removed = sorted(p.name for p in out.glob("*.png")
+                    if _ICON_FILE.fullmatch(p.name) and p.name not in keep)
+    for name in removed:
+        (out / name).unlink()
+    return {"kept": len(keep), "written": written, "removed": len(removed),
+            "failed": failed,
+            "no-icon": [n for n in sorted(names) if f"{n}.png" not in keep]}

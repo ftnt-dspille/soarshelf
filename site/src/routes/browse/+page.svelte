@@ -2,7 +2,7 @@
   import { afterNavigate, replaceState } from '$app/navigation';
   import { page } from '$app/state';
   import { SITE } from '$lib/config';
-  import { connectorLabels } from '$lib/data';
+  import { connectorIcons, connectorLabels } from '$lib/data';
   import { HUB_LABEL, TEST_LABEL, TYPE_LABEL } from '$lib/format';
   import {
     EMPTY_FILTERS,
@@ -28,6 +28,7 @@
   let { data } = $props();
   const index = $derived(data.index);
   const labels = $derived(connectorLabels(index));
+  const icons = $derived(connectorIcons(index));
   const search = $derived(createSearch(index.items, index.connectors, index.useCases));
 
   let f = $state<FilterState>({ ...EMPTY_FILTERS });
@@ -67,7 +68,7 @@
   );
   const testedOpts = $derived(opts('tested', (['ran', 'imported'] as const).map((t) => ({ value: t, label: TEST_LABEL[t] }))));
   const connOpts = $derived(
-    opts('connectors', index.connectors.map((c) => ({ value: c.name, label: c.label }))).sort(
+    opts('connectors', index.connectors.map((c) => ({ value: c.name, label: c.label, icon: c.icon }))).sort(
       (a, b) => b.count - a.count || a.label.localeCompare(b.label)
     )
   );
@@ -98,7 +99,7 @@
   <FacetGroup title="Verification" options={testedOpts} selected={f.tested} onToggle={(v) => flip('tested', v)} />
   <FacetGroup title="Connector availability" options={hubOpts} selected={f.hub} onToggle={(v) => flip('hub', v)} />
   <FacetGroup title="Trigger" options={triggerOpts} selected={f.triggers} onToggle={(v) => flip('triggers', v)} />
-  <FacetGroup title="Connector" options={connOpts} selected={f.connectors} onToggle={(v) => flip('connectors', v)} searchable />
+  <FacetGroup title="Connector" options={connOpts} selected={f.connectors} onToggle={(v) => flip('connectors', v)} searchable {icons} />
   <div class="py-4">
     <label class="flex cursor-pointer items-center justify-between gap-3 text-sm">
       <span>
@@ -204,7 +205,7 @@
       {#if results.length}
         <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {#each results as item (item.slug)}
-            <ItemCard {item} {labels} matched={matchedPlaybook(item, f.q)} />
+            <ItemCard {item} {labels} {icons} matched={matchedPlaybook(item, f.q)} />
           {/each}
         </div>
       {:else}

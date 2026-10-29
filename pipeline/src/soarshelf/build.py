@@ -23,8 +23,8 @@ from typing import Any
 
 import yaml
 
-from . import SITE_NAME, SITE_URL, config
-from .hubindex import hub_index
+from . import SITE_NAME, SITE_URL, config, refs
+from .hubindex import ICON_DIR, HubIndex, hub_index
 from .process import Processed, process
 
 TYPE_DIRS = {"playbooks": "playbook", "solution-packs": "solution-pack", "connectors": "connector", "widgets": "widget"}
@@ -80,12 +80,13 @@ def payload_of(item: Path) -> Path:
     return files[0]
 
 
-def process_item(item: Path, trust_map: dict[str, tuple[str, int | None]], hub: HubIndex) -> Processed:
+def process_item(item: Path, trust_map: dict[str, tuple[str, int | None]], hub: HubIndex,
+                 registry: dict[str, Any] | None = None) -> Processed:
     meta = yaml.safe_load((item / "meta.yaml").read_text()) or {}
     meta["slug"] = item.name
     uid = meta.get("author_id")
     trust = tier_for(trust_map, str(meta.get("author", "")), uid if isinstance(uid, int) else None)
-    return process(meta, payload_of(item), trust, hub)
+    return process(meta, payload_of(item), trust, hub, registry)
 
 
 FEATURED_MAX = 6
@@ -240,23 +241,27 @@ def atom_feed(events: list[dict[str, Any]], generated: str) -> str:
 def build(content: Path, out: Path) -> int:
     hub = hub_index()
     trust_map = load_trust(content)
-    data_dir, dl_dir = out / "data", out / "downloads"
-    for d in (data_dir, dl_dir):
+    data_dir, dl_dir, icon_dir = out / "data", out / "downloads", out / "icons"
+    for d in (data_dir, dl_dir, icon_dir):
         if d.exists():
             shutil.rmtree(d)
     (data_dir / "items").mkdir(parents=True)
+    icon_dir.mkdir()
 
     summaries: list[dict[str, Any]] = []
-    icons: dict[str, str] = {}      # connector machine name -> icon URL, from the connector's own package
+    icons: dict[str, str] = {}      # connector machine name -> icon URL: its package, or its hub listing
     labels: dict[str, str] = {}     # connector machine name -> its own label, for connectors not on the hub
     published: list[tuple[dict[str, Any], dict[str, Any]]] = []
+    # Which playbooks the whole tree ships, so a reference step in one item can
+    # resolve to a playbook another item carries and pull its dependencies in.
+    registry = refs.scan(content)
     failures = 0
     for kind, item in item_dirs(content):
         if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,80}", item.name):
             failures += 1
             print(f"✗ {item.relative_to(content)}: folder name must be a slug ([a-z0-9-])")
             continue
-        res = process_item(item, trust_map, hub)
+        res = process_item(item, trust_map, hub, registry)
         if res.decision == "reject":
             failures += 1
             print(f"✗ {item.relative_to(content)}")
@@ -301,6 +306,16 @@ def build(content: Path, out: Path) -> int:
     for s in summaries:
         for c in s["connectors"]:
             used[c] = used.get(c, 0) + 1
+    # Hub connectors' icons were downloaded into pipeline/data/icons by `soarshelf
+    # hub-icons`; serve the referenced ones (a community connector's own package
+    # icon always wins) and the rest of the site picks them up through `icons`.
+    for n in sorted(used):
+        if n in icons:
+            continue
+        src = ICON_DIR / f"{n}.png"
+        if src.is_file():
+            shutil.copyfile(src, icon_dir / f"{n}.png")
+            icons[n] = f"/icons/{n}.png"
     index = {
         "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "hubSnapshot": hub.snapshot,

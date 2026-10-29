@@ -27,6 +27,10 @@ interface ConnectorFacet {
   category: string | null;         // Content Hub category, if known
   onHub: boolean;
   count: number;                   // items using it
+  icon?: string | null;            // the connector's own icon: from its package on this
+                                   // site, or downloaded from its Content Hub listing by
+                                   // `soarshelf hub-icons`; shown on the browse page and
+                                   // in the playbook canvas
 }
 
 type ItemType = 'playbook' | 'solution-pack' | 'connector' | 'widget';
@@ -97,6 +101,15 @@ interface ItemDetail extends ItemSummary {
 // re-encoded images from the package). Listed by manifest only, download is null
 // and the item links to `source`. displayName is the manifest's label/title.
 
+// Reference steps: a `workflowReference` to a playbook shipped by another item
+// resolves through the build-time playbook registry (pipeline/src/soarshelf/refs.py,
+// built from all content/ payloads). The child playbook's connectors are pulled into
+// the referencing item's dependency rows with `via` set to the child item's slug, and
+// a `deps.reference-resolved` INFO records the link; references that resolve nowhere
+// keep the `deps.missing-reference` WARN. meta.yaml also accepts a `connectors:` list
+// (machine names) for dependencies the steps cannot show — rows carry `declared: true`
+// and count toward hub status, facets, icons and the setup guide.
+
 interface SetupStep {
   kind: 'install-connector' | 'configure-connector' | 'install-widget' | 'place-widget'
       | 'install-pack' | 'custom-module' | 'import' | 'activate' | 'note';
@@ -110,6 +123,10 @@ interface ConnectorDep {
   operations: string[];
   hub: 'available' | 'version-mismatch' | 'missing';
   hubVersion: string | null;
+  via?: string[];                  // item slugs whose referenced playbook also calls this
+                                   // connector (resolved cross-item reference steps)
+  declared?: boolean;              // declared in meta.yaml `connectors:` because the calls
+                                   // happen outside this item's own steps
 }
 interface PackDep { name: string; version: string | null; hub: 'available' | 'missing' }
 interface ModuleDep { name: string; stock: boolean }

@@ -26,7 +26,7 @@ export interface ConnectorFacet {
   category: string | null;
   onHub: boolean;
   count: number;
-  /** The connector's own icon, from its package on this site (community connectors only). */
+  /** The connector's own icon: from its package on this site, or its Content Hub listing. */
   icon?: string | null;
 }
 
@@ -172,6 +172,10 @@ export interface ConnectorDep {
   operations: string[];
   hub: 'available' | 'version-mismatch' | 'missing';
   hubVersion: string | null;
+  /** Items whose referenced playbook also calls this connector (pipeline-resolved references). */
+  via?: string[];
+  /** Declared in meta.yaml because the calls happen outside this item's own steps. */
+  declared?: boolean;
 }
 
 export interface PackDep {

@@ -22,19 +22,23 @@ jobs:
           uv venv
           uv pip install -e .
           .venv/bin/soarshelf hub-index
+          # The names the icons are needed for come from a build of the current content:
+          # only what the site references is fetched and committed.
+          .venv/bin/soarshelf build --content content --out /tmp/site-static
+          .venv/bin/soarshelf hub-icons --index /tmp/site-static/data/index.json
       - name: Open PR if changed
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           # The snapshot date alone always changes; only open a PR for real changes.
-          if git diff --quiet -I '"snapshot"' -- pipeline/data/hub-index.json; then
+          if git diff --quiet -I '"snapshot"' -- pipeline/data/hub-index.json && git diff --quiet -- pipeline/data/icons; then
             echo "No catalog changes"; exit 0
           fi
           branch="hub-refresh/$(date +%Y-%m-%d)"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
-          git add pipeline/data/hub-index.json
+          git add pipeline/data/hub-index.json pipeline/data/icons
           git commit -m "hub: refresh Content Hub snapshot"
           # A same-day re-run cannot push over its old branch; delete it first.
           git push origin --delete "$branch" 2>/dev/null || true

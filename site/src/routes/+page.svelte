@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { SITE } from '$lib/config';
-  import { connectorLabels } from '$lib/data';
+  import { connectorIcons, connectorLabels } from '$lib/data';
   import { byLastChange } from '$lib/format';
   import { useCaseIcon } from '$lib/icons';
   import ItemCard from '$lib/components/ItemCard.svelte';
@@ -17,6 +17,7 @@
   let { data } = $props();
   const index = $derived(data.index);
   const labels = $derived(connectorLabels(index));
+  const icons = $derived(connectorIcons(index));
   const recent = $derived(
     [...index.items]
       .sort((a, b) => byLastChange(a, b) || b.published.localeCompare(a.published))
@@ -162,7 +163,7 @@
   </div>
   <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
     {#each recent as item (item.slug)}
-      <ItemCard {item} {labels} />
+      <ItemCard {item} {labels} {icons} />
     {/each}
   </div>
 </section>
