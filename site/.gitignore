@@ -4,4 +4,5 @@ build/
 # Written by the pipeline (`soarshelf build`); the dev fixture lives in src/lib/fixtures/.
 static/data/
 static/downloads/
+static/icons/
 static/feed.xml

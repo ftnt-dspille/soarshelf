@@ -140,6 +140,32 @@ def _hub_index(args: argparse.Namespace) -> int:
     return 0
 
 
+def _hub_icons(args: argparse.Namespace) -> int:
+    from .hubindex import ICON_DIR, hub_icons
+
+    if args.index:
+        names = {c["name"] for c in json.loads(args.index.read_text())["connectors"]}
+    else:                                 # --all: every connector the snapshot knows
+        from .hubindex import HubIndex
+        names = set(HubIndex.load().connectors)
+    if not names:
+        print("no connectors to fetch icons for", file=sys.stderr)
+        return 2
+    report = hub_icons(names)
+    parts = [f"{report['kept']} kept", f"{report['written']} written", f"{report['removed']} removed"]
+    if report["failed"]:
+        parts.append(f"{len(report['failed'])} failed: {', '.join(report['failed'][:10])}")
+        if len(report["failed"]) > 10:
+            parts.append(f"and {len(report['failed']) - 10} more")
+    print(f"hub icons: {', '.join(parts)} → {ICON_DIR}")
+    if report["no-icon"]:
+        missing = ", ".join(report["no-icon"][:10])
+        if len(report["no-icon"]) > 10:
+            missing += f" and {len(report['no-icon']) - 10} more"
+        print(f"note: no hub icon for: {missing}")
+    return 0
+
+
 def _test_live(args: argparse.Namespace) -> int:
     from . import verify
 
@@ -243,6 +269,13 @@ def main(argv: list[str] | None = None) -> int:
     h.add_argument("--catalog", default=None, help="content-hub.json URL or file (default: the public catalog)")
     h.add_argument("--packs-dir", type=Path, help="unpacked official solution packs, for fingerprints")
     h.set_defaults(fn=_hub_index)
+
+    gi = sub.add_parser("hub-icons", help="download and clean the Content Hub connector icons (maintainers)")
+    mode = gi.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--index", type=Path,
+                      help="a built site index.json: fetch icons for the connectors it references")
+    mode.add_argument("--all", action="store_true", help="every connector in the snapshot")
+    gi.set_defaults(fn=_hub_icons)
 
     t = sub.add_parser("test-live", help="import (and run) an item on a live FortiSOAR; --record saves the result")
     t.add_argument("slug")

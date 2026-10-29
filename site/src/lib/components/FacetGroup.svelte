@@ -1,14 +1,15 @@
 <script lang="ts">
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
 
-  type Option = { value: string; label: string; count: number };
+  type Option = { value: string; label: string; count: number; icon?: string | null };
   let {
     title,
     options,
     selected,
     onToggle,
     searchable = false,
-    limit = 8
+    limit = 8,
+    icons = null
   }: {
     title: string;
     options: Option[];
@@ -16,6 +17,9 @@
     onToggle: (value: string) => void;
     searchable?: boolean;
     limit?: number;
+    /** connector machine name -> icon URL; only the Connector facet passes one, so
+        only that facet grows the per-row icon cell. */
+    icons?: Record<string, string> | null;
   } = $props();
 
   let open = $state(true);
@@ -70,6 +74,12 @@
               onchange={() => onToggle(o.value)}
               class="mt-0.5 size-4 shrink-0 rounded border-line-strong accent-[var(--accent)]"
             />
+            {#if icons}
+              <!-- Fixed-width cell: rows without an icon keep the same label column. -->
+              <span class="mt-0.5 size-4 shrink-0">
+                {#if icons[o.value]}<img src={icons[o.value]} alt="" width="16" height="16" loading="lazy" class="size-4 rounded-[3px] object-contain" />{/if}
+              </span>
+            {/if}
             <span class="min-w-0 flex-1 leading-snug break-words">{o.label}</span>
             <span class="w-6 shrink-0 pt-px text-right text-xs leading-5 tabular-nums text-faint">{o.count}</span>
           </label>

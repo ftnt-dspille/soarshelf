@@ -136,16 +136,20 @@ _PREINSTALLED = {"cyops_utilities"}
 
 
 def _declare_connectors(rebuilt: dict[str, bytes], root: str, collections: list[ParsedCollection],
-                        hub: HubIndex) -> list[tuple[str, str]]:
+                        hub: HubIndex, extra: list[str] | None = None) -> list[tuple[str, str]]:
     """Declare the Content Hub connectors the playbooks call, the way exported packs do.
 
     The importer installs every connector listed in ``info.json`` contents and
     ``connectors/data.json`` with ``install_mode: rpm`` from the Content Hub, so
     a pack that leaves one out imports playbooks whose steps can't run. Custom
     connectors aren't on the hub and can't be fetched; the setup guide covers those.
+    ``extra`` names connectors the steps don't call directly - reached through a
+    reference step into another item, or declared in meta.yaml - that the pack
+    must install all the same.
     """
     used = sorted({s.arguments.get("connector") for c in collections for pb in c.playbooks for s in pb.steps
                    if isinstance(s.arguments.get("connector"), str)} - _PREINSTALLED)
+    used = sorted(set(used) | set(extra or []))
     wanted = [c for c in used if c in hub.connectors]
     info_name = f"{root}info.json"
     info = json.loads(rebuilt[info_name]) if info_name in rebuilt else None
@@ -179,7 +183,8 @@ def _declare_connectors(rebuilt: dict[str, bytes], root: str, collections: list[
     return added
 
 
-def _pack(up: Upload, hub: HubIndex) -> tuple[list[ParsedCollection], dict[str, str], list[CheckResult], bytes, Any]:
+def _pack(up: Upload, hub: HubIndex, registry: dict[str, Any] | None = None,
+          declared: list[str] | None = None) -> tuple[list[ParsedCollection], dict[str, str], list[CheckResult], bytes, Any]:
     members = up.members or {}
     root = next(m for m in members if posixpath.basename(m) == "info.json" and m.count("/") <= 1)[:-len("info.json")]
     results: list[CheckResult] = []
@@ -235,7 +240,13 @@ def _pack(up: Upload, hub: HubIndex) -> tuple[list[ParsedCollection], dict[str, 
         rebuilt[name] = json.dumps(doc, indent=2, ensure_ascii=False).encode() + b"\n"
 
     results += report_results(pack_report)
-    added = _declare_connectors(rebuilt, root, list(collections.values()), hub)
+    # Connectors the pack's own steps don't call - reached through a reference
+    # into another item, or declared in meta.yaml - must still be installed by
+    # the importer, so they go into info.json contents with the rest.
+    pack_deps = deps_mod.collect(list(collections.values()), set(uuids), registry)
+    extra_connectors = sorted({r["name"] for r in deps_mod.connector_rows(pack_deps, hub) if r["via"]}
+                              | set(declared or []))
+    added = _declare_connectors(rebuilt, root, list(collections.values()), hub, extra_connectors)
     if added:
         # The export check above ran on the upload; these are declared now.
         results = [r for r in results if not (r.id == "pack.connectors.external_requirement"
@@ -462,7 +473,8 @@ def _connector_icon(up: Upload) -> tuple[str, bytes] | None:
 
 # --- entry point ---------------------------------------------------------------
 
-def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> Processed:
+def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex,
+            registry: dict[str, Any] | None = None) -> Processed:
     try:
         up = read_upload(payload)
     except RejectedUpload as exc:
@@ -482,7 +494,8 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
     if kind == "playbook":
         collections, uuids, res, body, macros = _playbook(up)
     elif kind == "solution-pack":
-        collections, uuids, res, body, macros = _pack(up, hub)
+        declared = [c for c in (meta.get("connectors") or []) if isinstance(c, str)]
+        collections, uuids, res, body, macros = _pack(up, hub, registry, declared)
     elif kind == "connector":
         res, body, connector_ops = _connector(up, hub)
         if packaged:
@@ -513,8 +526,12 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex) -> P
         results += structure.run(collections)
         results += brand.provenance(collections, uuids, hub)
         known = {pb_id for pb_id in uuids}
-        deps = deps_mod.collect(collections, known)
+        deps = deps_mod.collect(collections, known, registry)
         rows = deps_mod.connector_rows(deps, hub)
+        # meta.yaml `connectors:` declares dependencies the steps cannot show:
+        # calls that happen in a referenced playbook, or records handed over by
+        # an upstream playbook that is not part of this item.
+        rows = deps_mod.declared_rows(rows, [c for c in (meta.get("connectors") or []) if isinstance(c, str)], hub)
         results += deps_mod.checks(deps, rows)
         if kind == "solution-pack":
             for d in up.data.get("dependencies") or []:
