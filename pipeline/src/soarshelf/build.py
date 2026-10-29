@@ -24,7 +24,7 @@ from typing import Any
 import yaml
 
 from . import SITE_NAME, SITE_URL, config, refs
-from .hubindex import ICON_DIR, HubIndex, hub_index
+from .hubindex import ICON_DIR, LOCAL_ICON_DIR, HubIndex, hub_index
 from .process import Processed, process
 
 TYPE_DIRS = {"playbooks": "playbook", "solution-packs": "solution-pack", "connectors": "connector", "widgets": "widget"}
@@ -36,6 +36,23 @@ FEED_MAX = 50
 
 
 TIERS = ("new", "contributor", "trusted", "maintainer")
+
+
+def _hand_icon(name: str, icon_dir: Path, icons: dict[str, str]) -> bool:
+    """Serve a hand-sourced icon for a connector, if the maintainers placed one.
+
+    ``pipeline/data/icons-local/`` holds icons curated by hand for connectors the
+    automation can't cover: built-ins with no package (code-runner) and community
+    packages whose icon is a placeholder. Hand beats everything else - the hub
+    fetch never touches the directory, and the file deliberately outlives a
+    later hub icon, so what the site shows stays a reviewed decision.
+    """
+    src = LOCAL_ICON_DIR / f"{name}.png"
+    if not src.is_file():
+        return False
+    shutil.copyfile(src, icon_dir / f"{name}.png")
+    icons[name] = f"/icons/{name}.png"
+    return True
 
 
 def load_trust(content: Path) -> dict[str, tuple[str, int | None]]:
@@ -289,8 +306,12 @@ def build(content: Path, out: Path) -> int:
             dest = inside(rel)
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(raw)
-        if detail["type"] == "connector" and detail.get("icon") and res.detail.get("_name"):
-            icons[res.detail["_name"]] = detail["icon"]
+        if detail["type"] == "connector" and res.detail.get("_name"):
+            name = res.detail["_name"]
+            # Hand-sourced icon first: a community package icon can be a
+            # placeholder (a solid square), which reads as "missing" on the site.
+            if not _hand_icon(name, icon_dir, icons) and detail.get("icon"):
+                icons[name] = detail["icon"]
         if detail["type"] == "connector" and detail.get("displayName") and res.detail.get("_name"):
             labels[res.detail["_name"]] = detail["displayName"]
         summary = {k: detail[k] for k in SUMMARY_KEYS}
@@ -306,11 +327,13 @@ def build(content: Path, out: Path) -> int:
     for s in summaries:
         for c in s["connectors"]:
             used[c] = used.get(c, 0) + 1
-    # Hub connectors' icons were downloaded into pipeline/data/icons by `soarshelf
-    # hub-icons`; serve the referenced ones (a community connector's own package
-    # icon always wins) and the rest of the site picks them up through `icons`.
+    # Connector icons: a community connector's own package icon wins over the
+    # hub fetch, and a hand-sourced icon (pipeline/data/icons-local) wins over
+    # both. The rest of the site picks them up through `icons`.
     for n in sorted(used):
         if n in icons:
+            continue
+        if _hand_icon(n, icon_dir, icons):
             continue
         src = ICON_DIR / f"{n}.png"
         if src.is_file():
