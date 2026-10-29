@@ -27,8 +27,9 @@ interface ConnectorFacet {
   category: string | null;         // Content Hub category, if known
   onHub: boolean;
   count: number;                   // items using it
-  icon?: string | null;            // the connector's own icon: from its package on this
-                                   // site, or downloaded from its Content Hub listing by
+  icon?: string | null;            // the connector's icon: hand-sourced first
+                                   // (pipeline/data/icons-local), then its package on this
+                                   // site, then downloaded from its Content Hub listing by
                                    // `soarshelf hub-icons`; shown on the browse page and
                                    // in the playbook canvas
 }

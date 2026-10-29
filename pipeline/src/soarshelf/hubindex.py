@@ -30,6 +30,7 @@ DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 HUB_INDEX = DATA_DIR / "hub-index.json"
 FINGERPRINTS = DATA_DIR / "official-fingerprints.json"
 ICON_DIR = DATA_DIR / "icons"
+LOCAL_ICON_DIR = DATA_DIR / "icons-local"    # hand-sourced; hub refreshes never touch it
 
 
 def _h(s: str) -> str:

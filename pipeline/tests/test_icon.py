@@ -53,3 +53,32 @@ def test_oversized_dimensions_and_bytes_are_refused():
             + chunk(b"IDAT", zlib.compress(b"\x00" * 100)) + chunk(b"IEND", b""))
     assert _clean_icon(bomb) is None
     assert _clean_icon(b"\x89PNG" + b"0" * ICON_MAX_BYTES) is None
+
+
+# --- hand-sourced icons (pipeline/data/icons-local) ----------------------------
+
+def test_hand_icon_beats_package_and_hub(tmp_path, monkeypatch):
+    import shutil
+
+    from soarshelf import build
+
+    local, hub, site = tmp_path / "local", tmp_path / "hub", tmp_path / "site" / "icons"
+    for d in (local, hub, site):
+        d.mkdir(parents=True)
+    (local / "code-runner.png").write_bytes(b"hand")
+    (hub / "code-runner.png").write_bytes(b"hub")
+    monkeypatch.setattr(build, "LOCAL_ICON_DIR", local)
+    monkeypatch.setattr(build, "ICON_DIR", hub)
+    icons: dict[str, str] = {}
+    assert build._hand_icon("code-runner", site, icons) is True
+    assert icons == {"code-runner": "/icons/code-runner.png"}
+    assert (site / "code-runner.png").read_bytes() == b"hand"
+
+
+def test_hand_icon_absent_falls_through(tmp_path, monkeypatch):
+    from soarshelf import build
+
+    monkeypatch.setattr(build, "LOCAL_ICON_DIR", tmp_path / "missing")
+    icons: dict[str, str] = {}
+    assert build._hand_icon("virustotal", tmp_path, icons) is False
+    assert icons == {}
