@@ -59,7 +59,7 @@
     <!-- Connectors and widgets are looked for by name, so the name leads. -->
     <div class="mt-3.5 flex min-w-0 items-center gap-2.5">
       {#if ownIcon}
-        <img src={ownIcon} alt="" width="24" height="24" loading="lazy" class="size-6 shrink-0 rounded-[5px] object-contain" />
+        <img src={ownIcon} alt="" width="32" height="32" loading="lazy" class="size-8 shrink-0 rounded-[7px] object-contain" />
       {/if}
       <h3 class="truncate text-base font-semibold tracking-tight text-fg group-hover:text-accent-text">
         {item.displayName}
@@ -86,7 +86,7 @@
         <span
           class="inline-flex min-w-0 items-center gap-1 rounded-full border border-line px-2 py-0.5 text-xs text-muted {i === 0 && shown.length > 1 ? 'max-w-[65%] shrink-0' : 'min-w-0'}"
         >
-          {#if icons[c]}<img src={icons[c]} alt="" width="14" height="14" loading="lazy" class="size-3.5 shrink-0 rounded-[3px] object-contain" />{/if}
+          {#if icons[c]}<img src={icons[c]} alt="" width="16" height="16" loading="lazy" class="size-4 shrink-0 rounded-[4px] object-contain" />{/if}
           <span class="min-w-0 truncate">{labels.get(c) ?? c}</span>
         </span>
       {/each}

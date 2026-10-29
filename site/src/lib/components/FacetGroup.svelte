@@ -76,8 +76,8 @@
             />
             {#if icons}
               <!-- Fixed-width cell: rows without an icon keep the same label column. -->
-              <span class="mt-0.5 size-4 shrink-0">
-                {#if icons[o.value]}<img src={icons[o.value]} alt="" width="16" height="16" loading="lazy" class="size-4 rounded-[3px] object-contain" />{/if}
+              <span class="mt-0.5 size-5 shrink-0">
+                {#if icons[o.value]}<img src={icons[o.value]} alt="" width="20" height="20" loading="lazy" class="size-5 rounded-[5px] object-contain" />{/if}
               </span>
             {/if}
             <span class="min-w-0 flex-1 leading-snug break-words">{o.label}</span>
