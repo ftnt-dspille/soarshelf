@@ -1,0 +1,736 @@
+{
+  "type": "connector",
+  "name": "fortigate-cloud",
+  "label": "FortiGate Cloud",
+  "version": "1.2.0",
+  "description": "FortiGate Cloud is a cloud-based management platform for FortiGate devices. This connector facilitates automated operations to retrieve and add devices provisioned to FortiGate Cloud, manage their configuration backup and report schedules, proxy FortiOS API calls to a managed FortiGate through FortiGate Cloud, and run curated FortiOS proxy operations on a managed FortiGate, including blocking and unblocking IP addresses.",
+  "category": "Network Security",
+  "publisher": "Fortinet CSE",
+  "operations": [
+    {
+      "operation": "get_devices",
+      "title": "Get Devices",
+      "description": "Retrieves the list of devices provisioned to FortiGate Cloud, optionally paginated and sorted.",
+      "parameters": [
+        {
+          "name": "limit",
+          "title": "Limit",
+          "type": "text",
+          "required": false,
+          "description": "Specify the maximum number of devices to retrieve per page."
+        },
+        {
+          "name": "offset",
+          "title": "Offset",
+          "type": "text",
+          "required": false,
+          "description": "Specify the index of the first device to retrieve, starting from 0."
+        },
+        {
+          "name": "sort",
+          "title": "Sort",
+          "type": "text",
+          "required": false,
+          "description": "Specify the field by which to sort the results. Only 'sn' is supported."
+        }
+      ]
+    },
+    {
+      "operation": "get_device",
+      "title": "Get Device",
+      "description": "Retrieves the details of a specific device provisioned to FortiGate Cloud based on its serial number.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        }
+      ]
+    },
+    {
+      "operation": "add_device",
+      "title": "Add Device",
+      "description": "Adds a device to FortiGate Cloud using its device key.",
+      "parameters": [
+        {
+          "name": "device_key",
+          "title": "Device Key",
+          "type": "text",
+          "required": true,
+          "description": "Specify the device key of the device to add to FortiGate Cloud."
+        }
+      ]
+    },
+    {
+      "operation": "update_device_management",
+      "title": "Update Device Management",
+      "description": "Enables or disables the FortiGate Cloud management feature for a device. Enabling management requires the FortiGate 'admin' user credentials; disabling it does not.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "management",
+          "title": "Enable Management",
+          "type": "checkbox",
+          "required": true,
+          "description": "Select this option to enable the management feature for the device, or clear it to disable management.",
+          "value": true
+        },
+        {
+          "name": "username",
+          "title": "Username",
+          "type": "text",
+          "required": false,
+          "description": "Specify the FortiGate 'admin' user name. Required when enabling management."
+        },
+        {
+          "name": "password",
+          "title": "Password",
+          "type": "password",
+          "required": false,
+          "description": "Specify the FortiGate 'admin' user password. Required when enabling management."
+        },
+        {
+          "name": "force_password_change",
+          "title": "Force Password Change",
+          "type": "checkbox",
+          "required": false,
+          "description": "Select this option to force a password change on the device."
+        }
+      ]
+    },
+    {
+      "operation": "get_report_schedules",
+      "title": "Get Report Schedules",
+      "description": "Retrieves all report schedules configured for a device on FortiGate Cloud.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        }
+      ]
+    },
+    {
+      "operation": "get_report_schedule",
+      "title": "Get Report Schedule",
+      "description": "Retrieves a specific report schedule configured for a device on FortiGate Cloud based on its OID.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "oid",
+          "title": "Schedule OID",
+          "type": "integer",
+          "required": true,
+          "description": "Specify the OID of the report schedule to retrieve."
+        }
+      ]
+    },
+    {
+      "operation": "add_report_schedule",
+      "title": "Add or Update Report Schedule",
+      "description": "Adds a report schedule for a device on FortiGate Cloud, or updates an existing schedule when its OID is specified.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "config_oid",
+          "title": "Config OID",
+          "type": "integer",
+          "required": true,
+          "description": "Specify the OID of the report configuration to schedule."
+        },
+        {
+          "name": "oid",
+          "title": "Schedule OID",
+          "type": "integer",
+          "required": false,
+          "description": "Specify the OID of an existing report schedule to update. Leave blank to add a new schedule."
+        },
+        {
+          "name": "schedule_type",
+          "title": "Schedule Type",
+          "type": "text",
+          "required": false,
+          "description": "Specify how often the report runs, for example: daily."
+        },
+        {
+          "name": "vdom",
+          "title": "VDOM",
+          "type": "text",
+          "required": false,
+          "description": "Specify the VDOM for which to generate the report."
+        },
+        {
+          "name": "email",
+          "title": "Email",
+          "type": "text",
+          "required": false,
+          "description": "Specify the email address to which to send the report."
+        },
+        {
+          "name": "email_flag",
+          "title": "Send Email",
+          "type": "checkbox",
+          "required": false,
+          "description": "Select this option to email the report when it is generated.",
+          "value": false
+        }
+      ]
+    },
+    {
+      "operation": "delete_report_schedule",
+      "title": "Delete Report Schedule",
+      "description": "Deletes a report schedule from a device on FortiGate Cloud based on its OID.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "oid",
+          "title": "Schedule OID",
+          "type": "integer",
+          "required": true,
+          "description": "Specify the OID of the report schedule to delete."
+        }
+      ]
+    },
+    {
+      "operation": "get_auto_backup_setting",
+      "title": "Get Config Auto Backup Setting",
+      "description": "Retrieves the configuration auto backup setting of a device on FortiGate Cloud.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        }
+      ]
+    },
+    {
+      "operation": "update_auto_backup_setting",
+      "title": "Update Config Auto Backup Setting",
+      "description": "Updates the configuration auto backup setting of a device on FortiGate Cloud.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "enable",
+          "title": "Enable Auto Backup",
+          "type": "checkbox",
+          "required": false,
+          "description": "Select this option to enable configuration auto backup for the device.",
+          "value": true
+        },
+        {
+          "name": "backup_option",
+          "title": "Backup Option",
+          "type": "text",
+          "required": false,
+          "description": "Specify when a backup is taken, for example: PERSESSION."
+        },
+        {
+          "name": "alert",
+          "title": "Alert",
+          "type": "checkbox",
+          "required": false,
+          "description": "Select this option to send an alert when a configuration backup occurs.",
+          "value": false
+        },
+        {
+          "name": "alert_lang",
+          "title": "Alert Language",
+          "type": "text",
+          "required": false,
+          "description": "Specify the language of the alert email, for example: en."
+        },
+        {
+          "name": "alert_emails",
+          "title": "Alert Emails",
+          "type": "text",
+          "required": false,
+          "description": "Specify the email addresses to which to send backup alerts."
+        }
+      ]
+    },
+    {
+      "operation": "fos_api_call",
+      "title": "Call FortiOS API",
+      "description": "Proxies a FortiOS API call to a managed FortiGate through FortiGate Cloud. The FortiGate must be deployed to FortiGate Cloud with configuration management enabled and its management tunnel online. Only the GET method is available on free FortiGate Cloud accounts; the POST, PUT and DELETE methods require a paid FortiGate.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "method",
+          "title": "Method",
+          "type": "select",
+          "required": true,
+          "description": "Select the HTTP method of the FortiOS API call. POST, PUT and DELETE require a paid FortiGate.",
+          "value": "GET",
+          "options": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE"
+          ]
+        },
+        {
+          "name": "fos_api_path",
+          "title": "FortiOS API Path",
+          "type": "text",
+          "required": true,
+          "description": "Specify the FortiOS API path to call, for example: api/v2/monitor/license/status. Refer to the FortiOS API documentation for available paths."
+        },
+        {
+          "name": "query_parameters",
+          "title": "Query Parameters",
+          "type": "json",
+          "required": false,
+          "description": "Specify the query parameters of the FortiOS API call as a JSON object. Refer to the FortiOS API documentation for available query parameters."
+        },
+        {
+          "name": "payload",
+          "title": "Payload",
+          "type": "json",
+          "required": false,
+          "description": "Specify the request body of the FortiOS API call as a JSON object. Applies to the POST and PUT methods."
+        }
+      ]
+    },
+    {
+      "operation": "generic_api_call",
+      "title": "Generic API Call",
+      "description": "Makes an arbitrary call to the FortiGate Cloud API. Use this operation to reach endpoints that this connector does not expose as a dedicated action.",
+      "parameters": [
+        {
+          "name": "method",
+          "title": "Method",
+          "type": "select",
+          "required": true,
+          "description": "Select the HTTP method of the API call.",
+          "value": "GET",
+          "options": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE"
+          ]
+        },
+        {
+          "name": "endpoint",
+          "title": "Endpoint",
+          "type": "text",
+          "required": true,
+          "description": "Specify the API endpoint to call, relative to the FortiGate Cloud API base path, for example: /devices."
+        },
+        {
+          "name": "payload",
+          "title": "Payload",
+          "type": "json",
+          "required": false,
+          "description": "Specify the request body of the API call as a JSON object."
+        }
+      ]
+    },
+    {
+      "operation": "get_fgt_system_status",
+      "title": "Get FortiGate System Status",
+      "description": "Reads the FortiOS system status (hostname, model, firmware, serial, VDOM, resource use) of a FortiGate managed by FortiGate Cloud, through the FortiGate Cloud FortiOS proxy.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        }
+      ]
+    },
+    {
+      "operation": "list_firewall_addresses",
+      "title": "List Firewall Addresses",
+      "description": "Lists the firewall address objects configured on a FortiGate managed by FortiGate Cloud, through the FortiGate Cloud FortiOS proxy. Supports limit and offset pagination.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "limit",
+          "title": "Limit",
+          "type": "text",
+          "required": false,
+          "description": "Maximum number of address objects to return (1-1000). Defaults to 100."
+        },
+        {
+          "name": "offset",
+          "title": "Offset",
+          "type": "text",
+          "required": false,
+          "description": "Number of address objects to skip, for pagination."
+        }
+      ]
+    },
+    {
+      "operation": "list_firewall_policies",
+      "title": "List Firewall Policies",
+      "description": "Lists the firewall policies configured on a FortiGate managed by FortiGate Cloud, in policy order (top of the match order first), through the FortiGate Cloud FortiOS proxy.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "limit",
+          "title": "Limit",
+          "type": "text",
+          "required": false,
+          "description": "Maximum number of policies to return (1-1000). Defaults to 100."
+        },
+        {
+          "name": "offset",
+          "title": "Offset",
+          "type": "text",
+          "required": false,
+          "description": "Number of policies to skip, for pagination."
+        }
+      ]
+    },
+    {
+      "operation": "create_firewall_address",
+      "title": "Create Firewall Address",
+      "description": "Creates a firewall address object on a FortiGate managed by FortiGate Cloud, through the FortiGate Cloud FortiOS proxy. The IP accepts a single IPv4 address (a /32 object) or a CIDR network. Writes through the FortiOS proxy require a paid FortiGate; an unentitled device answers 403 permission_deny.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "name",
+          "title": "Address Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the firewall address object to create."
+        },
+        {
+          "name": "ip",
+          "title": "IP or CIDR",
+          "type": "text",
+          "required": true,
+          "description": "IPv4 address or CIDR network for the address object, for example 203.0.113.10 or 203.0.113.0/24."
+        },
+        {
+          "name": "comment",
+          "title": "Comment",
+          "type": "text",
+          "required": false,
+          "description": "Optional comment stored on the address object."
+        }
+      ]
+    },
+    {
+      "operation": "delete_firewall_address",
+      "title": "Delete Firewall Address",
+      "description": "Deletes a firewall address object on a FortiGate managed by FortiGate Cloud, through the FortiGate Cloud FortiOS proxy. Writes through the FortiOS proxy require a paid FortiGate; an unentitled device answers 403 permission_deny.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "name",
+          "title": "Address Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the firewall address object to delete."
+        }
+      ]
+    },
+    {
+      "operation": "block_ip",
+      "title": "Block IP",
+      "description": "Blocks an IPv4 address or CIDR on a FortiGate managed by FortiGate Cloud: creates (or reuses) an FSR-BLOCK-<ip> address object and a deny policy that matches only that address, then moves the policy to the top of the policy order. Traffic to or from other hosts is not affected. Idempotent: rerunning reuses existing objects. Writes through the FortiOS proxy require a paid FortiGate; an unentitled…",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "ip",
+          "title": "IP or CIDR",
+          "type": "text",
+          "required": true,
+          "description": "IPv4 address or CIDR network to block, for example 203.0.113.10 or 203.0.113.0/24."
+        },
+        {
+          "name": "direction",
+          "title": "Direction",
+          "type": "select",
+          "required": false,
+          "description": "Block traffic from the address (inbound), to the address (outbound), or both. Defaults to both.",
+          "value": "both",
+          "options": [
+            "inbound",
+            "outbound",
+            "both"
+          ]
+        },
+        {
+          "name": "srcintf",
+          "title": "Source Interfaces",
+          "type": "text",
+          "required": false,
+          "description": "Comma-separated source interface names for the deny policy. Defaults to any.",
+          "value": "any"
+        },
+        {
+          "name": "dstintf",
+          "title": "Destination Interfaces",
+          "type": "text",
+          "required": false,
+          "description": "Comma-separated destination interface names for the deny policy. Defaults to any.",
+          "value": "any"
+        },
+        {
+          "name": "comment",
+          "title": "Comment",
+          "type": "text",
+          "required": false,
+          "description": "Optional comment stored on the created address object and policies."
+        }
+      ]
+    },
+    {
+      "operation": "unblock_ip",
+      "title": "Unblock IP",
+      "description": "Removes what Block IP created for an IPv4 address or CIDR on a FortiGate managed by FortiGate Cloud: deletes the FSR-BLOCK deny policies, then deletes the address object unless a policy the connector did not create still references it. Idempotent: objects that are already absent are reported, not treated as errors. Writes through the FortiOS proxy require a paid FortiGate; an unentitled device…",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "ip",
+          "title": "IP or CIDR",
+          "type": "text",
+          "required": true,
+          "description": "IPv4 address or CIDR network to unblock, matching the value passed to Block IP."
+        }
+      ]
+    },
+    {
+      "operation": "quarantine_ip",
+      "title": "Quarantine IP",
+      "description": "Quarantines (bans) one or more IPv4 addresses on a FortiGate managed by FortiGate Cloud using the FortiOS Quarantine Monitor: a runtime ban that touches no address objects or policies and carries its own expiry, so it reverts on its own when the duration passes. Idempotent: already-banned addresses are reported, not re-banned. Writes through the FortiOS proxy require a paid FortiGate; an…",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "ips",
+          "title": "IP Addresses",
+          "type": "text",
+          "required": true,
+          "description": "One or more IPv4 addresses, comma-separated, for example 203.0.113.10, 198.51.100.4."
+        },
+        {
+          "name": "time_to_live",
+          "title": "Time To Live",
+          "type": "select",
+          "required": false,
+          "description": "How long the ban stays in effect. Choose Custom Time to pass an exact duration in seconds with the Duration parameter.",
+          "value": "1 Hour",
+          "options": [
+            "1 Hour",
+            "6 Hours",
+            "12 Hours",
+            "1 Day",
+            "1 Week",
+            "1 Month",
+            "Custom Time",
+            "Never"
+          ]
+        },
+        {
+          "name": "duration",
+          "title": "Duration (seconds)",
+          "type": "text",
+          "required": false,
+          "description": "Ban duration in seconds when Time To Live is Custom Time. 0 means the ban never expires."
+        },
+        {
+          "name": "vdom",
+          "title": "VDOM",
+          "type": "text",
+          "required": false,
+          "description": "FortiOS VDOM that owns the Quarantine Monitor list. Defaults to root.",
+          "value": "root"
+        }
+      ]
+    },
+    {
+      "operation": "unquarantine_ip",
+      "title": "Unquarantine IP",
+      "description": "Releases Quarantine Monitor bans previously created by Quarantine IP (or the FortiGate CLI's diagnose user banned-ip add). Idempotent: addresses that are not currently banned are reported as such instead of erroring. Writes through the FortiOS proxy require a paid FortiGate; an unentitled device answers 403 permission_deny.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "ips",
+          "title": "IP Addresses",
+          "type": "text",
+          "required": true,
+          "description": "One or more IPv4 addresses, comma-separated, for example 203.0.113.10, 198.51.100.4."
+        },
+        {
+          "name": "vdom",
+          "title": "VDOM",
+          "type": "text",
+          "required": false,
+          "description": "FortiOS VDOM that owns the Quarantine Monitor list. Defaults to root.",
+          "value": "root"
+        }
+      ]
+    },
+    {
+      "operation": "list_banned_ips",
+      "title": "List Banned IPs",
+      "description": "Lists the FortiOS Quarantine Monitor's current IP bans on a FortiGate managed by FortiGate Cloud. Each entry carries the vendor fields (ip_address, expiry, created, cause) verbatim. Requires the device's management tunnel to be up.",
+      "parameters": [
+        {
+          "name": "sn",
+          "title": "Serial Number",
+          "type": "text",
+          "required": true,
+          "description": "Specify the serial number of the FortiGate provisioned to FortiGate Cloud."
+        },
+        {
+          "name": "vdom",
+          "title": "VDOM",
+          "type": "text",
+          "required": false,
+          "description": "FortiOS VDOM that owns the Quarantine Monitor list. Defaults to root.",
+          "value": "root"
+        }
+      ]
+    }
+  ],
+  "configuration": {
+    "fields": [
+      {
+        "name": "region",
+        "title": "Region",
+        "type": "select",
+        "required": true,
+        "description": "Select the FortiGate Cloud region that hosts your account. A device is only visible from the region it was provisioned into.",
+        "value": "Global",
+        "options": [
+          "Global",
+          "US",
+          "EU",
+          "Japan"
+        ]
+      },
+      {
+        "name": "server_url",
+        "title": "Server URL",
+        "type": "text",
+        "required": false,
+        "description": "Optionally specify the FortiGate Cloud API URL to override the selected region, for example https://api.fortigate.forticloud.com. Leave blank to use the region."
+      },
+      {
+        "name": "api_id",
+        "title": "API ID",
+        "type": "text",
+        "required": true,
+        "description": "Specify the API ID, i.e. the username of the FortiCloud IAM API user, in UUID format XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX. The IAM API user must be granted Admin permissions for FortiGate Cloud."
+      },
+      {
+        "name": "password",
+        "title": "Password",
+        "type": "password",
+        "required": true,
+        "description": "Specify the password of the FortiCloud IAM API user."
+      },
+      {
+        "name": "client_id",
+        "title": "Client ID",
+        "type": "text",
+        "required": true,
+        "description": "Specify the client ID used to request the FortiGate Cloud access token.",
+        "value": "fortigatecloud"
+      },
+      {
+        "name": "verify_ssl",
+        "title": "Verify SSL",
+        "type": "checkbox",
+        "required": false,
+        "description": "Specifies whether the SSL certificate for the server is to be verified.",
+        "value": true
+      }
+    ]
+  }
+}
