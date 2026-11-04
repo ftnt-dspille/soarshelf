@@ -41,6 +41,8 @@ export const META = {
   version: '1.0.0',
   minVersion: null,
   source: null,
+  changes: '',
+  enhances: null,
   rightsConfirmed: true
 };
 

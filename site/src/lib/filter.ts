@@ -97,7 +97,7 @@ export function createSearch(items: ItemSummary[], connectors: ConnectorFacet[],
   const ucLabel = new Map(useCases.map((u) => [u.id, u.label]));
   const ms = new MiniSearch<Record<string, string>>({
     idField: 'slug',
-    fields: ['title', 'displayName', 'summary', 'tags', 'connectors', 'triggers', 'useCases', 'playbooks'],
+    fields: ['title', 'displayName', 'summary', 'tags', 'connectors', 'triggers', 'useCases', 'playbooks', 'forkOf'],
     // Product names are one word with a vendor prefix ("FortiAIGate"), and matching only works
     // from the start of a word: index the name without the prefix too, so "aigate" finds it.
     processTerm: (term: string) => {
@@ -125,7 +125,9 @@ export function createSearch(items: ItemSummary[], connectors: ConnectorFacet[],
       connectors: i.connectors.map((c) => `${c} ${connLabel.get(c) ?? ''}`).join(' '),
       triggers: i.triggers.join(' '),
       useCases: i.useCases.map((u) => ucLabel.get(u) ?? u).join(' '),
-      playbooks: (i.playbooks ?? []).flat().join(' ')
+      playbooks: (i.playbooks ?? []).flat().join(' '),
+      // A renamed fork of a hub connector isn't findable by its original's name otherwise.
+      forkOf: i.enhanced ? `${i.enhanced.connector} ${i.enhanced.label}` : ''
     }))
   );
   return {

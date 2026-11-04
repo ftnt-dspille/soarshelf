@@ -43,6 +43,9 @@
     changes: '',
     minVersion: '',
     source: '',
+    enhancesConnector: '',
+    enhancesVersion: '',
+    enhancesChanges: '',
     rightsConfirmed: false
   });
   let file = $state<File | null>(null);
@@ -206,6 +209,13 @@
           changes: draft.changes.trim(),
           minVersion: draft.minVersion.trim() || null,
           source: draft.source.trim() || null,
+          enhances: draft.enhancesConnector.trim()
+            ? {
+                connector: draft.enhancesConnector.trim(),
+                version: draft.enhancesVersion.trim(),
+                changes: draft.enhancesChanges.trim()
+              }
+            : null,
           rightsConfirmed: true
         },
         token,
@@ -456,6 +466,33 @@
             <p id="h-source" class="mt-1 text-xs text-faint">Link your repository if it's public. A maintainer reviews connector and widget code before it's published.</p>
             {@render fieldError('source')}
           </div>
+          {#if detected?.kind === 'connector'}
+            <div class="sm:col-span-2 rounded-xl border border-line bg-surface-2/40 p-4">
+              <h3 class="text-sm font-medium">Fork of a Content Hub connector?</h3>
+              <p id="h-fork" class="mt-1 text-xs text-faint">
+                If this is your enhanced copy of a connector that's on the Content Hub, say so: the listing then links the
+                original and shows exactly which operations you added or removed, so people can tell whether the original
+                is enough for them. Leave blank for a connector you wrote from scratch.
+              </p>
+              <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label for="f-enhancesConnector" class="text-sm font-medium">Original's machine name <span class="font-normal text-faint">(required to declare a fork)</span></label>
+                  <input id="f-enhancesConnector" type="text" bind:value={draft.enhancesConnector} class="{inputCls} {border('enhancesConnector')}" placeholder="aws" aria-describedby="h-fork {shown.enhancesConnector ? 'e-enhancesConnector' : ''}" />
+                  {@render fieldError('enhancesConnector')}
+                </div>
+                <div>
+                  <label for="f-enhancesVersion" class="text-sm font-medium">Hub version it forked from <span class="font-normal text-faint">(optional)</span></label>
+                  <input id="f-enhancesVersion" type="text" bind:value={draft.enhancesVersion} class="{inputCls} {border('enhancesVersion')}" placeholder="3.2.0" aria-describedby="h-fork {shown.enhancesVersion ? 'e-enhancesVersion' : ''}" />
+                  {@render fieldError('enhancesVersion')}
+                </div>
+              </div>
+              <div class="mt-4">
+                <label for="f-enhancesChanges" class="text-sm font-medium">What your fork changes <span class="font-normal text-faint">(optional)</span></label>
+                <textarea id="f-enhancesChanges" bind:value={draft.enhancesChanges} rows="2" maxlength="500" class="{inputCls} {border('enhancesChanges')}" placeholder="Adds a generic boto3 passthrough, so any AWS API action can be called without a curated operation." aria-describedby="h-fork {shown.enhancesChanges ? 'e-enhancesChanges' : ''}"></textarea>
+                {@render fieldError('enhancesChanges')}
+              </div>
+            </div>
+          {/if}
         </div>
       </section>
 

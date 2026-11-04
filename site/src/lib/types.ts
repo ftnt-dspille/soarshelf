@@ -54,6 +54,8 @@ export interface ItemSummary {
   lastChange?: LastChange;
   /** Best live test of the current version, or null when it hasn't been tested. */
   tested?: Tested | null;
+  /** Enhanced fork of a Content Hub connector (connectors only): card-badge shape. */
+  enhanced?: ForkBadge | null;
   /** Playbook names per collection (playbooks and packs). Older builds don't carry it. */
   playbooks?: string[][];
 }
@@ -127,6 +129,8 @@ export interface ItemDetail extends ItemSummary {
   configuration?: ConnectorParam[] | null;
   /** Widget manifests. */
   widget?: WidgetInfo | null;
+  /** Enhanced fork of a Content Hub connector (connectors only): the original and what changed. */
+  enhanced?: EnhancedFork | null;
   /** Newest first; empty until the item's first update. */
   changelog?: ChangelogEntry[];
   /** Every live test, newest platform first, including tests of older versions. */
@@ -233,6 +237,35 @@ export type NodeFamily =
   | 'utility'
   | 'end'
   | 'other';
+
+/** Browse-card shape of an enhanced fork of a Content Hub connector. */
+export interface ForkBadge {
+  connector: string;
+  /** Hub original's display name. */
+  label: string;
+  /** Hub original's version in the build's snapshot. */
+  hubVersion: string;
+  /** Operations the fork adds over the original. */
+  addedCount: number;
+}
+
+/** The full fork facts on an item page: what the original is, and what this fork changes. */
+export interface EnhancedFork extends ForkBadge {
+  /** Hub version it was branched from, when the author recorded it. */
+  baseVersion: string | null;
+  /** Kept the original's machine name: installing it updates the hub connector in place. */
+  sameName: boolean;
+  /** Operations the original doesn't have. */
+  added: { name: string; title: string }[];
+  /** Operations the original has that this fork drops. */
+  removed: string[];
+  /** Operations in the hub original. */
+  hubCount: number;
+  /** The original's documentation (docs.fortinet.com), from the hub snapshot. */
+  url: string | null;
+  /** The author's note on what the fork changes. */
+  changes: string | null;
+}
 
 // Named PlaybookNode/PlaybookEdge (contract: Node/Edge) to avoid clashing with @xyflow/svelte's types.
 export interface PlaybookNode {

@@ -17,6 +17,10 @@ export interface SubmissionMeta {
   changes: string;          // what changed, for a new version of the uploader's own item
   minVersion: string | null;
   source: string | null;
+  /** Enhanced fork of a Content Hub connector, or null when it isn't one.
+   * `connector` is the hub original's machine name ("aws", not "AWS EC2"); the
+   * listing then links the original and renders the operation-level diff. */
+  enhances: { connector: string; version?: string; changes?: string } | null;
   rightsConfirmed: true;
 }
 
@@ -50,11 +54,30 @@ export function validateMeta(raw: unknown): Result<SubmissionMeta> {
   if (source && (!/^https:\/\/[^\s]+$/.test(source) || source.length > 300))
     return { ok: false, error: 'Source must be an https URL' };
   if (changes.length > 500) return { ok: false, error: 'What changed is longer than 500 characters' };
+  // An enhanced fork of a Content Hub connector: shape-checked here so junk never
+  // reaches the pipeline, which is the one that knows the hub snapshot.
+  let enhances: SubmissionMeta['enhances'] = null;
+  if (m.enhances != null) {
+    if (typeof m.enhances !== 'object' || Array.isArray(m.enhances))
+      return { ok: false, error: 'Fork details must name the Content Hub connector' };
+    const e = m.enhances as Record<string, unknown>;
+    const connector = str(e.connector).toLowerCase();
+    const eVersion = str(e.version);
+    const eChanges = str(e.changes).replace(/\s+/g, ' ');
+    if (connector && !/^[\w.-]{1,80}$/.test(connector))
+      return { ok: false, error: 'Fork: use the Content Hub connector\u2019s machine name, e.g. "aws"' };
+    if (eVersion.length > 20) return { ok: false, error: 'Fork version must be short, like 3.2.0' };
+    if (eChanges.length > 500) return { ok: false, error: 'Fork changes are longer than 500 characters' };
+    if (connector) {
+      // Mirrors the pipeline's to_meta: the two optional parts are dropped when blank.
+      enhances = eVersion || eChanges ? { connector, ...(eVersion ? { version: eVersion } : {}), ...(eChanges ? { changes: eChanges } : {}) } : { connector };
+    }
+  }
   if (m.rightsConfirmed !== true) return { ok: false, error: 'Confirm you have the right to share this' };
 
   return {
     ok: true,
-    value: { title, summary, description, useCases, tags, version, changes, minVersion, source, rightsConfirmed: true }
+    value: { title, summary, description, useCases, tags, version, changes, minVersion, source, enhances, rightsConfirmed: true }
   };
 }
 

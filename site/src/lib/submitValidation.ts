@@ -12,6 +12,10 @@ export interface SubmitDraft {
   changes: string;
   minVersion: string;
   source: string;
+  /** Fork of a Content Hub connector: flat here for easy binding, sent as one `enhances` block. */
+  enhancesConnector: string;
+  enhancesVersion: string;
+  enhancesChanges: string;
   rightsConfirmed: boolean;
 }
 
@@ -66,6 +70,18 @@ export function validateDraft(d: SubmitDraft, file: File | null): FieldErrors {
       ok = false;
     }
     if (!ok) e.source = 'Use a full https:// link.';
+  }
+
+  // Fork of a Content Hub connector: all three are optional, but naming one
+  // of them without the connector's machine name is a mistake, not a choice.
+  const forkConn = d.enhancesConnector.trim();
+  const forkVer = d.enhancesVersion.trim();
+  const forkNote = d.enhancesChanges.trim();
+  if (forkConn || forkVer || forkNote) {
+    if (!forkConn) e.enhancesConnector = 'Name the Content Hub connector, e.g. aws, or clear the fork fields.';
+    else if (!/^[\w.-]{1,80}$/.test(forkConn)) e.enhancesConnector = 'Use the machine name, e.g. aws (lowercase, no spaces).';
+    if (forkVer.length > 20) e.enhancesVersion = 'Use the Content Hub version, e.g. 3.2.0.';
+    if (forkNote.length > 500) e.enhancesChanges = 'Keep this under 500 characters.';
   }
 
   if (!d.rightsConfirmed) e.rightsConfirmed = 'Confirm you have the right to share this.';

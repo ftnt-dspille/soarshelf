@@ -129,6 +129,9 @@ def build_hub_index(catalog: list[dict[str, Any]]) -> dict[str, Any]:
                 "operations": sorted({str(o["operation"]) for o in e.get("operations") or []
                                       if isinstance(o, dict) and o.get("operation")}),
                 "icon": e.get("iconLarge"),
+                # The connector's own documentation URL: where a listing says "this
+                # enhances a hub connector", the page links the original from here.
+                "help": e.get("help") or None,
             }
         elif e.get("type") == "solutionpack":
             packs[name] = {"label": e.get("label") or name, "version": e.get("version"),

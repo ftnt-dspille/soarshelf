@@ -30,7 +30,7 @@ from .process import Processed, process
 TYPE_DIRS = {"playbooks": "playbook", "solution-packs": "solution-pack", "connectors": "connector", "widgets": "widget"}
 SUMMARY_KEYS = ("slug", "type", "title", "displayName", "summary", "useCases", "tags", "connectors", "triggers",
                 "playbookCount", "stepCount", "hubStatus", "hasCode", "author", "version",
-                "minVersion", "published", "updated", "lastChange", "tested")
+                "minVersion", "published", "updated", "lastChange", "tested", "enhanced")
 ACTIVITY_MAX = 300
 FEED_MAX = 50
 
@@ -315,6 +315,12 @@ def build(content: Path, out: Path) -> int:
         if detail["type"] == "connector" and detail.get("displayName") and res.detail.get("_name"):
             labels[res.detail["_name"]] = detail["displayName"]
         summary = {k: detail[k] for k in SUMMARY_KEYS}
+        # Browse cards need a badge, not the whole panel: an enhanced fork's
+        # summary carries the locator and the size of the delta, nothing else.
+        if isinstance(summary.get("enhanced"), dict) and summary["enhanced"]:
+            e = summary["enhanced"]
+            summary["enhanced"] = {"connector": e["connector"], "label": e["label"],
+                                   "hubVersion": e["hubVersion"], "addedCount": len(e["added"])}
         # Playbook names per collection, so browse search finds an item by any playbook
         # inside it and can link to that playbook (#playbooks/<collection>:<playbook>).
         summary["playbooks"] = [[pb["name"] for pb in c["playbooks"]] for c in detail.get("collections") or []]

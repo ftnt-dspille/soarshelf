@@ -24,6 +24,8 @@ export interface SubmissionMeta {
   minVersion: string | null;
   source: string | null;
   changes: string;
+  /** Enhanced fork of a Content Hub connector: { connector: machine name, version?: fork point, changes?: what changed } */
+  enhances: { connector: string; version?: string; changes?: string } | null;
   rightsConfirmed: true;
 }
 

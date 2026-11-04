@@ -29,6 +29,7 @@
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import BadgeCheck from '@lucide/svelte/icons/badge-check';
   import FlaskConical from '@lucide/svelte/icons/flask-conical';
+  import GitFork from '@lucide/svelte/icons/git-fork';
   import Library from '@lucide/svelte/icons/library';
   import type { Component } from 'svelte';
 
@@ -159,6 +160,8 @@
   // Connectors and widgets: the site lists their manifest; the code lives at the source.
   const isCode = $derived(CODE_TYPES.has(item.type));
   const source = $derived(item.source && /^https:\/\//.test(item.source) ? item.source : null);
+  // An enhanced fork's added operations, keyed for the Operations list markers.
+  const forkAdded = $derived(new Set((item.enhanced?.added ?? []).map((a) => a.name)));
 
   const STEP_ICON: Record<SetupStep['kind'], Component> = {
     'install-connector': Plug,
@@ -361,6 +364,51 @@
             </div>
           </div>
         {/if}
+        {#if item.enhanced}
+          {@const en = item.enhanced}
+          <div class="rounded-xl border border-line bg-surface-2/40 p-5">
+            <h2 class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-faint">
+              <GitFork size={13} aria-hidden="true" />Fork of a Content Hub connector
+            </h2>
+            <p class="mt-2.5 text-sm text-fg">
+              An enhanced copy of <strong>{en.label}</strong>
+              <code class="rounded bg-surface px-1 py-0.5 font-mono text-xs text-muted">{en.connector}</code>
+              {#if en.hubVersion}<span class="text-muted">v{en.hubVersion}</span>{/if}{#if en.url}
+                <a href={en.url} target="_blank" rel="noopener noreferrer nofollow" class="ml-1 inline-flex items-center gap-1 font-medium text-accent-text hover:underline">Original's documentation<ExternalLink size={11} aria-hidden="true" /></a>
+              {/if}
+            </p>
+            {#if en.added.length}
+              <p class="mt-3 text-xs text-faint">Operations this fork adds over the original <span class="font-normal">{en.added.length} of {en.added.length + en.hubCount - en.removed.length} total</span></p>
+              <ul class="mt-1.5 flex flex-wrap gap-1.5">
+                {#each en.added as a (a.name)}
+                  <li class="rounded-md bg-accent-soft px-2 py-0.5 text-xs text-accent-text" title="In this fork, not in the Content Hub original">{a.title || a.name}</li>
+                {/each}
+              </ul>
+            {/if}
+            {#if en.removed.length}
+              <p class="mt-3 text-xs text-faint">Operations the original has but this fork drops</p>
+              <ul class="mt-1.5 flex flex-wrap gap-1.5">
+                {#each en.removed as r (r)}
+                  <li class="rounded-md bg-warn-soft px-2 py-0.5 font-mono text-xs text-warn">{r}</li>
+                {/each}
+              </ul>
+            {/if}
+            {#if !en.added.length && !en.removed.length}
+              <p class="mt-3 text-sm text-muted">The operation list matches the Content Hub original exactly, so anything this fork changes lives below the operation level.</p>
+            {/if}
+            {#if en.changes}
+              <p class="mt-3 border-t border-line pt-3 text-sm text-muted"><span class="font-medium text-fg">What the author changed:</span> {en.changes}</p>
+            {/if}
+            <p class="mt-3 text-xs leading-relaxed text-faint">
+              {#if en.sameName}
+                Keeps the original's machine name, so importing this <em>upgrades</em> the Content Hub connector in place and existing configurations survive.
+              {:else}
+                Installs under its own machine name alongside the original: playbook steps that call the Content Hub original keep using it until you switch them to this fork.
+              {/if}
+              Differences are re-measured against the current Content Hub index at every site build, so this stays truthful as the original moves.
+            </p>
+          </div>
+        {/if}
         {#if item.screenshots?.length}
           <div class="grid gap-3 {item.screenshots.length > 1 ? 'sm:grid-cols-2' : ''}">
             {#each item.screenshots as shot (shot.path)}
@@ -424,6 +472,7 @@
                     <summary class="flex cursor-pointer list-none items-baseline gap-3 px-5 py-2.5 text-sm hover:bg-surface-2 [&::-webkit-details-marker]:hidden">
                       <ChevronRight size={14} class="shrink-0 translate-y-0.5 text-faint transition group-open:rotate-90" aria-hidden="true" />
                       <span class="min-w-0 flex-1 truncate">{op.title ?? op.operation}</span>
+                      {#if forkAdded.has(op.operation)}<span class="shrink-0 rounded-md bg-accent-soft px-1.5 py-0.5 text-[11px] font-medium text-accent-text">fork addition</span>{/if}
                       {#if op.parameters?.length}<span class="shrink-0 text-xs text-faint">{op.parameters.length} param{op.parameters.length === 1 ? '' : 's'}</span>{/if}
                       <code class="hidden shrink-0 font-mono text-xs text-faint sm:inline">{op.operation}</code>
                     </summary>

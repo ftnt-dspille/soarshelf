@@ -6,6 +6,7 @@
   import Code from '@lucide/svelte/icons/code';
   import BadgeCheck from '@lucide/svelte/icons/badge-check';
   import Workflow from '@lucide/svelte/icons/workflow';
+  import GitFork from '@lucide/svelte/icons/git-fork';
 
   let {
     item,
@@ -95,7 +96,15 @@
   {/if}
 
   <div class="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-1 pt-5 text-xs text-faint">
-    <span>
+    <span class="flex min-w-0 items-center gap-2">
+      {#if item.enhanced}
+        <span
+          class="inline-flex shrink-0 items-center gap-1 font-medium text-muted"
+          title="Enhanced fork of the Content Hub connector {item.enhanced.label} v{item.enhanced.hubVersion}: adds {item.enhanced.addedCount} {item.enhanced.addedCount === 1 ? 'operation' : 'operations'} over the original"
+        >
+          <GitFork size={12} class="text-accent-text" aria-hidden="true" />Fork of {item.enhanced.label}
+        </span>
+      {/if}
       {#if item.type === 'connector' || item.type === 'widget'}v{item.version}{:else}{plural(item.playbookCount, 'playbook')} · {plural(item.stepCount, 'step')}{/if}
     </span>
     <span title={change.kind === 'updated' ? `v${change.version}${change.notes ? `: ${change.notes}` : ''}` : undefined}>@{item.author.github} · {change.kind === 'updated' ? 'updated ' : ''}{formatDate(change.date)}</span>

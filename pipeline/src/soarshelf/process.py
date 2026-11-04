@@ -7,6 +7,7 @@ of the sanitized download.
 """
 from __future__ import annotations
 
+import difflib
 import hashlib
 import io
 import json
@@ -61,7 +62,43 @@ def _meta_checks(meta: dict[str, Any], kind: str, packaged: bool = False) -> lis
     if kind in CODE_KINDS and not packaged and not str(meta.get("source") or "").startswith("https://"):
         out.append(CheckResult("meta.source", Severity.BLOCK, f"A {kind} manifest on its own needs a source URL",
                                f"Upload the {kind}'s .tgz instead, or set 'source' to its public repository."))
+    out += _enhances_checks(meta, kind)
     return out + brand.listing(meta)
+
+
+def _enhances_checks(meta: dict[str, Any], kind: str) -> list[CheckResult]:
+    """``enhances:`` declares an item as a fork of a Content Hub connector.
+
+    Shape only; whether the hub connector exists is checked against the
+    snapshot in ``_connector``, where the package and the hub are both at
+    hand. ``version`` is the fork point (the hub version it was branched
+    from), recorded for honesty -- the diff itself always compares against
+    the hub snapshot's current, so it keeps up as the hub moves.
+    """
+    enh = meta.get("enhances")
+    if enh is None:
+        return []
+    if not isinstance(enh, dict) or not str(enh.get("connector") or "").strip():
+        return [CheckResult("meta.enhances", Severity.BLOCK,
+                            "'enhances' needs the Content Hub connector name",
+                            "meta.yaml: enhances: {connector: <hub connector name>, "
+                            "version: <hub version it forked from>, changes: <what changed>}")]
+    out = []
+    if kind != "connector":
+        out.append(CheckResult("meta.enhances", Severity.WARN,
+                                "'enhances' only applies to connector items",
+                                f"It has no effect on a {kind}; remove the block."))
+    if kind == "connector":
+        if len(str(enh.get("changes") or "")) > 500:
+            out.append(CheckResult("meta.enhances.changes", Severity.WARN,
+                                   "'enhances.changes' is longer than 500 characters",
+                                   "The short story belongs here; the long one in the description."))
+    version = str(enh.get("version") or "").strip()
+    if version and not re.fullmatch(r"\d+(\.\d+){0,4}", version):
+        out.append(CheckResult("meta.enhances.version", Severity.WARN,
+                               "'enhances.version' should look like 1.2.3",
+                               f"Got '{version}'. The Content Hub lists {version!r}-style versions."))
+    return out
 
 
 def _uuids_of(doc_collections: list[dict[str, Any]]) -> dict[str, str]:
@@ -265,16 +302,106 @@ def _pack(up: Upload, hub: HubIndex, registry: dict[str, Any] | None = None,
     return list(collections.values()), uuids, results, buf.getvalue(), None
 
 
-def _connector(up: Upload, hub: HubIndex) -> tuple[list[CheckResult], bytes, list[dict[str, Any]]]:
+def _enhanced(up: Upload, hub: HubIndex, meta: dict[str, Any],
+              results: list[CheckResult], name: str) -> dict[str, Any] | None:
+    """The ``enhances`` block turned inside out: the hub original's facts and
+    the machine-measured difference between it and this package.
+
+    The operation diff is against the hub snapshot's CURRENT version, so it
+    stays truthful as the hub original moves: when Fortinet absorbs a fork's
+    additions upstream, the diff shrinks to none and the listing says so --
+    the "forgotten fork" keeps honest. ``baseVersion`` records which hub
+    version the fork was actually branched from, when the author knows.
+    """
+    enh = meta.get("enhances")
+    if not isinstance(enh, dict) or not str(enh.get("connector") or "").strip():
+        return None
+    # Hub machine names are lowercase; be forgiving of a hand-typed title case.
+    base = str(enh.get("connector")).strip().lower()
+    entry = hub.connectors.get(base)
+    if entry is None:
+        near = difflib.get_close_matches(base, hub.connectors, n=1)
+        hint = f" Did you mean '{near[0]}'?" if near else ""
+        results.append(CheckResult("connector.enhances-unknown", Severity.BLOCK,
+                                   "Not a Content Hub connector",
+                                   f"'{base}' is not in the Content Hub snapshot.{hint}"))
+        return None
+
+    fork_ops: dict[str, str] = {str(o.get("operation")): _text(o.get("title"), 120)
+                                for o in (up.data.get("operations") or [])[:300]
+                                if isinstance(o, dict) and o.get("operation")}
+    hub_ops = {str(o) for o in (entry.get("operations") or [])}
+    added = sorted(set(fork_ops) - hub_ops)
+    dropped = sorted(hub_ops - set(fork_ops))
+    hub_ver = str(entry.get("version") or "")
+    changes = _text(enh.get("changes"), 500) or None
+    enhanced = {
+        "connector": base,
+        "label": str(entry.get("label") or base),
+        "hubVersion": hub_ver,
+        "baseVersion": str(enh.get("version") or "").strip() or None,
+        # Same machine name: installs over the hub original, configurations survive.
+        "sameName": base == name,
+        "added": [{"name": a, "title": fork_ops[a]} for a in added],
+        "removed": dropped,
+        "hubCount": len(hub_ops),
+        "url": str(entry.get("help") or "") or None,
+        "changes": changes,
+    }
+    if added or dropped:
+        results.append(CheckResult(
+            "connector.enhanced", Severity.INFO,
+            f"Enhanced fork of the Content Hub connector {enhanced['label']}",
+            f"+{len(added)} / -{len(dropped)} operations vs the hub's {hub_ver}."
+            + (f" Adds {', '.join(added[:5])}{'...' if len(added) > 5 else ''}." if added else "")
+            + (f" Drops {', '.join(dropped[:5])}{'...' if len(dropped) > 5 else ''}." if dropped else "")))
+    else:
+        results.append(CheckResult(
+            "connector.enhanced.no-delta", Severity.WARN,
+            "No operation-level difference against the hub original",
+            f"The operation list matches the Content Hub's {enhanced['label']} {hub_ver} exactly. If the fork only "
+            "fixes code or parameters, say what in 'enhances.changes'; if nothing changed, the hub original "
+            "is the right download for everyone."))
+    if not changes and not added and not dropped:
+        results.append(CheckResult(
+            "connector.enhanced.no-notes", Severity.WARN,
+            "An enhanced fork should say what changed",
+            "Fill 'enhances.changes' or the description, or the listing cannot tell users "
+            "why they would pick this over the hub original."))
+    if enhanced["sameName"] and up.data.get("version") and hub_ver:
+        theirs, ours = _vkey(str(hub_ver)), _vkey(str(up.data.get("version")))
+        if theirs is not None and ours is not None and ours <= theirs:
+            results.append(CheckResult(
+                "connector.enhanced.version", Severity.WARN,
+                "The fork's version is not above the hub original's",
+                f"This installs over '{base}' {hub_ver} with same-named version "
+                f"'{up.data.get('version')}', so an in-place upgrade looks like a downgrade. "
+                f"Version it above the hub's {hub_ver}."))
+    return enhanced
+
+
+def _vkey(version: str) -> tuple[int, ...] | None:
+    """Numbers only, for ordering; None when the string is not dotted numbers."""
+    if re.fullmatch(r"\d+(\.\d+){1,4}", version.strip()):
+        return tuple(int(p) for p in version.strip().split("."))
+    return None
+
+
+def _connector(up: Upload, hub: HubIndex, meta: dict[str, Any],
+               ) -> tuple[list[CheckResult], bytes, list[dict[str, Any]], dict[str, Any] | None]:
     m = up.data
     results = secrets.scan(m, "info.json")
     name = str(m.get("name") or "")
     if not name:
         results.append(CheckResult("connector.name", Severity.BLOCK, "Manifest has no 'name'"))
-    if name in hub.connectors:
+    enhanced = _enhanced(up, hub, meta, results, name)
+    if name in hub.connectors and enhanced is None:
         results.append(CheckResult("connector.on-hub", Severity.WARN,
                                    "A connector with this name is on the Content Hub",
-                                   "Rename it if it is a fork, so it can't be confused with the hub version."))
+                                   "If this is your enhanced fork of that connector, declare it with an "
+                                   "'enhances:' block in meta.yaml (the hub connector's name, the hub version "
+                                   "you forked from, what changed) so the listing links the original and "
+                                   "shows the difference; if it is unrelated to that connector, rename it."))
     ops = [_operation(o) for o in (m.get("operations") or [])[:300] if isinstance(o, dict)]
     # "type" marks the trimmed manifest as a connector when the build re-reads it.
     keep = {"type": "connector", **{k: m.get(k) for k in ("name", "label", "version", "description", "category", "publisher")}}
@@ -282,7 +409,7 @@ def _connector(up: Upload, hub: HubIndex) -> tuple[list[CheckResult], bytes, lis
     keep["configuration"] = {"fields": _params((m.get("configuration") or {}).get("fields") if isinstance(m.get("configuration"), dict) else None)}
     results.append(CheckResult("connector.review", Severity.INFO, "Connector code is reviewed by a maintainer",
                                _REVIEW_NOTE[bool(up.package_top)]))
-    return results, json.dumps(keep, indent=2, ensure_ascii=False).encode() + b"\n", ops
+    return results, json.dumps(keep, indent=2, ensure_ascii=False).encode() + b"\n", ops, enhanced
 
 
 def _bundled_playbooks(up: Upload) -> tuple[list[ParsedCollection], list[CheckResult]]:
@@ -490,6 +617,7 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex,
     macros = None
     connector_ops: list[dict[str, Any]] = []
     widget: dict[str, Any] | None = None
+    enhanced: dict[str, Any] | None = None
 
     if kind == "playbook":
         collections, uuids, res, body, macros = _playbook(up)
@@ -497,7 +625,7 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex,
         declared = [c for c in (meta.get("connectors") or []) if isinstance(c, str)]
         collections, uuids, res, body, macros = _pack(up, hub, registry, declared)
     elif kind == "connector":
-        res, body, connector_ops = _connector(up, hub)
+        res, body, connector_ops, enhanced = _connector(up, hub, meta)
         if packaged:
             collections, extra = _bundled_playbooks(up)
             res += extra
@@ -576,6 +704,9 @@ def process(meta: dict[str, Any], payload: Path, trust: str, hub: HubIndex,
         "playbookCount": len(playbooks),
         "stepCount": sum(len(pb.steps) for pb in playbooks),
         "hubStatus": deps_mod.hub_status(rows),
+        # Enhanced forks of Content Hub connectors: the hub original's facts and
+        # the machine-measured delta (None for everything else).
+        "enhanced": enhanced,
         "hasCode": bool(code),
         "author": {"github": meta.get("author", ""), "trust": trust},
         "version": str(meta.get("version") or (up.data.get("version") if kind != "playbook" else "") or "1.0.0"),

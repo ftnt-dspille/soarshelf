@@ -11,6 +11,9 @@ const good: SubmitDraft = {
   changes: '',
   minVersion: '',
   source: '',
+  enhancesConnector: '',
+  enhancesVersion: '',
+  enhancesChanges: '',
   rightsConfirmed: true
 };
 const f = (name: string, size: number) => new File([new Uint8Array(size)], name);
@@ -35,6 +38,26 @@ describe('validateDraft', () => {
 
   it('caps the description at 5000 characters', () => {
     expect(validateDraft({ ...good, description: 'x'.repeat(5001) }, f('a.json', 1)).description).toBeTruthy();
+  });
+
+  it('accepts a fully declared fork of a Content Hub connector', () => {
+    expect(
+      validateDraft({ ...good, enhancesConnector: 'Aws', enhancesVersion: '3.2.0', enhancesChanges: 'Adds a generic action.' }, f('conn.tgz', 100))
+    ).toEqual({});
+  });
+
+  it('rejects fork fields without the original machine name', () => {
+    const e = validateDraft({ ...good, enhancesChanges: 'Adds a generic action.' }, f('conn.tgz', 100));
+    expect(e.enhancesConnector).toBeTruthy();
+    expect(Object.keys(e)).toEqual(['enhancesConnector']);
+  });
+
+  it('rejects a fork machine name that is not a machine name', () => {
+    expect(validateDraft({ ...good, enhancesConnector: 'aws ec2' }, f('conn.tgz', 100)).enhancesConnector).toBeTruthy();
+  });
+
+  it('caps the fork change note at 500 characters', () => {
+    expect(validateDraft({ ...good, enhancesConnector: 'aws', enhancesChanges: 'x'.repeat(501) }, f('conn.tgz', 100)).enhancesChanges).toBeTruthy();
   });
 });
 

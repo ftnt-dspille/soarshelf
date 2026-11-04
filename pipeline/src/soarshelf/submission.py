@@ -94,6 +94,17 @@ def to_meta(form: dict[str, Any], author: str) -> dict[str, Any]:
     source = text("source", 300)
     if source:
         meta["source"] = source
+    # 'enhances' declares the upload as a fork of a Content Hub connector:
+    # the listing links the hub original and renders the operation-level diff.
+    enh = form.get("enhances")
+    if isinstance(enh, dict):
+        base = str(enh.get("connector") or "").strip().lower()[:80]
+        if base:
+            meta["enhances"] = {"connector": base}
+            for form_key, meta_key, limit in (("version", "version", 20), ("changes", "changes", 500)):
+                val = str(enh.get(form_key) or "").strip()[:limit]
+                if val:
+                    meta["enhances"][meta_key] = val
     return meta
 
 

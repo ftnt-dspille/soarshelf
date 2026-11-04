@@ -60,6 +60,10 @@ def _add(args: argparse.Namespace) -> int:
             "description": args.description.read_text() if args.description else ""}
     if args.source:
         form["source"] = args.source
+    if args.enhances:
+        form["enhances"] = {"connector": args.enhances,
+                            "version": args.enhances_version or "",
+                            "changes": args.enhances_changes or ""}
     form = {k: v for k, v in form.items() if v}
     res, written = add(args.src, form, args.content, dry_run=args.dry_run)
     for c in res.checks:
@@ -240,6 +244,10 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--source", help="source repository URL (set automatically for a GitHub URL)")
     a.add_argument("--version")
     a.add_argument("--min-version")
+    a.add_argument("--enhances", help="Content Hub connector name this fork enhances: makes the listing an "
+                                     "enhanced fork that links the original and shows what changed")
+    a.add_argument("--enhances-version", help="the Content Hub version the fork was branched from")
+    a.add_argument("--enhances-changes", help="one or two lines on what the fork changes")
     a.add_argument("--content", type=Path, default=Path("content"))
     a.add_argument("--dry-run", action="store_true", help="run every check, write nothing")
     a.set_defaults(fn=_add)

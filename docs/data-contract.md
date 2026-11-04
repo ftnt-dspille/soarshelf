@@ -38,6 +38,25 @@ type ItemType = 'playbook' | 'solution-pack' | 'connector' | 'widget';
 type HubStatus = 'complete' | 'needs-custom' | 'version-mismatch' | 'none';   // about the connectors an item USES; 'none' = uses none (no badge)
 type Trust = 'new' | 'contributor' | 'trusted' | 'maintainer';
 
+// Fork of a Content Hub connector, declared in meta.yaml `enhances` (connectors only).
+// Card shape carries just enough to badge it; `enhanced` in ItemDetail is the full story.
+interface ForkBadge {
+  connector: string;              // hub original's machine name, e.g. "aws"
+  label: string;                  // hub original's display name
+  hubVersion: string;             // hub original's version in the build's snapshot
+  addedCount: number;             // operations the fork adds over the original
+}
+
+interface EnhancedFork extends ForkBadge {   // ItemDetail only
+  baseVersion: string | null;      // hub version it was branched from, when the author recorded it
+  sameName: boolean;               // kept the original's machine name: installs as an in-place upgrade
+  added: { name: string; title: string }[];   // operations the original doesn't have
+  removed: string[];               // operations the original has but this fork drops
+  hubCount: number;                // operations in the hub original
+  url: string | null;              // the original's documentation (docs.fortinet.com), from the hub snapshot
+  changes: string | null;          // the author's note on what the fork changes
+}
+
 interface ItemSummary {
   slug: string;
   type: ItemType;
@@ -55,8 +74,10 @@ interface ItemSummary {
   version: string;
   minVersion: string | null;       // minimum SOAR platform version
   published: string;               // ISO date
-  updated: string;                 // ISO date
+  updated: string;                // ISO date
   tested: Tested | null;           // best live test of THIS version; null if none
+  /** Connectors only, when the item is an enhanced fork of a Content Hub connector. */
+  enhanced?: ForkBadge | null;
 }
 
 // From meta.yaml `tested`, written by `soarshelf test-live --record`.
@@ -94,9 +115,14 @@ interface ItemDetail extends ItemSummary {
   configuration: ConnectorParam[] | null;  // connectors only: configuration fields
   widget: WidgetInfo | null;       // widgets only: name, title, subTitle, version,
                                    // description, publisher, pages[], compatibility[]
+  enhanced: EnhancedFork | null;   // connectors only: hub original it forks + the operation-level diff
   changelog: { version: string; date: string; notes: string }[];  // newest first; from
                                    // meta.yaml `changelog`, empty until the first update
 }
+// The fork diff is re-measured against the hub snapshot at every build, not stored from
+// the fork point: when the vendor later absorbs a fork's additions upstream, `added`
+// drains on its own and the item page says so. `enhances.version` in meta.yaml records
+// which hub version the author branched from; it never pins the diff.
 // Connectors and widgets are code. Uploaded as a .tgz, their source is committed
 // under package/ and the download is a .tgz rebuilt from it (screenshots[] holds
 // re-encoded images from the package). Listed by manifest only, download is null

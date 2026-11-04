@@ -241,8 +241,8 @@ def test_trimmed_manifest_keeps_parameters_when_read_again(write_json):
     from soarshelf.intake import Upload
     conn = {**CONNECTOR, "operations": [{"operation": "get", "title": "Get", "output_schema": {"a": 1},
                                          "parameters": [{"name": "q", "title": "Q", "type": "text", "visible": True}]}]}
-    _, body, ops = _connector(Upload("connector", "info.json", b"", conn), HUB)
-    _, _, again = _connector(Upload("connector", "info.json", b"", json.loads(body)), HUB)
+    _, body, ops, _enh = _connector(Upload("connector", "info.json", b"", conn), HUB, {})
+    _, _, again, _enh2 = _connector(Upload("connector", "info.json", b"", json.loads(body)), HUB, {})
     assert again == ops and ops[0]["parameters"][0]["name"] == "q" and ops[0]["output"] == ["a"]
 
 

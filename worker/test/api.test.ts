@@ -210,6 +210,21 @@ describe('pure helpers', () => {
     expect(validateMeta({ ...META, changes: 'x'.repeat(501) }).ok).toBe(false);
   });
 
+  it('normalises an enhanced-fork declaration', () => {
+    const fork = validateMeta({
+      ...META,
+      enhances: { connector: 'Aws', version: ' 3.2.0 ', changes: ' Adds a generic action. ' }
+    });
+    expect(fork.ok && fork.value.enhances).toEqual({ connector: 'aws', version: '3.2.0', changes: 'Adds a generic action.' });
+    const bare = validateMeta({ ...META, enhances: { connector: 'splunk', version: '', changes: '' } });
+    expect(bare.ok && bare.value.enhances).toEqual({ connector: 'splunk' });
+    expect(validateMeta({ ...META, enhances: 'aws' }).ok).toBe(false);
+    expect(validateMeta({ ...META, enhances: ['aws'] }).ok).toBe(false);
+    expect(validateMeta({ ...META, enhances: { connector: 'aws ec2' } }).ok).toBe(false);
+    expect(validateMeta({ ...META, enhances: { connector: 'aws', changes: 'x'.repeat(501) } }).ok).toBe(false);
+    expect(validateMeta({ ...META, enhances: null }).ok && validateMeta({ ...META }).ok).toBe(true);
+  });
+
   it('checks file type by extension and content', () => {
     expect(checkFile('a.json', new TextEncoder().encode('{}').buffer as ArrayBuffer)).toEqual({ ok: true, value: 'json' });
     expect(checkFile('a.zip', new Uint8Array([0x50, 0x4b, 3, 4, 0]).buffer).ok).toBe(true);

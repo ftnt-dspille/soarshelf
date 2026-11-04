@@ -23,6 +23,7 @@
     ['Private network details', 'RFC 1918 and other internal IP addresses, internal hostnames, and real email addresses. Documentation ranges and example.com are fine.', 'Review'],
     ['Ownership references', 'Users, teams, owners and connector configuration IDs are stripped automatically. You don’t need to clean them yourself.', 'Auto-fixed'],
     ['Official content', 'Exports that match published solution pack content are rejected: only share what you wrote.', 'Block'],
+    ['Forked connectors', 'An enhanced copy of a Content Hub connector is welcome when it\u2019s declared: the listing then links the hub original and shows the operation-level difference, so people can tell at a glance whether the original is enough for them.', 'Info'],
     ['Trademarks', 'Titles and descriptions can name products to describe compatibility, but can’t claim to be official or endorsed.', 'Review'],
     ['Code', 'Code-snippet steps, connectors and widgets are always reviewed by a person. Connector and widget packages are unpacked so every file is read, and the download is rebuilt from that reviewed source.', 'Review'],
     ['Content Hub dependencies', 'Each connector and operation is checked against the current Content Hub index so users see what they need before importing.', 'Info']
@@ -121,9 +122,18 @@ version: 1.0.0
 min_version: 7.4.0
 description: |
   Longer markdown description shown on the item page.</code></pre>
+      <p>
+        Uploading an <strong>enhanced fork of a Content Hub connector</strong> instead of a from-scratch one? Declare the original, either in the
+        upload form's <em>Fork of a Content Hub connector</em> fields or with an <code>enhances:</code> block in meta.yaml:
+      </p>
+      <pre><code>enhances:
+  connector: aws            # the original's machine name, from its Content Hub listing
+  version: 3.2.0            # the Content Hub version you branched from
+  changes: Adds a generic boto3 passthrough operation.</code></pre>
+      <p>The pipeline then links the original's documentation, and re-measures the difference (added and dropped operations) against the current Content Hub index at every site build, so the listing never claims a fork adds something the original has since absorbed.</p>
       <p>Please don't upload:</p>
       <ul>
-        <li>Content you didn't write, including official solution packs or anything copied from a vendor or customer.</li>
+        <li>Content you didn't write, including official solution packs or anything copied from a vendor or customer. Your own enhanced fork of a Content Hub connector is the one exception, as long as you declare it as above.</li>
         <li>Customer names, internal hostnames, real IPs or email addresses. Use <code>example.com</code> and documentation IP ranges.</li>
         <li>Credentials of any kind, even expired ones.</li>
         <li>Logos or vendor branding. Product names are fine when they describe what the item works with.</li>

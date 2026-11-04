@@ -64,6 +64,11 @@ interface SubmissionMeta {
   changes: string;                 // ≤ 500 chars: changelog note when this updates your item
   minVersion: string | null;
   source: string | null;           // https URL, required for connectors
+  enhances: {                     // null when not an enhanced fork of a hub connector
+    connector: string;             // the original's machine name, e.g. "aws" (≤ 80)
+    version?: string;             // Content Hub version it was branched from (≤ 20)
+    changes?: string;             // what the fork changes (≤ 500)
+  } | null;
   rightsConfirmed: true;           // "I wrote this or have the right to share it under MIT"
 }
 ```
