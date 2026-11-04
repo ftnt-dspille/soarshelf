@@ -1,0 +1,21 @@
+title: Fetch incidents from an Elasticsearch index on a schedule
+summary: A fork of the FortiSOAR Elasticsearch connector that adds a fetch incidents operation querying
+  an index with a time filter.
+description: ''
+use_cases:
+- ingestion
+tags:
+- elasticsearch
+- siem
+- ingestion
+author: ftnt-dspille
+version: 4.0.1
+min_version: null
+license: MIT
+published: '2026-11-04'
+enhances:
+  connector: elasticsearch
+  version: 4.0.0
+  changes: Adds a fetch incidents operation that queries an index with a time filter, for pulling alerts
+    into FortiSOAR on a schedule.
+author_id: 99558074

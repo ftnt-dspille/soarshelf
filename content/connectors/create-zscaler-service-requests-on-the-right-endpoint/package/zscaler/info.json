@@ -1,0 +1,847 @@
+{
+    "name": "zscaler",
+    "version": "2.2.1",
+    "label": "Zscaler",
+    "description": "Zscaler is revolutionizing cloud security by empowering organizations to embrace cloud efficiency, intelligence, and agility—securely. This connector integrate with Zscaler and Perform containment, investigation and remediation action.",
+    "publisher": "",
+    "icon_small_name": "small-zscaler.png",
+    "icon_large_name": "large-zscaler.png",
+    "id": 214,
+    "configuration": {
+        "fields": [
+            {
+                "title": "Server URL",
+                "name": "server_url",
+                "type": "text",
+                "description": "URL of the Zscaler server to which you will connect and perform the automated operations.",
+                "tooltip": "URL of the Zscaler server to which you will connect and perform the automated operations.",
+                "required": true,
+                "editable": true,
+                "visible": true
+            },
+            {
+                "title": "Authentication Type",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "select",
+                "name": "authentication_type",
+                "value": "Basic Authentication",
+                "description": "Select an authentication method. You can choose from the following options: Basic Authentication or OAuth Authentication.",
+                "options": [
+                    "Basic Authentication",
+                    "OAuth Authentication"
+                ],
+                "onchange": {
+                    "Basic Authentication": [
+                        {
+                            "title": "API Key",
+                            "name": "api_key",
+                            "type": "password",
+                            "description": "API key used to access the Zscaler endpoint to which you will connect and perform the automated operations.",
+                            "tooltip": "API key used to access the Zscaler endpoint to which you will connect and perform the automated operations.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "User Name",
+                            "name": "username",
+                            "type": "text",
+                            "description": "Username of the Zscaler server to which you will connect and perform automated operations.",
+                            "tooltip": "Username of the Zscaler server to which you will connect and perform automated operations.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Password",
+                            "name": "password",
+                            "type": "password",
+                            "description": "Password to access the Zscaler server to which you will connect and perform the automated operations.",
+                            "tooltip": "Password to access the Zscaler server to which you will connect and perform the automated operations.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        }
+                    ],
+                    "OAuth Authentication": [
+                        {
+                            "title": "Client ID",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "text",
+                            "name": "client_id",
+                            "description": "Auto-generated unique ID of the client application requesting the access token.",
+                            "tooltip": "Auto-generated unique ID of the client application requesting the access token."
+                        },
+                        {
+                            "title": "Client Secret",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "password",
+                            "name": "client_secret",
+                            "description": "Shared secret string that the instance and the OAuth application use to authorize communications with one another.",
+                            "tooltip": "Shared secret string that the instance and the OAuth application use to authorize communications with one another."
+                        },
+                        {
+                            "title": "OAuth URL",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "text",
+                            "name": "oauth_url",
+                            "placeholder": "zscalerbeta.net",
+                            "tooltip": "Zscaler Cloud Name represents the cloud on which your organization is provisioned. e.g. zscalerbeta.net",
+                            "description": "OAuth URL or Zscaler Cloud Name to access the Zscaler server."
+                        }
+                    ]
+                }
+            },
+            {
+                "title": "Verify SSL",
+                "name": "verify_ssl",
+                "type": "checkbox",
+                "description": "Specifies whether the SSL certificate for the server is to be verified. By default, this option is set as True.",
+                "tooltip": "Specifies whether the SSL certificate for the server is to be verified. By default, this option is set as True.",
+                "required": false,
+                "editable": true,
+                "visible": true,
+                "value": true
+            }
+        ]
+    },
+    "operations": [
+        {
+            "title": "Get Whitelist URLs",
+            "operation": "get_whitelist_urls",
+            "description": "Retrieves the list of all the whitelisted URLs from Zscaler.",
+            "category": "investigation",
+            "annotation": "whitelist_url",
+            "output_schema": {
+                "whitelistUrls": []
+            },
+            "parameters": [],
+            "enabled": true
+        },
+        {
+            "title": "Get Blacklist URLs",
+            "operation": "get_blacklist_urls",
+            "description": "Retrieves the list of all the blacklisted URLs from Zscaler.",
+            "category": "investigation",
+            "annotation": "blacklist_url",
+            "output_schema": {
+                "blacklistUrls": []
+            },
+            "parameters": [],
+            "enabled": true
+        },
+        {
+            "title": "Update Whitelist URLs",
+            "operation": "update_whitelist_urls",
+            "description": "Adds or removes URLs from the \"Whitelisted URL List\" in Zscaler based on the URL and action you have specified.",
+            "category": "miscellaneous",
+            "annotation": "update_whitelist_urls",
+            "output_schema": {
+                "whitelistUrls": []
+            },
+            "parameters": [
+                {
+                    "title": "URLs",
+                    "name": "urls",
+                    "type": "text",
+                    "description": "CSV list of URLs that you want to add or remove from the 'Whitelisted URL List' in Zscaler.",
+                    "tooltip": "CSV list of URLs that you want to add or remove from the 'Whitelisted URL List' in Zscaler.",
+                    "placeholder": "E.g. abc.com,xyz.com",
+                    "required": true,
+                    "editable": true,
+                    "visible": true
+                },
+                {
+                    "title": "Action",
+                    "name": "action",
+                    "type": "select",
+                    "tooltip": "Action that you want to perform on the specified list of URLs. Choose the Add in List option to add the specified URLs to the 'Whitelisted URL List' in Zscaler. Choose the Remove from List option to remove the specified URLs from the 'Whitelisted URL List' in Zscaler.",
+                    "description": "Action that you want to perform on the specified list of URLs. Choose the Add in List option to add the specified URLs to the 'Whitelisted URL List' in Zscaler. Choose the Remove from List option to remove the specified URLs from the 'Whitelisted URL List' in Zscaler.",
+                    "required": true,
+                    "editable": true,
+                    "visible": true,
+                    "options": [
+                        "Add in List",
+                        "Remove from List"
+                    ]
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "title": "Block URLs",
+            "operation": "block_url",
+            "description": "Adds URLs to the \"Blacklisted URL List\" in Zscaler based on the URLs you have specified.",
+            "category": "containment",
+            "annotation": "block_url",
+            "output_schema": {
+                "status": "",
+                "result": ""
+            },
+            "parameters": [
+                {
+                    "title": "URLs",
+                    "name": "urls",
+                    "type": "text",
+                    "tooltip": "CSV list of URLs that you want to add to the 'Blacklisted URL List' in Zscaler.",
+                    "description": "CSV list of URLs that you want to add to the 'Blacklisted URL List' in Zscaler.",
+                    "placeholder": "E.g. abc.com,xyz.com",
+                    "required": true,
+                    "editable": true,
+                    "visible": true
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "title": "Unblock URLs",
+            "operation": "unblock_url",
+            "description": "Removes URLs from the \"Blacklisted URL List\" in Zscaler based on the URLs you have specified.",
+            "category": "remediation",
+            "annotation": "unblock_url",
+            "output_schema": {
+                "status": "",
+                "result": ""
+            },
+            "parameters": [
+                {
+                    "title": "URLs",
+                    "name": "urls",
+                    "type": "text",
+                    "description": "CSV list of URLs that you want to remove from the 'Blacklisted URL List' in Zscaler.",
+                    "tooltip": "CSV list of URLs that you want to remove from the 'Blacklisted URL List' in Zscaler.",
+                    "placeholder": "E.g. abc.com,xyz.com",
+                    "required": true,
+                    "editable": true,
+                    "visible": true
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "title": "Get Cloud Sandbox Report Quota",
+            "operation": "get_sandbox_report_quota",
+            "description": "Retrieves the cloud sandbox report quota from Zscaler. Note: The resource access quota for retrieving Sandbox Detail Reports is restricted to 1000 requests per day, with a rate limit of 2/sec and 1000/hour from Zscaler.",
+            "category": "investigation",
+            "annotation": "get_sandbox_report_quota",
+            "output_schema": {
+                "startTime": "",
+                "used": "",
+                "allowed": "",
+                "scale": "",
+                "unused": ""
+            },
+            "parameters": [],
+            "enabled": true
+        },
+        {
+            "title": "Get MD5 Cloud Sandbox Report",
+            "operation": "get_sandbox_report_md5_hash",
+            "description": "Retrieves a report (full or summary) of the file that was analyzed by the Sandbox in Zscaler based on the MD5 filehash value you have specified.",
+            "category": "investigation",
+            "annotation": "get_sandbox_report_md5_hash",
+            "output_schema": {
+                "DBotScore": {
+                    "Vendor": "",
+                    "Indicator": "",
+                    "Score": "",
+                    "Type": ""
+                },
+                "File": {
+                    "Zscaler": {
+                        "FileType": "",
+                        "DetectedMalware": ""
+                    },
+                    "Malicious": {
+                        "Vendor": "",
+                        "Description": ""
+                    },
+                    "MD5": ""
+                }
+            },
+            "parameters": [
+                {
+                    "title": "MD5 Hash",
+                    "name": "md5Hash",
+                    "type": "text",
+                    "description": "Specify the MD5 filehash value of the file that was analyzed by the Sandbox in Zscaler for which you want to retrieve the report from Zscaler.",
+                    "tooltip": "MD5 hash of the file.",
+                    "required": true,
+                    "editable": true,
+                    "visible": true
+                },
+                {
+                    "title": "Report Type",
+                    "name": "details",
+                    "type": "select",
+                    "options": [
+                        "Full",
+                        "Summary"
+                    ],
+                    "description": "(Optional) Select the type of report you want to retrieve from Zscaler. You can choose between full (default) or summary.",
+                    "tooltip": "The type of report. Possible values are 'full' or 'summary'",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "value": "full"
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "title": "Add URL Category",
+            "operation": "add_new_category",
+            "description": "Adds a new custom URL category in Zscaler based on the URLs and additional fields you have specified.",
+            "category": "investigation",
+            "annotation": "add_new_category",
+            "output_schema": {
+                "id": "",
+                "configuredName": "",
+                "keywords": [],
+                "keywordsRetainingParentCategory": [],
+                "urls": [],
+                "dbCategorizedUrls": [],
+                "ipRanges": [],
+                "ipRangesRetainingParentCategory": [],
+                "customCategory": "",
+                "scopes": [
+                    {
+                        "scopeGroupMemberEntities": [
+                            {
+                                "id": "",
+                                "name": "",
+                                "extensions": {
+                                    "additionalProp1": "",
+                                    "additionalProp2": "",
+                                    "additionalProp3": ""
+                                }
+                            }
+                        ],
+                        "Type": "",
+                        "ScopeEntities": [
+                            {
+                                "id": "",
+                                "name": "",
+                                "extensions": {
+                                    "additionalProp1": "",
+                                    "additionalProp2": "",
+                                    "additionalProp3": ""
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "editable": "",
+                "description": "",
+                "type": "",
+                "urlKeywordCounts": {
+                    "totalUrlCount": "",
+                    "retainParentUrlCount": "",
+                    "totalKeywordCount": "",
+                    "retainParentKeywordCount": ""
+                },
+                "customUrlsCount": "",
+                "urlsRetainingParentCategoryCount": "",
+                "customIpRangesCount": "",
+                "ipRangesRetainingParentCategoryCount": ""
+            },
+            "parameters": [
+                {
+                    "title": "URLs",
+                    "name": "urls",
+                    "type": "text",
+                    "description": "Specify the set of URLs to be added in Zscaler.",
+                    "tooltip": "The given set of URLs to be added. e.g. abc.com,xyz.com",
+                    "placeholder": "E.g. abc.com,xyz.com",
+                    "required": true,
+                    "editable": true,
+                    "visible": true
+                },
+                {
+                    "title": "Additional Fields",
+                    "name": "other_fields",
+                    "type": "json",
+                    "description": "Specify additional fields in the JSON format that you want to add to the new URL category in Zscaler. For example, {\"configuredName\": \"configname\", \"urls\": [\"url\"]}",
+                    "tooltip": "JSON field provided to enable you to enter other fields while adding new category in Zscaler. example, {\"configuredName\": \"configname\", \"urls\": [\"url\"]}",
+                    "required": true,
+                    "editable": true,
+                    "visible": true
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "title": "Get URL Categories",
+            "operation": "get_url_categories",
+            "description": "Retrieves a list of all URL categories from Zscaler.",
+            "category": "investigation",
+            "annotation": "get_url_categories",
+            "output_schema": {
+                "id": "",
+                "configuredName": "",
+                "keywords": [],
+                "keywordsRetainingParentCategory": [],
+                "urls": [],
+                "dbCategorizedUrls": [],
+                "ipRanges": [],
+                "ipRangesRetainingParentCategory": [],
+                "customCategory": "",
+                "scopes": [
+                    {
+                        "scopeGroupMemberEntities": [
+                            {
+                                "id": "",
+                                "name": "",
+                                "extensions": {
+                                    "additionalProp1": "",
+                                    "additionalProp2": "",
+                                    "additionalProp3": ""
+                                }
+                            }
+                        ],
+                        "Type": "",
+                        "ScopeEntities": [
+                            {
+                                "id": "",
+                                "name": "",
+                                "extensions": {
+                                    "additionalProp1": "",
+                                    "additionalProp2": "",
+                                    "additionalProp3": ""
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "editable": "",
+                "description": "",
+                "type": "",
+                "urlKeywordCounts": {
+                    "totalUrlCount": "",
+                    "retainParentUrlCount": "",
+                    "totalKeywordCount": "",
+                    "retainParentKeywordCount": ""
+                },
+                "customUrlsCount": "",
+                "urlsRetainingParentCategoryCount": "",
+                "customIpRangesCount": "",
+                "ipRangesRetainingParentCategoryCount": ""
+            },
+            "parameters": [
+                {
+                    "title": "Custom Only",
+                    "name": "customOnly",
+                    "type": "checkbox",
+                    "description": "(Optional) Select this option to retrieve information for only custom URL categories from Zscaler.",
+                    "tooltip": "If set to true, gets information on custom URL categories only.",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "value": false
+                },
+                {
+                    "title": "Include Only URL Keyword Counts",
+                    "name": "includeOnlyUrlKeywordCounts",
+                    "type": "checkbox",
+                    "description": "(Optional) Select this option, i.e., set it to true to include only URLs and keyword counts in the response. If this option is cleared, i.e., set to false (default), the response includes URLs and keywords.",
+                    "tooltip": "If set to true, the response will only include URL and keyword counts.",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "value": false
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "title": "Get Lightweight URL Categories",
+            "operation": "get_lightweight_url_categories",
+            "description": "Retrieves a lightweight key-value list of all (including custom) URL categories from Zscaler.",
+            "category": "investigation",
+            "annotation": "get_lightweight_url_categories",
+            "output_schema": {
+                "id": "",
+                "configuredName": "",
+                "keywords": [],
+                "keywordsRetainingParentCategory": [],
+                "urls": [],
+                "dbCategorizedUrls": [],
+                "ipRanges": [],
+                "ipRangesRetainingParentCategory": [],
+                "customCategory": "",
+                "scopes": [
+                    {
+                        "scopeGroupMemberEntities": [
+                            {
+                                "id": "",
+                                "name": "",
+                                "extensions": {
+                                    "additionalProp1": "",
+                                    "additionalProp2": "",
+                                    "additionalProp3": ""
+                                }
+                            }
+                        ],
+                        "Type": "",
+                        "ScopeEntities": [
+                            {
+                                "id": "",
+                                "name": "",
+                                "extensions": {
+                                    "additionalProp1": "",
+                                    "additionalProp2": "",
+                                    "additionalProp3": ""
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "editable": "",
+                "description": "",
+                "type": "",
+                "urlKeywordCounts": {
+                    "totalUrlCount": "",
+                    "retainParentUrlCount": "",
+                    "totalKeywordCount": "",
+                    "retainParentKeywordCount": ""
+                },
+                "customUrlsCount": "",
+                "urlsRetainingParentCategoryCount": "",
+                "customIpRangesCount": "",
+                "ipRangesRetainingParentCategoryCount": ""
+            },
+            "parameters": [],
+            "enabled": true
+        },
+        {
+            "title": "Get URL Categories Quota",
+            "operation": "get_url_categories_quota",
+            "description": "Retrieves information on the number of unique URLs that are currently provisioned for your organization. It also includes the information on how many URLs you can add before reaching the categories quota number for your organization.",
+            "category": "investigation",
+            "annotation": "get_url_categories_quota",
+            "output_schema": {
+                "uniqueUrlsProvisioned": "",
+                "remainingUrlsQuota": ""
+            },
+            "parameters": [],
+            "enabled": true
+        },
+        {
+            "title": "Get URL Category Details",
+            "operation": "get_url_category_info",
+            "description": "Retrieves the URL category information for the specified category ID from Zscaler.",
+            "category": "investigation",
+            "annotation": "get_url_category_info",
+            "output_schema": {
+                "id": "",
+                "configuredName": "",
+                "keywords": [],
+                "keywordsRetainingParentCategory": [],
+                "urls": [],
+                "dbCategorizedUrls": [],
+                "ipRanges": [],
+                "ipRangesRetainingParentCategory": [],
+                "customCategory": "",
+                "scopes": [
+                    {
+                        "scopeGroupMemberEntities": [
+                            {
+                                "id": "",
+                                "name": "",
+                                "extensions": {
+                                    "additionalProp1": "",
+                                    "additionalProp2": "",
+                                    "additionalProp3": ""
+                                }
+                            }
+                        ],
+                        "Type": "",
+                        "ScopeEntities": [
+                            {
+                                "id": "",
+                                "name": "",
+                                "extensions": {
+                                    "additionalProp1": "",
+                                    "additionalProp2": "",
+                                    "additionalProp3": ""
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "editable": "",
+                "description": "",
+                "type": "",
+                "urlKeywordCounts": {
+                    "totalUrlCount": "",
+                    "retainParentUrlCount": "",
+                    "totalKeywordCount": "",
+                    "retainParentKeywordCount": ""
+                },
+                "customUrlsCount": "",
+                "urlsRetainingParentCategoryCount": "",
+                "customIpRangesCount": "",
+                "ipRangesRetainingParentCategoryCount": ""
+            },
+            "parameters": [
+                {
+                    "title": "Category ID",
+                    "name": "categoryId",
+                    "type": "text",
+                    "description": "Specify the unique identifier for the URL category for which you want to retrieve information from Zscaler.",
+                    "tooltip": "The unique identifier for the URL category.",
+                    "required": true,
+                    "editable": true,
+                    "visible": true
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "title": "Update URL Category",
+            "operation": "update_url_category",
+            "description": "Adds or removes URLs from the category list in Zscaler based on the category ID, URLs, and other input parameters you have specified.",
+            "category": "miscellaneous",
+            "annotation": "update_url_category",
+            "output_schema": {
+                "id": "",
+                "configuredName": "",
+                "keywords": [],
+                "keywordsRetainingParentCategory": [],
+                "urls": [],
+                "dbCategorizedUrls": [],
+                "ipRanges": [],
+                "ipRangesRetainingParentCategory": [],
+                "customCategory": "",
+                "scopes": [
+                    {
+                        "scopeGroupMemberEntities": [
+                            {
+                                "id": "",
+                                "name": "",
+                                "extensions": {
+                                    "additionalProp1": "",
+                                    "additionalProp2": "",
+                                    "additionalProp3": ""
+                                }
+                            }
+                        ],
+                        "Type": "",
+                        "ScopeEntities": [
+                            {
+                                "id": "",
+                                "name": "",
+                                "extensions": {
+                                    "additionalProp1": "",
+                                    "additionalProp2": "",
+                                    "additionalProp3": ""
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "editable": "",
+                "description": "",
+                "type": "",
+                "urlKeywordCounts": {
+                    "totalUrlCount": "",
+                    "retainParentUrlCount": "",
+                    "totalKeywordCount": "",
+                    "retainParentKeywordCount": ""
+                },
+                "customUrlsCount": "",
+                "urlsRetainingParentCategoryCount": "",
+                "customIpRangesCount": "",
+                "ipRangesRetainingParentCategoryCount": ""
+            },
+            "parameters": [
+                {
+                    "title": "Category ID",
+                    "name": "categoryId",
+                    "type": "text",
+                    "description": "Specify the unique identifier of the URL category in which you want to add or remove URLs in Zscaler.",
+                    "tooltip": "The unique identifer for the URL category.",
+                    "required": true,
+                    "editable": true,
+                    "visible": true
+                },
+                {
+                    "title": "Action",
+                    "name": "action",
+                    "type": "select",
+                    "tooltip": "Action that you want to perform on the specified list of URLs. Choose the Add in List option to add the specified URLs to the 'Whitelisted URL List' in Zscaler. Choose the Remove from List option to remove the specified URLs from the 'Whitelisted URL List' in Zscaler.",
+                    "description": "Select the action that you want to perform on the specified list of URLs. You can choose between Add to List to add the specified URLs to the 'Whitelisted URL List' in Zscaler or Remove from List to remove the specified URLs from the 'Whitelisted URL List' in Zscaler.",
+                    "required": true,
+                    "editable": true,
+                    "visible": true,
+                    "options": [
+                        "Add to List",
+                        "Remove from List"
+                    ]
+                },
+                {
+                    "title": "URLs",
+                    "name": "urls",
+                    "type": "text",
+                    "description": "Specify the set of URLs to be updated in the specified URL category in Zscaler.",
+                    "tooltip": "The given set of URLs to be updated. e.g. abc.com,xyz.com",
+                    "placeholder": "E.g. abc.com,xyz.com",
+                    "required": true,
+                    "editable": true,
+                    "visible": true
+                },
+                {
+                    "title": "URL Category Name",
+                    "name": "configuredName",
+                    "type": "text",
+                    "tooltip": "Name of the URL category. This is only required for custom URL categories.",
+                    "description": "(Optional) Name of the URL category. This is only required for custom URL categories.",
+                    "required": false,
+                    "editable": true,
+                    "visible": true
+                },
+                {
+                    "title": "Super Category",
+                    "name": "superCategory",
+                    "type": "text",
+                    "tooltip": "Super Category of the URL category. This field is required when creating custom URL categories.",
+                    "description": "(Optional) Specify the super category of the URL category. This field is required when creating custom URL categories.",
+                    "required": false,
+                    "editable": true,
+                    "visible": true
+                },
+                {
+                    "title": "Additional Fields",
+                    "name": "other_fields",
+                    "type": "json",
+                    "description": "(Optional) Specify additional fields in the JSON format that you want to update in the URL category in Zscaler. For example, {\"configuredName\": \"configname\", \"urls\": [\"url\"]}",
+                    "tooltip": "JSON field provided to enable you to enter other fields while updating category in Zscaler. example, {\"configuredName\": \"configname\", \"urls\": [\"url\"]}",
+                    "required": false,
+                    "editable": true,
+                    "visible": true
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "title": "Delete URL Category",
+            "operation": "delete_url_category",
+            "description": "Deletes a specific URL category from Zscaler based on the category ID you have specified.",
+            "category": "investigation",
+            "annotation": "delete_url_category",
+            "output_schema": {
+                "Zscaler": {
+                    "Category": {
+                        "CustomCategory": "",
+                        "Description": "",
+                        "ID": "",
+                        "URL": []
+                    }
+                }
+            },
+            "parameters": [
+                {
+                    "title": "Category ID",
+                    "name": "categoryId",
+                    "type": "text",
+                    "description": "Specify the unique identifier of the URL category that you want to delete from Zscaler.",
+                    "tooltip": "The unique identifer for the custom URL category.",
+                    "required": true,
+                    "editable": true,
+                    "visible": true
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "title": "URL Lookup",
+            "operation": "url_lookup",
+            "description": "Looks up the categorization of the specified set of URLs in Zscaler.",
+            "category": "investigation",
+            "annotation": "url_lookup",
+            "output_schema": {
+                "url": "",
+                "urlClassifications": [],
+                "urlClassificationsWithSecurityAlert": []
+            },
+            "parameters": [
+                {
+                    "title": "URLs",
+                    "name": "urls",
+                    "type": "text",
+                    "description": "(Optional) Specify the set of URLs that you want to be looked up in Zscaler.",
+                    "tooltip": "The given set of URLs to be looked up. e.g. abc.com,xyz.com",
+                    "placeholder": "E.g. abc.com,xyz.com",
+                    "required": false,
+                    "editable": true,
+                    "visible": true
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "title": "Get Exempted URLs",
+            "operation": "get_exempted_urls",
+            "description": "Retrieves a list of URLs that are exempted from the cookie authentication in Zscaler.",
+            "category": "investigation",
+            "annotation": "get_exempted_urls",
+            "output_schema": {
+                "urls": []
+            },
+            "parameters": [],
+            "enabled": true
+        },
+        {
+            "title": "Update exempted URLs",
+            "operation": "update_exempted_urls",
+            "description": "Adds or removes a URL from the cookie authentication exempt list in Zscaler based on the URLs you have specified.",
+            "category": "miscellaneous",
+            "annotation": "update_exempted_urls",
+            "output_schema": {
+                "urls": []
+            },
+            "parameters": [
+                {
+                    "title": "Action",
+                    "name": "action",
+                    "type": "select",
+                    "tooltip": "Action that you want to perform on the specified list of URLs. Choose the Add in List option to add the specified URLs to the 'Whitelisted URL List' in Zscaler. Choose the Remove from List option to remove the specified URLs from the 'Whitelisted URL List' in Zscaler.",
+                    "description": "The action applied to the exempted URLs list. To add a URL to the list, set the action parameter to Add to List. To remove a URL, set action to Remove from List.",
+                    "required": true,
+                    "editable": true,
+                    "visible": true,
+                    "options": [
+                        "Add to List",
+                        "Remove from List"
+                    ]
+                }
+            ],
+            "enabled": true
+        }
+    ],
+    "category": "Network Security",
+    "contributor": "Ishwari Dubewar",
+    "active": true,
+    "cs_compatible": true,
+    "system": false,
+    "playbook_collections": [
+        {
+            "@id": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+            "name": "Sample - Zscaler - 2.2.0",
+            "image": "/api/3/images/ef0481cf-e2fa-46cb-a629-0cecd98584c6",
+            "description": "Sample playbooks for \"Zscaler\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete."
+        }
+    ],
+    "icon_small": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3NpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQwIDc5LjE2MDQ1MSwgMjAxNy8wNS8wNi0wMTowODoyMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1MDNhYTZiMy0zYzEzLTQ5YzEtODNiZi00MThjZWIxM2VhNTIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MDAwNTRDOUYyOUFFMTFFOEI2OUFGM0EyMjFEOTgxRkIiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MDAwNTRDOUUyOUFFMTFFOEI2OUFGM0EyMjFEOTgxRkIiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NGFhNGI2NzItY2E2ZS00MzJkLWEzOTUtZDBjMzMwYWJkZDFkIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjUwM2FhNmIzLTNjMTMtNDljMS04M2JmLTQxOGNlYjEzZWE1MiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PjdHXIsAAAKpSURBVHja7FVbSBRRGD4zZ3Zm3HVzZ3dnLRQtQuyimSKCWhZChOlDEPVUb13AeqjHkEB7KLpIPkQGvZl0owtCFgVFYSUZbjexDNE03XUvOrrjzOxcT2fTXqQIKXua/2XOmfOf/7ucG4EQAksZJFjisAFsABvgPwBQC/qqhXrjmmJYRV7az8J/qUA2UXdUXXtnrLJjvKUv8UHQF1vLRL8HuPJFzLw5WnE/NCzoNbmuY4UZ1StYczHX4IRiHngR/7VFHwX94PNYigAkAEIr3dS4bNQ9mugRtM0827aFDytmY6/gAKBulQurDEnGxXLf+b6Z/mn9TKn38kAiIpvbstI0C90YktoHEucqeDcFWj+LDUUeAl/XjW+nm17FAUMC3Tq0gTtbxnWMynlux6Rq1T2LHs13NxV7rg5KR4JCFecIsHCNh56QDdFAPAvXeSjFBHdHJEzPT5OAANksjOvWjIbKA0xjsSelIJI08QBWEPAzrZU+3Nyd66JIgiLBqY3c9SHxQpk3OKne3uTPcBA7n0Q5Bo7JZnOZD1d/PK60D84mdMvPwH5R9zpIzkGGFDMrDWJa8xaV+GhgpfxuLuFGZs3DL2MPIiqgiFqe6YwkL5X6GoLT2OJiL3NtSGyv4vd2x92QGBH1rojS8ilxssgzqVmKiViS2JHlzEmHbFTj2PnVTVkkGajqYTgYU29VZ+7pioGEDrBYwwIUeW/78tpsZ3lnyNKtPI7GPnwVtP0FGXjW6aBQX8h9k/SuMbm+gBsW9RI/ffzNVE2OM5OF6zl6V65zHgB/MMb7Ke1pOHninYDPQqo6A9u28vtWp+NRLA8n4R0wl+miUq0kpvzjF+aeBgmcgDuqiZi5vJ9BLHiT8fzXMTUsGaUBNn8Z9fcHjbAffRvABrAB/hzfBRgAhhc/Ugd9yvsAAAAASUVORK5CYII=",
+    "icon_large": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAIAAAABc2X6AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3NpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQwIDc5LjE2MDQ1MSwgMjAxNy8wNS8wNi0wMTowODoyMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1MDNhYTZiMy0zYzEzLTQ5YzEtODNiZi00MThjZWIxM2VhNTIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OTAxNTkzQkEyOUFEMTFFOEI2OUFGM0EyMjFEOTgxRkIiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OTAxNTkzQjkyOUFEMTFFOEI2OUFGM0EyMjFEOTgxRkIiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NGFhNGI2NzItY2E2ZS00MzJkLWEzOTUtZDBjMzMwYWJkZDFkIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjUwM2FhNmIzLTNjMTMtNDljMS04M2JmLTQxOGNlYjEzZWE1MiIvPiA8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",
+    "help_online": "https://docs.fortinet.com/document/fortisoar/2.2.0/zscaler/220/zscaler-v2-2-0",
+    "vendor_version": null
+}

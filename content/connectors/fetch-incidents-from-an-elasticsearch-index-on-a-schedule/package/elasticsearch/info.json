@@ -1,0 +1,749 @@
+{
+    "name": "elasticsearch",
+    "version": "4.0.1",
+    "label": "ElasticSearch",
+    "description": "ElasticSearch is a distributed, RESTful search and analytics engine capable of solving a number of use cases. This connector facilitates automated operations to execute lucene query, get mapping and cluster details.",
+    "publisher": "",
+    "icon_small_name": "small_icon.png",
+    "icon_large_name": "large_icon.png",
+    "id": 24,
+    "configuration": {
+        "fields": [
+            {
+                "title": "Server URL",
+                "type": "text",
+                "name": "server_url",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "tooltip": "The FQDN or IP address of the ElasticSearch server to which you will connect."
+            },
+            {
+                "title": "Protocol",
+                "type": "select",
+                "name": "protocol",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "value": "https",
+                "tooltip": "The Protocol used to connect to the ElasticSearch server remotely. Choose between http or https. By default, https is used.",
+                "options": [
+                    "https",
+                    "http"
+                ]
+            },
+            {
+                "title": "Authentication Type",
+                "type": "select",
+                "name": "authentication_type",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "value": "Basic Authentication",
+                "options": [
+                    "Basic Authentication",
+                    "API Key Authentication"
+                ],
+                "onchange": {
+                    "Basic Authentication": [
+                        {
+                            "title": "Username",
+                            "required": false,
+                            "editable": true,
+                            "visible": true,
+                            "type": "text",
+                            "name": "username",
+                            "tooltip": "The Username to access the ElasticSearch server to which you will connect.",
+                            "description": "The Username to access the ElasticSearch server to which you will connect and perform the automated operations."
+                        },
+                        {
+                            "title": "Password",
+                            "required": false,
+                            "editable": true,
+                            "visible": true,
+                            "type": "password",
+                            "name": "password",
+                            "tooltip": "The Password to access the ElasticSearch server to which you will connect.",
+                            "description": "The Password to access the ElasticSearch server to which you will connect and perform the automated operations."
+                        }
+                    ],
+                    "API Key Authentication": [
+                        {
+                            "title": "API Key",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "password",
+                            "name": "api_key",
+                            "description": "API Key to access the ElasticSearch server to which you will connect and perform automated operations."
+                        }
+                    ]
+                }
+            },
+            {
+                "title": "Port",
+                "type": "integer",
+                "name": "port",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "value": 9200,
+                "tooltip": "The Port number that is used to connect to the elasticsearch server. The default value is set to 9200."
+            },
+            {
+                "title": "Maximum Retries",
+                "type": "integer",
+                "name": "max_retries",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "value": 0,
+                "tooltip": "Set the maximum retries and connection timeout default value is set to 30 seconds."
+            },
+            {
+                "title": "Verify SSL",
+                "type": "checkbox",
+                "name": "verify_ssl",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "value": true
+            }
+        ]
+    },
+    "operations": [
+        {
+            "operation": "get_cluster_details",
+            "title": "Get Cluster Details",
+            "description": "Retrieves cluster details and the health information about the cluster configured on your ElasticSearch instance, based on the index you have specified.",
+            "category": "investigation",
+            "annotation": "get_cluster_details",
+            "parameters": [
+                {
+                    "title": "Index",
+                    "type": "text",
+                    "name": "index",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "An index is a logical namespace that maps to one or more primary shards and can have zero or more replica shards. Specify a particular index whose cluster details you want to retrieve from ElasticSearch."
+                },
+                {
+                    "title": "Run As User",
+                    "type": "text",
+                    "name": "run_as_user",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Run as user is kind of a delegation of account access to a different account or an admin account. For example, User X take on the role of User Y with the help of run as user mechanism"
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "cluster_details": {
+                    "routing_nodes": {},
+                    "metadata": {},
+                    "cluster_name": "",
+                    "version": "",
+                    "master_node": "",
+                    "routing_table": {},
+                    "state_uuid": "",
+                    "nodes": {},
+                    "blocks": {},
+                    "snapshots": {}
+                }
+            },
+            "open": false
+        },
+        {
+            "operation": "get_mapping",
+            "title": "Get Mapping",
+            "description": "Retrieves a list of indices, which includes the type of indices that are currently configured on your ElasticSearch instance.",
+            "category": "investigation",
+            "annotation": "get_mapping",
+            "parameters": [
+                {
+                    "title": "Index",
+                    "type": "text",
+                    "name": "index",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "An index is a logical namespace that maps to one or more primary shards and can have zero or more replica shards. You can specify a particular index or if you search for all indices, which are currently configured on your ElasticSearch instance, use _all."
+                },
+                {
+                    "title": "Type",
+                    "type": "text",
+                    "name": "doc_type",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Type in ElasticSearch represents a class of similar documents. Specify the type of indices for which you want to retrieve details."
+                },
+                {
+                    "title": "Run As User",
+                    "type": "text",
+                    "name": "run_as_user",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Run as user is kind of a delegation of account access to a different account or an admin account. For example, User X take on the role of User Y with the help of run as user mechanism"
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "mapping": {}
+            },
+            "open": false
+        },
+        {
+            "operation": "execute_query",
+            "title": "Execute Query",
+            "description": "Executes a query and fetches data from your ElasticSearch instance, based on the input filters.",
+            "category": "investigation",
+            "annotation": "execute_query",
+            "parameters": [
+                {
+                    "title": "Query",
+                    "type": "text",
+                    "name": "query",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Specify a stringified JSON formatted query used for searching data in ElasticSearch"
+                },
+                {
+                    "title": "Index",
+                    "type": "text",
+                    "name": "index",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "An index is a logical namespace that maps to one or more primary shards and can have zero or more replica shards. Specify a particular index, based on which you want to run the query."
+                },
+                {
+                    "title": "Type",
+                    "type": "text",
+                    "name": "doc_type",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Type in ElasticSearch represents a class of similar documents. Specify the type of indices, based on which you want to run the query."
+                },
+                {
+                    "title": "Routing",
+                    "type": "text",
+                    "name": "routing",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Name of the shard for which you want to retrieve data."
+                },
+                {
+                    "title": "Run As User",
+                    "type": "text",
+                    "name": "run_as_user",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Run as user is kind of a delegation of account access to a different account or an admin account. For example, User X take on the role of User Y with the help of run as user mechanism"
+                },
+                {
+                    "title": "Size",
+                    "type": "integer",
+                    "name": "size",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 10,
+                    "tooltip": "Set the number of record you want to fetch. Default is 10."
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "_shards": "",
+                "took": "",
+                "hits": "",
+                "aggregations": "",
+                "timed_out": ""
+            },
+            "open": false
+        },
+        {
+            "operation": "execute_lucene_query",
+            "title": "Execute Lucene Query",
+            "description": "Executes a search query without using Elastic's DSL Query Syntax. An example query to search for the term \"phishing\" in documents where the status field is set to 200 would look like this:\nphishing AND status:200",
+            "category": "investigation",
+            "annotation": "execute_lucene_query",
+            "parameters": [
+                {
+                    "title": "Query",
+                    "type": "text",
+                    "name": "query",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": ""
+                },
+                {
+                    "title": "Index",
+                    "type": "text",
+                    "name": "index",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "An index is a logical namespace that maps to one or more primary shards and can have zero or more replica shards. Specify a particular index, based on which you want to run the query."
+                },
+                {
+                    "title": "Size",
+                    "type": "integer",
+                    "name": "size",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 10,
+                    "tooltip": "Set the number of results to return. Default is 10."
+                },
+                {
+                    "title": "Run As User",
+                    "type": "text",
+                    "name": "run_as_user",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Run as user is kind of a delegation of account access to a different account or an admin account. For example, User X take on the role of User Y with the help of run as user mechanism"
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "_shards": "",
+                "took": "",
+                "hits": "",
+                "aggregations": "",
+                "timed_out": ""
+            },
+            "open": false
+        },
+        {
+            "operation": "get_saved_search",
+            "title": "Get Saved Search",
+            "description": "Retrieves details of saved searches from ElasticSearch/Kibana.",
+            "category": "investigation",
+            "annotation": "get_saved_search",
+            "parameters": [
+                {
+                    "title": "Object ID",
+                    "type": "text",
+                    "name": "object_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "The Object ID of saved search."
+                },
+                {
+                    "title": "Port",
+                    "type": "integer",
+                    "name": "port",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 5601,
+                    "tooltip": "The port of Kibana server from which need to retrieve the saved search."
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "version": "",
+                "id": "",
+                "updated_at": "",
+                "type": "",
+                "attributes": {}
+            },
+            "open": false
+        },
+        {
+            "operation": "get_alerts_list",
+            "title": "Get Alerts List",
+            "description": "Retrieves list of Alerts from ElasticSearch/Kibana.",
+            "category": "investigation",
+            "annotation": "get_alerts_list",
+            "parameters": [
+                {
+                    "title": "Start Time",
+                    "type": "datetime",
+                    "name": "start",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Starting date time."
+                },
+                {
+                    "title": "End Time",
+                    "type": "datetime",
+                    "name": "end",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Ending date time."
+                },
+                {
+                    "title": "Query",
+                    "type": "json",
+                    "name": "query",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Specify query DSL that determines which results are returned from ElasticSearch."
+                },
+                {
+                    "title": "Limit",
+                    "type": "integer",
+                    "name": "size",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 50,
+                    "tooltip": "The maximum number of records to return."
+                },
+                {
+                    "title": "Port",
+                    "type": "integer",
+                    "name": "port",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 5601,
+                    "tooltip": "The port of Kibana server from which need to retrieve the Alerts."
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "took": "",
+                "timed_out": "",
+                "_shards": {
+                    "total": "",
+                    "successful": "",
+                    "skipped": "",
+                    "failed": ""
+                },
+                "hits": {
+                    "total": {
+                        "value": "",
+                        "relation": ""
+                    },
+                    "max_score": "",
+                    "hits": []
+                },
+                "aggregations": {
+                    "oldest": {
+                        "value": "",
+                        "value_as_string": ""
+                    },
+                    "latest": {
+                        "value": "",
+                        "value_as_string": ""
+                    }
+                }
+            },
+            "open": false
+        },
+        {
+            "operation": "set_alert_status",
+            "title": "Set Alert Status",
+            "description": "Sets the status of Alert in ElasticSearch/Kibana.",
+            "category": "investigation",
+            "annotation": "set_alert_status",
+            "parameters": [
+                {
+                    "title": "Status",
+                    "type": "text",
+                    "name": "status",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Specify the alert status. For example: open, acknowledged or closed."
+                },
+                {
+                    "title": "Alert ID",
+                    "type": "text",
+                    "name": "signal_ids",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "The Alert IDs whose status to be set."
+                },
+                {
+                    "title": "Query",
+                    "type": "json",
+                    "name": "query",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Specify query DSL that determines which alerts are updated in ElasticSearch"
+                },
+                {
+                    "title": "Port",
+                    "type": "integer",
+                    "name": "port",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 5601,
+                    "tooltip": "The port of Kibana server from which need to set the status of the Alert."
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "took": "",
+                "timed_out": "",
+                "total": "",
+                "updated": "",
+                "deleted": "",
+                "batches": "",
+                "version_conflicts": "",
+                "noops": "",
+                "retries": {
+                    "bulk": "",
+                    "search": ""
+                },
+                "throttled_millis": "",
+                "requests_per_second": "",
+                "throttled_until_millis": "",
+                "failures": []
+            },
+            "open": false
+        },
+        {
+            "operation": "apply_alert_tags",
+            "title": "Apply Alert Tags",
+            "description": "Add and remove Alert tags in ElasticSearch/Kibana.",
+            "category": "investigation",
+            "annotation": "apply_alert_tags",
+            "parameters": [
+                {
+                    "title": "Alert ID",
+                    "type": "text",
+                    "name": "ids",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "The Alert IDs to which the tags to be set."
+                },
+                {
+                    "title": "Tags to Add",
+                    "type": "text",
+                    "name": "tags_to_add",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Specify the alert tag to add. For example: False Positive."
+                },
+                {
+                    "title": "Tags to Remove",
+                    "type": "text",
+                    "name": "tags_to_remove",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Specify the alert tag to remove. For example: Further Investigation Required."
+                },
+                {
+                    "title": "Port",
+                    "type": "integer",
+                    "name": "port",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 5601,
+                    "tooltip": "The port of Kibana server from which need to apply tags to the Alert."
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "took": "",
+                "errors": "",
+                "items": [
+                    {
+                        "update": {
+                            "_index": "",
+                            "_id": "",
+                            "_version": "",
+                            "result": "",
+                            "_shards": {
+                                "total": "",
+                                "successful": "",
+                                "failed": ""
+                            },
+                            "_seq_no": "",
+                            "_primary_term": "",
+                            "status": ""
+                        }
+                    }
+                ]
+            },
+            "open": false
+        },
+        {
+            "operation": "assign_unassign_users_from_alert",
+            "title": "Assign or Unassign Users from Alerts",
+            "description": "Assign or Unassign Users from Alert in ElasticSearch/Kibana.",
+            "category": "investigation",
+            "annotation": "assign_unassign_users_from_alert",
+            "parameters": [
+                {
+                    "title": "Alert ID",
+                    "type": "text",
+                    "name": "ids",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "The Alert IDs to which the users to be assigned or unassigned."
+                },
+                {
+                    "title": "Assign User",
+                    "type": "text",
+                    "name": "add",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Specify the user to assign to Alert."
+                },
+                {
+                    "title": "Unassign User",
+                    "type": "text",
+                    "name": "remove",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Specify the user to unassign to Alert."
+                },
+                {
+                    "title": "Port",
+                    "type": "integer",
+                    "name": "port",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 5601,
+                    "tooltip": "The port of Kibana server from which need to assign or unassign user from Alert."
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "took": "",
+                "timed_out": "",
+                "total": "",
+                "updated": "",
+                "deleted": "",
+                "batches": "",
+                "version_conflicts": "",
+                "noops": "",
+                "retries": {
+                    "bulk": "",
+                    "search": ""
+                },
+                "throttled_millis": "",
+                "requests_per_second": "",
+                "throttled_until_millis": "",
+                "failures": []
+            },
+            "open": false
+        },
+        {
+            "title": "Fetch Incidents",
+            "operation": "fetch_incidents",
+            "description": "Executes query to fetch incidents from Elastisearch based on input parameters.",
+            "parameters": [
+                {
+                    "title": "Index",
+                    "type": "text",
+                    "name": "index",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Elasticsearch index or index pattern to search"
+                },
+                {
+                    "title": "Fetch Query",
+                    "type": "text",
+                    "name": "fetchQuery",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Params to filter query. Example:  kibana.alert.rule.tags : (“PROD” or “HIGH_Severity”)"
+                },
+                {
+                    "title": "Pull Time",
+                    "type": "datetime",
+                    "name": "pullTime",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Specify the last pull time to create time range"
+                },
+                {
+                    "title": "Fetch Size",
+                    "type": "integer",
+                    "name": "fetchSize",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 50,
+                    "tooltip": "Number of incidents to fetch per run. Default is 50."
+                }
+            ],
+            "open": false,
+            "category": "investigation"
+        }
+    ],
+    "category": [
+        "Database"
+    ],
+    "contributor": null,
+    "active": true,
+    "cs_compatible": true,
+    "system": false,
+    "playbook_collections": [
+        {
+            "@id": "/api/3/workflow_collections/c273e0fc-9c78-4045-955b-75729b802e7a",
+            "name": "Sample - ElasticSearch - 4.0.0",
+            "image": "/api/3/images/61b3cf83-1b1f-4f14-afba-193f44116ff9",
+            "description": "Sample playbooks for \"ElasticSearch\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete."
+        }
+    ],
+    "icon_small": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAIAAACzY+a1AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQwIDc5LjE2MDQ1MSwgMjAxNy8wNS8wNi0wMTowODoyMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjA1NkFENDFGMDI2QjExRTg5RUY0QkRBNkQxNjU3OUJBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjA1NkFENDIwMDI2QjExRTg5RUY0QkRBNkQxNjU3OUJBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QjAyQUQ4NkUwMjZBMTFFODlFRjRCREE2RDE2NTc5QkEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MDU2QUQ0MUUwMjZCMTFFODlFRjRCREE2RDE2NTc5QkEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5ZB0F4AAATZ0lEQVR42uycB3hU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",
+    "icon_large": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAIAAAD2HxkiAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQwIDc5LjE2MDQ1MSwgMjAxNy8wNS8wNi0wMTowODoyMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkIwMkFEODZDMDI2QTExRTg5RUY0QkRBNkQxNjU3OUJBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkIwMkFEODZEMDI2QTExRTg5RUY0QkRBNkQxNjU3OUJBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QjAyQUQ4NkEwMjZBMTFFODlFRjRCREE2RDE2NTc5QkEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QjAyQUQ4NkIwMjZBMTFFODlFRjRCREE2RDE2NTc5QkEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz553IxRAAAw0ElEQVR42uydB2AU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",
+    "help_online": "https://docs.fortinet.com/document/fortisoar/4.0.0/elasticsearch/1055/elasticsearch-v4-0-0",
+    "vendor_version": null,
+    "ingestion_modes": [
+        "scheduled"
+    ]
+}

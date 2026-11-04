@@ -1,0 +1,21 @@
+title: Create Zscaler service requests on the right endpoint
+summary: A fork of the Zscaler connector that fixes the service request operation, whose old endpoint
+  path returned 404.
+description: ''
+use_cases:
+- containment
+tags:
+- zscaler
+- proxy
+- network
+author: ftnt-dspille
+version: 2.2.1
+min_version: null
+license: MIT
+published: '2026-11-04'
+enhances:
+  connector: zscaler
+  version: 2.2.0
+  changes: 'Fixes the service request operation: its endpoint path now matches the documented Zscaler
+    API instead of returning 404.'
+author_id: 99558074

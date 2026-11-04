@@ -1,0 +1,22 @@
+title: Get Microsoft Graph security incidents with reworked auth
+summary: 'A fork of the Microsoft Graph API connector focused on XDR: get security incidents over a reworked
+  authentication flow.'
+description: ''
+use_cases:
+- triage
+- enrichment
+tags:
+- microsoft
+- graph
+- xdr
+author: ftnt-dspille
+version: 3.1.0
+min_version: null
+license: MIT
+published: '2026-11-04'
+enhances:
+  connector: microsoft-graph
+  version: 2.3.0
+  changes: Adds get security incidents over a reworked authentication flow, from a smaller operation set
+    than the hub original.
+author_id: 99558074

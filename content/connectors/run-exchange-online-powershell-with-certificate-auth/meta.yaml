@@ -1,0 +1,17 @@
+title: Run Exchange Online PowerShell with certificate auth
+summary: 'A custom Exchange Online PowerShell connector: signs in with a certificate and runs arbitrary
+  Exchange Online commands.'
+description: ''
+use_cases:
+- containment
+- utility
+tags:
+- exchange
+- powershell
+- microsoft
+author: ftnt-dspille
+version: 1.0.3
+min_version: null
+license: MIT
+published: '2026-11-04'
+author_id: 99558074

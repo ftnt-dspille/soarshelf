@@ -1,0 +1,1617 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Sample - Zscaler - 2.2.0",
+      "description": "Sample playbooks for \"Zscaler\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete.",
+      "visible": true,
+      "image": "",
+      "uuid": "fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+      "id": 506,
+      "deletedAt": null,
+      "importedBy": [],
+      "recordTags": [
+        "Zscaler",
+        "zscaler"
+      ],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Unblock URLs",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Removes URLs from the \"Blacklisted URL List\" in Zscaler based on the URLs you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/c7b593e1-852f-44e5-94a4-f00e04de37e9",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "6d5cfdd0-5f6e-4d16-97c4-69ad91e01bf2",
+                "title": "Zscaler: Unblock URLs",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "c7b593e1-852f-44e5-94a4-f00e04de37e9"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Unblock URLs",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "''",
+                "params": {
+                  "urls": ""
+                },
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "unblock_url",
+                "operationTitle": "Unblock URLs",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "d805c9b3-28df-42d5-a4c0-ea14f915893c"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Unblock URLs",
+              "targetStep": "/api/3/workflow_steps/d805c9b3-28df-42d5-a4c0-ea14f915893c",
+              "sourceStep": "/api/3/workflow_steps/c7b593e1-852f-44e5-94a4-f00e04de37e9",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "0d68d62e-d00e-427a-8136-7054e714455a"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "06ed0c23-b988-4dbc-b942-45c27211e5c7",
+          "id": 7447,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get MD5 Cloud Sandbox Report",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Retrieves a full or summary report of the file that was analyzed by Sandbox. The file is represented by the specified MD5 hash.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/22cddb78-3a85-4c11-9448-7c63785e374e",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "73c35c97-0827-4e5d-af1c-45dd4a82d5a5",
+                "title": "Zscaler: Get Cloud Sandbox Report MD5 Hash",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "22cddb78-3a85-4c11-9448-7c63785e374e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get MD5 Cloud Sandbox Report",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "2dbbdac2-e0e6-4bf3-a750-6365cda3d771",
+                "params": {
+                  "details": "full",
+                  "md5Hash": "098f6bcd4621d373cade4e832627b4f6"
+                },
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "get_sandbox_report_md5_hash",
+                "operationTitle": "Get Cloud Sandbox Report MD5 Hash",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "51b7f3d1-5cda-4d5a-93fc-aea2d64f3c13"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Cloud Sandbox Report MD5 Hash",
+              "targetStep": "/api/3/workflow_steps/51b7f3d1-5cda-4d5a-93fc-aea2d64f3c13",
+              "sourceStep": "/api/3/workflow_steps/22cddb78-3a85-4c11-9448-7c63785e374e",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "aff15166-5e00-455a-80e0-345c7712e83d"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "1d65bfe4-1da2-49dc-8a28-141d6a9cf1f4",
+          "id": 7440,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Whitelist URLs",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Retrieves the list of all the whitelisted URLs from Zscaler.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/0b03b953-a4e8-43a5-9738-4aba6d8db9a8",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "efde4f65-99a6-4481-85f5-98069b00f1c9",
+                "title": "Zscaler: Get Whitelist URLs",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "0b03b953-a4e8-43a5-9738-4aba6d8db9a8"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Whitelist URLs",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "''",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "get_whitelist_urls",
+                "operationTitle": "Get Whitelist URLs",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "872a8a8c-ec04-4533-9f4b-1b30f7cb01ff"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Whitelist URLs",
+              "targetStep": "/api/3/workflow_steps/872a8a8c-ec04-4533-9f4b-1b30f7cb01ff",
+              "sourceStep": "/api/3/workflow_steps/0b03b953-a4e8-43a5-9738-4aba6d8db9a8",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "73b43ff5-07f1-498e-83af-7bd9e9ece123"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "2baed743-86bb-4efc-99cd-f8725416b9a4",
+          "id": 7444,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Update exempted URLs",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Adds a URL to or removes a URL from the cookie authentication exempt list. in Zscaler.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/9af22162-551b-4c71-be82-69848e2df332",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Update exempted URLs",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "2dbbdac2-e0e6-4bf3-a750-6365cda3d771",
+                "params": {
+                  "action": "Add to List"
+                },
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "update_exempted_urls",
+                "operationTitle": "Update exempted URLs",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "742cfef3-e66e-4f0b-a78b-376c07f5a4e3"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "0b4f2533-e6a6-4172-864e-1e427751608b",
+                "title": "Zscaler: Update exempted URLs",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "9af22162-551b-4c71-be82-69848e2df332"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Update exempted URLs",
+              "targetStep": "/api/3/workflow_steps/742cfef3-e66e-4f0b-a78b-376c07f5a4e3",
+              "sourceStep": "/api/3/workflow_steps/9af22162-551b-4c71-be82-69848e2df332",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "8085ae4f-cf4e-4fc4-999f-0a07ddc804ac"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "30f27848-8cd7-4852-b93e-0226fa748409",
+          "id": 7442,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get URL Categories Quota",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Gets information on the number of unique URLs that are currently provisioned for your organization as well as how many URLs you can add before reaching that number from Zscaler.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/ef0228d9-37b1-4360-ac94-e7cf12438b26",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get URL Categories Quota",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "''",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "get_url_categories_quota",
+                "operationTitle": "Get URL Categories Quota",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "7e152b7a-4a5a-431f-955b-6a8e251f9e03"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "a151c439-5552-4e35-93cb-f385e0e14d40",
+                "title": "Zscaler: Get URL Categories Quota",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "ef0228d9-37b1-4360-ac94-e7cf12438b26"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get URL Categories Quota",
+              "targetStep": "/api/3/workflow_steps/7e152b7a-4a5a-431f-955b-6a8e251f9e03",
+              "sourceStep": "/api/3/workflow_steps/ef0228d9-37b1-4360-ac94-e7cf12438b26",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "d0b3b265-e790-4815-9776-447c5bf5c3c7"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "33ca69f8-9149-46cc-9f83-3a84da700525",
+          "id": 7453,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Exempted URLs",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Gets a list of URLs that were exempted from the cookie authentication in Zscaler.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/93632354-e975-496a-aa64-280b635a4d53",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Exempted URLs",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "''",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "get_exempted_urls",
+                "operationTitle": "Get Exempted URLs",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "3010c8c2-ae7d-4bf2-a183-14a18063c593"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "2ee5aacf-0923-4018-94b9-813d8375e0e7",
+                "title": "Zscaler: Get Exempted URLs",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "93632354-e975-496a-aa64-280b635a4d53"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Exempted URLs",
+              "targetStep": "/api/3/workflow_steps/3010c8c2-ae7d-4bf2-a183-14a18063c593",
+              "sourceStep": "/api/3/workflow_steps/93632354-e975-496a-aa64-280b635a4d53",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "502c8c1a-26f3-471a-ad8f-aef73d356573"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "52894f48-ac05-4350-9e26-78579acbb5ca",
+          "id": 7449,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Cloud Sandbox Report Quota",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "The resource access quota for retrieving Sandbox Detail Reports is restricted to 1000 requests per day, with a rate limit of 2/sec and 1000/hour from Zscaler.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/d121e3aa-c2d7-4487-af0b-09954f507135",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Cloud Sandbox Report Quota",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "''",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "get_sandbox_report_quota",
+                "operationTitle": "Get Cloud Sandbox Report Quota",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "242c76ae-765b-4151-a358-5e8e27f262cc"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "f70c87db-7075-4556-a84e-a899ce0257a8",
+                "title": "Zscaler: Get Cloud Sandbox Report Quota",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "d121e3aa-c2d7-4487-af0b-09954f507135"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Cloud Sandbox Report Quota",
+              "targetStep": "/api/3/workflow_steps/242c76ae-765b-4151-a358-5e8e27f262cc",
+              "sourceStep": "/api/3/workflow_steps/d121e3aa-c2d7-4487-af0b-09954f507135",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "f01747c9-eefb-4596-a6c9-ae8c8cf351dc"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "682b06d5-f087-4610-b96e-c2f8589b3344",
+          "id": 7441,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get URL Category Details",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Gets the URL category information for the specified category ID from Zscaler.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/7d8f973a-19f2-403d-954c-ca2d4679b3b3",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "3be84c80-aaa1-43e6-a119-dd9650270ed8",
+                "title": "Zscaler: Get URL Category Information",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "7d8f973a-19f2-403d-954c-ca2d4679b3b3"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get URL Category Details",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "2dbbdac2-e0e6-4bf3-a750-6365cda3d771",
+                "params": {
+                  "categoryId": "ANY"
+                },
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "get_url_category_info",
+                "operationTitle": "Get URL Category Information",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "be00ac8f-efac-472e-9cba-ee8f54cf890b"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get URL Category Information",
+              "targetStep": "/api/3/workflow_steps/be00ac8f-efac-472e-9cba-ee8f54cf890b",
+              "sourceStep": "/api/3/workflow_steps/7d8f973a-19f2-403d-954c-ca2d4679b3b3",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "fee2e231-3164-4ff0-aebf-6b5654e7eb0c"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "77db703f-149c-4c46-bfbe-51062c4755d6",
+          "id": 7450,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Blacklist URLs",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Retrieves the list of all the blacklisted URLs from Zscaler.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/dda6c13f-3a65-4670-b1cb-9297b689a83c",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Blacklist URLs",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "''",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "get_blacklist_urls",
+                "operationTitle": "Get Blacklist URLs",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "84f816ca-4714-4c11-906c-3baecbdb6e5a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "e3d80dd9-b82e-4ab9-b145-299862faf710",
+                "title": "Zscaler: Get Blacklist URLs",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "dda6c13f-3a65-4670-b1cb-9297b689a83c"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Blacklist URLs",
+              "targetStep": "/api/3/workflow_steps/84f816ca-4714-4c11-906c-3baecbdb6e5a",
+              "sourceStep": "/api/3/workflow_steps/dda6c13f-3a65-4670-b1cb-9297b689a83c",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "4aa13351-3055-4c93-9a4f-752fe32c00ce"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "8cff43c8-a829-4446-9bc8-e6832ed8ddd2",
+          "id": 7448,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Lightweight URL Categories",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Retrieves a lightweight key-value list of all or custom URL categories from Zscaler.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/1d75dfba-30d0-40cb-bddf-2a8ee67c6936",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "7ace2385-18f4-4fbf-bfbf-1385e5aa3348",
+                "title": "Zscaler: Get Lightweight URL Categories",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "1d75dfba-30d0-40cb-bddf-2a8ee67c6936"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Lightweight URL Categories",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "''",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "get_lightweight_url_categories",
+                "operationTitle": "Get Lightweight URL Categories",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "c7a43aa9-c0a1-4201-a840-befc7cb37f43"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Lightweight URL Categories",
+              "targetStep": "/api/3/workflow_steps/c7a43aa9-c0a1-4201-a840-befc7cb37f43",
+              "sourceStep": "/api/3/workflow_steps/1d75dfba-30d0-40cb-bddf-2a8ee67c6936",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "236e35ae-ca9c-4988-9e42-df29baef1f7c"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "98288de7-4e5c-466c-ac9d-a55db0009069",
+          "id": 7443,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Add URL Category",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Adds a new custom URL category in Zscaler.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/618531a3-46da-43a2-b999-0efc297733cb",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "54d9fa9d-83a6-4117-b8e8-26b628a11635",
+                "title": "Zscaler: Add New Category",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "618531a3-46da-43a2-b999-0efc297733cb"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Add URL Category",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "2dbbdac2-e0e6-4bf3-a750-6365cda3d771",
+                "params": {
+                  "other_fields": "{\n  \"urls\": [\"test.com,demo.com\"]\n}"
+                },
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "add_new_category",
+                "operationTitle": "Add New Category",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e93251fb-b27d-4012-b30b-5b3001f05b22"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Add New Category",
+              "targetStep": "/api/3/workflow_steps/e93251fb-b27d-4012-b30b-5b3001f05b22",
+              "sourceStep": "/api/3/workflow_steps/618531a3-46da-43a2-b999-0efc297733cb",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "7bc013bd-dd34-44e7-8c26-6b5c199df737"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "a3dabcb7-7f59-4fc3-90c1-87be99b8fb30",
+          "id": 7439,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Update Whitelist URLs",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Adds or removes URLs from the \"Whitelisted URL List\" in Zscaler based on the URL and action you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/2f129fae-e7fa-4d18-aa02-6ca38fac64f3",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "a14b0a81-fcda-4f0c-b212-8bd4ef898020",
+                "title": "Zscaler: Update Whitelist URLs",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "2f129fae-e7fa-4d18-aa02-6ca38fac64f3"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Whitelist URLs",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "''",
+                "params": {
+                  "urls": "",
+                  "action": ""
+                },
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "update_whitelist_urls",
+                "operationTitle": "Update Whitelist URLs",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "ec51b195-8754-4aa3-93f0-0c7c35bc48c5"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Update Whitelist URLs",
+              "targetStep": "/api/3/workflow_steps/ec51b195-8754-4aa3-93f0-0c7c35bc48c5",
+              "sourceStep": "/api/3/workflow_steps/2f129fae-e7fa-4d18-aa02-6ca38fac64f3",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "64cb8946-09ef-46e3-8bfd-7840b41491f9"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "c4d904d7-b3c6-4fb1-a160-3b11a3070772",
+          "id": 7455,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Block URLs",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Adds URLs to the \"Blacklisted URL List\" in Zscaler based on the URLs you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/b2089995-832c-41fd-b2b1-689b5358c64f",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Block URLs",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "''",
+                "params": {
+                  "urls": ""
+                },
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "block_url",
+                "operationTitle": "Block URLs",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "0279ed28-cb37-443f-9af2-385ae6adc696"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "39e31d48-60b7-43b7-becc-b6a017ca041c",
+                "title": "Zscaler: Block URLs",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "b2089995-832c-41fd-b2b1-689b5358c64f"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Block URLs",
+              "targetStep": "/api/3/workflow_steps/0279ed28-cb37-443f-9af2-385ae6adc696",
+              "sourceStep": "/api/3/workflow_steps/b2089995-832c-41fd-b2b1-689b5358c64f",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "4d61171a-a292-4457-bc10-2613d397bead"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "c9370c1e-78e7-4281-8963-d35b4f76b6f2",
+          "id": 7445,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Delete URL Category",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Deletes the custom URL category for the specified ID from Zscaler.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/aad67fc4-b7a1-4431-b32a-aaac41797a3d",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Delete URL Category",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "2dbbdac2-e0e6-4bf3-a750-6365cda3d771",
+                "params": {
+                  "categoryId": "ANY"
+                },
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "delete_url_category",
+                "operationTitle": "Delete URL Category",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "187eab49-f317-49c4-a982-bab8aba45c29"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "cb0ad8f7-8502-4689-a6af-9fcdee0dd2b3",
+                "title": "Zscaler: Delete URL Category",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "aad67fc4-b7a1-4431-b32a-aaac41797a3d"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Delete URL Category",
+              "targetStep": "/api/3/workflow_steps/187eab49-f317-49c4-a982-bab8aba45c29",
+              "sourceStep": "/api/3/workflow_steps/aad67fc4-b7a1-4431-b32a-aaac41797a3d",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "a5a6a32c-5f17-4f30-97a7-34d00ade5fe5"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "ce870c5c-5c49-4535-b626-cd32e1fef377",
+          "id": 7454,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Update URL Category",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Adds or removes URLs from the category list for the specified URL category in Zscaler.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/38d2f4d2-f38b-4a14-8a72-9ea34a8c0b92",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Update URL Category",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "2dbbdac2-e0e6-4bf3-a750-6365cda3d771",
+                "params": {
+                  "action": "Add in List",
+                  "categoryId": "ANY",
+                  "other_fields": "{\n  \"urls\": [\"test.com,demonew.com\"]\n}"
+                },
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "update_url_category",
+                "operationTitle": "Update URL Category",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "0f352908-88da-4364-ba73-bdf153adae3f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "ee6ace46-2496-4ec6-984a-13cc54e8af20",
+                "title": "Zscaler: Update URL Category",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "38d2f4d2-f38b-4a14-8a72-9ea34a8c0b92"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Update URL Category",
+              "targetStep": "/api/3/workflow_steps/0f352908-88da-4364-ba73-bdf153adae3f",
+              "sourceStep": "/api/3/workflow_steps/38d2f4d2-f38b-4a14-8a72-9ea34a8c0b92",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "e5c8bf9f-d8b4-494d-aebe-c4f4f14a43c0"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "d031e0b2-398f-4b22-adfc-1da75a63ae28",
+          "id": 7451,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "URL Lookup",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Look up the categorization of the given set of URLs in Zscaler.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/84899003-d965-4098-8547-801976eb773a",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "URL Lookup",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "2dbbdac2-e0e6-4bf3-a750-6365cda3d771",
+                "params": {
+                  "urls": "abc.com,xyz.com"
+                },
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "url_lookup",
+                "operationTitle": "URL Lookup",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "29be30c9-bbdd-4296-b91a-aa0337daba89"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "918e3e6b-f430-462b-bad2-795dee331f81",
+                "title": "Zscaler: URL Lookup",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "84899003-d965-4098-8547-801976eb773a"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> URL Lookup",
+              "targetStep": "/api/3/workflow_steps/29be30c9-bbdd-4296-b91a-aa0337daba89",
+              "sourceStep": "/api/3/workflow_steps/84899003-d965-4098-8547-801976eb773a",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "58f55326-4dc6-4588-a0cf-b11ed4a8e7fc"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "e0aef544-7019-493c-9ca9-69b6fae7c377",
+          "id": 7452,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get URL Categories",
+          "aliasName": null,
+          "tag": "#Zscaler",
+          "description": "Retrieves a list of all categories from Zscaler.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1681796214,
+          "collection": "/api/3/workflow_collections/fb7a5e1e-d656-40d3-b3d9-39546b10bab1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/10b81542-9186-460a-97d3-69c46e54c6f9",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "e69b2cce-06b0-4634-bd4e-938544610813",
+                "title": "Zscaler: Get URL Categories",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "10b81542-9186-460a-97d3-69c46e54c6f9"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get URL Categories",
+              "description": null,
+              "arguments": {
+                "name": "Zscaler",
+                "config": "''",
+                "params": {
+                  "customOnly": false,
+                  "includeOnlyUrlKeywordCounts": false
+                },
+                "version": "2.2.0",
+                "connector": "zscaler",
+                "operation": "get_url_categories",
+                "operationTitle": "Get URL Categories",
+                "step_variables": {
+                  "output_data": "{{vars.result}}"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "c194ff0b-ff3f-44c5-887f-b04a1eefc000"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get URL Categories",
+              "targetStep": "/api/3/workflow_steps/c194ff0b-ff3f-44c5-887f-b04a1eefc000",
+              "sourceStep": "/api/3/workflow_steps/10b81542-9186-460a-97d3-69c46e54c6f9",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "448b0f34-bc03-46f9-9f39-4d62b2b86cc2"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "f0fa2bc6-f844-4117-aabe-53a4f91caece",
+          "id": 7446,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Zscaler"
+          ]
+        }
+      ]
+    }
+  ],
+  "exported_tags": [
+    "Zscaler",
+    "zscaler"
+  ]
+}

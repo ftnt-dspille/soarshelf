@@ -1,0 +1,544 @@
+{
+    "name": "proofpoint-email-gateway_dev",
+    "version": "2.0.1",
+    "label": "Proofpoint Email Gateway - Updated",
+    "description": "Proofpoint Email Protection helps you secure and control inbound and outbound email through an easy-to-use cloud-based solution. Perform actions like organizational block list and search quarantine message information using Proofpoint Email Gateway.",
+    "publisher": "Nikitha Nagwan",
+    "icon_small_name": "proofpoint_small.png",
+    "icon_large_name": "proofpoint_large.png",
+    "id": 41,
+    "configuration": {
+        "fields": [
+            {
+                "title": "Server URL",
+                "type": "text",
+                "name": "server_url",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "tooltip": "URL of the Proofpoint Email Gateway server to which you will connect and perform automated operations."
+            },
+            {
+                "title": "API Key",
+                "type": "password",
+                "name": "api_key",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "tooltip": "Specify the API key to authenticate and perform automated operations on the Proofpoint Email Gateway endpoint."
+            },
+            {
+                "title": "Secret",
+                "type": "password",
+                "name": "secret",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "tooltip": "Specify the Secret to authenticate and perform automated operations on the Proofpoint Email Gateway endpoint."
+            },
+            {
+                "title": "Verify SSL",
+                "type": "checkbox",
+                "name": "verify_ssl",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "value": true,
+                "tooltip": "Specifies whether the SSL certificate for the server is to be verified. By default, this option is selected, i.e., set to 'True'."
+            }
+        ]
+    },
+    "operations": [
+        {
+            "operation": "search_quarantine_messages",
+            "title": "Search Quarantine Messages (Deprecated)",
+            "description": "Searches for quarantined messages on your Proofpoint Email Gateway server, based on input parameters, such as the email address of the sender of the message, the subject of the message, the query ID of the messager, etc, that you have specified.",
+            "enabled": true,
+            "category": "investigation",
+            "annotation": "search_quarantine_messages",
+            "parameters": [
+                {
+                    "title": "Messages",
+                    "type": "multiselect",
+                    "name": "message",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "From or Receipt or Subject must be specified",
+                    "onchange": {
+                        "From": [
+                            {
+                                "title": "From",
+                                "description": "Specify the envelope address of the sender based on which you want to retrieve quarantined messages from the Proofpoint Email Gateway server.",
+                                "type": "text",
+                                "name": "from",
+                                "required": true,
+                                "editable": true,
+                                "visible": true,
+                                "placeholder": "e.g abc@example.com"
+                            }
+                        ],
+                        "Receipt": [
+                            {
+                                "title": "Receipt",
+                                "description": "Specify a list of envelope addresses of the recipients based on which you want to retrieve quarantined messages from the Proofpoint Email Gateway server.",
+                                "type": "text",
+                                "name": "rcpt",
+                                "required": true,
+                                "editable": true,
+                                "visible": true,
+                                "placeholder": "e.g abc@example.com"
+                            }
+                        ],
+                        "Subject": [
+                            {
+                                "title": "Subject",
+                                "description": "Specify the subject text based on which you want to retrieve quarantined messages from the Proofpoint Email Gateway server.",
+                                "type": "text",
+                                "name": "subject",
+                                "required": true,
+                                "editable": true,
+                                "visible": true,
+                                "tooltip": "Mime-decoded and URL-encoded utf8 text are supported",
+                                "placeholder": "e.g Team Meeting or Meeting*"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Query ID",
+                    "type": "text",
+                    "name": "queryid",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Start Date",
+                    "type": "datetime",
+                    "name": "start_date",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Defaults to the last 24 hours if neither startdate nor enddate is specified. Note: Start date and time should be in UTC format only."
+                },
+                {
+                    "title": "End Date",
+                    "type": "datetime",
+                    "name": "end_date",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Defaults to the last 24 hours if neither startdate nor enddate is specified.UTC timedate format. Note: Start date and time should be in UTC format only."
+                },
+                {
+                    "title": "Folder",
+                    "type": "text",
+                    "name": "folder",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Defaults to \"Quarantine folder\",if no folder is specified"
+                },
+                {
+                    "title": "Global Unique Identifier",
+                    "type": "text",
+                    "name": "guid",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "If it is specified and a message is found, the response body contains the message\u2019s raw data instead of a JSON document"
+                },
+                {
+                    "title": "DLP Violation",
+                    "type": "select",
+                    "name": "dlpviolation",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "options": [
+                        "Number of Smart Identifiers",
+                        "Actual Smart Identifiers"
+                    ]
+                },
+                {
+                    "title": "Message Status",
+                    "type": "checkbox",
+                    "name": "messagestatus",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                }
+            ],
+            "output_schema": {
+                "count": "",
+                "records": [
+                    {
+                        "processingserver": "",
+                        "date": "",
+                        "subject": "",
+                        "messageid": "",
+                        "folder": "",
+                        "size": "",
+                        "rcpts": [],
+                        "from": "",
+                        "spamscore": "",
+                        "guid": "",
+                        "host_ip": "",
+                        "localguid": ""
+                    }
+                ],
+                "meta": {
+                    "fqin": "",
+                    "queryid": "",
+                    "query_params": {
+                        "pretty": "",
+                        "subject": "",
+                        "from": ""
+                    },
+                    "limit": "",
+                    "duration": ""
+                }
+            },
+            "open": false
+        },
+        {
+            "operation": "quarantine_message_actions",
+            "title": "Quarantine Message Actions (Deprecated)",
+            "description": "Performs actions such as release, forward, move, etc on specified quarantine messages on your Proofpoint Email Gateway server, based on the quarantine folder, local GUID, and action specified.",
+            "enabled": true,
+            "category": "investigation",
+            "annotation": "quarantine_message_actions",
+            "parameters": [
+                {
+                    "title": "Action to Process the Message",
+                    "type": "select",
+                    "name": "message",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "options": [
+                        "Release Message",
+                        "Resubmit Message",
+                        "Forward Message",
+                        "Move Message",
+                        "Delete Message"
+                    ],
+                    "onchange": {
+                        "Release Message": [
+                            {
+                                "title": "Deleted Folder",
+                                "description": "(Optional) Folder for deleting the quarantined messages. If specified, the folder for deleted messages must be for quarantined messages of the same type of module. For example, you cannot send deleted 'Spam' messages to a folder for deleted 'DLP Incidents', and vice versa.",
+                                "type": "text",
+                                "name": "deletedfolder",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "placeholder": "e.g Deleted Incidents"
+                            },
+                            {
+                                "title": "Rescan",
+                                "description": "Select this option to rescan the message using the DLP and Attachment Defense filtering modules. By default, this is set to 'False'.",
+                                "value": false,
+                                "tooltip": "Enable to rescan the message.",
+                                "type": "checkbox",
+                                "name": "scan",
+                                "required": false,
+                                "editable": true,
+                                "visible": true
+                            }
+                        ],
+                        "Forward Message": [
+                            {
+                                "title": "Deleted Folder",
+                                "description": "(Optional) Folder for deleting the quarantined messages. If specified, the folder for deleted messages must be for quarantined messages of the same type of module. For example, you cannot send deleted 'Spam' messages to a folder for deleted 'DLP Incidents', and vice versa.",
+                                "type": "text",
+                                "tooltip": "You cannot send deleted spam messages to a folder for deleted DLP Incidents, and vice versa.",
+                                "name": "deletedfolder",
+                                "required": false,
+                                "editable": true,
+                                "visible": true
+                            },
+                            {
+                                "title": "Subject",
+                                "description": "(Optional) Subject of the message that you want to forward. The subject that you specify here will overwrite the original subject of the message.",
+                                "type": "text",
+                                "tooltip": "It will overwrite the original subject for the message with a specified new subject.",
+                                "name": "subject",
+                                "required": false,
+                                "editable": true,
+                                "visible": true
+                            },
+                            {
+                                "title": "From",
+                                "description": "(Optional) Envelope address of the sender from whom you want to forward the message.\nNote: If this is not specified, the default \"From\" mailer address is used.",
+                                "type": "text",
+                                "name": "from",
+                                "tooltip": "If not specified, the default mailer from address is used.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true
+                            },
+                            {
+                                "title": "Header From",
+                                "description": "(Optional) 'Header From' email address based on which you want to forward the message. \nNote: If this is not specified, the default \"From\" mailer address is used.",
+                                "type": "text",
+                                "name": "headerfrom",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "tooltip": "If not specified, the default mailer from address is used."
+                            },
+                            {
+                                "title": "To",
+                                "description": "(Optional) Comma-separated list of recipient email addresses to whom you want to forward the message.",
+                                "type": "text",
+                                "name": "to",
+                                "required": false,
+                                "editable": true,
+                                "visible": true
+                            },
+                            {
+                                "title": "Comment",
+                                "description": "(Optional) Comment that you want to add to the message that you want to forward on the Proofpoint Email Gateway server.",
+                                "type": "text",
+                                "name": "comment",
+                                "required": false,
+                                "editable": true,
+                                "visible": true
+                            }
+                        ],
+                        "Move Message": [
+                            {
+                                "title": "Target Folder",
+                                "description": "Folder to which you want to move the quarantined messages. The folder for moved messages must be for quarantined messages of the same type of module. For example, you cannot send deleted 'Spam' messages to a folder for deleted 'DLP Incidents', and vice versa.",
+                                "type": "text",
+                                "name": "targetfolder",
+                                "required": true,
+                                "editable": true,
+                                "visible": true,
+                                "tooltip": "Move is used for moving messages between folders."
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Quarantine Folder",
+                    "type": "text",
+                    "name": "folder",
+                    "required": true,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Local GUID",
+                    "type": "text",
+                    "name": "localguid",
+                    "required": true,
+                    "visible": true,
+                    "editable": true
+                }
+            ],
+            "output_schema": {},
+            "open": false
+        },
+        {
+            "operation": "get_organizational_block_list",
+            "title": "Get Organizational Block List",
+            "description": "Retrieves the organizational block list for a specified cluster on the Proofpoint Email Gateway server.",
+            "category": "investigation",
+            "annotation": "get_organizational_block_list",
+            "enabled": true,
+            "output_schema": {
+                "entries": [
+                    {
+                        "attributes": "",
+                        "operator": "",
+                        "value": "",
+                        "comment": ""
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "title": "Cluster ID",
+                    "type": "text",
+                    "name": "clusterId",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the organization's cluster ID to retrieve the organizational block list for that cluster from the Proofpoint Email Gateway server."
+                }
+            ],
+            "open": false
+        },
+        {
+            "operation": "add_remove_organizational_block_list",
+            "title": "Add or Remove Organizational Block List",
+            "description": "Adds or removes entries in the organizational block list for a specified cluster on the Proofpoint Email Gateway server.",
+            "category": "investigation",
+            "annotation": "add_remove_organizational_block_list",
+            "enabled": true,
+            "output_schema": {},
+            "parameters": [
+                {
+                    "title": "Cluster ID",
+                    "type": "text",
+                    "name": "clusterId",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the organization's cluster ID to identify the corresponding organizational block list on the Proofpoint Email Gateway server, then add or remove entries from that list."
+                },
+                {
+                    "title": "Action",
+                    "type": "select",
+                    "name": "action",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "Add",
+                    "tooltip": "Select the action to perform on the retrieved organizational block list. Available options are \"Add\" or \"Remove\".",
+                    "options": [
+                        "Add",
+                        "Remove"
+                    ]
+                },
+                {
+                    "title": "Attribute",
+                    "type": "text",
+                    "name": "attribute",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the attribute to use in the organizational block list rule."
+                },
+                {
+                    "title": "Operator",
+                    "type": "text",
+                    "name": "operator",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the operator to apply to the provided attribute."
+                },
+                {
+                    "title": "Value",
+                    "type": "text",
+                    "name": "value",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the value corresponding to the provided attribute and operator."
+                },
+                {
+                    "title": "Comment",
+                    "type": "text",
+                    "name": "comment",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "(Optional) Specify an optional comment to describe or clarify the block list entry."
+                }
+            ],
+            "open": false
+        },
+        {
+            "title": "Edit Custom List",
+            "operation": "edit_custom_list",
+            "description": "Adds or removes entries in the custom list for a specified cluster on the Proofpoint Email Gateway server.",
+            "parameters": [
+                {
+                    "title": "Cluster ID",
+                    "type": "text",
+                    "name": "clusterID",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Specify the cluster ID of the organization."
+                },
+                {
+                    "title": "List ID",
+                    "type": "text",
+                    "name": "listID",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Specify the list ID of the custom list."
+                },
+                {
+                    "title": "Add",
+                    "type": "text",
+                    "name": "add",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Add comma separated entries to the custom list. Example: abc.com, xyz.com"
+                },
+                {
+                    "title": "Delete",
+                    "type": "text",
+                    "name": "delete",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Delete entries from the custom list. Example: abc.com, xyz.com"
+                }
+            ],
+            "open": false,
+            "category": "remediation"
+        },
+        {
+            "title": "Get Custom List Entries",
+            "operation": "get_custom_list_entries",
+            "description": "Fetches entries from a custom list based on List ID and Cluster ID.",
+            "parameters": [
+                {
+                    "title": "Cluster ID",
+                    "type": "text",
+                    "name": "clusterID",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Specify the cluster ID of the organization."
+                },
+                {
+                    "title": "List ID",
+                    "type": "text",
+                    "name": "listID",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Specify the list ID of the custom list."
+                }
+            ],
+            "open": false,
+            "category": "utilities"
+        }
+    ],
+    "category": [
+        "Email Gateway"
+    ],
+    "contributor": "Raaid Salha",
+    "active": true,
+    "cs_compatible": true,
+    "system": false,
+    "playbook_collections": [
+        {
+            "@id": "/api/3/workflow_collections/c3ff78d1-0a44-411f-a2fe-773c1b7b1f5d",
+            "name": "Sample - Proofpoint Email Gateway - Updated - 2.0.1",
+            "image": "/api/3/images/96f38181-c3ed-4abb-ac6c-0526603cb8c2",
+            "description": "Sample playbooks for \"Proofpoint Email Gateway - Updated\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete."
+        }
+    ],
+    "icon_small": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3hpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQ4IDc5LjE2NDAzNiwgMjAxOS8wOC8xMy0wMTowNjo1NyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1MDNhYTZiMy0zYzEzLTQ5YzEtODNiZi00MThjZWIxM2VhNTIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzkzNjEyMkI1MDU3MTFFQUE0MDRDQzdCODMxNjk2MTciIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzkzNjEyMkE1MDU3MTFFQUE0MDRDQzdCODMxNjk2MTciIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpkODAyMjI2NC1hNTE1LTQ1NDMtYjkxNy1kZWY1N2U1YzBkMzQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NTAzYWE2YjMtM2MxMy00OWMxLTgzYmYtNDE4Y2ViMTNlYTUyIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+zCvw7QAAAt9JREFUeNrslV1MUnEUwO+XfMlFPpwDnDIDUaC5ZeqDvegsU6sHrZnVa8u50i2z3pz6Xj22sF5saUuBXKZtuoX2YguxBEtgKb04JyIBXiYgl9vxYwxnD7Xl2z1P/3vuOed3vu7/ogzDIMcpGHLMwgJYAAtgAf8XMDU5OTI8fFSfTCZNaXqapm02W+oRhdvU43ZbP1j9/o0rzc0elzsYDBYVF70bGyvW6Rqbml4MDPh9GxcuXXzQdb/mbI1ao/GueNXqE3UNDc/7+yORyNWWlvcT77VF2uUfyzs7O5pCTU9392uTqaCg4AAw9HLw48xM4+Um0/BIIBC4duP6G7Pl7r3OV4NDgcCmprCwvKLCYjYTOHG+rq7faOzp63tmNHK5XIDl5eVNjI+TJBmLxwyGkz+9XrlC7nQ4nxifCgSCgxZlcDJAoDQGYUQi0bnaWoIg6AQNbAzHmSSTSCQEfAGHwxGSQj6fT9MJBEUwDGOYJHjBOR6PIwxSVl6Wr8rfDxXd3obWQXC8t7f32+Lil3k7WNxsvaVUKKEzer3eYjGfKi3t7OpaWVn2eDy329uzs7MVCiVMIhaLVZ6pbG1rW/i64Ftfv9PRAa/AS61Wi8ViOIhIEscJOENOCKQ5bbW+HR1l/kIgqccPHzH/Imj6L/PT7GwoHK6uquJwuSnl0tL3aDRWUlIyNTUJxvX1DaBcW1vLycnBcTxlthsLRY/uGJH+MGefg0FNz0y7XC4YhsFgcDoXeTweZA7OPp9Pq9Xa7XaHwwGd0el1gJHL5RQVgcEolcr5eTtQZVJZVXV1CnYIkJkphC3CMFQqlSYStO2zze/3g6dUJoNAbpfL4XBCqpuBQG5uLkVRMHzYJdgZiUTC43GDv4Lh8FbW6az0Ug61KEJRoVBILBFj2G7tMEwwhRVDUBTqoLa2YvH43hbR0BzIIxqNCoVkcq8++AKAt7q6qlKp9hf0DwD2smMBLOB45LcAAwAwZKXownJGMgAAAABJRU5ErkJggg==",
+    "icon_large": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAIAAAABc2X6AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3hpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQ4IDc5LjE2NDAzNiwgMjAxOS8wOC8xMy0wMTowNjo1NyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1MDNhYTZiMy0zYzEzLTQ5YzEtODNiZi00MThjZWIxM2VhNTIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NURDRjI5Q0E1MDU3MTFFQUE0MDRDQzdCODMxNjk2MTciIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NURDRjI5Qzk1MDU3MTFFQUE0MDRDQzdCODMxNjk2MTciIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpkODAyMjI2NC1hNTE1LTQ1NDMtYjkxNy1kZWY1N2U1YzBkMzQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NTAzYWE2YjMtM2MxMy00OWMxLTgzYmYtNDE4Y2ViMTNlYTUy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",
+    "help_online": "https://docs.fortinet.com/document/fortisoar/2.0.0/proofpoint-email-gateway/200/proofpoint-email-gateway-v2-0-0",
+    "vendor_version": null
+}

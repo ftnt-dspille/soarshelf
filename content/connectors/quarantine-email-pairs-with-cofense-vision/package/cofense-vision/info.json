@@ -1,0 +1,151 @@
+{
+    "name": "cofense-vision",
+    "version": "1.0.1",
+    "label": "Cofense Vision",
+    "description": "Cofense Vision is a security solution designed to help organizations quickly detect, locate, and quarantine phishing emails across all employee inboxes.",
+    "publisher": "",
+    "icon_small_name": "small.png",
+    "icon_large_name": "large.png",
+    "id": 74,
+    "configuration": {
+        "fields": [
+            {
+                "title": "Server URL",
+                "type": "text",
+                "name": "hostname",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "tooltip": "Specify the URL of the Cofense Vision server to connect and perform automated operations."
+            },
+            {
+                "title": "Username",
+                "type": "text",
+                "name": "username",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "tooltip": "Specify the name of the client to connect to the endpoint and perform automated operations"
+            },
+            {
+                "title": "Password",
+                "type": "password",
+                "name": "password",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "tooltip": "Specify the password of the client to connect to the endpoint and perform automated operations"
+            },
+            {
+                "title": "Verify SSL",
+                "type": "checkbox",
+                "name": "verify_ssl",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "value": true,
+                "tooltip": "Specifies whether the SSL certificate for the server is to be verified. By default, this option is selected, i.e., set to true."
+            }
+        ]
+    },
+    "operations": [
+        {
+            "title": "Search Email",
+            "operation": "search_email",
+            "category": "investigation",
+            "description": "Search for emails from Cofense Vision based on the email subject and sender email address you have provided.",
+            "parameters": [
+                {
+                    "title": "Email Subject",
+                    "type": "text",
+                    "name": "emailSubject",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the comma-separated email subjects based on which you want to retrieve emails."
+                },
+                {
+                    "title": "Sender Email Address",
+                    "type": "text",
+                    "name": "senderEmailAddress",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the comma-separated sender email address based on which you want to retrieve emails."
+                }
+            ],
+            "annotation": "search_email",
+            "enabled": true,
+            "output_schema": {},
+            "open": false
+        },
+        {
+            "title": "Quarantine Email",
+            "operation": "quarantine_email",
+            "category": "investigation",
+            "description": "Quarantine an emails in Cofense Vision based on the recipient address and internal message ID you have provided.",
+            "parameters": [
+                {
+                    "title": "Recipient Address",
+                    "type": "text",
+                    "name": "recipientAddress",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the comma-separated recipient email address of the account containing the emails to be quarantined."
+                },
+                {
+                    "title": "Internet Message ID",
+                    "type": "text",
+                    "name": "internetMessageId",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the ID of any emails in that account to be quarantined, with each internetMessageId enclosed in angle brackets. For e.g <513C8CD8-E593-4DC4-82BF-6202E8AC95CB@example.com>"
+                }
+            ],
+            "annotation": "quarantine_email",
+            "enabled": true,
+            "output_schema": {},
+            "open": false
+        },
+        {
+            "title": "Quarantine Email Pairs",
+            "operation": "quarantine_email_pairs",
+            "description": "Quarantine multiple emails in Cofense Vision based on multiple pairs of recipient address and internal message ID.",
+            "parameters": [
+                {
+                    "title": "Email Pairs",
+                    "type": "textarea",
+                    "name": "emailPairs",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Specify recipient address & internet message ID pairs in this format.\nExample: <IMmsgID1>:Email1, <IMmsgID2>:Email2, etc"
+                }
+            ],
+            "open": false,
+            "category": "investigation"
+        }
+    ],
+    "category": [
+        "Email Security"
+    ],
+    "contributor": "Hariharan Devaraj",
+    "active": true,
+    "cs_compatible": true,
+    "system": false,
+    "playbook_collections": [
+        {
+            "@id": "/api/3/workflow_collections/3572b512-cc8a-4739-870b-7d86f2099aab",
+            "name": "Sample - Cofense Vision - 1.0.0",
+            "image": "/api/3/images/75666223-16ec-401e-8ea0-3ac5bce51e69",
+            "description": "Sample playbooks for \"Cofense Vision\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete."
+        }
+    ],
+    "icon_small": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAK6SURBVHgB7VZdSFNhGH6m4qg8myBJ6vBOM0Ep8Q/6wwgvTMhUqCyNNAj7wW4iKYOiCwm66SJ3l5CyCNIwmhf+ReZFq5VQ9INF1NqclMK2M4itzN73tbMsNHZh7uY8cPjO9+79vuf53p/vzDBHQAwRhxhDF6AL0AXoAmIuIGHhxB9QYevth314FC6PF2YlCXkbstF6ogmZljT8Dxi0b4HL7UVl/XEhXgytJ4/Q04TlRkRAfln1kuQa2s+dQvOhvVhOSApsvfYI+ZaSAtRVV2DM8UzSwaFvbpgnZb/aoo34PjAs81W5OQi7JzEbCMg8qbRI5im1u+EbGEG8SYGB7NM9d6GUFEIpLcTM7T7xTbRkiJ8Uoe1OvxiZuKO9jcjHsWvnNrSfbcG9rmuo+fENlZ8+0HsH3jmewnvVSpubkEAEnzu7hNRoSUfw0RN8PN0GlUY/CeBnYn8jjBlpUB1Osjv/WMsQAZx/OX1xAYmxy0kPHGulYnyIdZQh96XL+HK9G4luNxVllvgysW9wRN59g/cxSRszlJIi8Z9VVYmA5fwZzFAEwm6PiNTWTvf0/U4Bh5lTMPZ4XArN5ZlC3Z4KsU1REHmTsMeDMIXNQ2SM7JudFMZ0CbW5vAwmCnGIIsG2teUH8f5oC7i4vr56g5SaKiLtjoQ/9XA9Vueul/f4CwSN/MXrt/CrQeTlZMH5/CUuXrHCPjSKNZvyMWFOhvXGLTTuq5aTcT7jjEbawkBjItWBKjXAuU0u3yGjaftmIsoR8VwDqY31snYuFJJ1/Jt0gT8QxNaqhkgqlkK0XcD78EH4XjGbkuhRftlorigy11IpNcBOXGz/umz4Hoi2BTmiTM4jR1XrMCbmtrAPPYj4Gv7+U8oFyF0Racvi+bbkMVpwRPlQTK4dcKGdkZmRtriAlYb+NdQF6AJ0ATEX8BOHB0G2PpphzQAAAABJRU5ErkJggg==",
+    "icon_large": "data:image/jpeg;base64,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",
+    "help_online": "https://github.com/fortinet-fortisoar/connector-cofense-vision/blob/release/1.0.0/docs/readme.md",
+    "vendor_version": null
+}

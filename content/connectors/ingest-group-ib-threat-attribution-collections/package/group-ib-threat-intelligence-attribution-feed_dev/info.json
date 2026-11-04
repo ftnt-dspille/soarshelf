@@ -1,0 +1,247 @@
+{
+    "name": "group-ib-threat-intelligence-attribution-feed_dev",
+    "version": "1.2.1",
+    "label": "Group IB Threat Intelligence & Attribution",
+    "description": "Use Group-IB Threat Intelligence & Attribution Feed integration to fetch IOCs from various Group-IB collections.",
+    "publisher": "Nikitha Nagwan",
+    "icon_small_name": "Group_IB_Threat_Intelligence_small.png",
+    "icon_large_name": "Group_IB_Threat_Intelligence_large.png",
+    "id": 192,
+    "configuration": {
+        "fields": [
+            {
+                "title": "Server URL",
+                "type": "text",
+                "name": "server_url",
+                "required": true,
+                "visible": true,
+                "editable": true
+            },
+            {
+                "title": "Username",
+                "type": "text",
+                "name": "username",
+                "required": true,
+                "visible": true,
+                "editable": true
+            },
+            {
+                "title": "API Key",
+                "type": "password",
+                "name": "api_key",
+                "required": true,
+                "visible": true,
+                "editable": true
+            },
+            {
+                "title": "Verify SSL",
+                "type": "checkbox",
+                "name": "verify_ssl",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "value": true
+            }
+        ]
+    },
+    "operations": [
+        {
+            "operation": "search_indicator",
+            "title": "Search Indicator",
+            "description": "Find indicator and its metadata on Group IB Database.",
+            "category": "investigation",
+            "annotation": "search_indicator",
+            "output_schema": {},
+            "enabled": true,
+            "parameters": [
+                {
+                    "title": "Indicator",
+                    "type": "text",
+                    "name": "q",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Value of the indicator to search for in GroupIB DB."
+                },
+                {
+                    "title": "Limit",
+                    "type": "integer",
+                    "name": "limit",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 5,
+                    "tooltip": "Limit how many records to return per match."
+                }
+            ],
+            "open": false
+        },
+        {
+            "operation": "get_indicators",
+            "title": "Get Indicators",
+            "description": "Retrieves a limited number of indicators for the specified Group IB collection, and all indicators for a particular incident if you have specified the incident ID.",
+            "category": "investigation",
+            "annotation": "get_indicators",
+            "output_schema": {
+                "value": "",
+                "type": "",
+                "asn": "",
+                "geocountry": "",
+                "gibmalwarename": ""
+            },
+            "enabled": true,
+            "parameters": [
+                {
+                    "title": "Collection",
+                    "type": "select",
+                    "name": "collection",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "GIB Collection to get indicators from.",
+                    "options": [
+                        "compromised/mule",
+                        "compromised/imei",
+                        "attacks/ddos",
+                        "attacks/deface",
+                        "attacks/phishing",
+                        "attacks/phishing_kit",
+                        "hi/threat",
+                        "apt/threat",
+                        "osi/vulnerability",
+                        "suspicious_ip/tor_node",
+                        "suspicious_ip/open_proxy",
+                        "suspicious_ip/socks_proxy",
+                        "malware/cnc"
+                    ]
+                },
+                {
+                    "title": "Incident ID",
+                    "type": "text",
+                    "name": "id",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Incident Id to get indicators."
+                },
+                {
+                    "title": "Limit",
+                    "type": "select",
+                    "name": "limit",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 50,
+                    "tooltip": "Limit of indicators to display in War Room",
+                    "options": [
+                        10,
+                        20,
+                        30,
+                        40,
+                        50
+                    ]
+                }
+            ],
+            "open": false
+        },
+        {
+            "title": "Ingest Collection",
+            "operation": "ingest_collection",
+            "description": "Ingests incidents from Group IB based on the collection.",
+            "parameters": [
+                {
+                    "title": "Collection",
+                    "type": "select",
+                    "name": "collection",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Select collection option.",
+                    "options": [
+                        "compromised/account_group",
+                        "compromised/bank_card_group",
+                        "compromised/masked_card",
+                        "compromised/mule",
+                        "compromised/spd",
+                        "attacks/ddos",
+                        "attacks/phishing_group",
+                        "attacks/phishing_kit",
+                        "malware/cnc",
+                        "malware/malware",
+                        "osi/git_repository",
+                        "osi_public_leak",
+                        "osi/vulnerability"
+                    ]
+                },
+                {
+                    "title": "Limit",
+                    "type": "integer",
+                    "name": "limit",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 10,
+                    "tooltip": "Enter the number of incidents to fetch. \nDefault is 10."
+                },
+                {
+                    "title": "Offset",
+                    "type": "integer",
+                    "name": "offset",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Used for pagination.\nEx: Offset=200, skips first 200 records and returns next 100 (limit)"
+                },
+                {
+                    "title": "Sequence Update",
+                    "type": "text",
+                    "name": "sequenceUpdate",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Used for incremental ingestion.\nReturns record updated after the specified sequence number."
+                },
+                {
+                    "title": "Start Time",
+                    "type": "datetime",
+                    "name": "startTime",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Enter dateTime in the following format.\n\"2026-05-30T00:00:00Z\""
+                },
+                {
+                    "title": "End Time",
+                    "type": "datetime",
+                    "name": "endTime",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Enter dateTime in the following format.\n\"2026-05-30T12:00:00+00:00\""
+                }
+            ],
+            "open": false,
+            "category": "investigation"
+        }
+    ],
+    "category": [
+        "Threat Intelligence"
+    ],
+    "contributor": "",
+    "active": true,
+    "cs_compatible": true,
+    "system": false,
+    "playbook_collections": [],
+    "icon_small": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDcuMS1jMDAwIDc5LmRhYmFjYmIsIDIwMjEvMDQvMTQtMDA6Mzk6NDQgICAgICAgICI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6MDVhMzk2YTUtYjc4Yy00ZDUwLWE0NmItOGQyZDcyNmEzYzU1IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjBFQzQzOUQ5NTQ4QTExRUNCOTA0ODBEQjc0RDJBRkM0IiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjBFQzQzOUQ4NTQ4QTExRUNCOTA0ODBEQjc0RDJBRkM0IiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIFBob3Rvc2hvcCAyMS4yIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NWYyODJkMmEtYTZlYy00NGRlLWE3ZTgtMTRlZTc5OWY5ZDgyIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjA1YTM5NmE1LWI3OGMtNGQ1MC1hNDZiLThkMmQ3MjZhM2M1NSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PsUG7D4AAALnSURBVHja7FVNb9pAELWNwYD5TCMIKVFRSiOhKJdwinost175fah/oCeSXqoWbkhRBRJp1TQQt4CA8P1tFhvsPtgkolRtpUQ5NGKE0Hp2dt7Met4zq+s685DGMQ9sa4A1wBrg/gDpyvBzXf5LAH9PgA5RzSbTvztISt1Cb3IHAAPPG/o9ZjC49Zx8a7XH09UOOkRzDce184w8Jtvb27PZrF6vGwyGg4ODfD7f7/c9Ho/X63W73RzHlcvlUqmkqqpdtDLeUL9QLBTaZacLuvnUt9UaO5SZvtqB1SycZbMKGSN7s9lMpVLIhRSxWKzdbu/u7l5eXsbj8el0Cufx8TFQNzc3L75++X5xUbeJ735IgFQUJfHhPaPNOJZdBWBZVh7JweALWZYlSRoOh1cLg//ZwpAOW0ajEW3B2Wq1isWi3eny7+yohOiqarVabTYbzxsnE8IsAbD0e3CS6wmjevv8k2Cxokz0cXR0BJjT09NOp4OMPM/b7fZGo4FgQRCCweD+/j7WqSopSnlbM0emGgJmCrnaCr8OeT3izfjoC3t71jhvEbQ/Go30Xw3v49Y5Xtjy7kepkyoNsJhMJnTrTfqqOlBuA65xXgYcomk+Eah0dc44Du3Ttdls/n2Q6B2Ybob11XOX28KvTpHXZrobDzR9/ls2v0NYfmTv+U3GyBtYxmn+I2HZ9Uf/8QPM3z50DUoCfkISwMblbZDZYrF0u10qc7VaDZoBfy6XI4T4fL6NjQ3KczihRWAD2Ao5oQS6BoDCZLNZp9OZTCb9fj+oC3kIBAJQTQBEo9F0Ol2tViE18OMfQoQUOO9wOFAQnL1eD8CARJUIADEzmUwkEjk8PJyDoDqkQ/mhUAhSimM4UKlUaFIkwjFRFJ8sDGMNJ2pHQYCBOqEtKlB7e3vAg2bgCIqmtL/mAQSOXUggykebEB9EoGX8w49ECKMBOKxpGjyIxDqRSKCgcDiMAHonOIUbwyO9qP+faD8FGABDHb9EmIj9XAAAAABJRU5ErkJggg==",
+    "icon_large": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAIAAAABc2X6AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDcuMS1jMDAwIDc5LmRhYmFjYmIsIDIwMjEvMDQvMTQtMDA6Mzk6NDQgICAgICAgICI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6MDVhMzk2YTUtYjc4Yy00ZDUwLWE0NmItOGQyZDcyNmEzYzU1IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjQxNDBGQUVBNTQzODExRUNCOTA0ODBEQjc0RDJBRkM0IiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjQxNDBGQUU5NTQzODExRUNCOTA0ODBEQjc0RDJBRkM0IiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIFBob3Rvc2hvcCAyMS4yIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NWYyODJkMmEtYTZlYy00NGRlLWE3ZTgtMTRlZTc5OWY5ZDgyIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjA1YTM5NmE1LWI3OGMtNGQ1MC1hNDZiLThkMmQ3MjZhM2M1NSIv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",
+    "help_online": "https://docs.fortinet.com/document/fortisoar/1.2.0/group-ib-threat-intelligence-attribution-feed/1753356654/group-ib-threat-intelligence-amp-attribution-feed-v1-2-0",
+    "vendor_version": null
+}

@@ -1,0 +1,22 @@
+title: Pull Cofense Triage reports by category ID
+summary: A fork of the Cofense Triage connector that adds fetching reports by category ID beside the original
+  actions.
+description: ''
+use_cases:
+- phishing
+- ingestion
+tags:
+- cofense
+- phishing
+- email
+author: ftnt-dspille
+version: 2.0.1
+min_version: null
+license: MIT
+published: '2026-11-04'
+enhances:
+  connector: cofense-triage
+  version: 2.0.0
+  changes: Adds a get reports by category ID operation, so reports can be fetched for a whole category
+    instead of only through the built in filters.
+author_id: 99558074

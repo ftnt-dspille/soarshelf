@@ -1,0 +1,618 @@
+{
+    "name": "microsoft-365-defender",
+    "label": "Microsoft 365 Defender",
+    "version": "1.2.1",
+    "description": "Microsoft 365 Defender For Endpoints is a unified platform for preventative protection, post-breach detection, automated investigation, and response. This connector facilitates the automated operations related to files, machines, IP, Domain, actor etc.",
+    "publisher": "Fortinet",
+    "cs_approved": true,
+    "cs_compatible": true,
+    "category": "Endpoint Protection",
+    "icon_small_name": "small.png",
+    "icon_large_name": "large.png",
+    "ingestion_supported": true,
+    "help_online": "https://docs.fortinet.com/document/fortisoar/1.2.0/microsoft-365-defender/971/microsoft-365-defender-v1-2-0",
+    "ingestion_modes": [
+        "scheduled"
+    ],
+    "configuration": {
+        "fields": [
+            {
+                "title": "Get Access Token",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "select",
+                "options": [
+                    "On behalf of User - Delegated Permission",
+                    "Without a User - Application Permission"
+                ],
+                "name": "auth_type",
+                "value": "Without a User - Application Permission",
+                "description": "Select the method using which you will get authentication tokens used to access the Microsoft 365 Defender APIs. You can choose between On behalf of User – Delegate Permission or Without a User - Application Permission. For more information, see the Getting Access Tokens section.",
+                "onchange": {
+                    "Without a User - Application Permission": [
+                        {
+                            "title": "Server URL",
+                            "name": "resource",
+                            "type": "text",
+                            "description": "The service-based URL to which you will connect and perform the automated operations.",
+                            "tooltip": "The service-based URL to which you will connect and perform the automated operations.",
+                            "placeholder": "https://api.security.microsoft.com",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "value": "https://api.security.microsoft.com"
+                        },
+                        {
+                            "title": "Directory (tenant) ID",
+                            "name": "tenant_id",
+                            "type": "text",
+                            "description": "The ID of the tenant that you have been provided for your Azure Network Security Group instance.",
+                            "tooltip": "The ID of the tenant that you have been provided for your Azure Network Security Group instance.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Application (client) ID",
+                            "name": "client_id",
+                            "type": "text",
+                            "description": "Unique ID of the Azure Network Security Group application that is used to create an authentication token required to access the API.",
+                            "tooltip": "Unique ID of the Azure Network Security Group application that is used to create an authentication token required to access the API.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Application (Client) Secret",
+                            "name": "client_secret",
+                            "type": "password",
+                            "description": "Unique Client Secret of the Azure Network Security Group application that is used to create an authentication token required to access the API. For information on how to get the secret key, see https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/exposed-apis-create-app-webapp.",
+                            "tooltip": "Unique Client Secret of the Azure Network Security Group application that is used to create an authentication token required to access the API. For information on how to get the secret key, see https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/exposed-apis-create-app-webapp.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        }
+                    ],
+                    "On behalf of User - Delegated Permission": [
+                        {
+                            "title": "Server URL",
+                            "name": "resource",
+                            "type": "text",
+                            "description": "The service-based URL to which you will connect and perform the automated operations.",
+                            "tooltip": "The service-based URL to which you will connect and perform the automated operations.",
+                            "placeholder": "https://api.security.microsoft.com",
+                            "value": "https://api.security.microsoft.com",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Directory (tenant) ID",
+                            "name": "tenant_id",
+                            "type": "text",
+                            "description": "The ID of the tenant that you have been provided for your Azure Network Security Group instance.",
+                            "tooltip": "The ID of the tenant that you have been provided for your Azure Network Security Group instance.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Application (client) ID",
+                            "name": "client_id",
+                            "type": "text",
+                            "description": "Unique ID of the Azure Network Security Group application that is used to create an authentication token required to access the API.",
+                            "tooltip": "Unique ID of the Azure Network Security Group application that is used to create an authentication token required to access the API.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Application (Client) Secret",
+                            "name": "client_secret",
+                            "type": "password",
+                            "description": "Unique Client Secret of the Azure Network Security Group application that is used to create an authentication token required to access the API. For information on how to get the secret key, see https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/exposed-apis-create-app-webapp.",
+                            "tooltip": "Unique Client Secret of the Azure Network Security Group application that is used to create an authentication token required to access the API. For information on how to get the secret key, see https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/exposed-apis-create-app-webapp.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Authorization Code",
+                            "name": "code",
+                            "type": "password",
+                            "tooltip": "The authorization code that you acquired in the authorization step.",
+                            "description": "(Only Applicable to On behalf of User – Delegate Permission) The authorization code that you acquired during the authorization step. For more information, see the Getting Access Tokens using the On behalf of the user – Delegate Permission method section. ",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Redirect URI",
+                            "name": "redirect_url",
+                            "type": "text",
+                            "tooltip": "The redirect_uri of your app, where authentication responses can be sent and received by your app. It must exactly match one of the redirect_uri's you registered in the app registration portal.",
+                            "description": "(Only Applicable to On behalf of User – Delegate Permission) The redirect_uri of your app, where authentication responses can be sent and received by your app. The redirect URL that you specify here must exactly match one of the redirect_uri's you have registered in your app registration portal.",
+                            "placeholder": "E.g. https://localhost/myapp",
+                            "required": false,
+                            "editable": true,
+                            "visible": true
+                        }
+                    ]
+                }
+            },
+            {
+                "title": "Verify SSL",
+                "required": false,
+                "editable": true,
+                "visible": true,
+                "type": "checkbox",
+                "name": "verify_ssl",
+                "value": true,
+                "description": "Specifies whether the SSL certificate for the server is to be verified or not. By default, this option is set as True."
+            }
+        ]
+    },
+    "operations": [
+        {
+            "title": "Get Incidents List",
+            "description": "Retrieves a list of incidents along with their status for users to sort through and create an informed cybersecurity response. It exposes a collection of incidents that were flagged in your network, based on the time range, incident owner and other details that you have specified.",
+            "operation": "list_incidents",
+            "category": "investigation",
+            "annotation": "list_incidents",
+            "parameters": [
+                {
+                    "title": "Last Updated Time",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "type": "datetime",
+                    "name": "lastUpdateTime",
+                    "tooltip": "Specify the time when the incident was last updated.",
+                    "description": "Specify the time when the incident was last updated on the server. "
+                },
+                {
+                    "title": "Created Time",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "type": "datetime",
+                    "name": "createdTime",
+                    "tooltip": "Specify time when incident was first created.",
+                    "description": "Specify the time when incident was first created."
+                },
+                {
+                    "title": "Status",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "type": "multiselect",
+                    "name": "status",
+                    "tooltip": "Specify the current status of the incident.",
+                    "description": "Specifies the current status of the incident.",
+                    "options": [
+                        "Active",
+                        "Resolved",
+                        "In Progress",
+                        "Redirected"
+                    ]
+                },
+                {
+                    "title": "Assigned To",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "type": "text",
+                    "name": "assignedTo",
+                    "tooltip": "Specify the owner of the incident",
+                    "placeholder": "Example: abc@xyz.com",
+                    "description": "Specify the incident owner's email address."
+                },
+                {
+                    "title": "Filter Query",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "type": "text",
+                    "name": "query",
+                    "tooltip": "Specify the filter query to filter the results from Microsoft 365 Defender. You can apply the query on lastUpdateTime, createdTime, status, and assignedTo properties.",
+                    "placeholder": "e.g. status eq 'Active'",
+                    "description": "(Optional) Specify the query to filter results retrieved from Microsoft 365 Defender. For query syntax and other information, refer to https://learn.microsoft.com/en-us/graph/filter-query-parameter."
+                },
+                {
+                    "title": "Offset",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "type": "text",
+                    "name": "skip",
+                    "tooltip": "To skip the first n element based upon the value you specify in there",
+                    "description": "(Optional) Specify the count of the first few records to skip while retrieving response from Defender Endpoint API."
+                },
+                {
+                    "title": "Limit",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "type": "integer",
+                    "name": "top",
+                    "tooltip": "Maximum number of incidents that this operation should return, maximum is 100",
+                    "description": "(Optional) Specify the maximum number of incidents that this operation should return from Microsoft 365 Defender. The maximum values it can return is 100."
+                },
+                {
+                    "name": "get_all_records",
+                    "title": "Get All Records",
+                    "type": "checkbox",
+                    "editable": true,
+                    "visible": true,
+                    "required": false,
+                    "value": true,
+                    "tooltip": "Select to retrieve all records present and ignore the parameters Offset and Limit. By default, this is selected, i.e. set to true.",
+                    "description": "Select to retrieve all records present and ignore the parameters Offset and Limit. By default, this is selected, i.e. set to true."
+                }
+            ],
+            "output_schema": {
+                "@odata.context": "",
+                "value": [
+                    {
+                        "incidentId": "",
+                        "incidentUri": "",
+                        "redirectIncidentId": "",
+                        "incidentName": "",
+                        "createdTime": "",
+                        "lastUpdateTime": "",
+                        "assignedTo": "",
+                        "classification": "",
+                        "determination": "",
+                        "status": "",
+                        "severity": "",
+                        "tags": [],
+                        "comments": [],
+                        "alerts": [
+                            {
+                                "alertId": "",
+                                "providerAlertId": "",
+                                "incidentId": "",
+                                "serviceSource": "",
+                                "creationTime": "",
+                                "lastUpdatedTime": "",
+                                "resolvedTime": "",
+                                "firstActivity": "",
+                                "lastActivity": "",
+                                "title": "",
+                                "description": "",
+                                "category": "",
+                                "status": "",
+                                "severity": "",
+                                "investigationId": "",
+                                "investigationState": "",
+                                "classification": "",
+                                "determination": "",
+                                "detectionSource": "",
+                                "detectorId": "",
+                                "assignedTo": "",
+                                "actorName": "",
+                                "threatFamilyName": "",
+                                "mitreTechniques": [],
+                                "devices": [],
+                                "entities": [
+                                    {
+                                        "entityType": "",
+                                        "evidenceCreationTime": "",
+                                        "verdict": "",
+                                        "remediationStatus": "",
+                                        "accountName": "",
+                                        "userSid": "",
+                                        "aadUserId": "",
+                                        "userPrincipalName": ""
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "enabled": true
+        },
+        {
+            "title": "Get Incident Details",
+            "description": "Retrieves the details of a specific incident based on the incident ID that you have specified.",
+            "operation": "get_incident",
+            "category": "investigation",
+            "annotation": "get_incident",
+            "parameters": [
+                {
+                    "title": "Incident ID",
+                    "required": true,
+                    "editable": true,
+                    "visible": true,
+                    "type": "text",
+                    "name": "id",
+                    "tooltip": "Specify the unique identifier that represents the incident to fetch its details.",
+                    "description": "Specify the unique identifier that represents the incident to fetch its details."
+                }
+            ],
+            "output_schema": {
+                "@odata.context": "",
+                "incidentId": "",
+                "incidentUri": "",
+                "redirectIncidentId": "",
+                "incidentName": "",
+                "createdTime": "",
+                "lastUpdateTime": "",
+                "assignedTo": "",
+                "classification": "",
+                "determination": "",
+                "status": "",
+                "severity": "",
+                "tags": [],
+                "comments": [],
+                "alerts": [
+                    {
+                        "alertId": "",
+                        "providerAlertId": "",
+                        "incidentId": "",
+                        "serviceSource": "",
+                        "creationTime": "",
+                        "lastUpdatedTime": "",
+                        "resolvedTime": "",
+                        "firstActivity": "",
+                        "lastActivity": "",
+                        "title": "",
+                        "description": "",
+                        "category": "",
+                        "status": "",
+                        "severity": "",
+                        "investigationId": "",
+                        "investigationState": "",
+                        "classification": "",
+                        "determination": "",
+                        "detectionSource": "",
+                        "detectorId": "",
+                        "assignedTo": "",
+                        "actorName": "",
+                        "threatFamilyName": "",
+                        "mitreTechniques": [],
+                        "devices": [],
+                        "entities": [
+                            {
+                                "entityType": "",
+                                "evidenceCreationTime": "",
+                                "verdict": "",
+                                "remediationStatus": "",
+                                "accountName": "",
+                                "userSid": "",
+                                "aadUserId": "",
+                                "userPrincipalName": ""
+                            }
+                        ]
+                    }
+                ]
+            },
+            "enabled": true
+        },
+        {
+            "title": "Update Incident",
+            "description": "Updates the owner, status, comments, and other details of existing incidents based on the incident ID that you have specified.",
+            "operation": "update_incident",
+            "category": "investigation",
+            "annotation": "update_incident",
+            "parameters": [
+                {
+                    "title": "Incident ID",
+                    "required": true,
+                    "editable": true,
+                    "visible": true,
+                    "type": "text",
+                    "name": "id",
+                    "tooltip": "Unique identifier to represent the incident",
+                    "description": "Specify the unique identifier that represents the incident to update it."
+                },
+                {
+                    "title": "Status",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "type": "select",
+                    "name": "status",
+                    "tooltip": "Specify the status of the incident.",
+                    "description": "SSelect from drop-down the status with which to update the incident.",
+                    "options": [
+                        "Active",
+                        "Resolved",
+                        "In Progress",
+                        "Redirected"
+                    ]
+                },
+                {
+                    "title": "Assigned To",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "type": "text",
+                    "name": "assignedTo",
+                    "tooltip": "Specify the owner of the incident.",
+                    "placeholder": "Example: abc@xyz.com",
+                    "description": "Specify the incident owner's email address. "
+                },
+                {
+                    "title": "Classification",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "type": "select",
+                    "name": "classification",
+                    "tooltip": "Select the classification of the incident.",
+                    "description": "Select from drop-down the specification of the incident:",
+                    "options": [
+                        "TruePositive",
+                        "Informational, expected activity",
+                        "FalsePositive"
+                    ],
+                    "onchange": {
+                        "TruePositive": [
+                            {
+                                "title": "Determination",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "name": "determination",
+                                "options": [
+                                    "Multistage attack",
+                                    "Malicious user activity",
+                                    "Compromised account",
+                                    "Malware",
+                                    "Phishing",
+                                    "Unwanted software",
+                                    "Other"
+                                ],
+                                "description": "Specifies that the incident was a malicious activity."
+                            }
+                        ],
+                        "Informational, expected activity": [
+                            {
+                                "title": "Determination",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "name": "determination",
+                                "options": [
+                                    "Security test",
+                                    "Line-of-business application",
+                                    "Confirmed activity",
+                                    "Other"
+                                ],
+                                "description": "Specifies that the activity related to the incident was expected. For example, a security test."
+                            }
+                        ],
+                        "FalsePositive": [
+                            {
+                                "title": "Determination",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "name": "determination",
+                                "options": [
+                                    "Not malicious",
+                                    "Not enough data to validate",
+                                    "Other"
+                                ],
+                                "description": "Specifies that the activity was non-malicious."
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Tags",
+                    "name": "tags",
+                    "description": "Specify a list of incident tags.",
+                    "type": "text",
+                    "visible": true,
+                    "editable": true,
+                    "required": false,
+                    "tooltip": "Specify in csv format for custom tags associated with an incident",
+                    "placeholder": "tag1, tag2, tag3, ..."
+                },
+                {
+                    "title": "Comment",
+                    "required": false,
+                    "editable": true,
+                    "visible": true,
+                    "type": "text",
+                    "name": "comment",
+                    "tooltip": "Specify the comment to be added to the incident.",
+                    "description": "Specify a comment to be added to the incident."
+                }
+            ],
+            "output_schema": {
+                "status": "",
+                "assignedTo": "",
+                "classification": "",
+                "determination": "",
+                "tags": [],
+                "comments": [
+                    {
+                        "comment": "",
+                        "createdBy": "",
+                        "createdTime": ""
+                    }
+                ]
+            },
+            "enabled": true
+        },
+        {
+            "title": "Advanced Hunting",
+            "description": "Retrieves data from the past 30 days based on the query that you have specified.",
+            "operation": "advanced_hunting",
+            "category": "investigation",
+            "annotation": "advanced_hunting",
+            "parameters": [
+                {
+                    "title": "Query",
+                    "required": true,
+                    "editable": true,
+                    "visible": true,
+                    "type": "text",
+                    "name": "Query",
+                    "tooltip": "Query to examine the past 30 days of event data in Microsoft 365 Defender.",
+                    "description": "Specify a query to examine the past 30 days of event data in Microsoft 365 Defender. For more information on the queries, refer to Microsoft 365 Defender Advanced hunting."
+                }
+            ],
+            "output_schema": {
+                "Stats": {
+                    "ExecutionTime": "",
+                    "resource_usage": {
+                        "cache": {
+                            "memory": {
+                                "hits": "",
+                                "misses": "",
+                                "total": ""
+                            },
+                            "disk": {
+                                "hits": "",
+                                "misses": "",
+                                "total": ""
+                            }
+                        },
+                        "cpu": {
+                            "user": "",
+                            "kernel": "",
+                            "total cpu": ""
+                        },
+                        "memory": {
+                            "peak_per_node": ""
+                        }
+                    },
+                    "dataset_statistics": [
+                        {
+                            "table_row_count": "",
+                            "table_size": ""
+                        }
+                    ]
+                },
+                "Schema": [
+                    {
+                        "Name": "",
+                        "Type": ""
+                    }
+                ],
+                "Results": [
+                    {
+                        "Timestamp": "",
+                        "FileName": "",
+                        "InitiatingProcessFileName": ""
+                    },
+                    {
+                        "Timestamp": "",
+                        "FileName": "",
+                        "InitiatingProcessFileName": ""
+                    }
+                ]
+            },
+            "enabled": true
+        }
+    ]
+}

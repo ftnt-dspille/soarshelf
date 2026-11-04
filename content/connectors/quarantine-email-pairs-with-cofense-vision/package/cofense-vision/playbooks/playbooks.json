@@ -1,0 +1,160 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "uuid": "3572b512-cc8a-4739-870b-7d86f2099aab",
+      "@type": "WorkflowCollection",
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "uuid": "7e74d32f-4b07-4c7f-86e3-d6431e0a9df0",
+          "collection": "/api/3/workflow_collections/3572b512-cc8a-4739-870b-7d86f2099aab",
+          "steps": [
+            {
+              "uuid": "02ba875f-6640-4527-a00a-a5c108dac954",
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "left": "20",
+              "top": "20",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62"
+            },
+            {
+              "uuid": "2dec5724-f277-4205-9d96-28cc71154c7d",
+              "@type": "WorkflowStep",
+              "name": "Search Email",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "name": "Cofense Vision",
+                "config": "",
+                "params": {
+                  "emailSubject": "",
+                  "senderEmailAddress": ""
+                },
+                "version": "1.0.0",
+                "connector": "cofense-vision",
+                "operation": "search_email",
+                "operationTitle": "Search Email"
+              },
+              "left": "188",
+              "top": "120",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671"
+            }
+          ],
+          "triggerLimit": null,
+          "description": "Search for emails from Cofense Vision based on the email subject and sender email address you have provided.",
+          "name": "Search Email",
+          "tag": "#Cofense Vision",
+          "recordTags": [
+            "Cofense",
+            "cofense-vision"
+          ],
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/02ba875f-6640-4527-a00a-a5c108dac954",
+          "routes": [
+            {
+              "uuid": "689cd6df-e1ac-47a4-b7af-16ebaf6960b0",
+              "@type": "WorkflowRoute",
+              "label": null,
+              "isExecuted": false,
+              "name": "Start-> Search Email",
+              "sourceStep": "/api/3/workflow_steps/02ba875f-6640-4527-a00a-a5c108dac954",
+              "targetStep": "/api/3/workflow_steps/2dec5724-f277-4205-9d96-28cc71154c7d"
+            }
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "uuid": "e9bd2248-a5e7-4998-bb16-484d9e6caf3f",
+          "collection": "/api/3/workflow_collections/3572b512-cc8a-4739-870b-7d86f2099aab",
+          "steps": [
+            {
+              "uuid": "9247de59-2bc2-4261-88aa-1f12c799d1d2",
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "left": "20",
+              "top": "20",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62"
+            },
+            {
+              "uuid": "cb64615e-fcec-4510-b561-2384fd939aa6",
+              "@type": "WorkflowStep",
+              "name": "Quarantine Email",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "name": "Cofense Vision",
+                "config": "",
+                "params": {
+                  "recipientAddress": "",
+                  "internetMessageId": ""
+                },
+                "version": "1.0.0",
+                "connector": "cofense-vision",
+                "operation": "quarantine_email",
+                "operationTitle": "Quarantine Email"
+              },
+              "left": "188",
+              "top": "120",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671"
+            }
+          ],
+          "triggerLimit": null,
+          "description": "Quarantine an emails in Cofense Vision based on the recipient address and internal message ID you have provided.",
+          "name": "Quarantine Email",
+          "tag": "#Cofense Vision",
+          "recordTags": [
+            "Cofense",
+            "cofense-vision"
+          ],
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/9247de59-2bc2-4261-88aa-1f12c799d1d2",
+          "routes": [
+            {
+              "uuid": "186b0258-1249-4393-8287-da701465488f",
+              "@type": "WorkflowRoute",
+              "label": null,
+              "isExecuted": false,
+              "name": "Start-> Quarantine Email",
+              "sourceStep": "/api/3/workflow_steps/9247de59-2bc2-4261-88aa-1f12c799d1d2",
+              "targetStep": "/api/3/workflow_steps/cb64615e-fcec-4510-b561-2384fd939aa6"
+            }
+          ]
+        }
+      ],
+      "name": "Sample - Cofense Vision - 1.0.0",
+      "description": "Cofense Vision is a security solution designed to help organizations quickly detect, locate, and quarantine phishing emails across all employee inboxes.",
+      "visible": true,
+      "recordTags": [
+        "Cofense",
+        "cofense-vision"
+      ]
+    }
+  ]
+}

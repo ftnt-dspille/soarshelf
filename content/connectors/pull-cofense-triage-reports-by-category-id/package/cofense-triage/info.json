@@ -1,0 +1,832 @@
+{
+    "name": "cofense-triage",
+    "version": "2.0.1",
+    "label": "Cofense Triage",
+    "description": "Cofense Triage is a phishing response workbench that allows analysts to automate and respond to phishing threats.",
+    "publisher": "Community",
+    "icon_small_name": "small_icon.png",
+    "icon_large_name": "large_icon.png",
+    "id": 73,
+    "configuration": {
+        "fields": [
+            {
+                "title": "Server URL",
+                "type": "text",
+                "name": "server",
+                "required": true,
+                "visible": true,
+                "editable": true
+            },
+            {
+                "title": "Client ID",
+                "type": "text",
+                "name": "client_id",
+                "required": true,
+                "visible": true,
+                "editable": true
+            },
+            {
+                "title": "Client Secret",
+                "type": "password",
+                "name": "client_secret",
+                "required": true,
+                "visible": true,
+                "editable": true
+            },
+            {
+                "title": "Verify SSL",
+                "type": "checkbox",
+                "name": "verify_ssl",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "value": true
+            }
+        ]
+    },
+    "operations": [
+        {
+            "operation": "get_clusters",
+            "category": "investigation",
+            "annotation": "get_clusters",
+            "description": "Retrieves a list of clusters from Cofense Triage based on the input parameters you have specified. NOTE: If you do not specify any input parameters, then this operation will retrieve all clusters from Cofense Triage.",
+            "title": "Get Clusters",
+            "parameters": [
+                {
+                    "title": "Priority",
+                    "type": "integer",
+                    "name": "match_priority",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Priority value should be between 0 to 5."
+                },
+                {
+                    "title": "Created At",
+                    "type": "datetime",
+                    "name": "created_at",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Updated At",
+                    "type": "datetime",
+                    "name": "updated_at",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Page",
+                    "type": "integer",
+                    "name": "page_number",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 1,
+                    "tooltip": "Value should not be negative"
+                },
+                {
+                    "title": "Number of Results to Fetch",
+                    "type": "integer",
+                    "name": "page_size",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 20,
+                    "tooltip": "Specify the number of results this operation returns, per page, in the response. The maximum number of results per page is set items to 200."
+                },
+                {
+                    "title": "Sort By",
+                    "type": "text",
+                    "name": "sort_by",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the attributes to sort the clusters. Note: The default sort order for an attribute is ascending. Prefix the attributes with a hyphen to sort in descending order."
+                },
+                {
+                    "title": "Filter By",
+                    "type": "json",
+                    "name": "filter_by",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the filters to filter the list of clusters by attribute values. Note: Enter values in key-value JSON format.For Example {\"risk_score_eq\": \"1\"}."
+                },
+                {
+                    "title": "Fields to Retrieve",
+                    "type": "text",
+                    "name": "fields_to_retrieve",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the fields to retrieve the mentioned attributes only. For example: unprocessed_reports_count, processed_reports_count."
+                },
+                {
+                    "title": "Count",
+                    "type": "integer",
+                    "name": "total_reports_count",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the number of reports to be present in the cluster."
+                },
+                {
+                    "title": "Tags",
+                    "type": "text",
+                    "name": "tags",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the tags to retrieve the cluster."
+                }
+            ],
+            "output_schema": {},
+            "enabled": true,
+            "open": false
+        },
+        {
+            "operation": "get_cluster_details",
+            "category": "investigation",
+            "annotation": "get_cluster_details",
+            "description": "Retrieves details of a specific cluster from Cofense Triage based on the cluster ID you have specified.",
+            "title": "Get Cluster Details",
+            "parameters": [
+                {
+                    "title": "Cluster ID",
+                    "type": "text",
+                    "name": "cluster_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Cluster ID value should not be negative"
+                }
+            ],
+            "output_schema": {},
+            "enabled": true,
+            "open": false
+        },
+        {
+            "operation": "get_reports",
+            "category": "investigation",
+            "annotation": "get_reports",
+            "description": "Retrieves reports from Cofense Triage \"Inbox\", \"Recon\", and \"Processed\" folders based on the input parameters you have specified. NOTE: If you do not specify any input parameters, then this operation will retrieve all reports from Cofense Triage.",
+            "title": "Get Reports",
+            "parameters": [
+                {
+                    "title": "Priority",
+                    "type": "integer",
+                    "name": "match_priority",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the priority of reports to retrieve from Cofense Triage. You can specify the priority value as any value between 0 to 5."
+                },
+                {
+                    "title": "Created At",
+                    "type": "datetime",
+                    "name": "created_at",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Updated At",
+                    "type": "datetime",
+                    "name": "updated_at",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Page",
+                    "type": "integer",
+                    "name": "page_number",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 1,
+                    "tooltip": "Value should not be negative"
+                },
+                {
+                    "title": "Number of Results to Fetch",
+                    "type": "integer",
+                    "name": "page_size",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 20,
+                    "tooltip": "Specify the number of results this operation returns, per page, in the response. The maximum number of results per page is set items to 200."
+                },
+                {
+                    "title": "Sort By",
+                    "type": "text",
+                    "name": "sort_by",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the attributes to sort the reports. NOTE: The default sort order for an attribute is ascending. Prefix the attributes with a hyphen to sort in descending order."
+                },
+                {
+                    "title": "Filter By",
+                    "type": "json",
+                    "name": "filter_by",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the filters to filter the list of reports by attribute values. NOTE: Enter values in key-value JSON format. For Example {\"categorization_tags_any\": \"test\"}."
+                },
+                {
+                    "title": "Fields to Retrieve",
+                    "type": "text",
+                    "name": "fields_to_retrieve",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the fields to retrieve the mentioned attributes only. For example, location and from_address."
+                },
+                {
+                    "title": "Report Location",
+                    "type": "text",
+                    "name": "report_location",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the location to retrieve the reports based on the location of the reported email within Cofense Triage. Some possible values are inbox, reconnaissance, and processed."
+                },
+                {
+                    "title": "Tags",
+                    "type": "text",
+                    "name": "tags",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the tags to retrieve the reports based on the tags associated with the reports."
+                },
+                {
+                    "title": "Categorization Tags",
+                    "type": "text",
+                    "name": "categorization_tags",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the categorization tags to retrieve the reports based on the tags assigned when the reported email was processed."
+                }
+            ],
+            "output_schema": {},
+            "enabled": true,
+            "open": false
+        },
+        {
+            "operation": "get_report_details",
+            "category": "investigation",
+            "annotation": "get_report_details",
+            "description": "Retrieves details of a specific report from Cofense Triage based on the report ID you have specified.",
+            "title": "Get Report Details",
+            "parameters": [
+                {
+                    "title": "Report ID",
+                    "type": "text",
+                    "name": "report_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Value should not be negative"
+                }
+            ],
+            "output_schema": {},
+            "enabled": true,
+            "open": false
+        },
+        {
+            "operation": "get_inbox_reports",
+            "category": "investigation",
+            "annotation": "get_inbox_reports",
+            "description": "Retrieves a list of uncategorized reports from Cofense Triage \"Inbox\" folders based on the input parameters you have specified. NOTE: If you do not specify any input parameters, then this operation will retrieve all uncategorized reports from Cofense Triage.",
+            "title": "Get Inbox Reports",
+            "parameters": [
+                {
+                    "title": "Priority",
+                    "type": "integer",
+                    "name": "match_priority",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the priority of uncategorized reports to retrieve from Cofense Triage. You can specify the priority value as any value between 0 to 5."
+                },
+                {
+                    "title": "Created At",
+                    "type": "datetime",
+                    "name": "created_at",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Updated At",
+                    "type": "datetime",
+                    "name": "updated_at",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Page",
+                    "type": "integer",
+                    "name": "page_number",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 1,
+                    "tooltip": "Specify a page number to retrieve uncategorized records. The header of the response contains the number of the next page and the total number of results."
+                },
+                {
+                    "title": "Number of Results to Fetch",
+                    "type": "integer",
+                    "name": "page_size",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 20,
+                    "tooltip": "Specify the number of results this operation returns, per page, in the response. The maximum number of results per page is set items to 200."
+                },
+                {
+                    "title": "Sort By",
+                    "type": "text",
+                    "name": "sort_by",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the attributes to sort the uncategorized reports. NOTE: The default sort order for an attribute is ascending. Prefix the attributes with a hyphen to sort in descending order."
+                },
+                {
+                    "title": "Filter By",
+                    "type": "json",
+                    "name": "filter_by",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the filters to filter the list of uncategorized reports by attribute values. Note: Enter values in key-value JSON format.For Example {\"categorization_tags_any\": \"test\"}."
+                },
+                {
+                    "title": "Fields to Retrieve",
+                    "type": "text",
+                    "name": "fields_to_retrieve",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the fields to retrieve the mentioned attributes only. For example, location, from_address."
+                },
+                {
+                    "title": "Tags",
+                    "type": "text",
+                    "name": "tags",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the tags to retrieve the uncategorized reports based on the tags associated with the reports."
+                },
+                {
+                    "title": "Categorization Tags",
+                    "type": "text",
+                    "name": "categorization_tags",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the tags to retrieve the uncategorized reports based on the tags associated with the reports."
+                }
+            ],
+            "output_schema": {},
+            "enabled": true,
+            "open": false
+        },
+        {
+            "operation": "get_report_reporters_details",
+            "category": "investigation",
+            "annotation": "get_report_reporters_details",
+            "description": "Retrieves a list of IDs of all reporters and the number of reports those individuals reported from Cofense Triage based on the input parameters you have specified. NOTE: If you do not specify any input parameters, then this operation will retrieve all categorized reports from Cofense Triage.",
+            "title": "Get Report Reporters Details",
+            "parameters": [
+                {
+                    "title": "Created At",
+                    "type": "datetime",
+                    "name": "created_at",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Updated At",
+                    "type": "datetime",
+                    "name": "updated_at",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Page",
+                    "type": "integer",
+                    "name": "page_number",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 1,
+                    "tooltip": "Specify a page number to retrieve records. The header of the response contains the number of the next page and the total number of results."
+                },
+                {
+                    "title": "Number of Results to Fetch",
+                    "type": "integer",
+                    "name": "page_size",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 20,
+                    "tooltip": "Specify the number of results this operation returns, per page, in the response. The maximum number of results per page is set items to 200."
+                },
+                {
+                    "title": "Sort By",
+                    "type": "text",
+                    "name": "sort_by",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the attributes to sort the reporters. NOTE: The default sort order for an attribute is ascending. Prefix the attributes with a hyphen to sort in descending order."
+                },
+                {
+                    "title": "Filter By",
+                    "type": "json",
+                    "name": "filter_by",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the filters to filter the list of reporters by attribute values. Note: Enter values in key-value JSON format.For Example {\"reputation_score_eq\": \"1\", \"reports_count_gt\": \"3\"}."
+                },
+                {
+                    "title": "Fields to Retrieve",
+                    "type": "text",
+                    "name": "fields_to_retrieve",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the fields to retrieve the mentioned attributes only. For example, email, reports_count."
+                },
+                {
+                    "title": "VIP",
+                    "type": "checkbox",
+                    "name": "vip",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify that the reporter to be retrieved is VIP or non-VIP."
+                },
+                {
+                    "title": "Reputation Score",
+                    "type": "integer",
+                    "name": "reputation_score",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify reputation score to retrieve the reporters."
+                },
+                {
+                    "title": "Email",
+                    "type": "text",
+                    "name": "email",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify emails of the reporter to retrieve the reporter."
+                }
+            ],
+            "output_schema": {},
+            "enabled": true,
+            "open": false
+        },
+        {
+            "operation": "get_attachment_details",
+            "category": "investigation",
+            "annotation": "get_attachment_details",
+            "description": "Retrieves the details of a specific attachment from Cofense Triage based on the attachment ID you have specified.",
+            "title": "Get Attachment Details",
+            "parameters": [
+                {
+                    "title": "Attachment ID",
+                    "type": "text",
+                    "name": "attachment_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the attachment ID whose details you want to retrieve from Cofense Triage."
+                }
+            ],
+            "output_schema": {},
+            "enabled": true,
+            "open": false
+        },
+        {
+            "operation": "get_triage_threat_indicators",
+            "category": "investigation",
+            "annotation": "get_triage_threat_indicators",
+            "description": "Retrieves a list of triage threat indicators from Cofense Triage based on the input parameters you have specified. NOTE: If you do not specify any input parameters, then this operation will retrieve all categorized reports from Cofense Triage.",
+            "title": "Get Triage Threat Indicators",
+            "parameters": [
+                {
+                    "title": "Threat Type",
+                    "type": "select",
+                    "name": "threat_type",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "options": [
+                        "URL",
+                        "Domain",
+                        "Sender",
+                        "Subject",
+                        "MD5",
+                        "SHA256",
+                        "Hostname",
+                        "Header"
+                    ]
+                },
+                {
+                    "title": "Threat Level",
+                    "type": "select",
+                    "name": "threat_level",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "options": [
+                        "Malicious",
+                        "Suspicious",
+                        "Benign"
+                    ]
+                },
+                {
+                    "title": "Threat Value",
+                    "type": "text",
+                    "name": "threat_value",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Threat Source",
+                    "type": "text",
+                    "name": "threat_source",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Created At",
+                    "type": "datetime",
+                    "name": "created_at",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Updated At",
+                    "type": "datetime",
+                    "name": "updated_at",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                },
+                {
+                    "title": "Sort By",
+                    "type": "text",
+                    "name": "sort_by",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the attributes to sort the threat indicators. NOTE: The default sort order for an attribute is ascending. Prefix the attributes with a hyphen to sort in descending order."
+                },
+                {
+                    "title": "Filter By",
+                    "type": "json",
+                    "name": "filter_by",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the filters to filter the list of threat indicators by attribute values. Note: Enter values in key-value JSON format.For Example {\"threat_level_eq\": \"Malicious\"}."
+                },
+                {
+                    "title": "Fields to Retrieve",
+                    "type": "text",
+                    "name": "fields_to_retrieve",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the fields to retrieve the mentioned attributes only. For example, threat_level, threat_type, threat_value."
+                },
+                {
+                    "title": "Page",
+                    "type": "integer",
+                    "name": "page_number",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 1,
+                    "tooltip": "Specify a page number to retrieve the records. The header of the response contains the number of the next page and the total number of results."
+                },
+                {
+                    "title": "Number of Results to Fetch",
+                    "type": "integer",
+                    "name": "page_size",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 20,
+                    "tooltip": "Specify the number of results this operation returns, per page, in the response. The maximum number of results per page is set items to 200."
+                }
+            ],
+            "output_schema": {},
+            "enabled": true,
+            "open": false
+        },
+        {
+            "operation": "get_url_details",
+            "title": "Get URL Details",
+            "description": "Retrieves URL details from Cofense Triage based on the endpoint and request you have specified.",
+            "category": "query",
+            "annotation": "get_url_details",
+            "output_schema": {},
+            "enabled": true,
+            "parameters": [
+                {
+                    "title": "API Endpoint",
+                    "type": "text",
+                    "name": "endpoint",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the API Endpoint for Cofense Triage that starts with https://triage.example.com/api/public/v2/reports/4/assignee and helps make the API call."
+                },
+                {
+                    "title": "HTTP method",
+                    "type": "select",
+                    "name": "method",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "GET",
+                    "options": [
+                        "GET",
+                        "POST"
+                    ]
+                },
+                {
+                    "title": "Request Body",
+                    "type": "json",
+                    "name": "body",
+                    "required": false,
+                    "visible": true,
+                    "editable": true
+                }
+            ],
+            "open": false
+        },
+        {
+            "operation": "download_report",
+            "title": "Download Report",
+            "description": "Retrieves files associated with a specific report from the Cofense Triage server based on the report ID you have specified.",
+            "enabled": true,
+            "category": "investigation",
+            "annotation": "download_report",
+            "parameters": [
+                {
+                    "title": "Report ID",
+                    "type": "text",
+                    "name": "id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true
+                }
+            ],
+            "output_schema": {},
+            "open": false
+        },
+        {
+            "operation": "download_attachment",
+            "title": "Download Attachment",
+            "description": "Download an attachment from the Cofense Triage server based on the attachment ID you have specified.",
+            "enabled": true,
+            "category": "investigation",
+            "annotation": "download_attachment",
+            "parameters": [
+                {
+                    "title": "Attachment ID",
+                    "type": "text",
+                    "name": "id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true
+                }
+            ],
+            "output_schema": {},
+            "open": false
+        },
+        {
+            "operation": "get_domain_details",
+            "category": "investigation",
+            "annotation": "get_domain_details",
+            "description": "Retrieves the details of a specific domain from Cofense Triage based on the domain ID you have specified.",
+            "title": "Get Domain Details",
+            "parameters": [
+                {
+                    "title": "Domain ID",
+                    "type": "text",
+                    "name": "domain_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the domain ID whose details you want to retrieve from Cofense Triage."
+                }
+            ],
+            "output_schema": {},
+            "enabled": true,
+            "open": false
+        },
+        {
+            "operation": "get_hostname_details",
+            "category": "investigation",
+            "annotation": "get_hostname_details",
+            "description": "Retrieves the details of a specific hostname from Cofense Triage based on the domain ID you have specified.",
+            "title": "Get Hostname Details",
+            "parameters": [
+                {
+                    "title": "Hostname ID",
+                    "type": "text",
+                    "name": "hostname_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the hostname ID whose details you want to retrieve from Cofense Triage."
+                }
+            ],
+            "output_schema": {},
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Get Reports By Category ID",
+            "operation": "get_reports_by_category_id",
+            "description": "Retrieves reports from Cofense Triage based on the category ID. \nNOTE: Default category ID is 7.",
+            "parameters": [
+                {
+                    "title": "Category ID",
+                    "type": "integer",
+                    "name": "categoryID",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": 7,
+                    "tooltip": "Category ID of the incidents to fetch"
+                },
+                {
+                    "title": "Updated At",
+                    "type": "datetime",
+                    "name": "updatedAt",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null
+                },
+                {
+                    "title": "Limit",
+                    "type": "integer",
+                    "name": "limit",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Number of incidents to fetch."
+                }
+            ],
+            "open": false,
+            "category": "investigation"
+        }
+    ],
+    "category": [
+        "Threat Intelligence"
+    ],
+    "contributor": null,
+    "active": true,
+    "cs_compatible": true,
+    "system": false,
+    "playbook_collections": [
+        {
+            "@id": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+            "name": "Sample - Cofense Triage - 2.0.0",
+            "image": "/api/3/images/bda4f3b4-05ba-43fb-a497-1d2c4939dae1",
+            "description": "Sample playbooks for \"Cofense Triage\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete."
+        }
+    ],
+    "icon_small": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3hpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQ4IDc5LjE2NDAzNiwgMjAxOS8wOC8xMy0wMTowNjo1NyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1MDNhYTZiMy0zYzEzLTQ5YzEtODNiZi00MThjZWIxM2VhNTIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MTMwOURDM0IzOUJGMTFFQTk4MUU4RDM3QkI5QjdENTAiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MTMwOURDM0EzOUJGMTFFQTk4MUU4RDM3QkI5QjdENTAiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpmNmEzYjY2MC05YTliLTRiYzUtOTdkMi05MmQ3NjQ3M2YwZjMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NTAzYWE2YjMtM2MxMy00OWMxLTgzYmYtNDE4Y2ViMTNlYTUyIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+QpqoDQAAA/1JREFUeNrslVtMXEUYx8/MOWfOnF1Yl0tdQpE7tLWQtqG0lEYx0qRNtTXhocb40NSnEps0XiLGhyatMREjRoMx0C4kNfWBYqwStUKi1hibPtBgL5TSlq4sLHCE7V7Osuc6Z5yzmIYX40PlwWS/p2/mTM7v+/7znxmQ0nRuLQNyaxxZQBbwPwAIqweiICCBX8kpx+mm6Tj0vwFAAGQJRZTFX6+MTk/PYhlvq3+yaftWhHhdNx4VACGQEOo5O/BBdzAcmaducBijluYdXSc7NtVWph+BAZZ1wyOhzk+Db5/qwljiIQue5yGDJGKJ0rKS4cFgTWW5QZyMcBnFAPg7YROEAJ7nMkUBQeCYpo7jzmQWu1+J44xeG9/TdsQ0TUlCFaUlfy5Fo7EE4Lj1JcWptNZQt/FC/yd2SiWmBRFi/VLDYAyAEGscIMlRVTfH2Jqe4QvyoNdLYjFqWWwS+nwCU3/gwkU1nqisLu//+L18vw9j/OaJzqrqio7Dh3hCBq9eH/vm++Le005hofz0bn10jCxFpc0bgYzNiTuBc33xzo+EooA9G7HCYQbOaTuYPHOWkfCuJt/xVwWLOOOTdzlCTrzezrrbvf+l5/c+e2D/nsPPtS690q4tKO1D5+du30vNK759e8X6utTQD0JJkbSl3rwzpf12Odnbz1mEIc1bk2JNpdzaAjweoiziXTvEDdUcdSB1ZSRMMV9uzuKDmLr04Mbtu9F4XBRFfW7eiMxxaY2ZigLIFCDRKBCZ0JQjDtX13BcPWfdD6Z9+5vPz/W8cE8vLEt2nrWs3gUemNqEZi0PE81XlpRwP3+8ObqvbdGn4/PDAGWVe6fnqu5LPg9XffjkSUSZuTEheOe/kOzltL1DTZPVaoWlH15jceW+9xkxIVTXZ02eOT1BDBzYBgDrzC2R2zt0qh9KRS5cPvHyU5cWBdU0NW6b+mBm7OSEhsXFnA6EU2uTr3g95RYHlZUAUrVDISapAEMFjucwt9uMBfeo+8uVKGOtjv+PKirTfL0QiRjyJ1xXg2hqQNgwkisc63u3p/8Lj9drEZiZlx8K1aTwpSmhksK+luVFjUpomcx5zTsamHHOkyMPxW5P3wnO6pj2xviih6UwPiecJhIZhPrWzQeAoZMa1bdJ1quP40SMAAsuyLdNSU8tJNbWhtmro3GfPNDeyg+ZaM+N9apg0M2RGZEIX5PkLfTk8penUcioaUyILjm0rMxH2IwSBe2ZWHn2BkUXhytXrF3/8JRSOyBhv37r54L7WQGH+8j8fY1dhViB1WzItC0sS65tV5vXIpmnJMgYPASursYRW364G08u2/+UmAOBhQjMtunvuJi6bWw3IPjhZQBawZvGXAAMA9dIN/FdeFrcAAAAASUVORK5CYII=",
+    "icon_large": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAIAAAABc2X6AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3hpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQ4IDc5LjE2NDAzNiwgMjAxOS8wOC8xMy0wMTowNjo1NyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1MDNhYTZiMy0zYzEzLTQ5YzEtODNiZi00MThjZWIxM2VhNTIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MTMwOURDMzczOUJGMTFFQTk4MUU4RDM3QkI5QjdENTAiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MTMwOURDMzYzOUJGMTFFQTk4MUU4RDM3QkI5QjdENTAiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpmNmEzYjY2MC05YTliLTRiYzUtOTdkMi05MmQ3NjQ3M2YwZjMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NTAzYWE2YjMtM2MxMy00OWMxLTgzYmYtNDE4Y2ViMTNlYTUy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",
+    "help_online": "https://docs.fortinet.com/document/fortisoar/2.0.0/cofense-triage/317/cofense-triage-v2-0-0",
+    "vendor_version": null
+}

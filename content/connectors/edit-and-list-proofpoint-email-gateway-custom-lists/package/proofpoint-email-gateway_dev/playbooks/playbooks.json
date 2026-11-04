@@ -1,0 +1,437 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Sample - Proofpoint Email Gateway - 2.0.0",
+      "description": "Proofpoint Email Protection helps you secure and control inbound and outbound email through an easy-to-use cloud-based solution. Perform actions like organizational block list and search quarantine message information using Proofpoint Email Gateway.",
+      "visible": true,
+      "image": null,
+      "uuid": "c3ff78d1-0a44-411f-a2fe-773c1b7b1f5d",
+      "id": 53,
+      "deletedAt": null,
+      "importedBy": [],
+      "recordTags": [
+        "Proofpoint",
+        "proofpoint-email-gateway"
+      ],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Search Quarantine Message (Deprecated)",
+          "aliasName": null,
+          "tag": "#Proofpoint Email Gateway",
+          "description": "Search quarantine messages in your proofpoint server",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1767338775,
+          "collection": "/api/3/workflow_collections/c3ff78d1-0a44-411f-a2fe-773c1b7b1f5d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/204742ef-2a67-4e9c-a25a-1d42fabb7523",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Search Quarantine Message",
+              "description": null,
+              "arguments": {
+                "name": "Proofpoint Email Gateway",
+                "params": {
+                  "from": "abc@example.com",
+                  "guid": "",
+                  "folder": "Quarantine",
+                  "message": [
+                    "From",
+                    "Subject"
+                  ],
+                  "queryid": "",
+                  "subject": "Team Meeting",
+                  "end_date": "",
+                  "start_date": ""
+                },
+                "version": "2.0.0",
+                "connector": "proofpoint-email-gateway",
+                "operation": "search_quarantine_messages",
+                "operationTitle": "Search Quarantine Messages",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "2dc521f6-b0c1-490d-9240-41b27532a485"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "c0f408b6-b063-4137-9963-a10de4cf10c8",
+                "title": "Proofpoint Email Gateway: Search Quarantine Message",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "204742ef-2a67-4e9c-a25a-1d42fabb7523"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Quarantine Message Actions",
+              "targetStep": "/api/3/workflow_steps/2dc521f6-b0c1-490d-9240-41b27532a485",
+              "sourceStep": "/api/3/workflow_steps/204742ef-2a67-4e9c-a25a-1d42fabb7523",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0a7761b2-882e-4273-870b-1142fb0973cc"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "545f7b96-b19f-4452-9714-dbc7ab98264a",
+          "id": 579,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Proofpoint",
+            "proofpoint-email-gateway"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Add or Remove Organizational Block List",
+          "aliasName": null,
+          "tag": null,
+          "description": "Adds or removes entries in the organizational block list for a specified cluster on the Proofpoint Email Gateway server.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1767339175,
+          "collection": "/api/3/workflow_collections/c3ff78d1-0a44-411f-a2fe-773c1b7b1f5d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/4b93182f-b70b-4995-963d-ec71b23212bd",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Add or Remove Organizational Block List",
+              "description": null,
+              "arguments": {
+                "name": "Proofpoint Email Gateway",
+                "config": "08f9bf01-cce4-4a6b-9faa-1b4517e8f625",
+                "params": {
+                  "value": "spam@example.com",
+                  "action": "Add",
+                  "comment": "",
+                  "operator": "equals",
+                  "attribute": "sender",
+                  "clusterId": "1"
+                },
+                "version": "2.0.0",
+                "connector": "proofpoint-email-gateway",
+                "operation": "add_remove_organizational_block_list",
+                "operationTitle": "Add or Remove Organizational Block List",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "c4127b90-08b0-4c35-8e87-3c223dc6c709"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "4b93182f-b70b-4995-963d-ec71b23212bd"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Add or Remove Organizational Block List",
+              "targetStep": "/api/3/workflow_steps/c4127b90-08b0-4c35-8e87-3c223dc6c709",
+              "sourceStep": "/api/3/workflow_steps/4b93182f-b70b-4995-963d-ec71b23212bd",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "03720596-45cc-476a-b596-fba6c3b0bfae"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "6893d193-f022-4aea-94fe-3f3dfdf115b0",
+          "id": 580,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Proofpoint",
+            "proofpoint-email-gateway"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Organizational Block List",
+          "aliasName": null,
+          "tag": null,
+          "description": "Retrieves the organizational block list for a specified cluster on the Proofpoint Email Gateway server.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1767782700,
+          "collection": "/api/3/workflow_collections/c3ff78d1-0a44-411f-a2fe-773c1b7b1f5d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/badab1dd-ce41-4526-8470-baf9eb0b832a",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Organizational Block List",
+              "description": null,
+              "arguments": {
+                "name": "Proofpoint Email Gateway",
+                "config": "6e07ed89-45b2-4a33-bed0-88e515160cdd",
+                "params": {
+                  "clusterId": "1"
+                },
+                "version": "2.0.0",
+                "connector": "proofpoint-email-gateway",
+                "operation": "get_organizational_block_list",
+                "operationTitle": "Get Organizational Block List",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "1a95a1d5-e00d-4e3f-beba-6bd5e1de2d9b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "badab1dd-ce41-4526-8470-baf9eb0b832a"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Organizational Block List",
+              "targetStep": "/api/3/workflow_steps/1a95a1d5-e00d-4e3f-beba-6bd5e1de2d9b",
+              "sourceStep": "/api/3/workflow_steps/badab1dd-ce41-4526-8470-baf9eb0b832a",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "80158fd1-2667-4cbc-8e58-382aaee2a7c1"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "b4c0ef54-13d6-42af-8e6f-aa09cc87501d",
+          "id": 581,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Proofpoint",
+            "proofpoint-email-gateway"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Quarantine Message Actions (Deprecated)",
+          "aliasName": null,
+          "tag": "#Proofpoint Email Gateway",
+          "description": "Select the quarantine message which you want to perform an operations such as Release, Resubmit, Forward, Move and Delete messages.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1767338760,
+          "collection": "/api/3/workflow_collections/c3ff78d1-0a44-411f-a2fe-773c1b7b1f5d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/c0951c67-81bd-4269-87a0-c80d944cc12e",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Quarantine Message Actions",
+              "description": null,
+              "arguments": {
+                "name": "Proofpoint Email Gateway",
+                "params": {
+                  "to": "",
+                  "from": "",
+                  "folder": "Quarantine",
+                  "comment": "",
+                  "message": "Forward Message",
+                  "subject": "",
+                  "localguid": "32c6be9dd09f572205c7c2f0e86cc861",
+                  "headerfrom": "",
+                  "deletedfolder": ""
+                },
+                "version": "2.0.0",
+                "connector": "proofpoint-email-gateway",
+                "operation": "quarantine_message_actions",
+                "operationTitle": "Quarantine Message Actions",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "93ff3ce9-fe9f-4738-b3c4-628bfde3ca4d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "49cf6729-628c-4a40-a750-cf3ac4a32d98",
+                "title": "Proofpoint Email Gateway",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "c0951c67-81bd-4269-87a0-c80d944cc12e"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Quarantine Message Actions",
+              "targetStep": "/api/3/workflow_steps/93ff3ce9-fe9f-4738-b3c4-628bfde3ca4d",
+              "sourceStep": "/api/3/workflow_steps/c0951c67-81bd-4269-87a0-c80d944cc12e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b3b6ab9c-2fef-4e46-8bab-1b5cfaaafd67"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "ea052500-31d3-4863-991c-dbb9eeb0089a",
+          "id": 582,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Proofpoint",
+            "proofpoint-email-gateway"
+          ]
+        }
+      ]
+    }
+  ],
+  "exported_tags": [
+    "Proofpoint",
+    "proofpoint-email-gateway"
+  ]
+}

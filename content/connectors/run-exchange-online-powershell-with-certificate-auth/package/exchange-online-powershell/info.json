@@ -1,0 +1,82 @@
+{
+    "name": "exchange-online-powershell",
+    "version": "1.0.3",
+    "label": "Exchange Online PowerShell (Certificate Based)",
+    "description": "This connector enables FortiSOAR to integrate with Microsoft Exchange Online using certificate-based authentication. It allows for the automated management and response to Exchange security events.",
+    "publisher": "Vikas Jha",
+    "icon_small_name": "image (2).png",
+    "icon_large_name": "image (3).png",
+    "category": [
+        "Email Security",
+        "Email Server"
+    ],
+    "configuration": {
+        "fields": [
+            {
+                "title": "Tenant ID",
+                "type": "text",
+                "name": "tenantID",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "value": ""
+            },
+            {
+                "title": "App ID",
+                "type": "text",
+                "name": "appID",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "value": ""
+            },
+            {
+                "title": "Certificate Path",
+                "type": "text",
+                "name": "certificatePath",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "value": ""
+            },
+            {
+                "title": "Organization",
+                "type": "text",
+                "name": "organization",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "value": ""
+            }
+        ]
+    },
+    "operations": [
+        {
+            "title": "Execute PowerShell Command",
+            "operation": "execute_powershell_command",
+            "description": "New-TenantAllowBlockListItems -ListType Sender -Entries \"test@test.com\" -Block",
+            "parameters": [
+                {
+                    "title": "PowerShell Command",
+                    "type": "textarea",
+                    "name": "powerShellCommand",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": null
+                }
+            ],
+            "open": false
+        }
+    ],
+    "id": 25,
+    "contributor": null,
+    "active": true,
+    "cs_compatible": true,
+    "system": false,
+    "playbook_collections": [],
+    "icon_small": "",
+    "icon_large": "",
+    "help_online": null,
+    "vendor_version": null
+}

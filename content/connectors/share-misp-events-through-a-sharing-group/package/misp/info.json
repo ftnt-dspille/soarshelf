@@ -1,0 +1,1209 @@
+{
+    "name": "misp",
+    "version": "2.2.1",
+    "label": "MISP",
+    "description": "MISP connector allows to create MISP event, delete MISP event, add and delete attributes (IOCs), add and delete tags, into existing MISP event",
+    "publisher": "",
+    "icon_small_name": "misp_small.jpg",
+    "icon_large_name": "misp_large.jpg",
+    "id": 40,
+    "configuration": {
+        "fields": [
+            {
+                "title": "Server Name",
+                "type": "text",
+                "name": "hostname",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "tooltip": "Specify Hostname or IP address of the MISP server to which you will connect and perform automated operations."
+            },
+            {
+                "title": "API Key",
+                "type": "password",
+                "name": "api_key",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "tooltip": "Specify API key that is configured for your account for using the MISP server."
+            },
+            {
+                "title": "Verify SSL",
+                "type": "checkbox",
+                "name": "verify_ssl",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "value": true,
+                "tooltip": "Specifies whether the SSL certificate for the server is to be verified or not."
+            }
+        ]
+    },
+    "operations": [
+        {
+            "operation": "create_event",
+            "title": "Add Event",
+            "category": "investigation",
+            "annotation": "create_event",
+            "description": "Creates an event and adds the new event in MISP based on the event information and other input parameters you have specified.",
+            "parameters": [
+                {
+                    "title": "Event Information",
+                    "type": "text",
+                    "name": "event_info",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify brief description of the malware or event you are creating, including the internal reference for the event."
+                },
+                {
+                    "title": "Date",
+                    "type": "datetime",
+                    "name": "date",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify date on which you want to create the event in MISP."
+                },
+                {
+                    "title": "Distribution",
+                    "type": "select",
+                    "name": "distribution",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "This Community Only",
+                    "tooltip": "Specify setting that controls on who can view this event once it is published and eventually when it gets pulled. Apart from being able to set which users on this server are allowed to see the event, this also controls whether or not the event will be synchronized to other servers.",
+                    "options": [
+                        "Your Organisation Only",
+                        "This Community Only",
+                        "Connected Communities",
+                        "All Communities",
+                        "Sharing Group"
+                    ]
+                },
+                {
+                    "title": "Threat Level",
+                    "type": "select",
+                    "name": "threat_level",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "Undefined",
+                    "tooltip": "Select the risk level of the event.",
+                    "options": [
+                        "High",
+                        "Medium",
+                        "Low",
+                        "Undefined"
+                    ]
+                },
+                {
+                    "title": "Analysis Status",
+                    "type": "select",
+                    "name": "analysis",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "Initial",
+                    "tooltip": "Specify the current stage of analysis of the event.",
+                    "options": [
+                        "Initial",
+                        "Ongoing",
+                        "Completed"
+                    ]
+                },
+                {
+                    "title": "Published",
+                    "type": "checkbox",
+                    "name": "published",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": false,
+                    "tooltip": "Select this checkbox to publish the event in MISP"
+                },
+                {
+                    "title": "Extends Event",
+                    "type": "text",
+                    "name": "extends_uuid",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": false,
+                    "tooltip": "Specify the ID or UUID of the event to extend the event."
+                },
+                {
+                    "title": "Additional Attributes",
+                    "type": "object",
+                    "name": "additional_attributes",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Specify the additional attributes required to create the event in JSON format"
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "Event": {
+                    "id": "",
+                    "orgc_id": "",
+                    "org_id": "",
+                    "date": "",
+                    "threat_level_id": "",
+                    "CryptographicKey": [],
+                    "info": "",
+                    "published": "",
+                    "uuid": "",
+                    "attribute_count": "",
+                    "analysis": "",
+                    "protected": "",
+                    "timestamp": "",
+                    "EventReport": [],
+                    "distribution": "",
+                    "proposal_email_lock": "",
+                    "locked": "",
+                    "publish_timestamp": "",
+                    "sharing_group_id": "",
+                    "disable_correlation": "",
+                    "extends_uuid": "",
+                    "event_creator_email": "",
+                    "Org": {
+                        "id": "",
+                        "name": "",
+                        "uuid": "",
+                        "local": ""
+                    },
+                    "Orgc": {
+                        "id": "",
+                        "name": "",
+                        "uuid": "",
+                        "local": ""
+                    },
+                    "Attribute": [],
+                    "ShadowAttribute": [],
+                    "RelatedEvent": [],
+                    "Galaxy": [],
+                    "Object": []
+                }
+            },
+            "open": false
+        },
+        {
+            "operation": "get_events",
+            "title": "Search Events",
+            "category": "investigation",
+            "annotation": "get_events",
+            "description": "Retrieves information about events from MISP based on the filter you have specified.",
+            "parameters": [
+                {
+                    "title": "Search JSON Body",
+                    "type": "object",
+                    "name": "searchJSONBody",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Please provide JSON BODY for searching event index. Refer to API Documentation at: https://www.misp-project.org/openapi/#tag/Events/operation/searchEvents"
+                }
+            ],
+            "enabled": true,
+            "output_schema": [
+                {
+                    "id": "",
+                    "Org": {
+                        "id": "",
+                        "name": "",
+                        "uuid": ""
+                    },
+                    "Orgc": {
+                        "id": "",
+                        "name": "",
+                        "uuid": ""
+                    },
+                    "date": "",
+                    "info": "",
+                    "uuid": "",
+                    "locked": "",
+                    "org_id": "",
+                    "orgc_id": "",
+                    "EventTag": [
+                        {
+                            "id": "",
+                            "Tag": {
+                                "id": "",
+                                "name": "",
+                                "colour": "",
+                                "is_galaxy": ""
+                            },
+                            "local": "",
+                            "tag_id": "",
+                            "event_id": ""
+                        }
+                    ],
+                    "analysis": "",
+                    "protected": "",
+                    "published": "",
+                    "timestamp": "",
+                    "distribution": "",
+                    "extends_uuid": "",
+                    "attribute_count": "",
+                    "threat_level_id": "",
+                    "sharing_group_id": "",
+                    "publish_timestamp": "",
+                    "sighting_timestamp": "",
+                    "disable_correlation": "",
+                    "proposal_email_lock": ""
+                }
+            ],
+            "open": false
+        },
+        {
+            "operation": "get_event",
+            "title": "Get Event",
+            "category": "investigation",
+            "annotation": "get_event",
+            "description": "Retrieves information about an event from MISP based on the event ID that you have specified.",
+            "parameters": [
+                {
+                    "title": "Event ID",
+                    "type": "text",
+                    "name": "event_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify ID or UUID of the event whose information you want to retrieve from MISP. You can get ID or UUID of event using Run Search action."
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "Event": {
+                    "id": "",
+                    "orgc_id": "",
+                    "org_id": "",
+                    "date": "",
+                    "threat_level_id": "",
+                    "info": "",
+                    "published": "",
+                    "uuid": "",
+                    "attribute_count": "",
+                    "analysis": "",
+                    "timestamp": "",
+                    "distribution": "",
+                    "proposal_email_lock": "",
+                    "locked": "",
+                    "publish_timestamp": "",
+                    "sharing_group_id": "",
+                    "disable_correlation": "",
+                    "extends_uuid": "",
+                    "CryptographicKey": [],
+                    "EventReport": [],
+                    "protected": "",
+                    "RelatedEvent": [
+                        {
+                            "Event": {
+                                "id": "",
+                                "date": "",
+                                "threat_level_id": "3",
+                                "info": "",
+                                "published": "",
+                                "uuid": "",
+                                "analysis": "",
+                                "timestamp": "",
+                                "distribution": "",
+                                "org_id": "",
+                                "orgc_id": "",
+                                "Org": {
+                                    "id": "",
+                                    "name": "",
+                                    "uuid": ""
+                                },
+                                "Orgc": {
+                                    "id": "",
+                                    "name": "",
+                                    "uuid": ""
+                                }
+                            }
+                        }
+                    ],
+                    "Tag": [
+                        {
+                            "colour": "",
+                            "exportable": "",
+                            "hide_tag": "",
+                            "id": "",
+                            "is_custom_galaxy": "",
+                            "is_galaxy": "",
+                            "local": "",
+                            "local_only": "",
+                            "name": "",
+                            "numerical_value": "",
+                            "user_id": ""
+                        }
+                    ],
+                    "Org": {
+                        "id": "",
+                        "name": "",
+                        "uuid": "",
+                        "local": ""
+                    },
+                    "Orgc": {
+                        "id": "",
+                        "name": "",
+                        "uuid": "",
+                        "local": ""
+                    },
+                    "Attribute": [
+                        {
+                            "id": "",
+                            "type": "",
+                            "category": "",
+                            "to_ids": "",
+                            "uuid": "",
+                            "event_id": "",
+                            "distribution": "",
+                            "timestamp": "",
+                            "comment": "",
+                            "sharing_group_id": "",
+                            "deleted": "",
+                            "disable_correlation": "",
+                            "object_id": "",
+                            "object_relation": "",
+                            "first_seen": "",
+                            "last_seen": "",
+                            "value": "",
+                            "Galaxy": [],
+                            "ShadowAttribute": []
+                        }
+                    ],
+                    "ShadowAttribute": [],
+                    "Galaxy": [],
+                    "Object": []
+                }
+            },
+            "open": false
+        },
+        {
+            "operation": "add_attributes_to_event",
+            "title": "Add Attributes to Event",
+            "category": "investigation",
+            "annotation": "add_attributes_to_event",
+            "description": "Adds specified attributes to an existing MISP event based on the event ID, attribute type and value, and other input parameters you have specified. .",
+            "parameters": [
+                {
+                    "title": "Event ID",
+                    "type": "text",
+                    "name": "event_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify ID or UUID of the MISP event to which you want to add attributes. You can get ID or UUID of event using Run Search action."
+                },
+                {
+                    "title": "Category",
+                    "type": "select",
+                    "name": "category",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify category of the attribute that you want to add to the specific event in MISP. Options of Attribute Type parameter will be based on this parameter.",
+                    "options": [
+                        "Internal reference",
+                        "Targeting data",
+                        "Antivirus detection",
+                        "Payload delivery",
+                        "Artifacts dropped",
+                        "Payload installation",
+                        "Persistence mechanism",
+                        "Network activity",
+                        "Payload type",
+                        "Attribution",
+                        "External analysis",
+                        "Financial fraud",
+                        "Support Tool",
+                        "Social network",
+                        "Person",
+                        "Other"
+                    ]
+                },
+                {
+                    "title": "Attribute Type",
+                    "type": "select",
+                    "name": "type",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Choose Category parameter first. Specify the type of attribute that you want to add to the specific event in MISP.",
+                    "apiOperation": "get_attribute_type"
+                },
+                {
+                    "title": "Attribute Value",
+                    "type": "text",
+                    "name": "value",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the value of the attribute that you want to add to the specific event in MISP. Attribute value could be IP address, Port no, Email address, URL etc."
+                },
+                {
+                    "title": "Attribute Distribution",
+                    "type": "select",
+                    "name": "distribution",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "Inherit Event",
+                    "tooltip": "Specify the setting controls on who can view this attribute once it is published. By default, \"Inherit Event\" is set, which means that this field inherits the distribution that is set on its parent event.",
+                    "options": [
+                        "Your Organisation Only",
+                        "This Community Only",
+                        "Connected Communities",
+                        "All Communities",
+                        "Sharing Group",
+                        "Inherit Event"
+                    ]
+                },
+                {
+                    "title": "Use Attribute as an IDS Signature",
+                    "type": "checkbox",
+                    "name": "to_ids",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": true,
+                    "tooltip": "Select this checkbox if you want to add attributes for Intrusion Detection System (IDS) and this sets the to_IDS flag to True in MISP."
+                },
+                {
+                    "title": "Comment",
+                    "type": "text",
+                    "name": "comment",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify Comments that you want to add for the attributes. Comments are used for informational purposes only and not for correlations."
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "Attribute": {
+                    "id": "",
+                    "event_id": "",
+                    "object_id": "",
+                    "object_relation": "",
+                    "category": "",
+                    "type": "",
+                    "value1": "",
+                    "value2": "",
+                    "to_ids": "",
+                    "uuid": "",
+                    "timestamp": "",
+                    "distribution": "",
+                    "sharing_group_id": "",
+                    "comment": "",
+                    "deleted": "",
+                    "disable_correlation": "",
+                    "first_seen": "",
+                    "last_seen": "",
+                    "value": ""
+                },
+                "AttributeTag": []
+            },
+            "open": false
+        },
+        {
+            "operation": "delete_event",
+            "title": "Delete Event",
+            "category": "investigation",
+            "annotation": "delete_event",
+            "description": "Deletes an event from MISP based on the event ID that you have specified.",
+            "parameters": [
+                {
+                    "title": "Event ID",
+                    "type": "text",
+                    "name": "event_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify ID or UUID of the event that you want to delete from MISP.  You can get ID or UUID of event using Run Search action."
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "saved": "",
+                "success": "",
+                "name": "",
+                "message": "",
+                "url": ""
+            },
+            "open": false
+        },
+        {
+            "operation": "delete_attribute",
+            "title": "Delete Attribute from Event",
+            "category": "investigation",
+            "annotation": "delete_attribute",
+            "description": "Deletes an attribute from a MISP event based on the attribute ID that you have specified.",
+            "parameters": [
+                {
+                    "title": "Attribute ID",
+                    "type": "text",
+                    "name": "attribute_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify ID or UUID of the attribute that you want to delete from MISP. You can get attribute ID or UUID using Run Search Action."
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "message": ""
+            },
+            "open": false
+        },
+        {
+            "operation": "run_search",
+            "title": "Run Search",
+            "category": "investigation",
+            "annotation": "run_search",
+            "description": "Searches for events or attributes in MISP based on the input parameters that you have specified.",
+            "parameters": [
+                {
+                    "title": "Controller",
+                    "type": "select",
+                    "name": "controller",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "Events",
+                    "tooltip": "Select whether you want to search for Attributes or Events in MISP.",
+                    "options": [
+                        "Events",
+                        "Attributes"
+                    ]
+                },
+                {
+                    "title": "Search Type",
+                    "type": "select",
+                    "name": "search_type",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "Basic",
+                    "tooltip": "Select which type of searching you want to do.",
+                    "options": [
+                        "Basic",
+                        "Advanced"
+                    ],
+                    "onchange": {
+                        "Basic": [
+                            {
+                                "title": "Search From",
+                                "description": "Specify the date after which to retrieve the events.",
+                                "tooltip": "Specify the date after which to retrieve the events.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "datetime",
+                                "name": "from",
+                                "value": ""
+                            },
+                            {
+                                "title": "Search Until",
+                                "description": "Specify the date before which to retrieve the events.",
+                                "tooltip": "Specify the date before which to retrieve the events.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "datetime",
+                                "name": "to",
+                                "value": ""
+                            },
+                            {
+                                "title": "Attribute Type",
+                                "description": "Specify the attribute type to retrieve attribute or related events. You can specify from md5, sha1, sha256, ip-src, ip-dst, etc. For more information, refer to https://www.misp-project.org/openapi/#tag/Attributes/operation/restSearchAttributes.",
+                                "tooltip": "Specify the attribute type to retrieve attribute or related events. You can specify from md5, sha1, sha256, ip-src, ip-dst, etc. For more information, refer to connector documentation",
+                                "placeholder": "For example md5",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "text",
+                                "name": "type",
+                                "value": ""
+                            },
+                            {
+                                "title": "Page",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "integer",
+                                "name": "page",
+                                "description": "Specify the page number from which to retrieve data form MISP. By default it is set to 1.",
+                                "tooltip": "Specify the page number from which to retrieve data form MISP",
+                                "value": 1
+                            },
+                            {
+                                "title": "Limit",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "integer",
+                                "name": "limit",
+                                "description": "Specify the maximum number of records to retrieve from MISP. By default it is set to 10.",
+                                "tooltip": "Specify the maximum number of records to retrieve from MISP.",
+                                "value": 10
+                            }
+                        ],
+                        "Advanced": [
+                            {
+                                "title": "Search Filter",
+                                "required": true,
+                                "description": "Specify the search criteria in JSON format as documented at https://www.misp-project.org/openapi/#tag/Events/operation/searchEvents. For example:\n   {\n       \"page\": 0,\n       \"limit\": 1,\n       \"searchDatefrom\": \"2020-01-20\",\n       \"searchDateuntil\": \"2020-01-20\"\n   }",
+                                "tooltip": "Specify Search filter in JSON format. For more information refer connector documentation.",
+                                "editable": true,
+                                "visible": true,
+                                "type": "json",
+                                "name": "search_filter",
+                                "value": "{\"page\": 0,  \"limit\": 1,  \"from\": \"2020-01-20\",  \"to\": \"2020-02-20\"}"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "enabled": true,
+            "conditional_output_schema": [
+                {
+                    "condition": "{{controller === 'Events'}}",
+                    "output_schema": {
+                        "response": [
+                            {
+                                "Event": {
+                                    "id": "",
+                                    "orgc_id": "",
+                                    "org_id": "",
+                                    "date": "",
+                                    "threat_level_id": "",
+                                    "info": "",
+                                    "published": "",
+                                    "uuid": "",
+                                    "attribute_count": "",
+                                    "analysis": "",
+                                    "timestamp": "",
+                                    "distribution": "",
+                                    "proposal_email_lock": "",
+                                    "locked": "",
+                                    "publish_timestamp": "",
+                                    "sharing_group_id": "",
+                                    "disable_correlation": "",
+                                    "extends_uuid": "",
+                                    "CryptographicKey": [],
+                                    "EventReport": [],
+                                    "protected": "",
+                                    "RelatedEvent": [
+                                        {
+                                            "Event": {
+                                                "id": "",
+                                                "date": "",
+                                                "threat_level_id": "3",
+                                                "info": "",
+                                                "published": "",
+                                                "uuid": "",
+                                                "analysis": "",
+                                                "timestamp": "",
+                                                "distribution": "",
+                                                "org_id": "",
+                                                "orgc_id": "",
+                                                "Org": {
+                                                    "id": "",
+                                                    "name": "",
+                                                    "uuid": ""
+                                                },
+                                                "Orgc": {
+                                                    "id": "",
+                                                    "name": "",
+                                                    "uuid": ""
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "Tag": [
+                                        {
+                                            "colour": "",
+                                            "exportable": "",
+                                            "hide_tag": "",
+                                            "id": "",
+                                            "is_custom_galaxy": "",
+                                            "is_galaxy": "",
+                                            "local": "",
+                                            "local_only": "",
+                                            "name": "",
+                                            "numerical_value": "",
+                                            "user_id": ""
+                                        }
+                                    ],
+                                    "Org": {
+                                        "id": "",
+                                        "name": "",
+                                        "uuid": "",
+                                        "local": ""
+                                    },
+                                    "Orgc": {
+                                        "id": "",
+                                        "name": "",
+                                        "uuid": "",
+                                        "local": ""
+                                    },
+                                    "Attribute": [
+                                        {
+                                            "id": "",
+                                            "type": "",
+                                            "category": "",
+                                            "to_ids": "",
+                                            "uuid": "",
+                                            "event_id": "",
+                                            "distribution": "",
+                                            "timestamp": "",
+                                            "comment": "",
+                                            "sharing_group_id": "",
+                                            "deleted": "",
+                                            "disable_correlation": "",
+                                            "object_id": "",
+                                            "object_relation": "",
+                                            "first_seen": "",
+                                            "last_seen": "",
+                                            "value": "",
+                                            "Galaxy": [],
+                                            "ShadowAttribute": []
+                                        }
+                                    ],
+                                    "ShadowAttribute": [],
+                                    "Galaxy": [],
+                                    "Object": []
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "condition": "{{controller === 'Attributes'}}",
+                    "output_schema": {
+                        "response": {
+                            "Attribute": [
+                                {
+                                    "id": "",
+                                    "event_id": "",
+                                    "object_id": "",
+                                    "object_relation": "",
+                                    "category": "",
+                                    "type": "",
+                                    "to_ids": "",
+                                    "uuid": "",
+                                    "timestamp": "",
+                                    "distribution": "",
+                                    "sharing_group_id": "",
+                                    "comment": "",
+                                    "deleted": "",
+                                    "disable_correlation": "",
+                                    "first_seen": "",
+                                    "last_seen": "",
+                                    "value": "",
+                                    "Event": {
+                                        "org_id": "",
+                                        "distribution": "",
+                                        "id": "",
+                                        "info": "",
+                                        "orgc_id": "",
+                                        "uuid": ""
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "open": false
+        },
+        {
+            "operation": "add_tag",
+            "title": "Add Tag",
+            "category": "investigation",
+            "annotation": "add_tag",
+            "description": "Adds a tag in MISP based on the tag name and other input parameters that you have specified.",
+            "parameters": [
+                {
+                    "title": "Tag Name",
+                    "type": "text",
+                    "name": "name",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify name of the tag you want to create in MISP."
+                },
+                {
+                    "title": "Color",
+                    "type": "text",
+                    "name": "colour",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the tag Color you want to allocate for the tag"
+                },
+                {
+                    "title": "Exportable",
+                    "type": "checkbox",
+                    "name": "exportable",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": false,
+                    "tooltip": "Select this checkbox if you want to create an exportable tag in MISP."
+                },
+                {
+                    "title": "Hide Tag",
+                    "type": "checkbox",
+                    "name": "hide_tag",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": false,
+                    "tooltip": "Select this checkbox if you want to hide the created tag in MISP."
+                },
+                {
+                    "title": "Organisation ID",
+                    "type": "integer",
+                    "name": "org_id",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": false,
+                    "tooltip": "Specify ID of the organization that you want to add to the tag that you are creating in MISP."
+                },
+                {
+                    "title": "User ID",
+                    "type": "integer",
+                    "name": "user_id",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": false,
+                    "tooltip": "Specify ID of the user that you want to add to the tag that you are creating in MISP."
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "Tag": {
+                    "colour": "",
+                    "exportable": "",
+                    "hide_tag": "",
+                    "id": "",
+                    "is_custom_galaxy": "",
+                    "is_galaxy": "",
+                    "local_only": "",
+                    "name": "",
+                    "numerical_value": "",
+                    "org_id": "",
+                    "user_id": ""
+                }
+            },
+            "open": false
+        },
+        {
+            "operation": "get_tags",
+            "title": "List All Tags",
+            "category": "investigation",
+            "annotation": "get_tags",
+            "description": "Retrieves a list of all existing tags from MISP.",
+            "parameters": [],
+            "enabled": true,
+            "output_schema": {
+                "Tag": [
+                    {
+                        "attribute_count": "",
+                        "colour": "",
+                        "count": "",
+                        "exportable": "",
+                        "favourite": "",
+                        "hide_tag": "",
+                        "id": "",
+                        "is_custom_galaxy": "",
+                        "is_galaxy": "",
+                        "local_only": "",
+                        "name": "",
+                        "numerical_value": "",
+                        "org_id": "",
+                        "user_id": ""
+                    }
+                ]
+            },
+            "open": false
+        },
+        {
+            "operation": "add_tag_to_event",
+            "title": "Add Tag to Event",
+            "category": "investigation",
+            "annotation": "add_tag_to_event",
+            "description": "Adds a tag to an existing event in MISP based on the tag and event ID that you have specified.",
+            "parameters": [
+                {
+                    "title": "Event ID",
+                    "type": "text",
+                    "name": "event_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify ID of the MISP event to which you want to add the specified tag."
+                },
+                {
+                    "title": "Tag",
+                    "type": "text",
+                    "name": "tag",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify ID or name of the tag that you want to add to the specified event in MISP."
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "saved": "",
+                "success": "",
+                "check_publish": ""
+            },
+            "open": false
+        },
+        {
+            "operation": "remove_tag_from_event",
+            "title": "Remove Tag from Event",
+            "category": "investigation",
+            "annotation": "remove_tag_from_event",
+            "description": "Deletes the specified tag from an existing event in MISP based on the tag and event ID that you have specified.",
+            "parameters": [
+                {
+                    "title": "Event ID",
+                    "type": "text",
+                    "name": "event_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify ID of the MISP event from which you want to remove the specified tag."
+                },
+                {
+                    "title": "Tag",
+                    "type": "text",
+                    "name": "tag",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify ID or name of the tag that you want to remove to the specified event in MISP."
+                }
+            ],
+            "enabled": true,
+            "output_schema": {
+                "saved": "",
+                "success": "",
+                "check_publish": ""
+            },
+            "open": false
+        },
+        {
+            "operation": "get_attribute_type",
+            "title": "Get Attribute Type",
+            "category": "investigation",
+            "annotation": "get_attribute_type",
+            "description": "Retrieves a list of all existing specific attribute type.",
+            "parameters": [],
+            "enabled": true,
+            "visible": false,
+            "output_schema": [],
+            "open": false
+        },
+        {
+            "operation": "get_organisations",
+            "title": "Get Organisations",
+            "category": "investigation",
+            "annotation": "get_organisations",
+            "description": "Retrieves a list of all available organisations from MISP.",
+            "parameters": [],
+            "enabled": true,
+            "visible": true,
+            "output_schema": [
+                {
+                    "Organisation": {
+                        "id": "",
+                        "name": "",
+                        "date_created": "",
+                        "date_modified": "",
+                        "description": "",
+                        "type": "",
+                        "nationality": "",
+                        "sector": "",
+                        "created_by": "",
+                        "uuid": "",
+                        "contacts": "",
+                        "local": "",
+                        "restricted_to_domain": [],
+                        "landingpage": "",
+                        "user_count": "",
+                        "created_by_email": ""
+                    }
+                }
+            ],
+            "open": false
+        },
+        {
+            "operation": "get_users",
+            "title": "Get Users",
+            "category": "investigation",
+            "annotation": "get_users",
+            "description": "Retrieves a list of all available users from MISP",
+            "parameters": [],
+            "enabled": true,
+            "visible": true,
+            "output_schema": [
+                {
+                    "User": {
+                        "id": "",
+                        "org_id": "",
+                        "server_id": "",
+                        "email": "",
+                        "autoalert": "",
+                        "authkey": "",
+                        "invited_by": "",
+                        "gpgkey": "",
+                        "certif_public": "",
+                        "nids_sid": "",
+                        "termsaccepted": "",
+                        "newsread": "",
+                        "role_id": "",
+                        "change_pw": "",
+                        "contactalert": "",
+                        "disabled": "",
+                        "expiration": "",
+                        "current_login": "",
+                        "last_login": "",
+                        "force_logout": "",
+                        "date_created": "",
+                        "date_modified": ""
+                    },
+                    "Role": {
+                        "id": "",
+                        "name": "",
+                        "perm_add": "",
+                        "perm_modify": "",
+                        "perm_modify_org": "",
+                        "perm_publish": "",
+                        "perm_delegate": "",
+                        "perm_sync": "",
+                        "perm_admin": "",
+                        "perm_audit": "",
+                        "perm_auth": "",
+                        "perm_site_admin": "",
+                        "perm_regexp_access": "",
+                        "perm_tagger": "",
+                        "perm_template": "",
+                        "perm_sharing_group": "",
+                        "perm_tag_editor": "",
+                        "perm_sighting": "",
+                        "perm_object_template": "",
+                        "perm_publish_zmq": "",
+                        "perm_publish_kafka": "",
+                        "perm_decaying": "",
+                        "perm_galaxy_editor": "",
+                        "default_role": "",
+                        "memory_limit": "",
+                        "max_execution_time": "",
+                        "restricted_to_site_admin": "",
+                        "enforce_rate_limit": "",
+                        "rate_limit_count": "",
+                        "permission": "",
+                        "permission_description": ""
+                    },
+                    "Organisation": {
+                        "id": "",
+                        "name": ""
+                    }
+                }
+            ],
+            "open": false
+        },
+        {
+            "operation": "generic_rest_api_call",
+            "title": "Execute an API Request",
+            "annotation": "generic_rest_api_call",
+            "description": "Execute any MISP REST API using the specified API method, endpoint, and payload as input parameters.",
+            "category": "investigation",
+            "handler_method": true,
+            "visible": true,
+            "enabled": true,
+            "parameters": [
+                {
+                    "title": "HTTP Method",
+                    "type": "select",
+                    "name": "method",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "GET",
+                    "tooltip": "Select an HTTP action for the request. You can select from the following options:  \n\nDELETE \n\nGET \n\nPATCH \n\nPOST \n\nPUT ",
+                    "options": [
+                        "DELETE",
+                        "GET",
+                        "PATCH",
+                        "POST",
+                        "PUT"
+                    ]
+                },
+                {
+                    "title": "Endpoint",
+                    "type": "text",
+                    "name": "endpoint",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the REST API endpoint for the action to perform."
+                },
+                {
+                    "title": "Query Parameters",
+                    "type": "json",
+                    "name": "query_params",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": {},
+                    "tooltip": "Specify any optional parameters query parameters in JSON format."
+                },
+                {
+                    "title": "Payload",
+                    "type": "json",
+                    "name": "payload",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": {},
+                    "tooltip": "Specify the payload to be passed in JSON format."
+                }
+            ],
+            "output_schema": {},
+            "open": false
+        }
+    ],
+    "category": [
+        "Threat Intelligence"
+    ],
+    "contributor": null,
+    "active": true,
+    "cs_compatible": true,
+    "system": false,
+    "playbook_collections": [
+        {
+            "@id": "/api/3/workflow_collections/dede779e-d81b-484b-8d4d-f4894cb548df",
+            "name": "Sample - MISP - 2.2.0",
+            "image": "/api/3/images/16fa78e2-4cff-49b7-824c-b7476b661c86",
+            "description": "Sample playbooks for \"MISP\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete."
+        }
+    ],
+    "icon_small": "data:image/jpeg;base64,/9j/4QAYRXhpZgAASUkqAAgAAAAAAAAAAAAAAP/sABFEdWNreQABAAQAAABQAAD/4QMsaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/PiA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJBZG9iZSBYTVAgQ29yZSA1LjYtYzE0MCA3OS4xNjA0NTEsIDIwMTcvMDUvMDYtMDE6MDg6MjEgICAgICAgICI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIFBob3Rvc2hvcCBDQyAoTWFjaW50b3NoKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDoyRjRGNEM3OUVGQjMxMUU3OTU0MjkyQkUxNkZCNDMwMCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDoyRjRGNEM3QUVGQjMxMUU3OTU0MjkyQkUxNkZCNDMwMCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjJGNEY0Qzc3RUZCMzExRTc5NTQyOTJCRTE2RkI0MzAwIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjJGNEY0Qzc4RUZCMzExRTc5NTQyOTJCRTE2RkI0MzAwIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+/+4ADkFkb2JlAGTAAAAAAf/bAIQAAgICAgICAgICAgMCAgIDBAMC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",
+    "icon_large": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAEsASwDASIAAhEBAxEB/8QAHAABAAMBAQEBAQAAAAAAAAAAAAYHCAkFBAMC/8QAVRAAAQMDAgMCBQ0LCwIFBQAAAQACAwQFBgcRCBIhEzEJFCJBYRUYMjY3UXF1dpSztNMWGTNVV3J0gZWx0RcjNUJSVGKRssTjVpIkOIKFokNHY4OT/8QAGwEBAQADAQEBAAAAAAAAAAAAAAECBgcFBAP/xAA/EQACAAUABQUNBwQDAAAAAAAAAQIDBAURBiExQVESExZhkQciMjRSU3GBgpKhsdEVMzVUorLCI3LB0kRi8P/aAAwDAQACEQMRAD8A6poiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiLKHFBrhcprrVaZ4tVSUtJSER3Sqik2dUPLdzCCO5jd9necu3HQDyvRtdsm3WoUiVq3t8FxPJvV4kWSldTP17kt7fD6suPMOIrSnDKuW21l/dX1sB5ZKe3xGcsPnBf0jBBGxHNuPOFEvXl6YfiLKPmtP9usaouhStDbfBDiNxRPjnHyOUz+6DdZkbctQwrhjPxb+hsr15emH4iyj5rT/bp68vTD8RZR81p/t1jVF+vRC2cIu0/Hp7ePKh902V68vTD8RZR81p/t09eXph+Iso+a0/26xqidELZwi7R09vHlQ+6bK9eXph+Iso+a0/26evL0w/EWUfNaf7dY1ROiFs4Rdo6e3jyofdNlevL0w/EWUfNaf7dPXl6YfiLKPmtP9usaonRC2cIu0dPbx5UPumyvXl6YfiLKPmtP9uvTsfFlpHd5xBV1F1tPMdg+uo/J3+GJz9vhOwWIkWMWh1tiWFyl6/qjODT+7wxZi5L6uT9Gjp5RVtHcqSGvt9XDVU1QwSRTQvD2SNPc5rh0IPvhfusPcOOrtwwPLabHbhUyy2G9TsppInP8mmme7ZszQejep2ft3t69S0LcK0C82iZZ6jmonmF60+K+qOo6P32VfqXnoFyYlqiXB/RhEReQe8EREAREQBERAEREAREQBERAEREAREQBERAEREAXOPVIk6m5cT+Pa/6w9dHFzj1R90zLvj2v+sPW8aD+MTfQvmc27pHisj+5/IjCIi6QcjCIiAIiIAiIgCIiAIiID+4HvjnjkY4tc14IIPUHfvXUBcvo/wAI384LqCuf6df8f2v4nU+5psqvY/mERFz86kEREAREQBERAEREAREQBERAEREAREQBERAEREAXOPVH3TMu+Pa/6w9dHFzj1R90zLvj2v8ArD1vGg/jE30L5nNu6R4rI/ufyIwp7ofgFLqRqJQY/ceb1Pja+rrQwkF0MY9gCOo5nFrSR1AcSOqgSl+lGfS6a5zbsqbA6enhLoquFvspIHjZ4Hd5Q6OG5A3aN+i32uU6KlmKn8PDx6cajmFsip4a2VFVLMvlLlejOv1cToHbsdsNptjLLbLNRU1AxvIKaOBrY9vS3bY/rWP+KfS6xYHkNtvmM0raOhvrZu0pI2bRwzRlvMWeZrXCQbNHQFrtuh2GlrdrnpLcrW27R55aYI3N5jFUziKdvvgxO2dv8APo3WUuIvV636p5JRQ2CN/qPZWSR000jCx88khbzybHqGkMYGggHoSdt9hz3RanuEu48qKGJQ6+VnPDVt35x1nVtNau1zbTyYIoYo9XIw02tazjGxYz1bOoqRbg4dNJ8bxXB7VlE1BBVXu9Usdc+rlYHOijkaHMjj39iA0jfbqTvv0AAw+tecP/ABCYi/EaDDszusNouFohbSwT1B5IKiBo2Z5Z6Nc1uzSHbb7AgncgbJpbLq5tElTZaz3yW3H0ztNQ0FnUMm4t1jSeO9cWxPPXseNnZvLG1g0lx3UnGK2Ke3QR3iGF0lBXMYGyslA3DS4eyY49C07jruNiARz9W2NX+I3Cccxqtt+JX2lvN7rIXQ0/iUgligLhsZXyDyfJG5DQSSdugG5GJ1+Oh8qrlU0aqE1DlclP47d2z4n0afTqCdWS3StOPD5bXqxlrft68YLW4b9NrZqPnrob/CZrXaqY1k8XUNmfzBrI3EEEAklx98MI86296gWL1M9RPUWh9Tuz7LxTxdnY8m23Lybcu23TbZYO0L1Oi0rzhl6r4JJrbWQOo61sY3e2NzmuD2jcAlrmjv8AMXAdStj/AMuOkfqX6sfygWfsOTtOTt/5/bbfbsfwm/o5d142ltPXTK2FwQxODC5OMtJ79m82HQSqtsm3xQxxQwzMvlcppNrdt3Y9Wc8TJnEhptbNOc8ZFYIDDartTCsgi6lsL+YtfG0kkkAgOHvB4HmVUKxNddTodVM4deaCGSG20cDaOibINnuYCXF7huQC5zj3eYNB6hV2t5tcM+Gilw1Ph4WePr6+PWc2vUVLHcJ0VH93ynjGz1dWdnUf1H+Eb+cF01vL3MtFc9ji1zaaUgg7EHlPVcyo/wAI384Lppe/6Gr/ANFl/wBBWoabeHTe1/E3zuc/d1fsfzOeFBqjqRbJ2VFFnl/jcxwcAbhK5pI/tNLi1w9BBC2Zw+6r1WqeHyVF4bE28WuYU9Z2TeVsoI3jlDfNzDcEDpzNcQACAMGLT/BKT2mZDfoW2/8A3C9LSugp4rdFPUCUUOMNLi0sfE8fQi6VUN1gpnG3BGmmm21qhbT9Oo1IiIuVnbQiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAuceqPumZd8e1/wBYeuji5x6o+6Zl3x7X/WHreNB/GJvoXzObd0jxWR/c/kRhERdIORhERAEREAREQBERAEREB/Uf4Rv5wXTS9/0NX/osv+grmXH+Eb+cF00vf9DV/wCiy/6CtB028Om9r+J1Duc/d1fsfzOZK0/wS/hcx/Nt/wC+oWYFp/gl/C5j+bb/AN9Qve0p/CZvs/uRq+hf45I9r9kRqRERcfO+hERAEREAREQBERAEREAREQBERAEREAREQBc89bLDcsf1VyemuVO6N1VcqiuhJHSSGaR0jHA+fo7Y7dxBHmXQxQ3UrSjEdU7bHRZJTSNnpyTTVlO4Mnh37wCQQWnztII8/fsV7+jt3gtFS4pqzDEsPG1dZq2ldhmX2kUEl4jgeVnY+K6upnO5Fd2pPC1kWBWW4ZRT5Ra661W+PtJDMHwTkFwAAbs5pJJA9kNyVSK6tR11PXy+cpouUv8A3E4jX22qtc3mauDkxbd2z1BEUwwPSXPNSHvdi9kfLTREiSrmcIoGkf1ed3Rzu7o3c9QSAOq/adOl08DmTYlDCt71Hz09POqpilSIXFE9yWWQ9Fc3rS9X/wC6Wr58P4J60vV/+6Wr58P4L4Ptu3efh7Uep0cu35aP3WUyiub1per/APdLV8+H8E9aXq//AHS1fPh/BPtu3efh7UOjl2/LR+6ymUVzetL1f/ulq+fD+CetL1f/ALpavnw/gn23bvPw9qHRy7flo/dZTKK5vWl6v/3S1fPh/BfZQcH2qdU4eN1thom8wDu0qpHO285AZGQf8wo77bYVlzoe0sOjV3ieFTx9mCoMZslZkuRW3H7fG59RcKqKnYGjfYucBufQB1J8wBXSO9/0NX/osv8AoKrvSLQHF9KXvujKmS63qWPs3Vs0YY2Jp7xEwb8m/TckknbvAJC9zWXKqTD9M7/dqip7GWSilpKQj2TqiVpZGAPPsTzH3g0nzLQb7dIL5WypNKswwvCfFtrdw1I6hozZZmjdvnz61pRRLLWdihTxr2Z1s54rT/BL+FzH823/AL6hZgWn+CX8LmP5tv8A31C3PSn8Jm+z+5HPNC/xyR7X7IjUiIi4+d9CIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAofjByX1L06o8dima2W+VzQ9h73QQjncR8D+x/wA1kfHcav8Alt0isuN2mpuFbL7GKBm5A3A5nHua0bjdxIA85W0NVtErhq9m9tqrzefEMbtNJyNjgAdUzzveTIW7+SxvKIxzHc7tPk9d1YeIYPiuB2wWjFLNBQQdC8sG8krv7T3nynn4Sdu4dFu1v0gp7LboZMlcua8t8E3sy9+rGpdqOc3XRaq0hu8dRPfIkw4hXlNLbhbllvW+xlG6W8I9stnY3nUuoZcKobPbbKd5FPGfekf0Mh7ug2buCN3gq6cxvcGnOCXC+WmxRTQWWlEkVBCRAzs2kDlbs0hoA3PQeZSZfNcrdRXe3VVquVO2ekrYX088Tu58b2lrmn4QSFrlTdJ9wnwzax8qFPZsWN6S3at+3rNuo7LTWqmik2+FQRNPvtrzjU23tw9eNnUZl9e2/wDJoP2z/wACevbf+TQftn/gVZ6vaBZXpvcamtoKGouWOF5dT1sTed0TD3NmA6tI7ubYNPTbYnlFVrotLYbHWylOkS04X/2i+PfamclrdJ9JLfOcipmuGJcYIO1d7rXWag9e2/8AJoP2z/wJ69t/5NB+2f8AgWX0X0dFrT5r9UX1Pl6a33z/AOmD/U1B69t/5NB+2f8AgT17b/yaD9s/8Cy+idFrT5r9UX1HTW++f/TB/qag9e2/8mg/bP8AwJ69t/5NB+2f+BZfROi1p81+qL6jprffP/pg/wBTT0nG1OWERabMa/zF13LgP1diP3qldStXMx1Tr2VORVbI6WA709BTAtp4TttzBpJLnHru5xJ6kDYdFC0X10dkoKCPnaeWlFxy32ZbwfDX6R3S5y+ZqpzcPDCSfpwln1haf4JQe0zJ23Ta3j6wsy0tJVV1TFRUVNLUVE7xHFFEwve9x6BrWjqSfeC3Rw56YV2muEPZfIRFeLtN41VRgg9i0DaOIkdCQNyfS8jrsvM0uqpcq3RSYn30eML0NNv4HsaCUU6fdoKiFd7LTbe7XC0l6dfwZayIi5OdyCIiAIiIAiIgCLN+V8deluIZReMTuGMZVLVWWvqLdPJDBTmN8kMjo3FpMwPKS07bgHbzBeV98M0i/wCksw+b0v26YGTUqKkdIeLfTTWPK/uNslDeLZcZKd89OLlHCxtRydXMYWSOJeG7u229i1x8yu5AERVDrVxOafaG3W32PJaS6XCvuEDqnsLdHE90EQdytdJzvZtzEODdt/YO326bgW8iy198M0i/6SzD5vS/br96HwgOktwraegixTLmvqZWQtLqem2BcQBv/P8Ad1TAyaeRFnDLeOnS7DspvGJXHGMplqrLXz2+eSGCnMb5IpCxxaTMDyktO24B28yA0eiy198M0i/6SzD5vS/bq3dFNdcW11tVyu+LWu60UVsqG00rbhHG1znObzAt5HuG23v7ICyERVrq3xC6Y6LxNjy28PluUrO0htdC0S1b2+ZxbuGsafMXloOx232KAspFhXJ/CKZVO8swzTu1ULGvO0l0qZKovZ5jyR9lynu6cztvT3qODwg2tYcXGwYaR/ZNDU7fWN1cEydDUWE8c8Irl1PuMu05tFfu4bOt1XLSco+CTtdz+sK+dN+MnRXUKSOgqbxLjVxkPK2nvAbEx5/wzAmPvOwDnNcT3BMFyXmvinstnqZDNU2mjlkd3vfAxxP6yF9gII3B3BVEcSHE7PoFdbLbYsLZe/VenlnL3XA0/Z8jg3bbs3777+hIYnDsZjFDDF4SyXR9z1g/Edv+bM/gn3PWD8R2/wCbM/gsaffHqz8kMP7cP2CffHqz8kMP7cP2Cz5yZxfaYc1L8ldhsv7nrB+I7f8ANmfwT7nrB+I7f82Z/BY2b4R6qB8vSCIj3hfSP9upJjXhEcFrSGZZgN6tTnPDeaiqIq1jRv7Jxd2R/wAgT8Kc5M4sc1L8ldhqX7nrB+I7f82Z/BPuesH4jt/zZn8F4GnmrenWqtFJW4HlNJdBDsZoW80c8O/QF8TwHtBO+xI2O3QlS9TnI+LLzUvyV2FOaocMuE52JbnY2Mx+8u3d21NEOwmd/wDkiGw3PXym7Hc7nm7lkvP9Lc100rvFMptLooXu5YKyLd9NP3+xft37AnlOztu8BdF181ytluvFDNbLtQ09ZSVDeWWCeMSRvHvFp6FbHatKKu34lze/g4PavQ/8P4GpXzQuhuuZsn+nM4pan6V/lYfHJRvB7d6S46e1ltMVOKy0172czWASGGQB7S4958rtQPQ30K+1AcB0esOmmR3W64lUzU9tvELGzW6QmRscrHEsdG8nmDdnPBa7mO7uhAGyny8u71EmqrI58jwYtevasrWu3J7Nhpaiit8umqUuXBq1bGk9TXqxt1hEReaewEREAREQBERAcjNbvdoz75UXX63IoUprrd7tGffKi6/W5FClkYHoY9f7tit8oMksNY+luNsqGVVNM3vZIw7g7HoR06g9CNwei6xaN6oWnWDT62Zta+SN9Szsq2ma/mNLVNAEkR8/Q9Wk7Etc07DdcjVoDg61v/ks1Bbjt9rezxvJ3spqkyP2ZS1PdFP16Abnkeeg5XBxPkBGVHQrO80smnmIXXNMin7OgtNO6eTYjmkPcyNu/Que4ta0ecuC5L6h51e9Sszuub5DIHVl1nMpY0+TCwdGRN/wsYGtHn2HXc7laI46NbvuryiPSjHqzmtOPS9pcnxuBbPX7Ecm480QJb+e54I8kFZVRBhejjXtjtX6bB9IF5y9HGvbHav02D6QKkOy65Ha5+7Vn3ymuf1mRdcVyO1z92rPvlNc/rMixRkyELd/g6vaTl3xrD9CsILd/g6vaTl3xrD9CqyIujiQ1fGi2mFbk1K1r7tVyNt9qY9u7fGXtcQ9w/ssa179j0JaG9OZctLxeLpkF1qr3e6+atr66V09RUTO5nyPcdySVsbwjtXUh+BUIdIKci5SlvN5L3jxcAkecgE/9x99YtRBhFItPJcLgzeyy6iU1TUY22rZ6pR07nB7ofP1aQ7bfYnlIdtvt12XQnEcN4M9SLfDbcRs2EXAyRbNgi2hruTu3c1xbOD17z1TIwc1EXQbUDgD0wv0Dp8Bulfi9YB5ET3urKV3wtkd2gJ7txJsP7JVe6B8FeVWnVCS5at2ykNlx57J6VsUwmhuk+55CB39k3bmcHhpJ5WlpBdsyMF48H2F6gYhpNSuz2+V8zrlyVFutdU4O9TKXl8hgJHM0uGziwnZo5QGtdz70T4Rf204Z8X1X0jFulYW8Iv7acM+L6r6Rii2lewyAiKy+G/B8e1I1ox3C8rppKi13Hxvt445XRud2dJNI3Zzeo8pjVkYlaIuj134D9B7jTGGggvtrl26TU1wLzv6RK14I/UFiDXLSG6aJZ9UYXca5ldEYWVlFVtbyeMU7y4NcW7nlcHMe0jfvadtxsVMlwRLG8lv+H3ukyTGLrUW25UMglgqYHbOafe94gjoWncEEgggkLqBw36202uGn0d8qI4ae+W9/il2povYtm23bIwHqGPb1G/cQ5u55dzytWqfB5XytpdUMhx1swFHcbGaqSPb2U0E8bYz+ps0v+aMI3+iIsTIIiIAiIgCIiAIiIAiIgORmt3u0Z98qLr9bkUKU11u92jPvlRdfrcihSyMAiv7TnQZuqXDRfsvx6h7TKccv9RJEI2EvrKMUtO6SDYdS4bl7O878zQPL3VAoUOcXEucSSTuSfOiK/rvoQ3B+Ft2puS0QbfsiudEaJkgHNSUBDy3b3nS9HH/AA8g6HmCAoFejjXtjtX6bB9IF5y9HGvbHav02D6QKkOy65Ha5+7Vn3ymuf1mRdcVyO1z92rPvlNc/rMixRkyELd/g6vaTl3xrD9CsILd/g6vaTl3xrD9CqyImPGvo/c9TNOKa/Y5RPq7zikstUyBm5fNSSNAnaxv9Z45I3gd5DHAbkgHm+u1Cz3rHwb6Z6q11XfrDVHGMglk5qmejjElPNIdiTLBuNnkHfdrmEl3M7mJUTK0c20WgMv4Htdsake602q35HTNLiJbdWNa8NHdvHNyO3I8zeb4SqXyPDcuw6dtNlmL3azSyb8ja+jkgL9u/l5wOYekKkJDiWuWr+DGJuMai3ulhgbyR0z6kz07R7whl5o//itI6TeEBuEdTBadYbHDNTOLY/Ve1xlskfcC+WDfZ47yTHy7AdGOKxqiYGTs1Y75Z8ltNLfsfuVPcLdWxiWnqad4fHI0+cEencEd4IIPVYk8Iv7acM+L6r6Ri/fwe+o90bfL5pZW1Ek1vkpDd6FrnAtp5WPayVrfPs8SMdtvsDGTtu4k/h4Rf204Z8X1X0jFN5dxkBW5wm3yy45xA4rechu9Fa7fT+PdtV1tQyCGPmop2t5nvIaN3OAG56kgedVGiyIda6/X3RG20ktbUatYk+OFhe5tPd4J5CAN/Jjjc5zj6ACT5lzx4pNX7TrPqnJkePwSstVvo47XRSyt5X1Ecb5HmUtPVoc6V2wPXlDd9juBUSKJDIWsPB4Y7W1WouS5W1rfE7dZhQvJ7+1nmY9m3/pp5N/hCzVhuF5PqBkFNi+IWee43GrcAyKJu4Y3cAve7uYwbjdx2A866i6BaOW7RLT2lxSCSOpuMzjV3SrYDtPUuAB5d+vI0ANb3dG7kAkowiyERFiZBERAEREAREQBERAEREByM1u92jPvlRdfrcihSmut3u0Z98qLr9bkUKWRgdBfB5+49fPlLP8AVaZUPxn6FfyZ5r922PUYjxvJpnPDI2kMo607uki94Nf1ewfntAAYFfHg8/cevnyln+q0yvzUnT+xaoYVdMIyGMmluUJY2Ro8uCUdY5Wf4muAI8x22O4JCm8y3HPLhJ0LOsGftuN8pC/GMecypuHMByVMu+8VN17w4gl3+BpHQuaVqnjxAGgzgBsBeKMAD4Hq1tHdLbLo9gNuwmzFsrqdva1lVyBjquqcB2kpHp2AAJOzWtbudlVPHl7g7vjik/c9N43HOJejjXtjtX6bB9IF5y9HGvbHav02D6QLIxOy65Ha5+7Vn3ymuf1mRdcVyO1z92rPvlNc/rMixRkyELd/g6vaTl3xrD9CsILd/g6vaTl3xrD9CqyIuHiK15tGhmHOuG0NXkFxD4rRQvPR8gHWWQDr2bNwTtsSSGgjfcc68Y1z1UxHNKzPrPl9YLvc5u3uDpSHxVp3PkyxnyXAAkAbDlB8nl6K+uMHh51drMwuGqNJU1WXWmp2Aip4iai1wtJ5YexbvvE0HfnZ5y9zwCS52SUQZt7BvCI2t9K2DUrBaqKpaAHVNke2SOQ+/wBjM5pZ5v8A6jv1KzX8Z/DXdrfJBc8inMUrNpKWqs1RIHg/1SAxzT/nsuaiJgZLH1+ybTDLdRai86S44bNZH08bHQiBsDJZxvzSMiado2kcg5Rt1aTsCSq4RfVabTc77cqaz2W31FdXVkgigp6eMvklee5rWjqSqQ0bwA2mordaqy5Mjk7C3WOoe+QA8oc+SJjWk925BcQP8J95Sjwi/tpwz4vqvpGK/eFXQeTRHBpRfGxnJb65lRczHJztha0HsoGkdDyBziSO9z3bEgNKoLwi/tpwz4vqvpGLHeZbjICmejmnD9XNSLRp7HeBa3XXxjarMHbCPsoJJfYczd9+z27x37+hQxXVwZ/+ZPD/AP3D6hUKkLmb4OCoJ8vWGMD0WEn/AHClOLeDy07txjly3NL3epI3hxZSxx0UMgB9i5v84/Y9x2eD7xC1eimS4IzgumuCaZ2w2jBcZo7RTv2MphaTJMRvsZJHEvkI3OxcTtupMiKFCIiAIiIAiIgCIiAIiIAiIgMdZ3wEXfMc3yHLotS6OlZfLrV3JsDrY55iE0zpAwu7Qb7c22+w32Xhfe5L1+VWi/ZL/tVtS+1dbQWO411tp+3rKekmlp4uQv7SRrCWt5R1O5AGw6lYtruK/i9tlFPcrlofTUlJSxumnnnxm5xxxRtG7nOc6UBrQASSegV1k1GieHHROq0IwuvxSryGK8PrbpJcRPHTmENDooo+TlLnb/gt99/OrXWCsf43OJPLZpabFdNbDeZYGh8sdvstdUOjaTsC4Rzkgb+cq4NP9a9eMm0y1RyDULChiNfjVhkrbJMLPUUvaTCnqXl3LUue2TkdFEdgNhzdQdwmBk0qq14gdI6jWzT84VS3yO0vNbDV+MSQGYbM5vJ5Q5vfzd+6qTgo1o1L1bqcvj1CyX1Wba46F1IPE6eDszIZ+f8ABMbvvyN79+7p51qVTYXaYd+9yXr8qtF+yX/ar6rX4PC82+5UledUqJ4pp45i0Wp45uVwO2/a+hbYRXJMBY7z3gJu+Z5xkOXxalUdKy93SquLYHWxzzEJpXP5C7tBvtzbb7DuWxEUKYd+9yXr8qtF+yX/AGq0Bw2aCVeglivFnq8lhvJulWypEkdKYRGGs5dti526uJEyMBVxqFw8aPanzursswqkkr3bl1dSl1NUOO2273xkGTYDpz8wCsdeLm2RHEMMv2WNpBVGyWyquIgL+TtexidJyc2x5d+XbfY7b9xQGYMj8HXhdW8OxPUS82wbkubX0kVaPgHIYSP17qOyeDirg8CLV2BzPOXWMtP+Xbn96ujht4lZ+ICqv9NNhzLH6iR0zwW15qO17UyDb8Gzl27P077q81csmEY+x/wdGNU8zn5VqZc6+I7csdvoI6Rw+Fz3Sg/9oWhtNND9MNJIn/cPi0FJVSs5Jq2VzpqmQdNwZHkkNJAJa3Zu/XZTtY6z/jSz+66gVOBaD4LT3o0k8tMKiWmmq5ass6Okjiic3kjBDvKcXbt2ceXuTaNhsVVDrhw1YlrvcbVcskvt3oH2mGSCJtCYgHh7gSXc7HdenmVEXDig4uMFBrs60XpvUyBofUzm0VcbGt9M7ZHRsPwg/AtTat36641pVlmS2Oq8VuNtslXWUs3I1/Zyshc5ruVwLTsQOhBChdpQf3vDS7/rTKf++n+yUr0t4NMC0ozu2Z/Zcnv9XWWvtuyhqnQmJ3awviPNyxg9BISNj3gKP8E2supOrn3Z/wAoWSeq3qV6neJ/+Egg7LtfGef8Exu+/Zs799tum25WoFSBERQoREQBEWdbVLxbeuAey5iT+TT1VqOXyLdt4nyv7LqB2/fyf4vf86A0UiIgCIiAIiIAiIgCIiAKEa5e4tn3yZuf1WRTdQjXL3Fs++TNz+qyIDJfg6PbZmXxdTfSuWtdb/cXz75L3X6pIsleDo9tmZfF1N9K5a11v9xfPvkvdfqkiu8iMCcKmO6q5xcsjwbTnLPuXoblTwT3q7xxudPFFE54jiiLSCHPdKdwHNJDD5QALXfdV3TUvhM12pLHW5zWXK3Mmp6mq3mf2FfRSuAeXxOc4NfsHjfqQ5u4J89keDiA8dz47deytn76lQbj+AGuFJ6cfpfpp1SbjRvHPfb3j2jNJX2C811sqXX2mjM1HUPheWGKYlvMwg7bgdPQFQ+j2F8QvEfp/FbHamVFlxSzTzU/jE088lRcahx7Rwfs7mlawPa0czg0dAATzEXVx/e4fR/KCl+hnXucETGt4eLI5rQC+rri4jznxh4/cApuLvK5151MzThq0aw3SexXmJ2S1dLLDUXaHdxhponbc0YeNw9/OAHEHlDX7deVwgFh0NnybBqfUC78U9LT5lWUTbhT0tReQTC5zOdkMszp+0a8+SHEN8g7jZ225mPhDMCvNbBjeotBRyz0Fvjlt1wewEin5nh0LnbdzXEvbzHpvyDvcFFNObbwKXrBrdccynqbVfIaOMXSmnqq4O8Ya0CR0Yj3D2ucC4Bu5AI3APRUFjcEfEDk+oD7lptnFxnudfbKQV9BXznmmkp2vaySOV56vc1z4yHHdxDnbnoF92uOircgz645Nn/E0MOsFyki9TrPNX9m0MZBGx/J2s7GNJe1ziGsd7LcnclfZwz0fDNU6gXqp0NtN38ctdvbHPcamWcQSxTPB5WMmdz77xjcuY3u6b7rLVXU4tduKS8y8Q1TWMs/q1Xx3HmMxLWsEjaePeP+cEQ2iaC0exA22HUQH3Z5V3Dh5ySz3PRriGGUUtUZJXxUdYJGwOjLfIqImyPjka4P6Egb8rug5QTqXXSzX3Wzh2t2fWbKqjGmQY/LkVbR05e5tZG6iMj6Vxa9u7e9u7g4ehZO4nJNCvH7HSaE2LsbdStqY665RCoMFXN/NbRMdMSXujb1cR0/nm9StsYTZ6vIeEm22CgYXVNzwTxOFoG5MklEWNH+ZCBGLOFzR3LNW67IY8W1LrsPda4aZ00lK2UuqBIZOVp5JGdByE9Se9dCdKMMu+n2A2vEL9lNRkddQdv2tzqA4ST88z5G78znHyWvDerj0b5u5YP4NtbMH0av2SR57U1NFTXinp2xVEdO+UMkhc/drmsBd1EneB/V9K6FYzklnzDH6DKMfqTUW25wNqaWUxuYXxu7jyuAI+AhGEekuaj7PrJwbanV+R2/HfGaHkloobhVUr5aGtpJJAW8z2EckhMbDy8wcCO4g9elizJhnHvpHfKcQZpbrpjdWARLvCaymJ322a+Mc5/XGO/vKIM8HBfCF4ndKyKh1Awurscchaw11FUeNxN373Pj5Wva0f4ec+hXtrdW0dy0EzW42+qiqaWqxitmgmicHMkjdTuLXNI6EEEEEe+sJ8WGf6M6iZLZ6rR+ysinjbP6qVsFv8UZWve5hj8jYOc9u0m7nNBPOBudumvK6yXbG+DOssV+jkiuFFgk0VRFINnQu8UP82R77fY/+lAjI/Cnh+quoTspwvT/ADE4paaxlHPfLtExxqGiPthBBHyua7yy+Qu2c3cRnd23ku9HGL3qVw0cSFHgNZmdVcrf6p0lLWsfNIaarpankPadk4nlkDZN9xuQ5pG7m772N4N//wC4f/tH+7UH4qgBxc28gd8tnJ/zYqTcbB19wTJtQcOpLRjWokuFNpriysuF0jnkjIpGwzNcw8j2cwL3xkhzg3yd99wFkjMdGNO7Dj9bkWOcYNvuWR2+mkqYoxc4t6t7GlwjjcyoLmOcRsDu7qe7zqd+EWrsiis2GUFM+pbZKiesfVhm/ZPqWiLsQ8924aZS0E9fLPm6QG0N4QqPQ1ktFZ5b9qJVWYwmkLa19R6pmElzgwERtiY8l3M3oWM/rO6KIrLd4GNZsv1BtN+w/NLvPdZ7EIKiirKl5fUOhkLw5j3nq/lc1pDnEu8sjfYACmOIvUjUnGOKq6wYnkN4k8SuNqkorUysmNPNJ4tTuERha4BzXvOxaO/mPvqReDp9uGYfFtP9KVHtXgHcelI1w3ByjHQR/wDro1d43F36ZcOGtNt1NsGrepWqUd4rqeWaautxkle2NssMjeSN3Rg5XPHkNY1g26HoFVmM5pmMvHFNj8uWXl9rGS18QoXV8pp+QMl2b2fNy7DYbDbbot5Lnpiv/n5n+VNw/wBEygLJ8ILlWT40/A/ucyO6WrxkXTtvEqySDtOXxXl5uQjfbmO2/duffUXZo7xA6yaLUWouQapVFLHb7O2Wz2EdqBU08EezJZZA8DtpQ0v53B5PO3dzQeVvqeEf9np78F2/2i0bpaAeHTFRt0OG0f1NqDeUTwFauZXlX3QYDlV7qbo23QRV9vkqpXSzRsLiyVnO7clu5jIBPTc+Y9INxBaq6laxa7HRPT2/VVtt1LcPUZkUFQ6Bs9Q0ltRNO5nlOYwh45eoDY9w3mJC/HweHupZF8n3fWYV4mp0N44dOLV2f3K2TVNtqrzLfKd7W9KmmqS7t2xkkDnZ2sjdiR1DSehBLeNxLdZ9NtcuHXSub1K1kuF/x25VEFNWM5Jaee2yB3PG+B3avLWOLSx2zmg8w3ad9227wH3++5FpBdq7IL1X3OpZkdRE2asqXzPawU1MQ0OeSQNyTt6Squ4o+JvE9WdLpcU02obrXwOnpqu8Vk1E6OKihD/IY4nue6Xsxv7HoQCSelheD29xa8fKep+q0qbhvNPIiKFCIiAL5rlbqC8W+qtN1pIqqirYX09RBK0OZLE9pa5jge8EEgj0r6UQEaxPTXAMEnqKnDcOtNllqmCOd9FStiMjQdwHEDqAV7lxt1Dd7fVWm6UkVVRVsL6eoglaHMlie0tcxwPeCCQR6V9KICOYlp1gmBuqn4ZiVrsprQwVBoqZsXahm/Lzco67cztvhK+fKNKNNc2uTbxl2DWW71rImwNqKykZK8Rgkhu5HcC49PSVK0QHj5RiGL5rbW2fLrBQ3eibK2dtPWQiVgkAIDtj5wHEb+kr9cdxnH8RtUVixezUlrt8LnOjpqWIRxtLiS4ho6dSSV6aID8qmmpq2nlpKynjngnYY5YpWBzHsI2LXA9CCOhBVZ1nC/oBXXD1Sn0tszZt9+WFr4Yv/wCTHBn/AMVaKIDw8WwbDMIpn0mH4rabLFLsZRQ0kcPaEdxeWgFx9J3K8PNdEdJ9Ra5t0zPBbZcq4BoNU5hjmcG9wc+Mtc4DzAkhThEBDKzRjSa4Wm3WKt06x+a32ntPEaZ9BGY6cyFpkLRt0Li1pce8kblSm12u3WS201ntFFDR0VFE2Cnp4WBrIo2jZrWgdwA8y+pEBC71otpFkVfNdb3ppjVZW1DzJNUS2yIySuPe57uXdx9JUotNotlhtlNZrLQQUVDRxiKnp4GBkcTB3NaB0AX2IgCguS6GaPZfUSVmQ6b2CqqZjvLUCjbFM8++6RmzifSSp0iAr/EdAdGcFrornjGndopa2B3PDUyRmeaJ39pj5S5zT6QQptc7Zb71bqm0Xaihq6KtidBUU8zQ5ksbhs5rge8EEghfUiAj2JaeYNgXjf3F4na7J492fjPiVM2LtuTm5OblHXbndt+cV8170r03yS+sye/4RZrhdozGW1tRSMfMCz2GziN+mw2UqRAeZkeM47l9plsWU2Siutvn2MlNVwtljJHcdj3Ed4I6jzKLYnoTpBg8lVNjGn9qo5ayKSCaUxmWQxvBD2B0hcWtcDsWggEeZTxEBGsU000/wWoqKrDcOtNlmqmCOd9FStidI0HcAkDqN1+VdpVptc8mbmlxwezVN+ZNFUtuMlIx1QJYg0Rv59t928jdj5uUKVIgCisGlem9Nk5zSnwizR34zPqTcW0jBUGVwIc/n233O53PpUqRAR3LdPMFzzxU5pidrvfiPP4t47TNl7Ln5efl5h035G7/AABetRWi2W60wWKgoIKe3U1O2lhpY2BsccLW8rWBvcGho2295fYiAi+K6X6dYNWy3HDsKs9mqp4uwlmoqVkT3x7g8pIHUbgHb0KneJTWuw6fZNQ4xqLoy3LcSqKKKtbXy07ZWQVZkmY5gErDGXhjWno5rgH+cELRSIDndqTq5T6045Fo/wAPOitRabXUVsVZXNoaGNslQ9u4YHshaWMaDyuMjnH2I6tAO+v+GzSms0e0nt2K3YxG6zSSV9x7J3M1s8hHkA9x5WNYwkdCWkjoVaSITAREQoREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREB//9k=",
+    "help_online": "https://docs.fortinet.com/document/fortisoar/2.2.0/misp/1009/misp-v2-2-0",
+    "vendor_version": null
+}

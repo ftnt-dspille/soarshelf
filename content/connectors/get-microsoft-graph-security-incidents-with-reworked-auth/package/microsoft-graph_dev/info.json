@@ -1,0 +1,1879 @@
+{
+    "name": "microsoft-graph_dev",
+    "version": "3.1.0",
+    "label": "Microsoft Graph API (fork)",
+    "description": "Microsoft Graph API is a powerful and unified programming interface provided by Microsoft that allows developers to access a wide range of data and services from Microsoft 365 and Azure Active Directory (Azure AD). It provides a single endpoint and a consistent set of RESTful web APIs, making it easier for developers to integrate and interact with Microsoft's cloud services and applications.",
+    "publisher": "",
+    "icon_small_name": "small.png",
+    "icon_large_name": "large.png",
+    "category": [
+        "Utilities"
+    ],
+    "configuration": {
+        "fields": [
+            {
+                "title": "Get Access Token",
+                "type": "select",
+                "name": "auth_type",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "value": "Without a User - Application Permission",
+                "tooltip": "Select the method using which you will get authentication tokens used to access the security graph APIs.",
+                "options": [
+                    "Without a User - Application Permission",
+                    "On behalf of User - Delegate Permission",
+                    "Certificate Based Authentication"
+                ],
+                "onchange": {
+                    "Without a User - Application Permission": [
+                        {
+                            "title": "Server URL",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "text",
+                            "name": "resource",
+                            "value": "https://graph.microsoft.com",
+                            "description": "Specify the service-based URI to connect and perform automated operations."
+                        },
+                        {
+                            "title": "Tenant ID",
+                            "description": "Specify the ID of the tenant assigned to you by the Azure application registration portal.",
+                            "tooltip": "Specify the ID of the tenant assigned to you by the Azure application registration portal.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "text",
+                            "name": "tenant"
+                        },
+                        {
+                            "title": "Client ID",
+                            "description": "Specify the Unique Application ID of the Azure Active Directory application to create an authentication token required to access the API. For information on getting authentication tokens, see the Getting Authentication Tokens section.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "text",
+                            "name": "client_id",
+                            "tooltip": "Specify the Unique Application ID of the Azure Active Directory application to create an authentication token required to access the API. For information on getting authentication tokens, see the Getting Authentication Tokens section."
+                        },
+                        {
+                            "title": "Client Secret",
+                            "description": "Specify the Unique Client Secret of the Azure Active Directory application that is used to create an authentication token required to access the API. For information on how to get the secret key, see https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/exposed-apis-create-app-webapp.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "password",
+                            "name": "client_secret",
+                            "tooltip": "Specify the Unique Client Secret of the Azure Active Directory application that is used to create an authentication token required to access the API."
+                        }
+                    ],
+                    "On behalf of User - Delegate Permission": [
+                        {
+                            "title": "Server URL",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "text",
+                            "name": "resource",
+                            "value": "https://graph.microsoft.com",
+                            "description": "Specify the service-based URI to connect and perform automated operations."
+                        },
+                        {
+                            "title": "Tenant ID",
+                            "description": "Specify the ID of the tenant assigned to you by the Azure application registration portal.",
+                            "tooltip": "Specify the ID of the tenant assigned to you by the Azure application registration portal.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "text",
+                            "name": "tenant"
+                        },
+                        {
+                            "title": "Client ID",
+                            "description": "Specify the Unique Application ID of the Azure Active Directory application to create an authentication token required to access the API. For information on getting authentication tokens, see the Getting Authentication Tokens section.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "text",
+                            "name": "client_id",
+                            "tooltip": "Specify the Unique Application ID of the Azure Active Directory application to create an authentication token required to access the API. For information on getting authentication tokens, see the Getting Authentication Tokens section."
+                        },
+                        {
+                            "title": "Client Secret",
+                            "description": "Specify the Unique Client Secret of the Azure Active Directory application that is used to create an authentication token required to access the API. For information on how to get the secret key, see https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/exposed-apis-create-app-webapp.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "password",
+                            "name": "client_secret",
+                            "tooltip": "Specify the Unique Client Secret of the Azure Active Directory application that is used to create an authentication token required to access the API."
+                        },
+                        {
+                            "title": "Authorization Code",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "password",
+                            "name": "code",
+                            "tooltip": "Specify the authorization code that you acquired during the authorization step",
+                            "description": "Specify the authorization code that you acquired during the authorization step. For more information, see the Getting Access Tokens using the Delegate Permissions method section."
+                        },
+                        {
+                            "title": "Redirect URL",
+                            "tooltip": "The redirect_uri of your app, where authentication responses can be sent and received by your app. It must exactly match one of the redirect_uri's you registered in the app registration portal.",
+                            "required": false,
+                            "editable": true,
+                            "visible": true,
+                            "type": "text",
+                            "name": "redirect_url",
+                            "placeholder": "e.g. https://localhost/myapp",
+                            "description": "The redirect_uri of your app, where authentication responses can be sent and received by your app. The redirect URL that you specify here must exactly match one of the redirect_uri's you have registered in your app registration portal."
+                        }
+                    ],
+                    "Certificate Based Authentication": [
+                        {
+                            "title": "Server URL",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "text",
+                            "name": "resource",
+                            "value": "https://graph.microsoft.com",
+                            "description": "Specify the service-based URI to connect and perform automated operations."
+                        },
+                        {
+                            "title": "Tenant ID",
+                            "description": "Specify the ID of the tenant assigned to you by the Azure application registration portal.",
+                            "tooltip": "Specify the ID of the tenant assigned to you by the Azure application registration portal.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "text",
+                            "name": "tenant"
+                        },
+                        {
+                            "title": "Client ID",
+                            "description": "Specify the Unique Application ID of the Azure Active Directory application to create an authentication token required to access the API. For information on getting authentication tokens, see the Getting Authentication Tokens section.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "type": "text",
+                            "name": "client_id",
+                            "tooltip": "Specify the Unique Application ID of the Azure Active Directory application to create an authentication token required to access the API. For information on getting authentication tokens, see the Getting Authentication Tokens section."
+                        },
+                        {
+                            "title": "Certificate Thumbprint",
+                            "type": "password",
+                            "name": "thumbprint",
+                            "description": "Provides a thumbprint, fingerprint, or hash, which is a unique identifier generated from a digital certificate using a cryptographic hash function.",
+                            "tooltip": "Provides a thumbprint, fingerprint, or hash, which is a unique identifier generated from a digital certificate using a cryptographic hash function.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Certificate File",
+                            "name": "private_key",
+                            "type": "file",
+                            "tooltip": "Upload a certificate (private key) with one of the following file types: .cer, .pem, .crt",
+                            "description": "Upload a certificate (private key) with one of the following file types: .cer, .pem, .crt",
+                            "editable": true,
+                            "visible": true,
+                            "required": true
+                        }
+                    ]
+                }
+            },
+            {
+                "title": "Verify SSL",
+                "type": "checkbox",
+                "name": "verify_ssl",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "value": true,
+                "tooltip": "Specifies whether the SSL certificate for the server is to be verified."
+            }
+        ]
+    },
+    "operations": [
+        {
+            "title": "Get Risky Users List",
+            "operation": "get_risky_users_list",
+            "category": "investigation",
+            "annotation": "get_risky_users_list",
+            "description": "Retrieves a list of all risky users from the Microsoft Graph API.",
+            "parameters": [],
+            "output_schema": {
+                "@odata.context": "",
+                "value": [
+                    {
+                        "id": "",
+                        "isDeleted": "",
+                        "isProcessing": "",
+                        "riskLevel": "",
+                        "riskState": "",
+                        "riskDetail": "",
+                        "riskLastUpdatedDateTime": "",
+                        "userDisplayName": "",
+                        "userPrincipalName": ""
+                    }
+                ]
+            },
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Get Risky User Details",
+            "operation": "get_risky_user_details",
+            "category": "investigation",
+            "annotation": "get_risky_user_details",
+            "description": "Retrieve details for a specific risky user from the Microsoft Graph API based on the user ID you have specified.",
+            "parameters": [
+                {
+                    "title": "Risky User ID",
+                    "type": "text",
+                    "name": "risk_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the ID of the risky user whose details you want to retrieve from the Microsoft Graph API."
+                }
+            ],
+            "output_schema": {
+                "@odata.context": "",
+                "id": "",
+                "isDeleted": "",
+                "isProcessing": "",
+                "riskLevel": "",
+                "riskState": "",
+                "riskDetail": "",
+                "riskLastUpdatedDateTime": "",
+                "userDisplayName": "",
+                "userPrincipalName": ""
+            },
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Get All Security Alerts",
+            "description": "Retrieves a list of alerts from the Microsoft Graph API based on the input parameters you have specified.",
+            "operation": "get_all_security_alerts",
+            "category": "investigation",
+            "annotation": "get_all_security_alerts",
+            "parameters": [
+                {
+                    "title": "API Version",
+                    "type": "select",
+                    "name": "api_version",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "V1",
+                    "tooltip": "Select the version of the API you want to use for retrieving security alerts. If the user selects V2, it provides comprehensive information and detailed context about alerts, where as V1 refers to the older version of the alerts API. By default,V1 is selected.",
+                    "options": [
+                        "V1",
+                        "V2"
+                    ],
+                    "onchange": {
+                        "V1": [
+                            {
+                                "title": "Vendor",
+                                "description": "Specify the name of the product vendor that provided the alert you want to retrieve using the Microsoft Graph API. For example, Microsoft.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "text",
+                                "name": "vendor",
+                                "tooltip": "Specify the name of the product vendor that provided the alert you want to retrieve using the Microsoft Graph API. For example, Microsoft.",
+                                "placeholder": "e.g Microsoft"
+                            },
+                            {
+                                "title": "Provider",
+                                "description": "Specify the security product that provided the alert you want to retrieve using the Microsoft Graph API. For example, Cloud Application Security.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "text",
+                                "name": "provider",
+                                "tooltip": "Specify the security product that provided the alert you want to retrieve using the Microsoft Graph API. For example, Cloud Application Security.",
+                                "placeholder": "e.g Cloud Application Security"
+                            },
+                            {
+                                "title": "Severity",
+                                "description": "Select the alert severity, set by the vendor or provider, to retrieve alerts using the Microsoft Graph API. You can choose from the following options:  Unknown, Low, Medium, High, Informational.",
+                                "tooltip": "Select the alert severity, set by the vendor or provider, to retrieve alerts using the Microsoft Graph API. You can choose from the following options:  Unknown, Low, Medium, High, Informational.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "options": [
+                                    "Unknown",
+                                    "Low",
+                                    "Medium",
+                                    "High",
+                                    "Informational"
+                                ],
+                                "name": "severity"
+                            },
+                            {
+                                "title": "Search From",
+                                "description": "Select the date and time of alert triggering event(s) to retrieve using the Microsoft Graph API.",
+                                "tooltip": "Select the date and time of alert triggering event(s) to retrieve using the Microsoft Graph API.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "datetime",
+                                "name": "search_from"
+                            }
+                        ],
+                        "V2": [
+                            {
+                                "title": "Classification",
+                                "name": "classification",
+                                "type": "select",
+                                "description": "Select the classification based on which you want to filter alerts to be retrieved. You can choose from the following options: Unknown, False Positive, True Positive, Informational Expected Activity, or Unknown Future Value.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "tooltip": "Select the classification based on which you want to filter alerts to be retrieved. You can choose from the following options: Unknown, False Positive, True Positive, Informational Expected Activity, or Unknown Future Value.",
+                                "options": [
+                                    "Unknown",
+                                    "False Positive",
+                                    "True Positive",
+                                    "Informational Expected Activity",
+                                    "Unknown Future Value"
+                                ]
+                            },
+                            {
+                                "title": "Determination",
+                                "name": "determination",
+                                "description": "Select the determination based on which you want to filter alerts to be retrieved. You can choose from the following options: Unknown, ATP, Malware, Security Personnel, Security Testing, Unwanted Software, Other, MultiStaged Attack, Compromised User, Phishing, Malicious User Activity, Clean, Insufficient Data, Confirmed User Activity, Line of Business Application, or Unknown Future Value.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "tooltip": "Select the determination based on which you want to filter alerts to be retrieved. You can choose from the following options: Unknown, ATP, Malware, Security Personnel, Security Testing, Unwanted Software, Other, MultiStaged Attack, Compromised User, Phishing, Malicious User Activity, Clean, Insufficient Data, Confirmed User Activity, Line of Business Application, or Unknown Future Value.",
+                                "options": [
+                                    "Unknown",
+                                    "ATP",
+                                    "Malware",
+                                    "Security Personnel",
+                                    "Security Testing",
+                                    "Unwanted Software",
+                                    "Other",
+                                    "MultiStaged Attack",
+                                    "Compromised User",
+                                    "Phishing",
+                                    "Malicious User Activity",
+                                    "Clean",
+                                    "Insufficient Data",
+                                    "Confirmed User Activity",
+                                    "Line Of Business Application",
+                                    "Unknown Future Value"
+                                ]
+                            },
+                            {
+                                "title": "Status",
+                                "description": "Select the status based on which you want to filter alerts to be retrieved. You can choose from the following options: Unknown, New Alert, In Progress, or Resolved.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "tooltip": "Select the status based on which you want to filter alerts to be retrieved. You can choose from the following options: Unknown, New Alert, In Progress, or Resolved.",
+                                "options": [
+                                    "Unknown Future Value",
+                                    "New Alert",
+                                    "In Progress",
+                                    "Resolved"
+                                ],
+                                "name": "status"
+                            },
+                            {
+                                "title": "Created Date",
+                                "name": "createdDateTime",
+                                "type": "datetime",
+                                "description": "(Optional) Specify the creation date to filter alerts so that alerts created after the specified date are retrieved.",
+                                "tooltip": "Specify the creation date to filter alerts so that alerts created after the specified date are retrieved.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true
+                            },
+                            {
+                                "title": "Last Update Date",
+                                "name": "lastUpdateDateTime",
+                                "type": "datetime",
+                                "description": "(Optional) Specify the last modified date to filter alerts so that alerts modified after the specified date are retrieved.",
+                                "tooltip": "Specify the last modified date to filter alerts so that alerts modified after the specified date are retrieved.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true
+                            },
+                            {
+                                "title": "Severity",
+                                "name": "severity",
+                                "type": "select",
+                                "description": "(Optional) Select the severity based on which you want to filter alerts to be retrieved. You can choose from the following options: Unknown, Informational, Low, Medium, High, or Unknown Future Value.",
+                                "tooltip": "Select the severity based on which you want to filter alerts to be retrieved. You can choose from the following options: Unknown, Informational, Low, Medium, High, or Unknown Future Value.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "options": [
+                                    "Unknown",
+                                    "Informational",
+                                    "Low",
+                                    "Medium",
+                                    "High",
+                                    "Unknown Future Value"
+                                ]
+                            },
+                            {
+                                "title": "Service Source",
+                                "name": "serviceSource",
+                                "type": "text",
+                                "description": "(Optional) Specify the service source based on which you want to filter alerts to be retrieved.",
+                                "tooltip": "Specify the service source based on which you want to filter alerts to be retrieved.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Assigned To",
+                    "type": "text",
+                    "name": "assigned_to",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the name of the analyst to filter alerts so that only those alerts assigned to the specified analyst are retrieved."
+                },
+                {
+                    "title": "Limit",
+                    "type": "integer",
+                    "name": "top",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the maximum number of records retrieved in the response. The maximum limit is '2000'."
+                },
+                {
+                    "title": "Offset",
+                    "type": "integer",
+                    "name": "skip",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the number of alert records you want to skip in this request."
+                }
+            ],
+            "conditional_output_schema": [
+                {
+                    "condition": "{{api_version === 'V1'}}",
+                    "output_schema": {
+                        "@odata.context": "",
+                        "value": [
+                            {
+                                "id": "",
+                                "azureTenantId": "",
+                                "azureSubscriptionId": "",
+                                "riskScore": "",
+                                "tags": [],
+                                "activityGroupName": "",
+                                "assignedTo": "",
+                                "category": "",
+                                "closedDateTime": "",
+                                "comments": [],
+                                "confidence": "",
+                                "createdDateTime": "",
+                                "description": "",
+                                "detectionIds": [],
+                                "eventDateTime": "",
+                                "feedback": "",
+                                "incidentIds": [],
+                                "lastEventDateTime": "",
+                                "lastModifiedDateTime": "",
+                                "recommendedActions": [],
+                                "severity": "",
+                                "sourceMaterials": [],
+                                "status": "",
+                                "title": "",
+                                "vendorInformation": {
+                                    "provider": "",
+                                    "providerVersion": "",
+                                    "subProvider": "",
+                                    "vendor": ""
+                                },
+                                "alertDetections": [],
+                                "cloudAppStates": [],
+                                "fileStates": [],
+                                "hostStates": [],
+                                "historyStates": [],
+                                "investigationSecurityStates": [],
+                                "malwareStates": [],
+                                "messageSecurityStates": [],
+                                "networkConnections": [],
+                                "processes": [],
+                                "registryKeyStates": [],
+                                "securityResources": [],
+                                "triggers": [],
+                                "userStates": [],
+                                "uriClickSecurityStates": [],
+                                "vulnerabilityStates": []
+                            }
+                        ]
+                    }
+                },
+                {
+                    "condition": "{{api_version === 'V2'}}",
+                    "output_schema": {
+                        "value": [
+                            {
+                                "id": "",
+                                "title": "",
+                                "status": "",
+                                "category": "",
+                                "comments": [
+                                    {
+                                        "comment": "",
+                                        "createdDateTime": "",
+                                        "createdByDisplayName": ""
+                                    }
+                                ],
+                                "evidence": [
+                                    {
+                                        "tags": [],
+                                        "roles": [],
+                                        "osBuild": "",
+                                        "verdict": "",
+                                        "version": "",
+                                        "riskScore": "",
+                                        "osPlatform": "",
+                                        "vmMetadata": "",
+                                        "@odata.type": "",
+                                        "mdeDeviceId": "",
+                                        "rbacGroupId": "",
+                                        "healthStatus": "",
+                                        "ipInterfaces": [],
+                                        "detailedRoles": [],
+                                        "deviceDnsName": "",
+                                        "lastIpAddress": "",
+                                        "loggedOnUsers": [],
+                                        "rbacGroupName": null,
+                                        "azureAdDeviceId": null,
+                                        "createdDateTime": "",
+                                        "defenderAvStatus": "",
+                                        "onboardingStatus": "",
+                                        "firstSeenDateTime": "",
+                                        "remediationStatus": "",
+                                        "lastExternalIpAddress": "",
+                                        "remediationStatusDetails": null
+                                    }
+                                ],
+                                "severity": "",
+                                "tenantId": "",
+                                "assignedTo": "",
+                                "detectorId": "",
+                                "incidentId": "",
+                                "systemTags": [],
+                                "alertWebUrl": "",
+                                "description": "",
+                                "productName": "",
+                                "alertPolicyId": "",
+                                "determination": "",
+                                "serviceSource": "",
+                                "additionalData": "",
+                                "classification": "",
+                                "incidentWebUrl": "",
+                                "createdDateTime": "",
+                                "detectionSource": "",
+                                "mitreTechniques": [],
+                                "providerAlertId": "",
+                                "actorDisplayName": "",
+                                "resolvedDateTime": "",
+                                "threatFamilyName": "",
+                                "threatDisplayName": "",
+                                "lastUpdateDateTime": "",
+                                "recommendedActions": "",
+                                "lastActivityDateTime": "",
+                                "firstActivityDateTime": ""
+                            }
+                        ],
+                        "@odata.context": ""
+                    }
+                }
+            ],
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Get Security Alert",
+            "description": "Retrieves details of a specific alert from the Microsoft Graph API based on the alert ID you have specified.",
+            "operation": "get_security_alert",
+            "category": "investigation",
+            "annotation": "get_security_alert",
+            "parameters": [
+                {
+                    "title": "API Version",
+                    "type": "select",
+                    "name": "api_version",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "V1",
+                    "tooltip": "Select the version of the API you want to use for retrieving security alerts. If the user selects V2, it provides comprehensive information and detailed context about alerts, where as V1 refers to the older version of the alerts API. By default V1 is selected.",
+                    "options": [
+                        "V1",
+                        "V2"
+                    ]
+                },
+                {
+                    "title": "Alert ID",
+                    "type": "text",
+                    "name": "alert_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the unique Alert ID to retrieve that alert from the Microsoft Graph API. The alert ID is generated by the provider when an alert is created in Azure."
+                }
+            ],
+            "conditional_output_schema": [
+                {
+                    "condition": "{{api_version === 'V1'}}",
+                    "output_schema": {
+                        "@odata.context": "",
+                        "id": "",
+                        "azureTenantId": "",
+                        "azureSubscriptionId": "",
+                        "riskScore": "",
+                        "tags": [],
+                        "activityGroupName": "",
+                        "assignedTo": "",
+                        "category": "",
+                        "closedDateTime": "",
+                        "comments": [],
+                        "confidence": "",
+                        "createdDateTime": "",
+                        "description": "",
+                        "detectionIds": [],
+                        "eventDateTime": "",
+                        "feedback": "",
+                        "incidentIds": [],
+                        "lastEventDateTime": "",
+                        "lastModifiedDateTime": "",
+                        "recommendedActions": [],
+                        "severity": "",
+                        "sourceMaterials": [],
+                        "status": "",
+                        "title": "",
+                        "vendorInformation": {
+                            "provider": "",
+                            "providerVersion": "",
+                            "subProvider": "",
+                            "vendor": ""
+                        },
+                        "alertDetections": [],
+                        "cloudAppStates": [],
+                        "fileStates": [],
+                        "hostStates": [
+                            {
+                                "fqdn": "",
+                                "isAzureAdJoined": "",
+                                "isAzureAdRegistered": "",
+                                "isHybridAzureDomainJoined": "",
+                                "netBiosName": "",
+                                "os": "",
+                                "privateIpAddress": "",
+                                "publicIpAddress": "",
+                                "riskScore": ""
+                            }
+                        ],
+                        "historyStates": [],
+                        "investigationSecurityStates": [],
+                        "malwareStates": [],
+                        "messageSecurityStates": [],
+                        "networkConnections": [],
+                        "processes": [],
+                        "registryKeyStates": [],
+                        "securityResources": [],
+                        "triggers": [],
+                        "userStates": [],
+                        "uriClickSecurityStates": [],
+                        "vulnerabilityStates": []
+                    }
+                },
+                {
+                    "condition": "{{api_version === 'V2'}}",
+                    "output_schema": {
+                        "id": "",
+                        "title": "",
+                        "status": "",
+                        "category": "",
+                        "comments": [
+                            {
+                                "comment": "",
+                                "createdDateTime": "",
+                                "createdByDisplayName": ""
+                            }
+                        ],
+                        "evidence": [
+                            {
+                                "tags": [],
+                                "roles": [],
+                                "verdict": "",
+                                "resourceId": "",
+                                "@odata.type": "",
+                                "resourceName": "",
+                                "resourceType": "",
+                                "detailedRoles": [],
+                                "createdDateTime": "",
+                                "remediationStatus": "",
+                                "remediationStatusDetails": ""
+                            }
+                        ],
+                        "severity": "",
+                        "tenantId": "",
+                        "assignedTo": "",
+                        "detectorId": "",
+                        "incidentId": "",
+                        "systemTags": [],
+                        "alertWebUrl": "",
+                        "description": "",
+                        "productName": "",
+                        "alertPolicyId": "",
+                        "determination": "",
+                        "serviceSource": "",
+                        "additionalData": {
+                            "Intent": "",
+                            "Server": "",
+                            "AlertUri": "",
+                            "Database": "",
+                            "Threat ID": "",
+                            "IP address": "",
+                            "Application": "",
+                            "TimeGenerated": "",
+                            "Principal name": "",
+                            "Potential causes": "",
+                            "Intent@odata.type": "",
+                            "ProcessingEndTime": "",
+                            "ProductComponentName": "",
+                            "EffectiveSubscriptionId": "",
+                            "EffectiveAzureResourceId": "",
+                            "OriginalAlertProductName": "",
+                            "OriginalAlertProviderName": ""
+                        },
+                        "classification": "",
+                        "incidentWebUrl": "",
+                        "createdDateTime": "",
+                        "detectionSource": "",
+                        "mitreTechniques": [],
+                        "providerAlertId": "",
+                        "actorDisplayName": "",
+                        "resolvedDateTime": "",
+                        "threatFamilyName": "",
+                        "threatDisplayName": "",
+                        "lastUpdateDateTime": "",
+                        "recommendedActions": "",
+                        "lastActivityDateTime": "",
+                        "firstActivityDateTime": ""
+                    }
+                }
+            ],
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Update Security Alert",
+            "description": "Updates a specific alert using Microsoft Graph API based on the alert ID, vendor name, provider name, and other input parameters you have specified.",
+            "operation": "update_security_alert",
+            "category": "investigation",
+            "annotation": "update_security_alert",
+            "parameters": [
+                {
+                    "title": "Alert ID",
+                    "type": "text",
+                    "name": "alert_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the unique alert ID to update that alert through the Microsoft Graph API. The alert ID is generated by the provider when an alert is created in Azure."
+                },
+                {
+                    "title": "API Version",
+                    "type": "select",
+                    "name": "api_version",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "V1",
+                    "tooltip": "Select the version of the API you want to use for retrieving security alerts. If the user selects V2, it provides comprehensive information and detailed context about alerts, where as V1 refers to the older version of the alerts API. By default,V1 is selected.",
+                    "options": [
+                        "V1",
+                        "V2"
+                    ],
+                    "onchange": {
+                        "V1": [
+                            {
+                                "title": "Provider",
+                                "description": "Specify the provider of the product or service in Azure to update the specific alert in Azure. For example, WindowsDefenderATP.",
+                                "required": true,
+                                "editable": true,
+                                "visible": true,
+                                "tooltip": "Specify the provider of the product or service in Azure to update the specific alert in Azure. For example, WindowsDefenderATP.",
+                                "type": "text",
+                                "name": "provider",
+                                "placeholder": "e.g WindowsDefenderATP"
+                            },
+                            {
+                                "title": "Vendor",
+                                "description": "Specify the name of the vendor to update in the specific alert in Azure. For example, Microsoft.",
+                                "required": true,
+                                "editable": true,
+                                "visible": true,
+                                "tooltip": "Specify the name of the vendor to update in the specific alert in Azure. For example, Microsoft.",
+                                "type": "text",
+                                "name": "vendor",
+                                "placeholder": "e.g Microsoft"
+                            },
+                            {
+                                "title": "Feedback",
+                                "description": "(Optional) Select the analyst feedback on the alert that you want to update in the specific alert in Azure. You can choose from the following options: Unknown, True Positive, False Positive, or Benign Positive.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "tooltip": "Select the analyst feedback on the alert that you want to update in the specific alert in Azure. You can choose from the following options: Unknown, True Positive, False Positive, or Benign Positive.",
+                                "options": [
+                                    "Unknown",
+                                    "True Positive",
+                                    "False Positive",
+                                    "Benign Positive"
+                                ],
+                                "name": "feedback"
+                            },
+                            {
+                                "title": "Comments",
+                                "description": "(Optional) Select the analyst comments that you want to update in the specific alert in Azure. You can choose between Closed in MCAS or Closed in IPS.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "tooltip": "Select the analyst comments that you want to update in the specific alert in Azure. You can choose between Closed in MCAS or Closed in IPS. ",
+                                "type": "multiselect",
+                                "options": [
+                                    "Closed in MCAS",
+                                    "Closed in IPC"
+                                ],
+                                "name": "comments"
+                            },
+                            {
+                                "title": "Tags",
+                                "description": "(Optional) Specify the JSON array of strings that store user-defined labels that can be applied to the alert that you want to update in Azure. These tags serve as filter conditions, and you can specify multiple tags using comma-based separators.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "text",
+                                "tooltip": "(Optional) Specify the JSON array of strings that store user-defined labels that can be applied to the alert that you want to update in Azure. These tags serve as filter conditions, and you can specify multiple tags using comma-based separators.",
+                                "name": "tags"
+                            },
+                            {
+                                "title": "Provider Version",
+                                "description": "(Optional) Specify the version of the provider or sub-provider, if it exists, that generated the alert that you want to update in Azure.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "tooltip": "(Optional) Specify the version of the provider or sub-provider, if it exists, that generated the alert that you want to update in Azure.",
+                                "type": "text",
+                                "name": "providerVersion"
+                            },
+                            {
+                                "title": "Subprovider",
+                                "description": "(Optional) Specify the name of the sub-provider under the aggregating provider in Azure for the alert that you want to update in Azure. For example, WindowsDefenderATP.SmartScreen",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "tooltip": "Specify the name of the sub-provider under the aggregating provider in Azure for the alert that you want to update in Azure. For example, WindowsDefenderATP.SmartScreen",
+                                "type": "text",
+                                "name": "subProvider",
+                                "placeholder": "e.g WindowsDefenderATP.SmartScreen"
+                            },
+                            {
+                                "title": "Status",
+                                "description": "(Optional) Select the status (life cycle status) that you want to update in the specific alert in Azure. You can choose from the following options: Unknown, New Alert, In Progress, or Resolved.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "tooltip": "Select the status (life cycle status) that you want to update in the specific alert in Azure. You can choose from the following options: Unknown, New Alert, In Progress, or Resolved. ",
+                                "options": [
+                                    "Unknown",
+                                    "New Alert",
+                                    "In Progress",
+                                    "Resolved"
+                                ],
+                                "name": "status"
+                            }
+                        ],
+                        "V2": [
+                            {
+                                "title": "Classification",
+                                "name": "classification",
+                                "type": "select",
+                                "description": "(Optional) Select the classification that you want to update in the specific alert in Azure. You can choose from the following options: Unknown, False Positive, True Positive, Informational Expected Activity, or Unknown Future Value.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "tooltip": "Select the classification that you want to update in the specific alert in Azure. You can choose from the following options: Unknown, False Positive, True Positive, Informational Expected Activity, or Unknown Future Value.",
+                                "options": [
+                                    "Unknown",
+                                    "False Positive",
+                                    "True Positive",
+                                    "Informational Expected Activity",
+                                    "Unknown Future Value"
+                                ]
+                            },
+                            {
+                                "title": "Determination",
+                                "name": "determination",
+                                "description": "(Optional) Select the determination that you want to update in the specific alert in Azure. You can choose from the following options: Unknown, ATP, Malware, Security Personnel, Security Testing, Unwanted Software, Other, MultiStaged Attack, Compromised User, Phishing, Malicious User Activity, Clean, Insufficient Data, Confirmed User Activity, Line of Business Application, or Unknown Future Value.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "tooltip": "Select the determination that you want to update in the specific alert in Azure. You can choose from the following options: Unknown, ATP, Malware, Security Personnel, Security Testing, Unwanted Software, Other, MultiStaged Attack, Compromised User, Phishing, Malicious User Activity, Clean, Insufficient Data, Confirmed User Activity, Line of Business Application, or Unknown Future Value.",
+                                "options": [
+                                    "Unknown",
+                                    "ATP",
+                                    "Malware",
+                                    "Security Personnel",
+                                    "Security Testing",
+                                    "Unwanted Software",
+                                    "Other",
+                                    "MultiStaged Attack",
+                                    "Compromised User",
+                                    "Phishing",
+                                    "Malicious User Activity",
+                                    "Clean",
+                                    "Insufficient Data",
+                                    "Confirmed User Activity",
+                                    "Line Of Business Application",
+                                    "Unknown Future Value"
+                                ]
+                            },
+                            {
+                                "title": "Status",
+                                "description": "(Optional) Select the status (life cycle status) that you want to update in the specific alert in Azure. You can choose from the following options: Unknown, New Alert, In Progress, or Resolved.",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "tooltip": "Select the status (life cycle status) that you want to update in the specific alert in Azure. You can choose from the following options: Unknown, New Alert, In Progress, or Resolved.",
+                                "options": [
+                                    "Unknown Future Value",
+                                    "New Alert",
+                                    "In Progress",
+                                    "Resolved"
+                                ],
+                                "name": "status"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Assigned To",
+                    "type": "text",
+                    "name": "assigned_to",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the name of the analyst to whom you want to assign the specific alert that you want to update for triage, investigation, or remediation in Azure. "
+                }
+            ],
+            "conditional_output_schema": [
+                {
+                    "condition": "{{api_version === 'V1'}}",
+                    "output_schema": {
+                        "@odata.context": "",
+                        "id": "",
+                        "azureTenantId": "",
+                        "azureSubscriptionId": "",
+                        "riskScore": "",
+                        "tags": [],
+                        "activityGroupName": "",
+                        "assignedTo": "",
+                        "category": "",
+                        "closedDateTime": "",
+                        "comments": [],
+                        "confidence": "",
+                        "createdDateTime": "",
+                        "description": "",
+                        "detectionIds": [],
+                        "eventDateTime": "",
+                        "feedback": "",
+                        "incidentIds": [],
+                        "lastEventDateTime": "",
+                        "lastModifiedDateTime": "",
+                        "recommendedActions": [],
+                        "severity": "",
+                        "sourceMaterials": [],
+                        "status": "",
+                        "title": "",
+                        "vendorInformation": {
+                            "provider": "",
+                            "providerVersion": "",
+                            "subProvider": "",
+                            "vendor": ""
+                        },
+                        "alertDetections": [],
+                        "cloudAppStates": [],
+                        "fileStates": [],
+                        "hostStates": [
+                            {
+                                "fqdn": "",
+                                "isAzureAdJoined": "",
+                                "isAzureAdRegistered": "",
+                                "isHybridAzureDomainJoined": "",
+                                "netBiosName": "",
+                                "os": "",
+                                "privateIpAddress": "",
+                                "publicIpAddress": "",
+                                "riskScore": ""
+                            }
+                        ],
+                        "historyStates": [],
+                        "investigationSecurityStates": [],
+                        "malwareStates": [],
+                        "messageSecurityStates": [],
+                        "networkConnections": [],
+                        "processes": [],
+                        "registryKeyStates": [],
+                        "securityResources": [],
+                        "triggers": [],
+                        "userStates": [],
+                        "uriClickSecurityStates": [],
+                        "vulnerabilityStates": []
+                    }
+                },
+                {
+                    "condition": "{{api_version === 'V2'}}",
+                    "output_schema": {
+                        "id": "",
+                        "title": "",
+                        "status": "",
+                        "category": "",
+                        "comments": [
+                            {
+                                "comment": "",
+                                "createdDateTime": "",
+                                "createdByDisplayName": ""
+                            }
+                        ],
+                        "evidence": [
+                            {
+                                "tags": [],
+                                "roles": [],
+                                "osBuild": "",
+                                "verdict": "",
+                                "version": "",
+                                "riskScore": "",
+                                "osPlatform": "",
+                                "vmMetadata": "",
+                                "@odata.type": "",
+                                "mdeDeviceId": "",
+                                "rbacGroupId": "",
+                                "healthStatus": "",
+                                "ipInterfaces": [],
+                                "detailedRoles": [],
+                                "deviceDnsName": "",
+                                "lastIpAddress": "",
+                                "loggedOnUsers": [],
+                                "rbacGroupName": "",
+                                "azureAdDeviceId": "",
+                                "createdDateTime": "",
+                                "defenderAvStatus": "",
+                                "onboardingStatus": "",
+                                "firstSeenDateTime": "",
+                                "remediationStatus": "",
+                                "lastExternalIpAddress": "",
+                                "remediationStatusDetails": ""
+                            }
+                        ],
+                        "severity": "",
+                        "tenantId": "",
+                        "assignedTo": "",
+                        "detectorId": "",
+                        "incidentId": "",
+                        "systemTags": [],
+                        "alertWebUrl": "",
+                        "description": "",
+                        "productName": "",
+                        "alertPolicyId": "",
+                        "determination": "",
+                        "serviceSource": "",
+                        "additionalData": "",
+                        "classification": "",
+                        "incidentWebUrl": "",
+                        "createdDateTime": "",
+                        "detectionSource": "",
+                        "mitreTechniques": [],
+                        "providerAlertId": "",
+                        "actorDisplayName": "",
+                        "resolvedDateTime": "",
+                        "threatFamilyName": "",
+                        "threatDisplayName": "",
+                        "lastUpdateDateTime": "",
+                        "recommendedActions": "",
+                        "lastActivityDateTime": "",
+                        "firstActivityDateTime": ""
+                    }
+                }
+            ],
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Add Comment on Security Alert",
+            "description": "Adds a comment to an existing alert based on the specified alert ID.",
+            "operation": "add_comment_on_security_alert",
+            "category": "investigation",
+            "annotation": "add_comment_on_security_alert",
+            "parameters": [
+                {
+                    "title": "Alert ID",
+                    "type": "text",
+                    "name": "alert_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the unique Alert ID to which you want to add the comment. The alert ID is generated by the provider when an alert is created in Azure."
+                },
+                {
+                    "title": "Comment",
+                    "type": "text",
+                    "name": "comment",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the comment you want to add to the specified alert."
+                }
+            ],
+            "output_schema": {
+                "@odata.context": "",
+                "value": [
+                    {
+                        "comment": "",
+                        "createdByDisplayName": "",
+                        "createdDateTime": ""
+                    }
+                ]
+            },
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Get Groups",
+            "operation": "get_groups",
+            "category": "investigation",
+            "annotation": "get_groups",
+            "description": "Retrieves a list of groups from the Microsoft Graph API.",
+            "parameters": [],
+            "output_schema": {
+                "@odata.context": "",
+                "value": [
+                    {
+                        "id": "",
+                        "deletedDateTime": "",
+                        "classification": "",
+                        "createdDateTime": "",
+                        "creationOptions": [],
+                        "description": "",
+                        "displayName": "",
+                        "expirationDateTime": "",
+                        "groupTypes": [],
+                        "isAssignableToRole": "",
+                        "mail": "",
+                        "mailEnabled": "",
+                        "mailNickname": "",
+                        "membershipRule": "",
+                        "membershipRuleProcessingState": "",
+                        "onPremisesDomainName": "",
+                        "onPremisesLastSyncDateTime": "",
+                        "onPremisesNetBiosName": "",
+                        "onPremisesSamAccountName": "",
+                        "onPremisesSecurityIdentifier": "",
+                        "onPremisesSyncEnabled": "",
+                        "preferredDataLocation": "",
+                        "preferredLanguage": "",
+                        "proxyAddresses": [],
+                        "renewedDateTime": "",
+                        "resourceBehaviorOptions": [],
+                        "resourceProvisioningOptions": [],
+                        "securityEnabled": "",
+                        "securityIdentifier": "",
+                        "theme": "",
+                        "visibility": "",
+                        "onPremisesProvisioningErrors": [],
+                        "serviceProvisioningErrors": []
+                    }
+                ]
+            },
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Get Users Within A Group",
+            "description": "Retrieves a list of users within a specific group from the Microsoft Graph API based on the group ID you have specified.",
+            "operation": "get_group_users",
+            "annotation": "get_group_users",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "Group ID",
+                    "type": "text",
+                    "name": "group_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the ID of the group whose users you want to retrieve from Microsoft Graph. Note: To get the Group ID, use the Get Groups operation."
+                }
+            ],
+            "output_schema": {
+                "@odata.context": "",
+                "value": [
+                    {
+                        "@odata.type": "",
+                        "id": "",
+                        "businessPhones": [],
+                        "displayName": "",
+                        "givenName": "",
+                        "jobTitle": "",
+                        "mail": "",
+                        "mobilePhone": "",
+                        "officeLocation": "",
+                        "preferredLanguage": "",
+                        "surname": "",
+                        "userPrincipalName": ""
+                    }
+                ]
+            },
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Search Message in Users Mailbox",
+            "description": "Searches for messages in a user's mailbox within an organization based on the Subject and user list you have specified.",
+            "operation": "search_message",
+            "annotation": "search_message",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "Subject",
+                    "type": "text",
+                    "name": "subject",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify a subject based on which you want to search for messages in Azure."
+                },
+                {
+                    "title": "User List",
+                    "type": "textarea",
+                    "name": "user_list",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify a comma-separated list of user IDs based on which you want to search messages in Azure."
+                },
+                {
+                    "title": "Page Size",
+                    "type": "integer",
+                    "name": "size",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "(Optional) Number of messages you want to retrieve per user in this request. The default page size is 10. Page size should be between 1 to 1000."
+                },
+                {
+                    "title": "Offset",
+                    "type": "integer",
+                    "name": "skip",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Number of messages you want to skip for each in this request."
+                }
+            ],
+            "output_schema": {
+                "Message_Found_List": [
+                    {
+                        "@odata.context": "",
+                        "value": [
+                            {
+                                "@odata.etag": "",
+                                "id": "",
+                                "createdDateTime": "",
+                                "lastModifiedDateTime": "",
+                                "changeKey": "",
+                                "categories": [],
+                                "receivedDateTime": "",
+                                "sentDateTime": "",
+                                "hasAttachments": "",
+                                "internetMessageId": "",
+                                "subject": "",
+                                "bodyPreview": "",
+                                "importance": "",
+                                "parentFolderId": "",
+                                "conversationId": "",
+                                "conversationIndex": "",
+                                "isDeliveryReceiptRequested": "",
+                                "isReadReceiptRequested": "",
+                                "isRead": "",
+                                "isDraft": "",
+                                "webLink": "",
+                                "inferenceClassification": "",
+                                "body": {
+                                    "contentType": "",
+                                    "content": ""
+                                },
+                                "sender": {
+                                    "emailAddress": {
+                                        "name": "",
+                                        "address": ""
+                                    }
+                                },
+                                "from": {
+                                    "emailAddress": {
+                                        "name": "",
+                                        "address": ""
+                                    }
+                                },
+                                "toRecipients": [
+                                    {
+                                        "emailAddress": {
+                                            "name": "",
+                                            "address": ""
+                                        }
+                                    }
+                                ],
+                                "ccRecipients": [],
+                                "bccRecipients": [],
+                                "replyTo": [],
+                                "flag": {
+                                    "flagStatus": ""
+                                }
+                            }
+                        ],
+                        "user_id": ""
+                    }
+                ],
+                "Message_Not_Found_List": [
+                    {
+                        "@odata.context": "",
+                        "value": [],
+                        "user_id": ""
+                    }
+                ],
+                "Run_Time": "",
+                "Total_Users_Processed": ""
+            },
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Delete Message",
+            "description": "Deletes a specific message from the specific user's mailbox in Azure based on the user ID and message ID you have specified.",
+            "operation": "del_message",
+            "annotation": "del_message",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "User ID",
+                    "type": "text",
+                    "name": "user_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the ID of the user based on which you want to delete the specific message from Azure."
+                },
+                {
+                    "title": "Message ID",
+                    "type": "text",
+                    "name": "message_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the ID of the message that you want to delete from Azure."
+                }
+            ],
+            "output_schema": {
+                "status_code": ""
+            },
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Delete Message Bulk",
+            "description": "Deletes messages from multiple users' mailboxes in Azure based on the comma-separated list of users you have specified.",
+            "operation": "del_message_bulk",
+            "annotation": "del_message_bulk",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "User List",
+                    "type": "json",
+                    "name": "user_list",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": [],
+                    "tooltip": "Specify a comma-separated list of users' mailboxes, which is a list of JSON objects, based on which you want to delete bulk messages in Azure. The format of the list is as follows: [ { 'user_id':\"\", 'message_id':\"\" }, { 'user_id':\"\",'message_id':\"\" }]"
+                }
+            ],
+            "output_schema": {
+                "Error_List": [
+                    {
+                        "error_msg": "",
+                        "user_id": {
+                            "user_id": "",
+                            "message_id": ""
+                        }
+                    }
+                ],
+                "Message_Deleted_List": [
+                    {
+                        "msg_deleted": "",
+                        "user_id": {
+                            "user_id": "",
+                            "message_id": ""
+                        }
+                    }
+                ],
+                "Run_Time": "",
+                "Total_Users_Processed": ""
+            },
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Revoke User Session",
+            "operation": "revoke_user_sessions",
+            "annotation": "revoke_user_sessions",
+            "category": "remediation",
+            "description": "Invalidates all the refresh tokens issued to applications for a user.",
+            "parameters": [
+                {
+                    "title": "User ID or PrincipalName",
+                    "type": "text",
+                    "name": "user",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the User ID or PrincipalName of the user whose refresh tokens you want to invalidate (revoke) from the Microsoft Graph API."
+                }
+            ],
+            "output_schema": {
+                "@odata.context": "",
+                "value": ""
+            },
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Get All Named Locations",
+            "description": "Retrieves a list of named locations from Azure based on display name, sort order, and other input parameters that you have specified.",
+            "operation": "get_all_named_locations",
+            "annotation": "get_all_named_locations",
+            "category": "investigation",
+            "output_schema": {
+                "@odata.context": "",
+                "value": [
+                    {
+                        "@odata.type": "",
+                        "id": "",
+                        "displayName": "",
+                        "modifiedDateTime": "",
+                        "createdDateTime": "",
+                        "isTrusted": "",
+                        "ipRanges": [
+                            {
+                                "@odata.type": "",
+                                "cidrAddress": ""
+                            }
+                        ],
+                        "includeUnknownCountriesAndRegions": "",
+                        "countryLookupMethod": "",
+                        "countriesAndRegions": []
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "title": "Display Name",
+                    "type": "text",
+                    "name": "name",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the display name of the named location to retrieve from Azure."
+                },
+                {
+                    "title": "Required Fields",
+                    "type": "multiselect",
+                    "name": "select",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "(Optional) Select the sort order criterion to sort the results. Select the sorting order in the Sort Order field. You can choose from the following options: ID, Display Name, Created Date Time, Modified Date Time."
+                },
+                {
+                    "title": "Order By",
+                    "type": "select",
+                    "name": "order_by",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "(Optional) Select the sort order criterion to sort the results. Select the sorting order in the Sort Order field. You can choose from the following options: ID, Display Name, Created Date Time, Modified Date Time.",
+                    "options": [
+                        "ID",
+                        "Display Name",
+                        "Created Date Time",
+                        "Modified Date Time"
+                    ],
+                    "onchange": {
+                        "ID": [
+                            {
+                                "title": "Sort Order",
+                                "type": "select",
+                                "name": "order",
+                                "required": false,
+                                "visible": true,
+                                "editable": true,
+                                "description": "(Conditional - This field appears after selecting an order criterion in Order By field) Specify the sort order from the following options: Ascending, Descending By default, it retrieves named locations in ascending order.",
+                                "tooltip": "This field appears after selecting an order criterion in Order By field) Specify the sort order from the following options: Ascending, Descending By default, it retrieves named locations in ascending order.",
+                                "options": [
+                                    "Ascending",
+                                    "Descending"
+                                ]
+                            }
+                        ],
+                        "Display Name": [
+                            {
+                                "title": "Sort Order",
+                                "type": "select",
+                                "name": "order",
+                                "required": false,
+                                "visible": true,
+                                "editable": true,
+                                "description": "(Optional) Orders the response Ascending or Descending order on specified field. By default it retrieves in ascending order.",
+                                "tooltip": "Orders the response Ascending or Descending order on specified field. By default it retrieves in ascending order",
+                                "options": [
+                                    "Ascending",
+                                    "Descending"
+                                ]
+                            }
+                        ],
+                        "Created Date Time": [
+                            {
+                                "title": "Sort Order",
+                                "type": "select",
+                                "name": "order",
+                                "required": false,
+                                "visible": true,
+                                "editable": true,
+                                "description": "(Optional) Orders the response Ascending or Descending order on specified field. By default it retrieves in ascending order.",
+                                "tooltip": "Orders the response Ascending or Descending order on specified field. By default it retrieves in ascending order",
+                                "options": [
+                                    "Ascending",
+                                    "Descending"
+                                ]
+                            }
+                        ],
+                        "Modified Date Time": [
+                            {
+                                "title": "Sort Order",
+                                "type": "select",
+                                "name": "order",
+                                "required": false,
+                                "visible": true,
+                                "editable": true,
+                                "description": "(Optional) Orders the response Ascending or Descending order on specified field. By default it retrieves in ascending order.",
+                                "tooltip": "Orders the response Ascending or Descending order on specified field. By default it retrieves in ascending order.",
+                                "options": [
+                                    "Ascending",
+                                    "Descending"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Count",
+                    "type": "checkbox",
+                    "name": "count",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": false,
+                    "tooltip": "Select to retrieve the total count of named locations matched in Azure. By default, it is set to false."
+                },
+                {
+                    "title": "Size",
+                    "type": "integer",
+                    "name": "size",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the number of named locations to retrieve in this request."
+                },
+                {
+                    "title": "Offset",
+                    "type": "integer",
+                    "name": "skip",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "(Optional) Specify the number of named locations you want to skip in this request."
+                }
+            ],
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Block New IP Ranges",
+            "description": "Blocks IPv4 and IPv6 address ranges in the specified NamedLocation in Azure.",
+            "operation": "block_new_ips",
+            "annotation": "block_new_ips",
+            "category": "containment",
+            "output_schema": {
+                "@odata.context": "",
+                "@odata.type": "",
+                "id": "",
+                "displayName": "",
+                "modifiedDateTime": "",
+                "createdDateTime": "",
+                "isTrusted": "",
+                "ipRanges": [
+                    {
+                        "@odata.type": "",
+                        "cidrAddress": ""
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "title": "IP Named Location's UUID",
+                    "type": "text",
+                    "name": "namedLocationUuid",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the unique Named Location ID for which you want to block the IP addresses."
+                },
+                {
+                    "title": "IPv4 Ranges",
+                    "type": "text",
+                    "name": "ipv4_ips",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify IP address ranges in IPv4 CIDR format (1.2.3.4/32) to be blocked in the specified named location. You can specify multiple IPv4 ranges as comma-separated values. e.g. 10.10.10.10/14, 10.10.10.10/13, 10.10.10.10/09"
+                },
+                {
+                    "title": "IPv6 Ranges",
+                    "type": "text",
+                    "name": "ipv6_ips",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify IP address ranges in allowable IPv6 format, defined in IETF RFC5962, to be blocked in the specified named location. You can specify multiple IPv6 ranges as comma-separated values. e.g. 2001:db8::/43, 2001:db8::/47"
+                }
+            ],
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Unblock IP Ranges",
+            "description": "Unblocks IPv4 and IPv6 address ranges in the specified NamedLocation in Azure.",
+            "operation": "unblock_new_ips",
+            "annotation": "unblock_new_ips",
+            "category": "remediation",
+            "output_schema": {
+                "@odata.context": "",
+                "@odata.type": "",
+                "id": "",
+                "displayName": "",
+                "modifiedDateTime": "",
+                "createdDateTime": "",
+                "isTrusted": "",
+                "ipRanges": [
+                    {
+                        "@odata.type": "",
+                        "cidrAddress": ""
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "title": "IP Named Location's UUID",
+                    "type": "text",
+                    "name": "namedLocationUuid",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the unique named location ID for which you want to unblock the IP addresses."
+                },
+                {
+                    "title": "IPv4 Ranges",
+                    "type": "text",
+                    "name": "ipv4_ips",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify IP address ranges in IPv4 CIDR format (1.2.3.4/32) to be unblocked in the specified named location. You can specify multiple IPv4 ranges as comma-separated values. For example: 10.10.10.10/14, 10.10.10.10/13, 10.10.10.10/09"
+                },
+                {
+                    "title": "IPv6 Ranges",
+                    "type": "text",
+                    "name": "ipv6_ips",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify IP address ranges in IPv6 format, as defined in IETF RFC5962, to be unblocked in the specified named location. You can specify multiple IPv6 ranges as comma-separated values. For example: 2001:db8::/43, 2001:db8::/47"
+                }
+            ],
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Create IP Named Location",
+            "description": "Creates a new IP named location in Azure based on the specified input parameter.",
+            "operation": "create_ip_range_location",
+            "annotation": "create_ip_range_location",
+            "category": "investigation",
+            "output_schema": {
+                "@odata.context": "",
+                "@odata.type": "",
+                "id": "",
+                "displayName": "",
+                "modifiedDateTime": "",
+                "createdDateTime": "",
+                "isTrusted": "",
+                "ipRanges": []
+            },
+            "parameters": [
+                {
+                    "title": "Display Name",
+                    "type": "text",
+                    "name": "name",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the display name of the named location to create in Azure."
+                },
+                {
+                    "title": "Is Trusted",
+                    "type": "checkbox",
+                    "name": "is_trusted",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": false,
+                    "tooltip": "Select if the IP Range is trusted."
+                },
+                {
+                    "title": "IPv4 Ranges",
+                    "type": "text",
+                    "name": "ipv4_ips",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify IP address ranges in IPv4 CIDR format (1.2.3.4/32) to be added in the specified named location. You can specify multiple IPv4 ranges as comma-separated values. For example: 10.10.10.10/14, 10.10.10.10/13, 10.10.10.10/09"
+                },
+                {
+                    "title": "IPv6 Ranges",
+                    "type": "text",
+                    "name": "ipv6_ips",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify IP address ranges in IPv6 format, as defined in IETF RFC5962, to be added in the specified named location. You can specify multiple IPv6 ranges as comma-separated values. For example: 2001:db8::/43, 2001:db8::/47"
+                }
+            ],
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Get Security Incidents",
+            "operation": "get_security_incidents",
+            "description": "Retrieves a list of alerts from the Microsoft Graph API based on the input parameters you have specified.",
+            "parameters": [
+                {
+                    "title": "Top",
+                    "type": "integer",
+                    "name": "top",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Specifies the maximum number of incidents to return. If omitted, Microsoft Graph returns its default page size."
+                },
+                {
+                    "title": "Skip",
+                    "type": "integer",
+                    "name": "skip",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Skips the first N incidents before returning results. Primarily used for pagination."
+                },
+                {
+                    "title": "Filter",
+                    "type": "text",
+                    "name": "filter",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Filters incidents based on one or more properties using OData syntax. Example: status eq 'active'"
+                },
+                {
+                    "title": "Order By",
+                    "type": "text",
+                    "name": "orderBy",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Sorts the returned incidents by a specified property in ascending (asc) or descending (desc) order. Example: lastUpdateDateTime desc"
+                },
+                {
+                    "title": "Count",
+                    "type": "text",
+                    "name": "count",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Returns the total number of incidents that match the query in addition to the incident list. set it to 'true' if required."
+                },
+                {
+                    "title": "Fetch Alerts",
+                    "type": "checkbox",
+                    "name": "fetchAlerts",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": true,
+                    "tooltip": "If the checkbox is unchecked, alerts will not be fetched."
+                }
+            ],
+            "open": true,
+            "isNew": true,
+            "category": "investigation"
+        }
+    ],
+    "cs_compatible": true,
+    "help_online": "https://docs.fortinet.com/document/fortisoar/2.2.0/microsoft-graph-api/1080/microsoft-graph-api-v2-2-0"
+}

@@ -1,0 +1,21 @@
+title: Delete Cloudflare WAF IP list items the way the API expects
+summary: A fork of the Cloudflare WAF connector fixing the delete IP list items payload; installs beside
+  the Content Hub original.
+description: ''
+use_cases:
+- containment
+tags:
+- cloudflare
+- waf
+- firewall
+author: ftnt-dspille
+version: 1.0.1
+min_version: null
+license: MIT
+published: '2026-11-04'
+enhances:
+  connector: cloudflare-waf
+  version: 1.0.1
+  changes: 'Fix only: the delete IP list items operation wraps each indicator ID the way the Cloudflare
+    API expects. Same operation set as the hub original otherwise.'
+author_id: 99558074

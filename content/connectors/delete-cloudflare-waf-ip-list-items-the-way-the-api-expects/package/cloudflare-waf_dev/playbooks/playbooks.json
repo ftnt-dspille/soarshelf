@@ -1,0 +1,1513 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Sample - Cloudflare WAF - 1.0.0",
+      "description": "Sample playbooks for \"Cloudflare WAF\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete.",
+      "visible": true,
+      "image": "",
+      "uuid": "613c6378-8585-4d45-930f-49077c203bc1",
+      "id": 289,
+      "deletedAt": null,
+      "importedBy": [],
+      "recordTags": [
+        "Cloudflare",
+        "cloudflare-waf"
+      ],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "List Filters",
+          "aliasName": null,
+          "tag": "#Cloudflare WAF",
+          "description": "Retrieve a list of filters configured within the Cloudflare Web Application Firewall (WAF) settings",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1712147718,
+          "collection": "/api/3/workflow_collections/613c6378-8585-4d45-930f-49077c203bc1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/73394e86-4f91-4f93-a44d-d9a9b24843ad",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "List Filters",
+              "description": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "e79b5816-209c-4b04-80e5-8bd236acbccd",
+                "params": {
+                  "id": "12",
+                  "ref": "",
+                  "page": "",
+                  "per_page": "",
+                  "expression": "",
+                  "description": "test"
+                },
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "list_filters",
+                "operationTitle": "List Filters",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "dbd2af75-1d97-4440-a74d-4aa09933788b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "e389a3ce-795e-407a-b6aa-8f794e6ea7b5",
+                "title": "Cloudflare WAF: List Filters",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "73394e86-4f91-4f93-a44d-d9a9b24843ad"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> List Filters",
+              "targetStep": "/api/3/workflow_steps/dbd2af75-1d97-4440-a74d-4aa09933788b",
+              "sourceStep": "/api/3/workflow_steps/73394e86-4f91-4f93-a44d-d9a9b24843ad",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "fd5a8bb9-ab47-4921-8dfa-4ed7af5a3626"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "04b295e3-724d-4641-874f-fd2df641a1f9",
+          "id": 3324,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Delete Firewall Rule",
+          "aliasName": null,
+          "tag": "#Cloudflare WAF",
+          "description": "Remove or delete an existing firewall rule from the firewall configuration",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1712147826,
+          "collection": "/api/3/workflow_collections/613c6378-8585-4d45-930f-49077c203bc1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/323cb042-f453-4894-998c-292e676d3af9",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Delete Firewall Rule",
+              "description": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "e79b5816-209c-4b04-80e5-8bd236acbccd",
+                "params": {
+                  "id": "13"
+                },
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "delete_firewall_rule",
+                "operationTitle": "Delete Firewall Rule",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "3a57cd7a-e4eb-4889-a5f7-6935b42c2f85"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "13a56d27-4e64-44a1-9c68-41a4228fbbd2",
+                "title": "Cloudflare WAF: Delete Firewall Rule",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "323cb042-f453-4894-998c-292e676d3af9"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Delete Firewall Rule",
+              "targetStep": "/api/3/workflow_steps/3a57cd7a-e4eb-4889-a5f7-6935b42c2f85",
+              "sourceStep": "/api/3/workflow_steps/323cb042-f453-4894-998c-292e676d3af9",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "d8b14587-083b-4769-b0e5-24997b703257"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "0c811b66-a7b4-43da-a397-0c3317a09030",
+          "id": 3325,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "List Firewall Rules",
+          "aliasName": null,
+          "tag": "#Cloudflare WAF",
+          "description": "Get a list of firewall rules that are currently configured for your Cloudflare account or for a specific domain or zone within your account",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1712147957,
+          "collection": "/api/3/workflow_collections/613c6378-8585-4d45-930f-49077c203bc1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/a075a0a6-3e82-4627-ad5b-397ed2623c2e",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "List Firewall Rules",
+              "description": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "e79b5816-209c-4b04-80e5-8bd236acbccd",
+                "params": {
+                  "id": "",
+                  "page": "",
+                  "action": "block",
+                  "paused": "",
+                  "per_page": "",
+                  "description": "test"
+                },
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "list_firewall_rules",
+                "operationTitle": "List Firewall Rules",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "20a2cca2-c696-4d71-ba3a-1b0314041872"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "0b3dc298-ee50-4d96-abe8-f20714576c5b",
+                "title": "Cloudflare WAF: List Firewall Rules",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "a075a0a6-3e82-4627-ad5b-397ed2623c2e"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> List Firewall Rules",
+              "targetStep": "/api/3/workflow_steps/20a2cca2-c696-4d71-ba3a-1b0314041872",
+              "sourceStep": "/api/3/workflow_steps/a075a0a6-3e82-4627-ad5b-397ed2623c2e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "24194215-878d-48a0-8d48-18972d188a44"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "19ea3fa5-094a-4a75-89c4-6a04f114a610",
+          "id": 3326,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get IP Lists",
+          "aliasName": null,
+          "tag": "#Cloudflare WAF",
+          "description": "Allows users to retrieve information about IP lists configured within their Cloudflare account",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1712145799,
+          "collection": "/api/3/workflow_collections/613c6378-8585-4d45-930f-49077c203bc1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/1f7c0c13-67e3-4da8-bb2e-6f5d47127499",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get IP Lists",
+              "description": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "e79b5816-209c-4b04-80e5-8bd236acbccd",
+                "params": [],
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "get_ip_lists",
+                "operationTitle": "Get IP Lists",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "0a478883-99ee-414e-b6fc-442d1448e1ae"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "37b00fc5-d002-465b-953c-75714637da0a",
+                "title": "Cloudflare WAF: Get IP Lists",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "1f7c0c13-67e3-4da8-bb2e-6f5d47127499"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get IP Lists",
+              "targetStep": "/api/3/workflow_steps/0a478883-99ee-414e-b6fc-442d1448e1ae",
+              "sourceStep": "/api/3/workflow_steps/1f7c0c13-67e3-4da8-bb2e-6f5d47127499",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "5e89ebb7-86e5-4b41-8d13-a25da94cf5f4"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "333851ca-0296-4241-907f-58cad0a3ea29",
+          "id": 3327,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "List Zones",
+          "aliasName": null,
+          "tag": "#Cloudflare WAF",
+          "description": "Retrieves a list of all zones associated with the user's Cloudflare account",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1712157303,
+          "collection": "/api/3/workflow_collections/613c6378-8585-4d45-930f-49077c203bc1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/2bb95fe6-9b7c-4e84-a322-765b5a4e0b11",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "List Zone",
+              "description": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "e79b5816-209c-4b04-80e5-8bd236acbccd",
+                "params": {
+                  "name": "test Zone",
+                  "page": "",
+                  "match": "test",
+                  "order": "",
+                  "status": "",
+                  "per_page": "",
+                  "direction": "",
+                  "account_name": "account-name"
+                },
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "list_zones",
+                "operationTitle": "List Zones",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e1e02f5d-8fdf-43eb-804b-dc14f303758e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "8f8265b0-4b8d-4b70-9403-c8f55e080a32",
+                "title": "Cloudflare WAF: List Zones",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "2bb95fe6-9b7c-4e84-a322-765b5a4e0b11"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> List Zones",
+              "targetStep": "/api/3/workflow_steps/e1e02f5d-8fdf-43eb-804b-dc14f303758e",
+              "sourceStep": "/api/3/workflow_steps/2bb95fe6-9b7c-4e84-a322-765b5a4e0b11",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e9787654-6e79-4c5d-a8f4-876e7866d150"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "3d29de07-1515-4f13-9bd2-76a3d2503e1a",
+          "id": 3328,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Create Firewall Rule",
+          "aliasName": null,
+          "tag": "#Cloudflare WAF",
+          "description": "Allows users to add or create a new firewall rule in a firewall configuration",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1712157027,
+          "collection": "/api/3/workflow_collections/613c6378-8585-4d45-930f-49077c203bc1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/e316db9c-de31-41e2-9e54-f4c2d34b4ad4",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Firewall Rule",
+              "description": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "6c1f97d3-9cb4-49c7-a241-12e575011d99",
+                "params": {
+                  "ref": "",
+                  "action": "Managed Challenge",
+                  "paused": true,
+                  "priority": "1",
+                  "products": [
+                    "zoneLockdown",
+                    "uaBlock",
+                    "bic"
+                  ],
+                  "filter_id": "",
+                  "description": "Test FW Rule",
+                  "filter_expression": ""
+                },
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "create_firewall_rule",
+                "operationTitle": "Create Firewall Rule",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "8a69623b-7495-450b-8339-93c6e06b1368"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "52b38577-a4f1-4576-a9db-c65817590690",
+                "title": "Cloudflare WAF: Create Firewall Rule",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "e316db9c-de31-41e2-9e54-f4c2d34b4ad4"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Create Firewall Rule",
+              "targetStep": "/api/3/workflow_steps/8a69623b-7495-450b-8339-93c6e06b1368",
+              "sourceStep": "/api/3/workflow_steps/e316db9c-de31-41e2-9e54-f4c2d34b4ad4",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b5868bb0-bbd7-44a3-8268-f6d2cf7895e9"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "44c42e7b-9433-4808-bfc7-1df6e8d7b430",
+          "id": 3329,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Update Filter",
+          "aliasName": null,
+          "tag": "#Cloudflare WAF",
+          "description": "Modify and update the configuration settings of existing filters within their WAF configuration",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1712147446,
+          "collection": "/api/3/workflow_collections/613c6378-8585-4d45-930f-49077c203bc1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/19f938de-ea83-48d6-942c-60de46c87f15",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "36c11039-497d-4a04-9bac-7899e13ba208",
+                "title": "Cloudflare WAF: Update Filter",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "19f938de-ea83-48d6-942c-60de46c87f15"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Filter",
+              "description": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "e79b5816-209c-4b04-80e5-8bd236acbccd",
+                "params": {
+                  "id": "1213",
+                  "ref": "",
+                  "paused": "",
+                  "zone_id": "",
+                  "expression": "",
+                  "description": "test"
+                },
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "update_filter",
+                "operationTitle": "Update Filter",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "c8b3341c-e135-4306-9553-4526d3f2b463"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Update Filter",
+              "targetStep": "/api/3/workflow_steps/c8b3341c-e135-4306-9553-4526d3f2b463",
+              "sourceStep": "/api/3/workflow_steps/19f938de-ea83-48d6-942c-60de46c87f15",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "050ebb0d-926d-4953-bb25-2d2baceb7f98"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "795f478d-d384-4687-a867-3b2e31510fc9",
+          "id": 3330,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Update Firewall Rule",
+          "aliasName": null,
+          "tag": "#Cloudflare WAF",
+          "description": "Allows users to modify or edit an existing firewall rule within the firewall configuration",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1712157105,
+          "collection": "/api/3/workflow_collections/613c6378-8585-4d45-930f-49077c203bc1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/b8d76075-601d-4eb3-89c8-6c49322bcf9e",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "4b9d5b6e-8f8f-4641-8b8f-3062e4050e47",
+                "title": "Cloudflare WAF: Update Firewall Rule",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "b8d76075-601d-4eb3-89c8-6c49322bcf9e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Firewall Rule",
+              "description": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "e79b5816-209c-4b04-80e5-8bd236acbccd",
+                "params": {
+                  "id": "1234",
+                  "ref": "",
+                  "action": "jS Challenge",
+                  "paused": "",
+                  "priority": "50",
+                  "products": [
+                    "uaBlock",
+                    "bic",
+                    "hot"
+                  ],
+                  "filter_id": "",
+                  "description": "test"
+                },
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "update_firewall_rule",
+                "operationTitle": "Update Firewall Rule",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "948de031-d097-4b69-b031-bfb04d1de46d"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Update Firewall Rule",
+              "targetStep": "/api/3/workflow_steps/948de031-d097-4b69-b031-bfb04d1de46d",
+              "sourceStep": "/api/3/workflow_steps/b8d76075-601d-4eb3-89c8-6c49322bcf9e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "24fccdee-5e15-429f-a50b-cd55b5fa2987"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "a1e0f521-2ff4-45e7-a315-2e2374a7bae7",
+          "id": 3331,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Create IP List",
+          "aliasName": null,
+          "tag": "#Cloudflare WAF",
+          "description": "Create a new IP list with a specified name and associated IP addresses.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1712146707,
+          "collection": "/api/3/workflow_collections/613c6378-8585-4d45-930f-49077c203bc1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/670ee953-1080-4cd2-8b38-73d3d918fd01",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create IP List",
+              "description": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "e79b5816-209c-4b04-80e5-8bd236acbccd",
+                "params": {
+                  "name": "list1",
+                  "description": "This is a note"
+                },
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "create_ip_list",
+                "operationTitle": "Create IP List",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "db97a8d1-52bf-4e18-81c8-cb25eac143b8"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "c445fe17-6299-4fa5-ac65-b273e1e4e558",
+                "title": "Cloudflare WAF: Create IP List",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "670ee953-1080-4cd2-8b38-73d3d918fd01"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Create IP List",
+              "targetStep": "/api/3/workflow_steps/db97a8d1-52bf-4e18-81c8-cb25eac143b8",
+              "sourceStep": "/api/3/workflow_steps/670ee953-1080-4cd2-8b38-73d3d918fd01",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "501a7ed9-e9f6-4e69-9ecb-d460f41d4598"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "d17927f6-4f8b-4b6c-b14b-7ad7378c3a0f",
+          "id": 3332,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Delete IP List",
+          "aliasName": null,
+          "tag": "#Cloudflare WAF",
+          "description": "Remove an existing IP list from their Cloudflare account",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1712145318,
+          "collection": "/api/3/workflow_collections/613c6378-8585-4d45-930f-49077c203bc1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/ecca2b91-bb5a-479f-8eee-44a717b767a7",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Delete IP List",
+              "description": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "e79b5816-209c-4b04-80e5-8bd236acbccd",
+                "params": {
+                  "list_id": "12"
+                },
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "delete_ip_list",
+                "operationTitle": "Delete IP List",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "abf848b1-2f44-4127-bb83-00be96310e9c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "c0caac6c-8803-4514-bf4b-965aff34c318",
+                "title": "Cloudflare WAF: Delete IP List",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "ecca2b91-bb5a-479f-8eee-44a717b767a7"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Delete IP List",
+              "targetStep": "/api/3/workflow_steps/abf848b1-2f44-4127-bb83-00be96310e9c",
+              "sourceStep": "/api/3/workflow_steps/ecca2b91-bb5a-479f-8eee-44a717b767a7",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "97bb607a-685c-464d-88ea-231a802414ae"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "d1ec12a2-6baf-4279-b4c0-c44b6fabf96f",
+          "id": 3333,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Delete Filter",
+          "aliasName": null,
+          "tag": "#Cloudflare WAF",
+          "description": "Allows users to remove a specific filter from their WAF configuration.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1712147028,
+          "collection": "/api/3/workflow_collections/613c6378-8585-4d45-930f-49077c203bc1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/d71c098f-3046-4f21-bbb2-704fc08cbf88",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Delete Filter",
+              "description": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "e79b5816-209c-4b04-80e5-8bd236acbccd",
+                "params": {
+                  "id": "10"
+                },
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "delete_filter",
+                "operationTitle": "Delete Filter",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "72dcef04-4833-464f-b063-313572bc4bc3"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "9b6be2d8-945c-4556-8df7-e66ec0a47b2b",
+                "title": "Cloudflare WAF: Delete Filter",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "d71c098f-3046-4f21-bbb2-704fc08cbf88"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Delete Filter",
+              "targetStep": "/api/3/workflow_steps/72dcef04-4833-464f-b063-313572bc4bc3",
+              "sourceStep": "/api/3/workflow_steps/d71c098f-3046-4f21-bbb2-704fc08cbf88",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "50412d61-25e0-4108-9d11-1d647f629b02"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "e1ad1aeb-1281-4598-bf66-48eff5b7222c",
+          "id": 3334,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Create Filter",
+          "aliasName": null,
+          "tag": "#Cloudflare WAF",
+          "description": "Allows users to add a new filter to their WAF configuration",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1712147596,
+          "collection": "/api/3/workflow_collections/613c6378-8585-4d45-930f-49077c203bc1",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/d587b3d4-8621-4578-ae9e-34a8901b1547",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Filter",
+              "description": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "e79b5816-209c-4b04-80e5-8bd236acbccd",
+                "params": {
+                  "ref": "",
+                  "paused": "",
+                  "zone_id": "12",
+                  "expression": "(http.request.uri.path ~ \\\".*wp-login.php\\\" or http.request.uri.path ~ \\\".*xmlrpc.php\\\") and ip.addr ne 172.16.22.155",
+                  "description": "Restrict access from these browsers on this address range"
+                },
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "create_filter",
+                "operationTitle": "Create Filter",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "bd3970f5-943c-407f-98e1-67efb35f7c4a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "ef345020-4c9c-4482-a5b0-75705d93db91",
+                "title": "Cloudflare WAF: Create Filter",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "d587b3d4-8621-4578-ae9e-34a8901b1547"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Create Filter",
+              "targetStep": "/api/3/workflow_steps/bd3970f5-943c-407f-98e1-67efb35f7c4a",
+              "sourceStep": "/api/3/workflow_steps/d587b3d4-8621-4578-ae9e-34a8901b1547",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6295a5d6-6de4-4ce6-b062-ea6f4ccbe6f1"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "ecd63f18-b449-41d2-8c82-f22ab618e2be",
+          "id": 3335,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "uuid": "d093a247-64a3-4d9d-bae4-801f059caeb2",
+          "collection": "/api/3/workflow_collections/f51c4cad-6243-4abf-981f-827b4cf299d7",
+          "triggerLimit": null,
+          "description": "Add or append new items, such as IP addresses, to a specific list",
+          "name": "Create IP Items List",
+          "tag": "#Cloudflare WAF",
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ],
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/a016e142-d9c1-42a3-b557-75d2ba3830b4",
+          "steps": [
+            {
+              "uuid": "a016e142-d9c1-42a3-b557-75d2ba3830b4",
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "route": "e2c203a9-92fc-454b-9aee-ea03f9f19ded",
+                "title": "Cloudflare WAF: Create IP Items List",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "singleRecordExecution": false,
+                "noRecordExecution": true,
+                "executeButtonText": "Execute"
+              },
+              "left": "20",
+              "top": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a"
+            },
+            {
+              "uuid": "e30006cd-5ac0-422f-b07c-eb0502424932",
+              "@type": "WorkflowStep",
+              "name": "Create IP Items List",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "''",
+                "params": [],
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "create_ip_items_list",
+                "operationTitle": "Create IP Items List",
+                "step_variables": {}
+              },
+              "left": "188",
+              "top": "120",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "9575755e-99de-4c8e-8574-7eb0fcc4a31b",
+              "label": null,
+              "isExecuted": false,
+              "name": "Start-> Create IP Items List",
+              "sourceStep": "/api/3/workflow_steps/a016e142-d9c1-42a3-b557-75d2ba3830b4",
+              "targetStep": "/api/3/workflow_steps/e30006cd-5ac0-422f-b07c-eb0502424932"
+            }
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "uuid": "fc6c9108-3f18-4ce3-b96f-8a97f9c0b7d4",
+          "collection": "/api/3/workflow_collections/f51c4cad-6243-4abf-981f-827b4cf299d7",
+          "triggerLimit": null,
+          "description": "Retrieves the list of IP addresses items from a specific list",
+          "name": "Get IP List Items",
+          "tag": "#Cloudflare WAF",
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ],
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/712c10dc-76eb-4914-a9fd-1aedab0cc5b1",
+          "steps": [
+            {
+              "uuid": "712c10dc-76eb-4914-a9fd-1aedab0cc5b1",
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "route": "48e837e1-b2ac-4cad-90a8-d20b41bebdab",
+                "title": "Cloudflare WAF: Get IP List Items",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "singleRecordExecution": false,
+                "noRecordExecution": true,
+                "executeButtonText": "Execute"
+              },
+              "left": "20",
+              "top": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a"
+            },
+            {
+              "uuid": "e8b9c570-8fd0-4938-9d49-764b64402914",
+              "@type": "WorkflowStep",
+              "name": "Get IP List Items",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "''",
+                "params": [],
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "get_ip_list_item",
+                "operationTitle": "Get IP List Items",
+                "step_variables": {}
+              },
+              "left": "188",
+              "top": "120",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "2e07cb5a-e84e-483b-a148-77b642c1ff95",
+              "label": null,
+              "isExecuted": false,
+              "name": "Start-> Get IP List Items",
+              "sourceStep": "/api/3/workflow_steps/712c10dc-76eb-4914-a9fd-1aedab0cc5b1",
+              "targetStep": "/api/3/workflow_steps/e8b9c570-8fd0-4938-9d49-764b64402914"
+            }
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "uuid": "de218584-780d-49b2-ac81-a4b27384077c",
+          "collection": "/api/3/workflow_collections/f51c4cad-6243-4abf-981f-827b4cf299d7",
+          "triggerLimit": null,
+          "description": "Removes all existing items from the list and adds the provided items to the list.",
+          "name": "Update IP List Items",
+          "tag": "#Cloudflare WAF",
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ],
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/a8220767-cff4-4c0b-b2cc-5ea4eb684240",
+          "steps": [
+            {
+              "uuid": "a8220767-cff4-4c0b-b2cc-5ea4eb684240",
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "route": "b3c40b84-ab2f-4c18-9adf-0c6e397da383",
+                "title": "Cloudflare WAF: Update IP List Items",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "singleRecordExecution": false,
+                "noRecordExecution": true,
+                "executeButtonText": "Execute"
+              },
+              "left": "20",
+              "top": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a"
+            },
+            {
+              "uuid": "9fdb0197-b415-4651-b7ba-ef5d9ddc36aa",
+              "@type": "WorkflowStep",
+              "name": "Update IP List Items",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "''",
+                "params": [],
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "update_ip_list_item",
+                "operationTitle": "Update IP List Items",
+                "step_variables": {}
+              },
+              "left": "188",
+              "top": "120",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "640bfa95-8a44-45fe-bba5-f6d7a6501298",
+              "label": null,
+              "isExecuted": false,
+              "name": "Start-> Update IP List Items",
+              "sourceStep": "/api/3/workflow_steps/a8220767-cff4-4c0b-b2cc-5ea4eb684240",
+              "targetStep": "/api/3/workflow_steps/9fdb0197-b415-4651-b7ba-ef5d9ddc36aa"
+            }
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "uuid": "f47abd26-a4f7-402e-9943-6e755dddfcba",
+          "collection": "/api/3/workflow_collections/f51c4cad-6243-4abf-981f-827b4cf299d7",
+          "triggerLimit": null,
+          "description": "Allows users to remove specific items, such as IP addresses, from an IP list",
+          "name": "Delete IP List Items",
+          "tag": "#Cloudflare WAF",
+          "recordTags": [
+            "Cloudflare",
+            "cloudflare-waf"
+          ],
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/2f5831e9-9fad-4ab3-8827-fbafba4527aa",
+          "steps": [
+            {
+              "uuid": "2f5831e9-9fad-4ab3-8827-fbafba4527aa",
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "route": "ff9941b9-5ab1-498a-9595-96e75f007843",
+                "title": "Cloudflare WAF: Delete IP List Items",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "singleRecordExecution": false,
+                "noRecordExecution": true,
+                "executeButtonText": "Execute"
+              },
+              "left": "20",
+              "top": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a"
+            },
+            {
+              "uuid": "5c71cd36-d27f-422b-8bd6-b67b4ad11815",
+              "@type": "WorkflowStep",
+              "name": "Delete IP List Items",
+              "description": null,
+              "status": null,
+              "arguments": {
+                "name": "Cloudflare WAF",
+                "config": "''",
+                "params": [],
+                "version": "1.0.0",
+                "connector": "cloudflare-waf",
+                "operation": "delete_ip_list_item",
+                "operationTitle": "Delete IP List Items",
+                "step_variables": {}
+              },
+              "left": "188",
+              "top": "120",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "aed617b5-9574-4f78-ab61-713c3389a435",
+              "label": null,
+              "isExecuted": false,
+              "name": "Start-> Delete IP List Items",
+              "sourceStep": "/api/3/workflow_steps/2f5831e9-9fad-4ab3-8827-fbafba4527aa",
+              "targetStep": "/api/3/workflow_steps/5c71cd36-d27f-422b-8bd6-b67b4ad11815"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "exported_tags": [
+    "Cloudflare",
+    "cloudflare-waf"
+  ]
+}

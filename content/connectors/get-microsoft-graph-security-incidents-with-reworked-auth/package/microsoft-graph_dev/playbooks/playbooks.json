@@ -1,0 +1,1533 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Sample - Microsoft Graph API - 2.2.0",
+      "description": "Sample playbooks for \"Microsoft Graph API\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete.",
+      "visible": true,
+      "image": "",
+      "uuid": "585a99d1-de55-42f0-9b80-4c7d63a5463d",
+      "id": 77,
+      "deletedAt": null,
+      "importedBy": [],
+      "recordTags": [
+        "Microsoft",
+        "microsoft-graph"
+      ],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Delete Message Bulk",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Deletes messages from multiple users' mailboxes in Azure based on the comma-separated list of users you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": null,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/69241ab8-c74f-4628-9a1a-767ad425d411",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Delete Message Bulk",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": {
+                  "user_list": []
+                },
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "del_message_bulk",
+                "operationTitle": "Delete Message Bulk",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "bed9cd7b-2a7b-46d9-958a-169aa7478748"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "246a043d-94a3-42c4-bc18-8e534c7d7945",
+                "title": "Microsoft Graph API: Delete Message Bulk",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "69241ab8-c74f-4628-9a1a-767ad425d411"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Delete Message Bulk",
+              "targetStep": "/api/3/workflow_steps/bed9cd7b-2a7b-46d9-958a-169aa7478748",
+              "sourceStep": "/api/3/workflow_steps/69241ab8-c74f-4628-9a1a-767ad425d411",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ae35e008-8eba-487d-ada1-189a1f16af3f"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "0572dfc2-50a1-45d4-9e80-0da5828ddc4d",
+          "id": 757,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Update Security Alert",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Updates a specific alert using Microsoft Graph API based on the alert ID, vendor name, provider name, and other input parameters you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1726039274,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/eb509fbd-74e7-43d6-9ad7-4908f69333a5",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "1670281d-0e4f-4e53-98e9-1b1642b3bf39",
+                "title": "Microsoft Graph API: Update Security Alert",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "eb509fbd-74e7-43d6-9ad7-4908f69333a5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Alert",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": {
+                  "alert_id": "da7d214bfd-0a39-4f31-aea5-f1ef2974b4d0_1",
+                  "api_version": "V2",
+                  "assigned_to": "admin"
+                },
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "update_security_alert",
+                "operationTitle": "Update Security Alert",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "a91a9b62-c2a6-4a01-bc80-061d0ad4f519"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Update Alert",
+              "targetStep": "/api/3/workflow_steps/a91a9b62-c2a6-4a01-bc80-061d0ad4f519",
+              "sourceStep": "/api/3/workflow_steps/eb509fbd-74e7-43d6-9ad7-4908f69333a5",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "c25884ca-d5c3-4ce4-b5fc-273401043ad1"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "065560b0-5620-485b-98e5-d80b1ba037b9",
+          "id": 758,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Create IP Named Location",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Creates a new IP named location in Azure based on the specified input parameter.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": null,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/33203bb0-2ca3-4c98-9e35-31eb07ee2bf9",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Create IP Named Location",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": {
+                  "is_trusted": false
+                },
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "create_ip_range_location",
+                "operationTitle": "Create IP Named Location",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "f166b4ca-6bef-4509-b69d-e52b812e3263"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "fedc34fa-6743-451c-bc45-b48b8616351a",
+                "title": "Microsoft Graph API: Create IP Named Location",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "33203bb0-2ca3-4c98-9e35-31eb07ee2bf9"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Create IP Named Location",
+              "targetStep": "/api/3/workflow_steps/f166b4ca-6bef-4509-b69d-e52b812e3263",
+              "sourceStep": "/api/3/workflow_steps/33203bb0-2ca3-4c98-9e35-31eb07ee2bf9",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "14703cc8-e194-4497-97de-9f048b1dbf5c"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "107f455e-4bfe-45ce-8d6b-b3a9ff9aa566",
+          "id": 759,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Add Comment on Security Alert",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Adds a comment to an existing alert based on the specified alert ID.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1725968759,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/fdf6da22-6f23-4df3-931d-f138b6647f90",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Add Comment on Security Alert",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": {
+                  "comment": "Test comment",
+                  "alert_id": "da7d214bfd-0a39-4f31-aea5-f1ef2974b4d0_1"
+                },
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "add_comment_on_security_alert",
+                "operationTitle": "Add Comment on Security Alert",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "160",
+              "left": "120",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e30d7382-6d9c-4d2c-bf47-7aae0f8f9e05"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "6fdf7c1f-8efd-4a48-b87d-59eb7798f298",
+                "title": "Microsoft Graph API: Add Comment on Security Alert",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "triggerOnReplicate": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "fdf6da22-6f23-4df3-931d-f138b6647f90"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Update Alert",
+              "targetStep": "/api/3/workflow_steps/e30d7382-6d9c-4d2c-bf47-7aae0f8f9e05",
+              "sourceStep": "/api/3/workflow_steps/fdf6da22-6f23-4df3-931d-f138b6647f90",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "17677f96-e3bd-4b63-bf04-b4b5c4f6f9b4"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "504c1a1a-6587-487c-a4e6-ef3442043f69",
+          "id": 760,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Risky Users List",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Retrieves a list of all risky users from the Microsoft Graph API.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": null,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/a0b43be5-1597-4b75-8488-ac70f0b95e85",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Risky Users List",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "get_risky_users_list",
+                "operationTitle": "Get Risky Users List",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "95f72f61-1e50-4eb0-ba65-ce942a02acad"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "28464886-b277-48d4-bb71-3b71771173b5",
+                "title": "Microsoft Graph API: Get Risky Users List",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "a0b43be5-1597-4b75-8488-ac70f0b95e85"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Risky Users List",
+              "targetStep": "/api/3/workflow_steps/95f72f61-1e50-4eb0-ba65-ce942a02acad",
+              "sourceStep": "/api/3/workflow_steps/a0b43be5-1597-4b75-8488-ac70f0b95e85",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9d53457b-bf08-42aa-9539-07eb54d3d1f1"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "56a578ca-28ed-44cc-ade1-35a28699f39e",
+          "id": 761,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get All Named Locations",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Retrieves a list of named locations from Azure based on display name, sort order, and other input parameters that you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": null,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/d8025af7-ba20-4983-a551-13917717ee5e",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get All Named Locations",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": {
+                  "count": false
+                },
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "get_all_named_locations",
+                "operationTitle": "Get All Named Locations",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "50377662-9aa4-4647-bfcb-16f3b67a975b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "658fc7b7-485b-4916-bf88-0ba840b8acb7",
+                "title": "Microsoft Graph API: Get All Named Locations",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "d8025af7-ba20-4983-a551-13917717ee5e"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get All Named Locations",
+              "targetStep": "/api/3/workflow_steps/50377662-9aa4-4647-bfcb-16f3b67a975b",
+              "sourceStep": "/api/3/workflow_steps/d8025af7-ba20-4983-a551-13917717ee5e",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "97438e0b-2fcd-42a8-9e01-dfe7a081f18d"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "5ca545c3-9ecd-4515-b482-4ac2fffb6f23",
+          "id": 762,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Users Within A Group",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Retrieves a list of users within a specific group from the Microsoft Graph API based on the group ID you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": null,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/2eb33aff-0c05-4912-a71b-a4312b82f960",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Users Within A Group",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "get_group_users",
+                "operationTitle": "Get Users Within A Group",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "f71d2b6d-3a5f-49ed-879a-624e4f55a849"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "0a53c62b-2ac0-45b3-99bd-f801d4020311",
+                "title": "Microsoft Graph API: Get Users Within A Group",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "2eb33aff-0c05-4912-a71b-a4312b82f960"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Users Within A Group",
+              "targetStep": "/api/3/workflow_steps/f71d2b6d-3a5f-49ed-879a-624e4f55a849",
+              "sourceStep": "/api/3/workflow_steps/2eb33aff-0c05-4912-a71b-a4312b82f960",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4f166db4-b6e9-47f8-af86-0dafd85bb961"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "63548075-305c-4ebf-8b13-ef5445e7c860",
+          "id": 763,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Block New IP Ranges",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Blocks IPv4 and IPv6 address ranges in the specified NamedLocation in Azure.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": null,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/27d5e8e1-4be1-4807-b2a2-1f5851144bdc",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Block New IP Ranges",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "block_new_ips",
+                "operationTitle": "Block New IP Ranges",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "9590ed1f-4a6f-45d3-9abc-05a391aacb89"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "ec0ccfe8-4a7a-40e2-9b52-8b2209cd96e7",
+                "title": "Microsoft Graph API: Block New IP Ranges",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "27d5e8e1-4be1-4807-b2a2-1f5851144bdc"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Block New IP Ranges",
+              "targetStep": "/api/3/workflow_steps/9590ed1f-4a6f-45d3-9abc-05a391aacb89",
+              "sourceStep": "/api/3/workflow_steps/27d5e8e1-4be1-4807-b2a2-1f5851144bdc",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f5b20f60-5f0b-4e2a-9b5c-65855ed625d3"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "8cac9907-5374-4ec0-8682-164e07b0b59a",
+          "id": 764,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Risky User Details",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Retrieve details for a specific risky user from the Microsoft Graph API based on the user ID you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": null,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/e4f8b76f-4a45-4961-b584-b10d0ddd1f15",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Risky User Details",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "get_risky_user_details",
+                "operationTitle": "Get Risky User Details",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "c95a1a1e-bec8-41ac-9752-acd0fb1d8556"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "e44a4531-a8c1-4e04-a0dd-6630e7870be6",
+                "title": "Microsoft Graph API: Get Risky User Details",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "e4f8b76f-4a45-4961-b584-b10d0ddd1f15"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Risky User Details",
+              "targetStep": "/api/3/workflow_steps/c95a1a1e-bec8-41ac-9752-acd0fb1d8556",
+              "sourceStep": "/api/3/workflow_steps/e4f8b76f-4a45-4961-b584-b10d0ddd1f15",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "3564f6e1-710a-4051-a397-dd6a6b10c3f5"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "90afc9d2-80c7-4505-9d5d-2b5a80fa4624",
+          "id": 765,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Revoke User Session",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Invalidates all the refresh tokens issued to applications for a user.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": null,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/2657719a-9b61-4f9a-9988-c40a98a44381",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Revoke User Session",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "revoke_user_sessions",
+                "operationTitle": "Revoke User Session",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e35699db-ebb9-4e91-a81a-abe48c3a89ff"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "f38d0cbb-e8dc-4051-853d-2285b33340ce",
+                "title": "Microsoft Graph API: Revoke User Session",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "2657719a-9b61-4f9a-9988-c40a98a44381"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Revoke User Session",
+              "targetStep": "/api/3/workflow_steps/e35699db-ebb9-4e91-a81a-abe48c3a89ff",
+              "sourceStep": "/api/3/workflow_steps/2657719a-9b61-4f9a-9988-c40a98a44381",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "857aa4c1-ca65-4b3c-8da6-c829d6aaceec"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "9221ea1c-ac36-455e-ab11-e47ef3499493",
+          "id": 766,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Delete Message",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Deletes a specific message from the specific user's mailbox in Azure based on the user ID and message ID you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": null,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/7cc72a90-46bc-45fa-b497-5691adaeb0b4",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Delete Message",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "del_message",
+                "operationTitle": "Delete Message",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "7090ebfb-43a3-44dd-800d-8e97cf4e71e0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "1b6aff0f-2d13-4246-9f2b-907da116def6",
+                "title": "Microsoft Graph API: Delete Message",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "7cc72a90-46bc-45fa-b497-5691adaeb0b4"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Delete Message",
+              "targetStep": "/api/3/workflow_steps/7090ebfb-43a3-44dd-800d-8e97cf4e71e0",
+              "sourceStep": "/api/3/workflow_steps/7cc72a90-46bc-45fa-b497-5691adaeb0b4",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f73644fe-08a8-4b42-be01-82f508cb05ba"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "98dc49d8-bc04-4494-b3bf-1c66eff8e20e",
+          "id": 767,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Unblock IP Ranges",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Unblocks IPv4 and IPv6 address ranges in the specified NamedLocation in Azure.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": null,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/55083ce1-9c93-4431-b3ce-b53b96d57bd3",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "82b2d814-0bfe-4401-8b3a-bc91b413178c",
+                "title": "Microsoft Graph API: Unblock IP Ranges",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "55083ce1-9c93-4431-b3ce-b53b96d57bd3"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Unblock IP Ranges",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "unblock_new_ips",
+                "operationTitle": "Unblock IP Ranges",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "74ee6231-1e73-4d28-97d0-70d9ef701cb7"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Unblock IP Ranges",
+              "targetStep": "/api/3/workflow_steps/74ee6231-1e73-4d28-97d0-70d9ef701cb7",
+              "sourceStep": "/api/3/workflow_steps/55083ce1-9c93-4431-b3ce-b53b96d57bd3",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "53cf67c0-b872-4411-84f8-a94321850a3b"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "a0344740-9c1a-4529-b3f0-af190ba72422",
+          "id": 768,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Security Alert",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Retrieves details of a specific alert from the Microsoft Graph API based on the alert ID you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1725968622,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/5e5547be-e66e-41dd-b1b6-102ffbac6b69",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Security Alert",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": {
+                  "alert_id": "dc2516897334733989731_bec52381-47fb-445f-a3b0-66ccdc5af635",
+                  "api_version": "V1"
+                },
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "get_security_alert",
+                "operationTitle": "Get Security Alert",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "cf9eb827-2179-4f8e-893c-bac9283dff7a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "744e2c70-54e4-489b-bc3e-b627a48afe31",
+                "title": "Microsoft Graph API: Get Security Alert",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "5e5547be-e66e-41dd-b1b6-102ffbac6b69"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Security Alert",
+              "targetStep": "/api/3/workflow_steps/cf9eb827-2179-4f8e-893c-bac9283dff7a",
+              "sourceStep": "/api/3/workflow_steps/5e5547be-e66e-41dd-b1b6-102ffbac6b69",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "bedcd640-ea72-4673-b263-015a17f1c66d"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "a54003bb-bca5-43ee-b693-15d32df1aca4",
+          "id": 769,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Groups",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Retrieves a list of groups from the Microsoft Graph API.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": null,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/a81666d1-38a7-417f-bf22-b5701ba4dc5f",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Groups",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "get_groups",
+                "operationTitle": "Get Groups",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "05fd1b37-fc97-45f1-9326-485b4dd7489d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "14199420-f9af-4150-b684-3181a19d1eb1",
+                "title": "Microsoft Graph API: Get Groups",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "a81666d1-38a7-417f-bf22-b5701ba4dc5f"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Groups",
+              "targetStep": "/api/3/workflow_steps/05fd1b37-fc97-45f1-9326-485b4dd7489d",
+              "sourceStep": "/api/3/workflow_steps/a81666d1-38a7-417f-bf22-b5701ba4dc5f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "60f923e4-9eae-4f70-894c-7d3bf14866a1"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "d7a577fa-bfd2-4d9b-abb1-63947c4fdddc",
+          "id": 770,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Search Message in Users Mailbox",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Searches for messages in a user's mailbox within an organization based on the Subject and user list you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": null,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/5982995b-5837-4594-b10b-2f6f7c367b56",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Search Message in Users Mailbox",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": [],
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "search_message",
+                "operationTitle": "Search Message in Users Mailbox",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "21b68fab-6c63-4372-8902-41a505b841eb"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "f74d277a-eda0-4f01-a46d-b5351e2ddaec",
+                "title": "Microsoft Graph API: Search Message in Users Mailbox",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "5982995b-5837-4594-b10b-2f6f7c367b56"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Search Message in Users Mailbox",
+              "targetStep": "/api/3/workflow_steps/21b68fab-6c63-4372-8902-41a505b841eb",
+              "sourceStep": "/api/3/workflow_steps/5982995b-5837-4594-b10b-2f6f7c367b56",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "619c42d8-748c-4e2b-8e17-964bd399725d"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "e23dc03b-477c-4dc1-a567-c7ee91deca89",
+          "id": 771,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get All Security Alerts",
+          "aliasName": null,
+          "tag": "#Microsoft Graph API",
+          "description": "Retrieves a list of alerts from the Microsoft Graph API based on the input parameters you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1726039281,
+          "collection": "/api/3/workflow_collections/585a99d1-de55-42f0-9b80-4c7d63a5463d",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/581ee672-d9bb-4823-9f81-59ac3cc12c54",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get All Security Alert",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft Graph API",
+                "config": "",
+                "params": {
+                  "top": "",
+                  "skip": "",
+                  "api_version": "V2",
+                  "assigned_to": "",
+                  "serviceSource": "",
+                  "createdDateTime": "2024-08-31T18:30:00.000Z",
+                  "lastUpdateDateTime": ""
+                },
+                "version": "2.2.0",
+                "connector": "microsoft-graph",
+                "operation": "get_all_security_alerts",
+                "operationTitle": "Get All Security Alerts",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "4e369d02-b605-4a35-a9a8-c803062ea235"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "adb5af51-1473-44da-a118-8d472de9d5b0",
+                "title": "Microsoft Graph API: Get All Security Alerts",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "581ee672-d9bb-4823-9f81-59ac3cc12c54"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get All Security Alert",
+              "targetStep": "/api/3/workflow_steps/4e369d02-b605-4a35-a9a8-c803062ea235",
+              "sourceStep": "/api/3/workflow_steps/581ee672-d9bb-4823-9f81-59ac3cc12c54",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "c73fd6e2-27ee-4c39-9439-b4116d3c321e"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "ef590249-b95f-4f52-ab6e-f73edf24e09e",
+          "id": 772,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-graph"
+          ]
+        }
+      ]
+    }
+  ],
+  "exported_tags": [
+    "Microsoft",
+    "microsoft-graph"
+  ]
+}

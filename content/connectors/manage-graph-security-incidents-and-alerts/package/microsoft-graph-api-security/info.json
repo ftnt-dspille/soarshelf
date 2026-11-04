@@ -1,0 +1,514 @@
+{
+    "name": "microsoft-graph-api-security",
+    "version": "1.0.0",
+    "label": "Microsoft Graph API Security",
+    "description": "Microsoft Graph API security connector for managing MS XDR security incidents and alerts via MS Graph API.",
+    "publisher": "Nikitha Nagwan",
+    "icon_small_name": "small.png",
+    "icon_large_name": "large.png",
+    "category": [
+        "Endpoint Protection"
+    ],
+    "configuration": {
+        "fields": [
+            {
+                "title": "Get Access Token",
+                "type": "select",
+                "name": "auth_type",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "value": "Without a User - Application Permission",
+                "options": [
+                    "On behalf of User - Delegated Permission",
+                    "Without a User - Application Permission"
+                ],
+                "onchange": {
+                    "Without a User - Application Permission": [
+                        {
+                            "title": "Server URL",
+                            "name": "resource",
+                            "type": "text",
+                            "description": "The service-based URL to which you will connect and perform the automated operations.",
+                            "tooltip": "The service-based URL to which you will connect and perform the automated operations.",
+                            "placeholder": "https://graph.microsoft.com",
+                            "required": true,
+                            "editable": true,
+                            "visible": true,
+                            "value": "https://graph.microsoft.com"
+                        },
+                        {
+                            "title": "Directory (tenant) ID",
+                            "name": "tenant_id",
+                            "type": "text",
+                            "description": "The ID of the tenant that you have been provided for your Azure Network Security Group instance.",
+                            "tooltip": "The ID of the tenant that you have been provided for your Azure Network Security Group instance.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Application (client) ID",
+                            "name": "client_id",
+                            "type": "text",
+                            "description": "Unique ID of the Azure Network Security Group application that is used to create an authentication token required to access the API.",
+                            "tooltip": "Unique ID of the Azure Network Security Group application that is used to create an authentication token required to access the API.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Application (Client) Secret",
+                            "name": "client_secret",
+                            "type": "password",
+                            "description": "Unique Client Secret of the Azure Network Security Group application that is used to create an authentication token required to access the API. For information on how to get the secret key, see https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/exposed-apis-create-app-webapp.",
+                            "tooltip": "Unique Client Secret of the Azure Network Security Group application that is used to create an authentication token required to access the API. For information on how to get the secret key, see https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/exposed-apis-create-app-webapp.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        }
+                    ],
+                    "On behalf of User - Delegated Permission": [
+                        {
+                            "title": "Server URL",
+                            "name": "resource",
+                            "type": "text",
+                            "description": "The service-based URL to which you will connect and perform the automated operations.",
+                            "tooltip": "The service-based URL to which you will connect and perform the automated operations.",
+                            "placeholder": "https://graph.microsoft.com",
+                            "value": "https://graph.microsoft.com",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Directory (tenant) ID",
+                            "name": "tenant_id",
+                            "type": "text",
+                            "description": "The ID of the tenant that you have been provided for your Azure Network Security Group instance.",
+                            "tooltip": "The ID of the tenant that you have been provided for your Azure Network Security Group instance.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Application (client) ID",
+                            "name": "client_id",
+                            "type": "text",
+                            "description": "Unique ID of the Azure Network Security Group application that is used to create an authentication token required to access the API.",
+                            "tooltip": "Unique ID of the Azure Network Security Group application that is used to create an authentication token required to access the API.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Application (Client) Secret",
+                            "name": "client_secret",
+                            "type": "password",
+                            "description": "Unique Client Secret of the Azure Network Security Group application that is used to create an authentication token required to access the API. For information on how to get the secret key, see https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/exposed-apis-create-app-webapp.",
+                            "tooltip": "Unique Client Secret of the Azure Network Security Group application that is used to create an authentication token required to access the API. For information on how to get the secret key, see https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/exposed-apis-create-app-webapp.",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Authorization Code",
+                            "name": "code",
+                            "type": "password",
+                            "tooltip": "The authorization code that you acquired in the authorization step.",
+                            "description": "(Only Applicable to On behalf of User \u2013 Delegate Permission) The authorization code that you acquired during the authorization step. For more information, see the Getting Access Tokens using the On behalf of the user \u2013 Delegate Permission method section. ",
+                            "required": true,
+                            "editable": true,
+                            "visible": true
+                        },
+                        {
+                            "title": "Redirect URI",
+                            "name": "redirect_url",
+                            "type": "text",
+                            "tooltip": "The redirect_uri of your app, where authentication responses can be sent and received by your app. It must exactly match one of the redirect_uri's you registered in the app registration portal.",
+                            "description": "(Only Applicable to On behalf of User \u2013 Delegate Permission) The redirect_uri of your app, where authentication responses can be sent and received by your app. The redirect URL that you specify here must exactly match one of the redirect_uri's you have registered in your app registration portal.",
+                            "placeholder": "E.g. https://localhost/myapp",
+                            "required": false,
+                            "editable": true,
+                            "visible": true
+                        }
+                    ]
+                }
+            },
+            {
+                "title": "Verify SSL",
+                "type": "checkbox",
+                "name": "verify_ssl",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "value": false
+            }
+        ]
+    },
+    "operations": [
+        {
+            "title": "Update Security Incident",
+            "description": "Updates the owner, status, comments, and other details of existing incidents based on the incident ID that you have specified.",
+            "operation": "update_security_incident",
+            "category": "investigation",
+            "annotation": "update_security_incident",
+            "parameters": [
+                {
+                    "title": "Incident ID",
+                    "type": "text",
+                    "name": "incidentID",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Unique identifier to represent the incident"
+                },
+                {
+                    "title": "Status",
+                    "type": "select",
+                    "name": "status",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Specify the status of the incident.",
+                    "options": [
+                        "Active",
+                        "InProgress",
+                        "Resolved"
+                    ]
+                },
+                {
+                    "title": "Assigned To",
+                    "type": "text",
+                    "name": "assignedTo",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Specify the owner of the incident."
+                },
+                {
+                    "title": "Classification",
+                    "type": "select",
+                    "name": "classification",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Select the classification of the incident.",
+                    "options": [
+                        "Unknown",
+                        "True Positive",
+                        "False Positive",
+                        "Informational Expected Activity",
+                        "Unknown Future Value"
+                    ],
+                    "onchange": {
+                        "True Positive": [
+                            {
+                                "title": "Determination",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "name": "determination",
+                                "options": [
+                                    "Apt",
+                                    "Multistage attack",
+                                    "Malicious user activity",
+                                    "Compromised account",
+                                    "Malware",
+                                    "Phishing",
+                                    "Unwanted software",
+                                    "Security personnel",
+                                    "Other"
+                                ],
+                                "description": "Specifies that the incident was a malicious activity."
+                            }
+                        ],
+                        "Informational Expected Activity": [
+                            {
+                                "title": "Determination",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "name": "determination",
+                                "options": [
+                                    "Security testing",
+                                    "Line-of-business application",
+                                    "Confirmed user activity",
+                                    "Other"
+                                ],
+                                "description": "Specifies that the activity related to the incident was expected. For example, a security test."
+                            }
+                        ],
+                        "False Positive": [
+                            {
+                                "title": "Determination",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "name": "determination",
+                                "options": [
+                                    "Not malicious",
+                                    "Not enough data to validate",
+                                    "Other"
+                                ],
+                                "description": "Specifies that the activity was non-malicious."
+                            }
+                        ],
+                        "Unknown": [
+                            {
+                                "title": "Determination",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "name": "determination",
+                                "options": [
+                                    "Unknown"
+                                ],
+                                "description": "Specifies that the activity was unknown."
+                            }
+                        ],
+                        "Unknown Future Value": [
+                            {
+                                "title": "Determination",
+                                "required": false,
+                                "editable": true,
+                                "visible": true,
+                                "type": "select",
+                                "name": "determination",
+                                "options": [
+                                    "Unknown future value"
+                                ],
+                                "description": "Specifies that the activity is an unknown future value."
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Custom Tags",
+                    "type": "text",
+                    "name": "customTags",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Array of custom tags associated with an incident."
+                },
+                {
+                    "title": "Resolving Comment",
+                    "type": "text",
+                    "name": "resolvingComment",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "User input that explains the resolution of the incident."
+                }
+            ],
+            "output_schema": {
+                "status": "",
+                "assignedTo": "",
+                "classification": "",
+                "determination": "",
+                "customTags": [],
+                "comments": []
+            },
+            "enabled": true,
+            "open": false
+        },
+        {
+            "title": "Get Security Incidents",
+            "operation": "get_security_incidents",
+            "description": "Fetch XDR Incidents via MS Graph API",
+            "parameters": [
+                {
+                    "title": "Top",
+                    "type": "integer",
+                    "name": "top",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Maximum records to fetch."
+                },
+                {
+                    "title": "Skip",
+                    "type": "integer",
+                    "name": "skip",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Skip records."
+                },
+                {
+                    "title": "Filter",
+                    "type": "text",
+                    "name": "filter",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "OData filter expression. Example: status eq 'new'"
+                },
+                {
+                    "title": "Order By",
+                    "type": "text",
+                    "name": "orderBy",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Sort order."
+                },
+                {
+                    "title": "Expand Alerts",
+                    "type": "checkbox",
+                    "name": "expandAlerts",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": false,
+                    "tooltip": "Fetch each alert associated with the incident."
+                },
+                {
+                    "title": "Include Count",
+                    "type": "checkbox",
+                    "name": "includeCount",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": false,
+                    "tooltip": "Return the total number of matching alerts."
+                },
+                {
+                    "title": "Get All Records",
+                    "type": "checkbox",
+                    "name": "getAllRecords",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": false
+                }
+            ],
+            "open": false,
+            "category": "investigation"
+        },
+        {
+            "title": "Run Advanced Hunting",
+            "operation": "run_advanced_hunting",
+            "description": "Advanced hunting is a query based threat-hunting tool that lets you explore raw data based on the 'Query' and 'Timespan' parameters.",
+            "parameters": [
+                {
+                    "title": "Query",
+                    "type": "text",
+                    "name": "query",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Specify the query for Advanced Hunting."
+                },
+                {
+                    "title": "Timespan",
+                    "type": "text",
+                    "name": "timespan",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "ISO 8601 format for durations. Example: PT1H: Last 1 hour, PT12H: Last 12 hours, P1D: Last 24 hours, P2D: Last 2 days)"
+                }
+            ],
+            "open": false,
+            "category": "investigation"
+        },
+        {
+            "title": "Get Security Alerts",
+            "operation": "get_security_alerts",
+            "description": "Fetch XDR alerts via MS Graph API",
+            "parameters": [
+                {
+                    "title": "Top",
+                    "type": "integer",
+                    "name": "top",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Maximum records to fetch."
+                },
+                {
+                    "title": "Skip",
+                    "type": "integer",
+                    "name": "skip",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Skip records."
+                },
+                {
+                    "title": "Filter",
+                    "type": "text",
+                    "name": "filter",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "OData filter expression. Example: status eq 'new', serviceSource eq 'microsoftSentinel'"
+                },
+                {
+                    "title": "Include Count",
+                    "type": "checkbox",
+                    "name": "includeCount",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": false,
+                    "tooltip": "Return the total number alerts."
+                },
+                {
+                    "title": "Get All Records",
+                    "type": "checkbox",
+                    "name": "getAllRecords",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": false
+                }
+            ],
+            "open": false,
+            "category": "investigation"
+        },
+        {
+            "title": "Get Security Alert",
+            "operation": "get_security_alert",
+            "description": "Fetch XDR alert based on alert ID.",
+            "parameters": [
+                {
+                    "title": "Alert ID",
+                    "type": "text",
+                    "name": "alertID",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "tooltip": "Specify the alert ID."
+                }
+            ],
+            "open": false,
+            "category": "investigation"
+        }
+    ],
+    "ingestion_modes": [
+        "scheduled"
+    ]
+}

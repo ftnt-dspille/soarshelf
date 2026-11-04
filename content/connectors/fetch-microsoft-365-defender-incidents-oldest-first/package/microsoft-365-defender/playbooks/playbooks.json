@@ -1,0 +1,1102 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@context": "/api/3/contexts/WorkflowCollection",
+      "@type": "WorkflowCollection",
+      "name": "Sample - Microsoft 365 Defender - 1.2.0",
+      "description": "Sample playbooks for \"Microsoft 365 Defender\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete.",
+      "visible": true,
+      "image": "/api/3/images/ef4e8670-9f1c-4089-9329-c54b3720bfdc",
+      "id": 156,
+      "createDate": 1700800472.12873,
+      "modifyDate": 1700800472.12873,
+      "deletedAt": null,
+      "importedBy": [],
+      "recordTags": [
+        "Microsoft",
+        "microsoft-365-defender"
+      ],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Advanced Hunting",
+          "aliasName": null,
+          "tag": "#Microsoft 365 Defender",
+          "description": "Retrieves data from the past 30 days based on the query that you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1700729776,
+          "collection": "/api/3/workflow_collections/65f9f150-a5b4-4e31-a021-a4293aa0afb4",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/2ed732d9-ad9e-41a4-a2e8-8b0c080d7e2c",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Advanced Hunting",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft 365 Defender",
+                "config": "322c5fb2-473f-45d9-bb98-5a5620b9981f",
+                "params": {
+                  "Query": "search DeviceName: \"abc\""
+                },
+                "version": "1.2.0",
+                "connector": "microsoft-365-defender",
+                "operation": "advanced_hunting",
+                "operationTitle": "Advanced Hunting",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "89aee6ab-9ed3-41db-a8f6-296429e9a82a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "3362e33a-e3af-4ce4-a8d8-038aa404ca3c",
+                "title": "Microsoft 365 Defender: Advanced Hunting",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "2ed732d9-ad9e-41a4-a2e8-8b0c080d7e2c"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Advanced Hunting",
+              "targetStep": "/api/3/workflow_steps/89aee6ab-9ed3-41db-a8f6-296429e9a82a",
+              "sourceStep": "/api/3/workflow_steps/2ed732d9-ad9e-41a4-a2e8-8b0c080d7e2c",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e0e0a3c6-1856-49f6-b61c-8c6b25b3b10f"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "3e3ab0fa-6bb0-4272-b1a3-6a513737bbbf",
+          "id": 1086,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-365-defender"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Incident Details",
+          "aliasName": null,
+          "tag": "#Microsoft 365 Defender",
+          "description": "Retrieves the details of a specific incident based on the incident ID that you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1700729761,
+          "collection": "/api/3/workflow_collections/65f9f150-a5b4-4e31-a021-a4293aa0afb4",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/1019026d-3a96-4fdd-a568-7783222e524f",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Incident Details",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft 365 Defender",
+                "config": "a78a2c56-aa7d-4a2c-8853-fc9e1aba17bf",
+                "params": {
+                  "id": ""
+                },
+                "version": "1.2.0",
+                "connector": "microsoft-365-defender",
+                "operation": "get_incident",
+                "operationTitle": "Get Incident Details",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "d431145b-821b-45ff-98c7-2448339a90ad"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "e53425bf-875b-4a33-98cb-97005de5a19d",
+                "title": "Microsoft 365 Defender: Get Incident Details",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "1019026d-3a96-4fdd-a568-7783222e524f"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Incident Details",
+              "targetStep": "/api/3/workflow_steps/d431145b-821b-45ff-98c7-2448339a90ad",
+              "sourceStep": "/api/3/workflow_steps/1019026d-3a96-4fdd-a568-7783222e524f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "68ac4da9-445c-4016-aada-c4aa6d2e708b"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "5e8d88cb-2fbf-4453-978c-1cd4c4ed4265",
+          "id": 1087,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-365-defender"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": ">> Microsoft 365 Defender >> Create Alert",
+          "aliasName": null,
+          "tag": null,
+          "description": "This Playbook creates alerts in FortiSOAR.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [
+            "alertData",
+            "incidentRecordIri"
+          ],
+          "synchronous": false,
+          "lastModifyDate": 1700732055,
+          "collection": "/api/3/workflow_collections/9977508f-58ca-479b-b04a-b1e25f04a1f8",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/d6c1adc2-2a76-410b-a913-c63d4ba89313",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Alert Status and Severity Mapping",
+              "description": null,
+              "arguments": {
+                "alert_status_map": "{'UnknownFutureValue': {{'AlertStatus'| picklist('Pending')}},\n'New': {{'AlertStatus'| picklist('Open') }}, \n'InProgress': {{'AlertStatus'| picklist('Investigating') }}, \n'Resolved': {{'AlertStatus'| picklist('Closed') }}}",
+                "alerts_severity_map": "{'Low': {{'Severity'| picklist('Low')}},'Medium': {{'Severity'| picklist('Medium') }}, 'High': {{'Severity'| picklist('High') }}, 'Informational': {{'Severity'| picklist('Minimal') }}}"
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "398cf36f-c84b-4513-8bde-c61a54dd83a3"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Alerts",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.input.params.alertData.alerts}}",
+                  "__bulk": true,
+                  "parallel": false,
+                  "condition": "",
+                  "batch_size": 100
+                },
+                "resource": {
+                  "name": "{{vars.item[\"title\"]}}",
+                  "type": "/api/3/picklists/574a6ee2-7265-4701-815e-cff83b053bce",
+                  "state": "/api/3/picklists/a1bac09b-1441-45aa-ad1b-c88744e48e72",
+                  "source": "Microsoft 365 Defender",
+                  "status": "{{vars.item[\"status\"] | resolveRange(vars.alert_status_map)}}",
+                  "severity": "{{vars.item[\"severity\"] | resolveRange(vars.alerts_severity_map)}}",
+                  "sourceId": "{{vars.item[\"alertId\"]}}",
+                  "__replace": "true",
+                  "incidents": "{{vars.input.params.incidentRecordIri}}",
+                  "sourcedata": "{{vars.item | toJSON}}",
+                  "description": "<table border=\"1\">\n   <thead>\n      <tr>\n         <th width=\"250\">Fields</th>\n         <th width=\"250\">Values</th>\n      </tr>\n   </thead>\n   <tbody>\n      <tr>\n         <td>Description</td>\n         <td>{{vars.item[\"description\"]}}</td>\n      </tr>\n      <tr>\n         <td>Classification</td>\n         <td>{{vars.item[\"classification\"]}}</td>\n      </tr>\n      <tr>\n         <td>Determination</td>\n         <td>{{vars.item[\"determination\"]}}</td>\n      </tr>\n      <tr>\n         <td>Category</td>\n         <td>{{vars.item[\"category\"]}}</td>\n      </tr>\n      <tr>\n         <td>Service Source</td>\n         <td>{{vars.item[\"serviceSource\"]}}</td>\n      </tr>\n      <tr>\n         <td>Detection Source</td>\n         <td>{{vars.item[\"detectionSource\"]}}</td>\n      </tr>\n      <tr>\n         <td>MITRE Techniques</td>\n         <td>{{vars.item[\"mitreTechniques\"]}}</td>\n      </tr>\n   </tbody>\n</table>",
+                  "ackSlaStatus": "/api/3/picklists/72979f64-e8b9-4888-a965-957e0ec24818",
+                  "respSlaStatus": "/api/3/picklists/72979f64-e8b9-4888-a965-957e0ec24818",
+                  "priorityWeight": 1,
+                  "escalatedtoincident": "/api/3/picklists/2128a09c-153d-4db3-985d-de6be33deae5",
+                  "resolvedAutomatedly": false,
+                  "alertRemainingAckSLA": 0
+                },
+                "operation": "Overwrite",
+                "collection": "/api/3/upsert/alerts",
+                "__recommend": [],
+                "fieldOperation": [],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "300",
+              "left": "120",
+              "stepType": "/api/3/workflow_step_types/2597053c-e718-44b4-8394-4d40fe26d357",
+              "group": null,
+              "uuid": "611256db-f073-4fd0-9e1e-7f64155487bf"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "d6c1adc2-2a76-410b-a913-c63d4ba89313"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Alert Status and Severity Mapping -> Create Alerts",
+              "targetStep": "/api/3/workflow_steps/611256db-f073-4fd0-9e1e-7f64155487bf",
+              "sourceStep": "/api/3/workflow_steps/398cf36f-c84b-4513-8bde-c61a54dd83a3",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f1ff932d-1efc-4cf0-9597-ef377d3bb979"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Mapping",
+              "targetStep": "/api/3/workflow_steps/398cf36f-c84b-4513-8bde-c61a54dd83a3",
+              "sourceStep": "/api/3/workflow_steps/d6c1adc2-2a76-410b-a913-c63d4ba89313",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f48f15c0-50dd-4234-bad5-ff29cde579fa"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "787c4fad-9022-41d9-9a52-7419659a71f3",
+          "id": 756,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "create",
+            "dataingestion",
+            "microsoft-365-defender"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "> Microsoft 365 Defender > Fetch and Create Incidents",
+          "aliasName": null,
+          "tag": "#Microsoft 365 Defender #dataingestion #fetch #create",
+          "description": "This playbook fetches and creates Incidents from Microsoft 365 Defender",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1728561770,
+          "collection": "/api/3/workflow_collections/9977508f-58ca-479b-b04a-b1e25f04a1f8",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/da19b9e4-d853-472c-a725-841b473cc914",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Capture Current Time",
+              "description": null,
+              "arguments": {
+                "current_timestamp": "{{arrow.utcnow().format('YYYY-MM-DDTHH:mm:ss.ssss')+\"Z\"}}"
+              },
+              "status": null,
+              "top": "600",
+              "left": "620",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "20f92555-2a08-413f-976d-a9c6454c90db"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Configuration",
+              "description": null,
+              "arguments": {
+                "status": "",
+                "assignedTo": "",
+                "ingestAlerts": "false",
+                "pullTimeMacro": "Microsoft365DefenderLastPullTime_{{vars['audit_info']['cyops_playbook_iri'].split('/')[-1].replace('-','_')}}",
+                "incidents_phase_map": "{}",
+                "incidents_resSla_map": "{}",
+                "incidents_status_map": "{'Active': {{'IncidentStatus'| picklist('Open') }},'InProgress': {{'IncidentStatus'| picklist('In Progress') }}, 'Redirected': {{'IncidentStatus'| picklist('Awaiting') }}, 'Resolved': {{'IncidentStatus'| picklist('Resolved') }}}",
+                "incidents_category_map": "{}",
+                "incidents_severity_map": "{'Informational': {{'Severity'| picklist('Minimal') }}, 'Low': {{'Severity'| picklist('Low') }}, 'Medium': {{'Severity'| picklist('Medium') }}, 'High': {{'Severity'| picklist('High') }}}",
+                "incidents_slaState_map": "{}",
+                "number_of_alerts_to_fetch": "10",
+                "fetch_incidents_in_last_X_minutes": ""
+              },
+              "status": null,
+              "top": "120",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "a62f8935-90fb-4f99-bcb5-6c12965430c0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Alert",
+              "description": null,
+              "arguments": {
+                "when": "{{vars.ingestAlerts}}",
+                "for_each": {
+                  "item": "{{vars.steps.Create_Record}}",
+                  "__bulk": false,
+                  "parallel": false,
+                  "condition": "{{(vars.item.sourcedata | toDict).alerts}}"
+                },
+                "arguments": {
+                  "alertData": "{{vars.item.sourcedata}}",
+                  "incidentRecordIri": "{{vars.item['@id']}}"
+                },
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/787c4fad-9022-41d9-9a52-7419659a71f3"
+              },
+              "status": null,
+              "top": "600",
+              "left": "1540",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "f3a33c51-5ecc-4fc8-a921-986c6cdd3c12"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Record",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.steps.Fetch_Incidents_based_on_Last_Update_Time.data.value}}",
+                  "__bulk": true,
+                  "parallel": false,
+                  "condition": "",
+                  "batch_size": 100
+                },
+                "resource": {
+                  "name": "MicrosoftDefender: {{vars.item.incidentName}}",
+                  "phase": "/api/3/picklists/bb740542-f699-11e7-8c3f-9a214cf093ae",
+                  "resSla": "/api/3/picklists/72979f64-e8b9-4888-a965-957e0ec24818",
+                  "source": "Microsoft 365 Defender",
+                  "status": "{{vars.item.status | resolveRange(vars.incidents_status_map)}}",
+                  "category": "/api/3/picklists/8fea3472-6bd7-4bbf-a080-ca4e778617f8",
+                  "severity": "{{vars.item.severity | resolveRange(vars.incidents_severity_map)}}",
+                  "slaState": "/api/3/picklists/72979f64-e8b9-4888-a965-957e0ec24818",
+                  "sourceId": "{{vars.item.incidentId}}",
+                  "__replace": "true",
+                  "recordTags": "{{vars.item.tags}}",
+                  "sourcedata": "{{vars.item | toJSON}}",
+                  "description": "<table border=\"1\">\n   <thead>\n      <tr>\n         <th width=\"250\">Fields</th>\n         <th width=\"250\">Values</th>\n      </tr>\n   </thead>\n   <tbody>\n      <tr>\n         <td>Classification</td>\n         <td>{{vars.item.classification}}</td>\n      </tr>\n      <tr>\n         <td>Determination</td>\n         <td>{{vars.item.determination}}</td>\n      </tr>\n      <tr>\n         <td>Tags</td>\n         <td>{{vars.item.tags}}</td>\n      </tr>\n   </tbody>\n</table>",
+                  "slaPercentage": 0,
+                  "dateOfIncident": "{{arrow.get(vars.item.createdTime).int_timestamp if vars.item.createdTime else None}}"
+                },
+                "operation": "Overwrite",
+                "collection": "/api/3/upsert/incidents",
+                "__recommend": [],
+                "fieldOperation": {
+                  "recordTags": "Overwrite"
+                },
+                "step_variables": []
+              },
+              "status": null,
+              "top": "600",
+              "left": "1240",
+              "stepType": "/api/3/workflow_step_types/2597053c-e718-44b4-8394-4d40fe26d357",
+              "group": null,
+              "uuid": "b08461cd-8e51-46be-9ddd-d1bc9f3515d2"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Extract Value From Response",
+              "description": null,
+              "arguments": {
+                "last_pull_time": "{% if (vars.steps.Get_Macro_Value.data[\"hydra:member\"] | length) > 0%}{{vars.steps.Get_Macro_Value.data[\"hydra:member\"][0].value }}{% else %}{{vars.fetch_incidents_in_last_X_minutes}}{% endif %}"
+              },
+              "status": null,
+              "top": "360",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "2e26d1ce-a939-4bb5-98db-21b753d53ea8"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Fetch Incidents based on Last Update Time",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft 365 Defender",
+                "config": "f7b805f9-18c7-4608-9348-9cbb05e831b0",
+                "params": {
+                  "top": "",
+                  "skip": "",
+                  "query": "lastUpdateTime ge {{vars.last_pull_time}} and lastUpdateTime lt {{vars.current_timestamp}}",
+                  "status": "{{vars.status}}",
+                  "assignedTo": "{{vars.assignedTo}}",
+                  "createdTime": "",
+                  "lastUpdateTime": "",
+                  "get_all_records": true
+                },
+                "version": "1.2.0",
+                "connector": "microsoft-365-defender",
+                "operation": "list_incidents",
+                "operationTitle": "Get Incidents List",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "600",
+              "left": "920",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "f0fbf7de-11bb-4494-95e4-1e41ac223b83"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Fetch Incidents For Mapping",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft 365 Defender",
+                "config": "713bb27c-99fd-41ba-a59f-d57469b5927a",
+                "params": {
+                  "top": 3,
+                  "skip": "",
+                  "query": "",
+                  "status": "{{vars.status}}",
+                  "assignedTo": "{{vars.assignedTo}}",
+                  "createdTime": "",
+                  "lastUpdateTime": "{{vars.fetch_incidents_in_last_X_minutes}}",
+                  "get_all_records": ""
+                },
+                "version": "1.2.0",
+                "connector": "microsoft-365-defender",
+                "operation": "list_incidents",
+                "operationTitle": "List Incidents",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "380",
+              "left": "640",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "20770852-3a74-49cc-95e5-1e34aa1fd72d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Macro Value",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "iri": "/api/wf/api/dynamic-variable/?name={{vars.pullTimeMacro}}",
+                  "body": "",
+                  "method": "GET"
+                },
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "240",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "564a8132-32eb-4086-9b6a-d7ba8688ab7f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Is Data Only For mapping",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Yes, For Mapping",
+                    "step_iri": "/api/3/workflow_steps/20770852-3a74-49cc-95e5-1e34aa1fd72d",
+                    "condition": "{{ vars.request.env_setup == true }}",
+                    "step_name": "Fetch Incidents For Mapping"
+                  },
+                  {
+                    "option": "No, For Ingestion",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/20f92555-2a08-413f-976d-a9c6454c90db",
+                    "step_name": "Capture Current Time"
+                  }
+                ],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "480",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "91170980-d167-483e-aa39-596b8886e811"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Mapping Data",
+              "description": null,
+              "arguments": {
+                "data": "{{vars.steps.Fetch_Incidents_For_Mapping.data.value}}"
+              },
+              "status": null,
+              "top": "380",
+              "left": "940",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "d3299d90-ed63-4a77-8ecb-e905c945f14d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set Result",
+              "description": null,
+              "arguments": {
+                "macro_name": "{{vars.pullTimeMacro}}",
+                "updated_last_pull_time": "{{vars.current_timestamp}}"
+              },
+              "status": null,
+              "top": "600",
+              "left": "1820",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "25eff7da-f66b-416c-b75f-7e2dca062424"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  },
+                  "_configuration_schema": "[\n  {\n    \"title\": \"Fetch Incidents Since\",\n    \"required\": true,\n    \"editable\": true,\n    \"visible\": true,\n    \"type\": \"datetime\",\n    \"name\": \"fetch_incidents_in_last_X_minutes\",\n    \"tooltip\": \"Select a date and time to retrieve incidents created or updated after the specified time.\"\n  },\n  {\n    \"title\": \"Status of Incident\",\n    \"required\": false,\n    \"editable\": true,\n    \"visible\": true,\n    \"type\": \"multiselect\",\n    \"name\": \"status\",\n    \"value\": \"Active\",\n    \"tooltip\": \"Specify the status of the incident which you want to ingest in FortiSOAR.\",\n    \"description\": \"Specify the status of the incident which you want to ingest in FortiSOAR.\",\n    \"options\": [\n      \"Active\",\n      \"Resolved\",\n      \"In Progress\",\n      \"Redirected\"\n    ]\n  },\n  {\n    \"title\": \"Ingest Alerts Separately in Alerts Module\",\n    \"required\": false,\n    \"editable\": true,\n    \"visible\": true,\n    \"type\": \"checkbox\",\n    \"name\": \"ingestAlerts\",\n    \"tooltip\": \"Set it to true if you want to ingest alerts separately in alerts module\",\n    \"description\": \"Set it to true if you want to ingest alerts separately in alerts module\"\n  },\n  {\n    \"title\": \"Owner of Incident\",\n    \"required\": false,\n    \"editable\": true,\n    \"visible\": true,\n    \"type\": \"text\",\n    \"name\": \"assignedTo\",\n    \"tooltip\": \"Specify the owner of the incident, or leave this empty if no owner is assigned.\",\n    \"placeholder\": \"Example: abc@xyz.com\",\n    \"description\": \"Owner of the incident, or null if no owner is assigned.\"\n  }\n]"
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "da19b9e4-d853-472c-a725-841b473cc914"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Capture Current Time -> Fetch Incidents based on Last Update Time",
+              "targetStep": "/api/3/workflow_steps/f0fbf7de-11bb-4494-95e4-1e41ac223b83",
+              "sourceStep": "/api/3/workflow_steps/20f92555-2a08-413f-976d-a9c6454c90db",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ffe001ec-dbc4-43ff-8b23-dcf5c5b2c368"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Configuration -> Get Macro Value",
+              "targetStep": "/api/3/workflow_steps/564a8132-32eb-4086-9b6a-d7ba8688ab7f",
+              "sourceStep": "/api/3/workflow_steps/a62f8935-90fb-4f99-bcb5-6c12965430c0",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1273d886-926b-475b-adcb-240b5684327b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create Alert -> Set Result",
+              "targetStep": "/api/3/workflow_steps/25eff7da-f66b-416c-b75f-7e2dca062424",
+              "sourceStep": "/api/3/workflow_steps/f3a33c51-5ecc-4fc8-a921-986c6cdd3c12",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "709c6177-a06d-401a-a281-189c68cb8332"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create Record -> Create Alert",
+              "targetStep": "/api/3/workflow_steps/f3a33c51-5ecc-4fc8-a921-986c6cdd3c12",
+              "sourceStep": "/api/3/workflow_steps/b08461cd-8e51-46be-9ddd-d1bc9f3515d2",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "45fa6129-ef2a-4c4e-98d6-ff4bed1efa73"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Extract Value From Response -> Is Data Only For mapping",
+              "targetStep": "/api/3/workflow_steps/91170980-d167-483e-aa39-596b8886e811",
+              "sourceStep": "/api/3/workflow_steps/2e26d1ce-a939-4bb5-98db-21b753d53ea8",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f9a1c3cf-57c7-4105-9c8b-6764ad4192b7"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch Incidents based on Last Update Time -> Create Record",
+              "targetStep": "/api/3/workflow_steps/b08461cd-8e51-46be-9ddd-d1bc9f3515d2",
+              "sourceStep": "/api/3/workflow_steps/f0fbf7de-11bb-4494-95e4-1e41ac223b83",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "d1b521c3-57e4-4443-ae55-f877d021bddc"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch Incidents For Mapping -> Mapping Data",
+              "targetStep": "/api/3/workflow_steps/d3299d90-ed63-4a77-8ecb-e905c945f14d",
+              "sourceStep": "/api/3/workflow_steps/20770852-3a74-49cc-95e5-1e34aa1fd72d",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "54769db4-bd69-4a54-bf82-4fa08cad8f32"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Macro Value -> Extract Value From Response",
+              "targetStep": "/api/3/workflow_steps/2e26d1ce-a939-4bb5-98db-21b753d53ea8",
+              "sourceStep": "/api/3/workflow_steps/564a8132-32eb-4086-9b6a-d7ba8688ab7f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "393e4f6a-42b4-4401-985f-71a7c1bc14c7"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Is Data Only For mapping -> Capture Current Time",
+              "targetStep": "/api/3/workflow_steps/20f92555-2a08-413f-976d-a9c6454c90db",
+              "sourceStep": "/api/3/workflow_steps/91170980-d167-483e-aa39-596b8886e811",
+              "label": "No, For Ingestion",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "637df77d-29cc-4f89-8eb0-31b3cfb74bd2"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Is Data Only For mapping -> Fetch Incidents For Mapping",
+              "targetStep": "/api/3/workflow_steps/20770852-3a74-49cc-95e5-1e34aa1fd72d",
+              "sourceStep": "/api/3/workflow_steps/91170980-d167-483e-aa39-596b8886e811",
+              "label": "Yes, For Mapping",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "80d6e8ba-46b0-431b-bb84-149f50a99a2c"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Configuration",
+              "targetStep": "/api/3/workflow_steps/a62f8935-90fb-4f99-bcb5-6c12965430c0",
+              "sourceStep": "/api/3/workflow_steps/da19b9e4-d853-472c-a725-841b473cc914",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "faf458ce-3553-4179-a56a-8c84c652039e"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "968feb6d-f8f8-4386-93ae-5382c0869064",
+          "id": 757,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "create",
+            "dataingestion",
+            "fetch",
+            "microsoft-365-defender"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Microsoft 365 Defender > Ingest",
+          "aliasName": null,
+          "tag": "#Microsoft 365 Defender #dataIngestion #ingest",
+          "description": "Data Ingestion Playbook",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1699594782,
+          "collection": "/api/3/workflow_collections/9977508f-58ca-479b-b04a-b1e25f04a1f8",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/3a0c20d7-5b6c-41b3-b6f8-c21f8e0ca1eb",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Fetch and Create",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "create_pb_id": "c06c6a44-2d72-457d-9415-5eb331d54b56"
+                },
+                "arguments": [],
+                "apply_async": false,
+                "step_variables": [],
+                "pass_input_record": true,
+                "workflowReference": "/api/3/workflows/968feb6d-f8f8-4386-93ae-5382c0869064"
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "210b610e-8b7e-4aac-9bc2-93805772cf4a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": []
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "3a0c20d7-5b6c-41b3-b6f8-c21f8e0ca1eb"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Last Pull Time",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "macro": "{{vars.steps.Fetch_and_Create.macro_name}}",
+                  "value": "{{vars.steps.Fetch_and_Create.updated_last_pull_time}}"
+                },
+                "version": "3.2.3",
+                "connector": "cyops_utilities",
+                "operation": "updatemacro",
+                "operationTitle": "FSR: Update Global Variables",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "300",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "8717ad37-e6c0-43af-975c-3ab498bf30d7"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch nd Create -> Update Last Pull Time",
+              "targetStep": "/api/3/workflow_steps/8717ad37-e6c0-43af-975c-3ab498bf30d7",
+              "sourceStep": "/api/3/workflow_steps/210b610e-8b7e-4aac-9bc2-93805772cf4a",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "36305e78-2053-4c3f-950f-538c5b2e499d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Fetch and Create",
+              "targetStep": "/api/3/workflow_steps/210b610e-8b7e-4aac-9bc2-93805772cf4a",
+              "sourceStep": "/api/3/workflow_steps/3a0c20d7-5b6c-41b3-b6f8-c21f8e0ca1eb",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f0f09269-90be-4bbc-84fc-7cf7d6e22920"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "a8cd78f5-e665-468d-8456-607a2620b6e4",
+          "id": 758,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "dataingestion",
+            "ingest",
+            "microsoft-365-defender"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Update Incident",
+          "aliasName": null,
+          "tag": "#Microsoft 365 Defender",
+          "description": "Updates the owner, status, comments, and other details of existing incidents based on the incident ID that you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1700802617,
+          "collection": "/api/3/workflow_collections/65f9f150-a5b4-4e31-a021-a4293aa0afb4",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/11ea6853-16ca-4778-aace-d57e448f97a4",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "77d79b61-0c98-4ac3-8584-16c15a18f02f",
+                "title": "Microsoft 365 Defender: Update Incident",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "11ea6853-16ca-4778-aace-d57e448f97a4"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Incident",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft 365 Defender",
+                "config": "77bcf556-b825-4fee-8e59-b43fe89e28a5",
+                "params": {
+                  "id": "",
+                  "tags": "",
+                  "status": "",
+                  "comment": "",
+                  "assignedTo": "",
+                  "classification": ""
+                },
+                "version": "1.2.0",
+                "connector": "microsoft-365-defender",
+                "operation": "update_incident",
+                "operationTitle": "Update Incident",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "93ce1ba7-932e-47c2-a11c-1f7511ade33e"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Update Incident",
+              "targetStep": "/api/3/workflow_steps/93ce1ba7-932e-47c2-a11c-1f7511ade33e",
+              "sourceStep": "/api/3/workflow_steps/11ea6853-16ca-4778-aace-d57e448f97a4",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4d5bbaec-3ecd-424d-a0e3-8731d581f397"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "a79e2f86-0f3c-4923-916f-627b3ef9c020",
+          "id": 1090,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-365-defender"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Incidents List",
+          "aliasName": null,
+          "tag": "#Microsoft 365 Defender",
+          "description": "Retrieves a list of incidents along with their status for users to sort through and create an informed cybersecurity response. It exposes a collection of incidents that were flagged in your network, based on the time range, incident owner and other details that you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1700802711,
+          "collection": "/api/3/workflow_collections/65f9f150-a5b4-4e31-a021-a4293aa0afb4",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/08be99b0-eed5-4020-a3c3-8a21db7f2aef",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Incidents List",
+              "description": null,
+              "arguments": {
+                "name": "Microsoft 365 Defender",
+                "config": "a78a2c56-aa7d-4a2c-8853-fc9e1aba17bf",
+                "params": {
+                  "top": "",
+                  "skip": "",
+                  "status": [],
+                  "assignedTo": "",
+                  "createdTime": "",
+                  "lastUpdateTime": "",
+                  "get_all_records": true
+                },
+                "version": "1.2.0",
+                "connector": "microsoft-365-defender",
+                "operation": "list_incidents",
+                "operationTitle": "Get Incidents List",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "120",
+              "left": "188",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "d3e6b093-5e47-4020-806a-fcd3275d0367"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "41a8c2ef-d4ac-4a6a-8217-4f043c2f58f0",
+                "title": "Microsoft 365 Defender: Get Incidents List",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "records": "{{vars.input.records[0]}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "08be99b0-eed5-4020-a3c3-8a21db7f2aef"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start-> Get Incidents List",
+              "targetStep": "/api/3/workflow_steps/d3e6b093-5e47-4020-806a-fcd3275d0367",
+              "sourceStep": "/api/3/workflow_steps/08be99b0-eed5-4020-a3c3-8a21db7f2aef",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6d37bd42-a97d-4667-bb80-e6580465b1bd"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "uuid": "daec2977-5a9e-4cc4-84ee-d0e583bb6e1c",
+          "id": 1092,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "Microsoft",
+            "microsoft-365-defender"
+          ]
+        }
+      ]
+    }
+  ],
+  "exported_tags": [
+    "Microsoft",
+    "microsoft-365-defender",
+    "dataingestion",
+    "create",
+    "fetch",
+    "ingest"
+  ]
+}

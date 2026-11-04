@@ -1,0 +1,1373 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Sample - Cofense Triage - 2.0.0",
+      "description": "Sample playbooks for \"Cofense Triage\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete.",
+      "visible": true,
+      "image": "/api/3/images/496c9ea7-efcf-40e6-abc8-b548e6265733",
+      "uuid": "4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+      "id": 215,
+      "createUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+      "createDate": 1653565473.038629,
+      "modifyUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+      "modifyDate": 1653565473.038629,
+      "deletedAt": null,
+      "importedBy": [],
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Cluster Details",
+          "aliasName": null,
+          "tag": "#Cofense Triage",
+          "description": "Fetches a single cluster that matches the specified cluster ID.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1650956488,
+          "collection": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/d45b6aad-3193-4d30-ba82-f2e044a1c972",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "6f6d8025-9194-481f-b773-99c1bd1bf000",
+                "title": "Cofense Triage: Get Cluster Details",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "d45b6aad-3193-4d30-ba82-f2e044a1c972"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Cluster Details",
+              "description": null,
+              "arguments": {
+                "name": "Cofense Triage",
+                "params": {
+                  "cluster_id": 2
+                },
+                "version": "2.0.0",
+                "connector": "cofense-triage",
+                "operation": "get_cluster_details",
+                "operationTitle": "Get Cluster Details",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "f5b024ba-1008-46b2-bb59-d7b6e9fd1ff1"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Cluster Details",
+              "targetStep": "/api/3/workflow_steps/f5b024ba-1008-46b2-bb59-d7b6e9fd1ff1",
+              "sourceStep": "/api/3/workflow_steps/d45b6aad-3193-4d30-ba82-f2e044a1c972",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "0a205342-4ffc-4a94-88b6-ba9247dad225"
+            }
+          ],
+          "priority": null,
+          "uuid": "002bd95d-8332-4cba-87c7-5933b3631d50",
+          "id": 1799,
+          "createUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "createDate": 1653565473.039747,
+          "modifyUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "modifyDate": 1653565473.039747,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "cofense-triage"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Report Details",
+          "aliasName": null,
+          "tag": "#Cofense Triage",
+          "description": "Fetches a single report that matches the specified report ID.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1650956878,
+          "collection": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/22e909b1-3913-4eb0-ba86-153c394e5890",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "2de67fbb-830e-446a-87d2-a7f5d11b4a76",
+                "title": "Cofense Triage: Get Report Details",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "22e909b1-3913-4eb0-ba86-153c394e5890"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Report Details",
+              "description": null,
+              "arguments": {
+                "name": "Cofense Triage",
+                "params": {
+                  "report_id": 1
+                },
+                "version": "2.0.0",
+                "connector": "cofense-triage",
+                "operation": "get_report_details",
+                "operationTitle": "Get Report Details",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "97a277fb-5d09-4c70-a8b7-523ffba702b1"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Report Details",
+              "targetStep": "/api/3/workflow_steps/97a277fb-5d09-4c70-a8b7-523ffba702b1",
+              "sourceStep": "/api/3/workflow_steps/22e909b1-3913-4eb0-ba86-153c394e5890",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "f30d147a-b2d8-4455-b065-5ad74acf3a27"
+            }
+          ],
+          "priority": null,
+          "uuid": "03e84e17-10e4-4138-b400-9b111dcf512e",
+          "id": 1800,
+          "createUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "createDate": 1653565473.040538,
+          "modifyUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "modifyDate": 1653565473.040538,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "cofense-triage"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Reports",
+          "aliasName": "#Cofense Triage",
+          "tag": "#Cofense Triage",
+          "description": "Fetches reports in the Inbox, Recon, and Processed folders that match specified parameters. If no parameters are specified, fetches all reports.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1650956959,
+          "collection": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/aabf0325-4565-45a1-98bc-a888bf805f76",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Reports",
+              "description": null,
+              "arguments": {
+                "name": "Cofense Triage",
+                "config": "",
+                "params": {
+                  "id": "",
+                  "tags": "",
+                  "sort_by": "",
+                  "filter_by": "",
+                  "page_size": 20,
+                  "created_at": "",
+                  "updated_at": "",
+                  "page_number": 1,
+                  "match_priority": "",
+                  "report_location": "",
+                  "fields_to_retrieve": "",
+                  "categorization_tags": ""
+                },
+                "version": "2.0.0",
+                "connector": "cofense-triage",
+                "operation": "get_reports",
+                "operationTitle": "Get Reports",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "881f0130-7928-473a-bf3a-86755bc3d6e1"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "3deae5e1-e3a1-4f66-83d3-6a06d2bd5789",
+                "title": "Cofense Triage: Get Reports",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "aabf0325-4565-45a1-98bc-a888bf805f76"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Reports",
+              "targetStep": "/api/3/workflow_steps/881f0130-7928-473a-bf3a-86755bc3d6e1",
+              "sourceStep": "/api/3/workflow_steps/aabf0325-4565-45a1-98bc-a888bf805f76",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "5becf1b7-093f-41fa-be1f-7df2ff321f88"
+            }
+          ],
+          "priority": null,
+          "uuid": "140dce8f-0688-4a9b-a33d-9457437bf192",
+          "id": 1801,
+          "createUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "createDate": 1653565473.040808,
+          "modifyUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "modifyDate": 1653565473.040808,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "cofense-triage"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Clusters",
+          "aliasName": null,
+          "tag": "#Cofense Triage",
+          "description": "Fetches clusters that match specified parameters. If no parameters are specified, fetches all clusters.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1650956829,
+          "collection": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/a043e21f-6e2a-471d-b65d-dbd9fb5b9a39",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "df9e6d90-a0f5-4479-ade3-ea5e351eaf3d",
+                "title": "Cofense Triage: Get Clusters",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "a043e21f-6e2a-471d-b65d-dbd9fb5b9a39"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Clusters",
+              "description": null,
+              "arguments": {
+                "name": "Cofense Triage",
+                "config": "",
+                "params": {
+                  "id": "",
+                  "tags": "",
+                  "sort_by": "",
+                  "filter_by": "",
+                  "page_size": 20,
+                  "created_at": "",
+                  "updated_at": "",
+                  "page_number": 1,
+                  "match_priority": "",
+                  "fields_to_retrieve": "",
+                  "total_reports_count": ""
+                },
+                "version": "2.0.0",
+                "connector": "cofense-triage",
+                "operation": "get_clusters",
+                "operationTitle": "Get Clusters",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "b5848cc8-c454-4448-bcdf-637e110110bf"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Clusters",
+              "targetStep": "/api/3/workflow_steps/b5848cc8-c454-4448-bcdf-637e110110bf",
+              "sourceStep": "/api/3/workflow_steps/a043e21f-6e2a-471d-b65d-dbd9fb5b9a39",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "c00e2869-b48a-40bb-b856-c9ce19cc2a79"
+            }
+          ],
+          "priority": null,
+          "uuid": "17582cfc-08f8-4a08-8ca6-2f56a3325f92",
+          "id": 1802,
+          "createUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "createDate": 1653565473.041021,
+          "modifyUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "modifyDate": 1653565473.041021,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "cofense-triage"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Inbox Reports",
+          "aliasName": null,
+          "tag": "#Cofense Triage",
+          "description": "Fetches uncategorized reports in the Inbox and Recon folders that match specified parameters. If no parameters are specified, fetches all reports in the Inbox and Recon folders.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1650956867,
+          "collection": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/3a88b56d-7eb6-4ce7-9217-766326fb6917",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "23623466-cfec-4216-8d77-2296504c9aa8",
+                "title": "Cofense Triage: Get Inbox Reports",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "3a88b56d-7eb6-4ce7-9217-766326fb6917"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Inbox Reports",
+              "description": null,
+              "arguments": {
+                "name": "Cofense Triage",
+                "config": "",
+                "params": {
+                  "id": "",
+                  "tags": "",
+                  "sort_by": "",
+                  "filter_by": "",
+                  "page_size": 20,
+                  "created_at": "",
+                  "updated_at": "",
+                  "page_number": 1,
+                  "match_priority": "",
+                  "fields_to_retrieve": "",
+                  "categorization_tags": ""
+                },
+                "version": "2.0.0",
+                "connector": "cofense-triage",
+                "operation": "get_inbox_reports",
+                "operationTitle": "Get Inbox Reports",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "71ac1461-bf36-4cba-beab-e14477adb845"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Inbox Reports",
+              "targetStep": "/api/3/workflow_steps/71ac1461-bf36-4cba-beab-e14477adb845",
+              "sourceStep": "/api/3/workflow_steps/3a88b56d-7eb6-4ce7-9217-766326fb6917",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "0602cc80-6b44-4373-b44c-39e97afa72a7"
+            }
+          ],
+          "priority": null,
+          "uuid": "1bf22ff8-5e1c-40d5-862e-12b2e8e5a0ab",
+          "id": 1803,
+          "createUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "createDate": 1653565473.04125,
+          "modifyUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "modifyDate": 1653565473.04125,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "cofense-triage"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Attachment Details",
+          "aliasName": null,
+          "tag": "#Cofense Triage",
+          "description": "Downloads a single attachment that matches the specified attachment ID.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1650956488,
+          "collection": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/7d89db49-b152-4e6b-8199-1fe3916ea5c1",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Attachment Details",
+              "description": null,
+              "arguments": {
+                "name": "Cofense Triage",
+                "params": {
+                  "attachment_id": 1
+                },
+                "version": "2.0.0",
+                "connector": "cofense-triage",
+                "operation": "get_attachment_details",
+                "operationTitle": "Get Attachment Details",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "1a826d81-563d-41d4-9ab5-b9f87d6c5012"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "79e6031e-dc35-4e31-9b85-afc1ed6dce06",
+                "title": "Cofense Triage: Get Attachment Details",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "7d89db49-b152-4e6b-8199-1fe3916ea5c1"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Attachment Details",
+              "targetStep": "/api/3/workflow_steps/1a826d81-563d-41d4-9ab5-b9f87d6c5012",
+              "sourceStep": "/api/3/workflow_steps/7d89db49-b152-4e6b-8199-1fe3916ea5c1",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "774259fb-2d8d-436a-9cc9-547fdf06187a"
+            }
+          ],
+          "priority": null,
+          "uuid": "5cfd79d0-c7cf-4000-997c-868710590af3",
+          "id": 1804,
+          "createUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "createDate": 1653565473.041443,
+          "modifyUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "modifyDate": 1653565473.041443,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "cofense-triage"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Download Attachment",
+          "aliasName": null,
+          "tag": null,
+          "description": "Download an attachment from the Cofense Triage server based on the attachment ID you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1653565694,
+          "collection": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/f56db07d-ac33-46b1-8c03-100abd7bf364",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Download Attachment",
+              "description": null,
+              "arguments": {
+                "name": "Cofense Triage",
+                "config": "",
+                "params": {
+                  "id": "1"
+                },
+                "version": "2.0.0",
+                "connector": "cofense-triage",
+                "operation": "download_attachment",
+                "operationTitle": "Download Attachment",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "a26664f7-4634-4661-a0e1-77460e83d3a0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "1e9b06e1-f66b-467e-a33c-878e40071acb",
+                "title": "Cofense Triage: Download Attachment",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "f56db07d-ac33-46b1-8c03-100abd7bf364"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Download Attachment",
+              "targetStep": "/api/3/workflow_steps/a26664f7-4634-4661-a0e1-77460e83d3a0",
+              "sourceStep": "/api/3/workflow_steps/f56db07d-ac33-46b1-8c03-100abd7bf364",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "d5221256-1e3c-4e34-a346-be504efeb143"
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "604680fc-0f2d-4055-a509-0e2144b296cc",
+          "id": 1809,
+          "createUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "createDate": 1653565657.435329,
+          "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "modifyDate": 1653565690.86911,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "cofense-triage"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Triage Threat Indicators",
+          "aliasName": null,
+          "tag": "#Cofense Triage",
+          "description": "Fetches the URLs, domains, senders, subjects, or MD5 or SHA256 hashes that operators identified in Cofense Triage as threat indicators within a specified timeframe. If no parameters are specified, fetches all identified threat indicators.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1650957007,
+          "collection": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/5c65f1ab-ef50-46a6-8750-410e3ef624b7",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Triage Threat Indicators",
+              "description": null,
+              "arguments": {
+                "name": "Cofense Triage",
+                "config": "",
+                "params": {
+                  "id": "",
+                  "sort_by": "",
+                  "filter_by": "",
+                  "page_size": 20,
+                  "created_at": "",
+                  "updated_at": "",
+                  "page_number": 1,
+                  "threat_type": "",
+                  "threat_level": "",
+                  "threat_value": "",
+                  "threat_source": "",
+                  "fields_to_retrieve": ""
+                },
+                "version": "2.0.0",
+                "connector": "cofense-triage",
+                "operation": "get_triage_threat_indicators",
+                "operationTitle": "Get Triage Threat Indicators",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "37532399-664b-4535-b01e-30f4460615e2"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "56cce492-7ace-4418-9684-62811190be90",
+                "title": "Cofense Triage: Get Triage Threat Indicators",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "5c65f1ab-ef50-46a6-8750-410e3ef624b7"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Triage Threat Indicators",
+              "targetStep": "/api/3/workflow_steps/37532399-664b-4535-b01e-30f4460615e2",
+              "sourceStep": "/api/3/workflow_steps/5c65f1ab-ef50-46a6-8750-410e3ef624b7",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "f28c57e9-f9c4-4979-99da-bffd91ab0b4d"
+            }
+          ],
+          "priority": null,
+          "uuid": "7a6bdb0e-05e9-4807-b29f-f12bf65c7bba",
+          "id": 1805,
+          "createUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "createDate": 1653565473.041634,
+          "modifyUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "modifyDate": 1653565473.041634,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "cofense-triage"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Hostname Details",
+          "aliasName": null,
+          "tag": null,
+          "description": "Retrieves the details of a specific hostname from Cofense Triage based on the domain ID you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1653565850,
+          "collection": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/27e9e25d-662d-447e-9558-4c29392d13ca",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "fcb3781d-b5fa-418d-9205-a9398137f974",
+                "title": "Cofense Triage: Get Hostname Details",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "27e9e25d-662d-447e-9558-4c29392d13ca"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Hostname Details",
+              "description": null,
+              "arguments": {
+                "name": "Cofense Triage",
+                "config": "",
+                "params": {
+                  "hostname_id": "1"
+                },
+                "version": "2.0.0",
+                "connector": "cofense-triage",
+                "operation": "get_hostname_details",
+                "operationTitle": "Get Hostname Details",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "8964f317-60d0-42c4-9bd1-8c7d9a8bac74"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Hostname Details",
+              "targetStep": "/api/3/workflow_steps/8964f317-60d0-42c4-9bd1-8c7d9a8bac74",
+              "sourceStep": "/api/3/workflow_steps/27e9e25d-662d-447e-9558-4c29392d13ca",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "6bf0bb85-b1ef-411a-a738-f18c1e93f519"
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "7d3a110e-eff0-46af-8a56-ca7433108e29",
+          "id": 1811,
+          "createUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "createDate": 1653565817.107316,
+          "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "modifyDate": 1653565850.40322,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "cofense-triage"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get URL Details",
+          "aliasName": null,
+          "tag": null,
+          "description": "Retrieves a URL details from Cofense Triage based on the endpoint and request you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1653475279,
+          "collection": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/0be64bb2-c46f-4bbc-bb3a-25731354afc5",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get URL Details",
+              "description": null,
+              "arguments": {
+                "name": "Cofense Triage",
+                "config": "",
+                "params": {
+                  "body": "",
+                  "method": "GET",
+                  "endpoint": "https://triage.example.com/api/public/v2/reports/4/threat_indicators"
+                },
+                "version": "2.0.0",
+                "connector": "cofense-triage",
+                "operation": "get_url_details",
+                "operationTitle": "Get URL Details",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "06812afc-9bff-4dc8-afcf-7a8cda24a529"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "6b6b7703-ac4d-4510-984f-63bf440ff50d",
+                "title": "Cofense Triage: Custom API Endpoint",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "0be64bb2-c46f-4bbc-bb3a-25731354afc5"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Custom API Endpoint",
+              "targetStep": "/api/3/workflow_steps/06812afc-9bff-4dc8-afcf-7a8cda24a529",
+              "sourceStep": "/api/3/workflow_steps/0be64bb2-c46f-4bbc-bb3a-25731354afc5",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "990e8548-bde8-458e-9994-5ccbec6e8533"
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "b6fd680a-b441-484b-b410-d9d5ec561aa6",
+          "id": 1806,
+          "createUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "createDate": 1653565473.042097,
+          "modifyUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "modifyDate": 1653565473.042097,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "cofense-triage"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Domain Details",
+          "aliasName": null,
+          "tag": null,
+          "description": "Retrieves the details of a specific domain from Cofense Triage based on the domain ID you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1653565794,
+          "collection": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/95c8b827-a864-467e-9f56-597611d98580",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Domain Details",
+              "description": null,
+              "arguments": {
+                "name": "Cofense Triage",
+                "config": "",
+                "params": {
+                  "domain_id": "1"
+                },
+                "version": "2.0.0",
+                "connector": "cofense-triage",
+                "operation": "get_domain_details",
+                "operationTitle": "Get Domain Details",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "66351b04-7a53-44cc-a6bb-fd1bf263112e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "5bf688d8-4f6f-42f0-9077-d9e0ed49cfe7",
+                "title": "Cofense Triage: Get Domain Details",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "95c8b827-a864-467e-9f56-597611d98580"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Domain Details",
+              "targetStep": "/api/3/workflow_steps/66351b04-7a53-44cc-a6bb-fd1bf263112e",
+              "sourceStep": "/api/3/workflow_steps/95c8b827-a864-467e-9f56-597611d98580",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "7b2cd756-f311-4a7c-adf3-65bd6f379e79"
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "bc5a638b-c928-4db3-8df2-6e971c2e39d9",
+          "id": 1810,
+          "createUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "createDate": 1653565740.662633,
+          "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "modifyDate": 1653565790.113921,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "cofense-triage"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Download Report",
+          "aliasName": null,
+          "tag": null,
+          "description": "Retrieves files associated with a specific report from the Cofense Triage server based on the report ID you have specified.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1653565716,
+          "collection": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/ebd9117c-6586-4f17-ac15-0fbd75b4b091",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Download Report",
+              "description": null,
+              "arguments": {
+                "name": "Cofense Triage",
+                "config": "",
+                "params": {
+                  "id": "1"
+                },
+                "version": "2.0.0",
+                "connector": "cofense-triage",
+                "operation": "download_report",
+                "operationTitle": "Download Report",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "afdab278-38fa-4ed9-aab5-4c54f8ff7071"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "2bc41539-a51d-427b-8141-b8e3a8eec1cc",
+                "title": "Cofense Triage: Download Report",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "ebd9117c-6586-4f17-ac15-0fbd75b4b091"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Download Report",
+              "targetStep": "/api/3/workflow_steps/afdab278-38fa-4ed9-aab5-4c54f8ff7071",
+              "sourceStep": "/api/3/workflow_steps/ebd9117c-6586-4f17-ac15-0fbd75b4b091",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "394717dd-6017-478f-81eb-e29397190ad0"
+            }
+          ],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "ecf6f2ee-3c8c-49d9-839d-bedc3e2bb55a",
+          "id": 1808,
+          "createUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "createDate": 1653565586.665178,
+          "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "modifyDate": 1653565712.51458,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "cofense-triage"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Report Reporters Details",
+          "aliasName": null,
+          "tag": "#Cofense Triage",
+          "description": "Fetches the IDs of all reporters and the number of reports those individuals reported over a specified timeframe.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1650956925,
+          "collection": "/api/3/workflow_collections/4bd612a2-0cf6-44ad-9a0c-6142d5fb9105",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/8a449d3a-cb84-41d9-96e9-e6281bab1b7c",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Report Reporters Details",
+              "description": null,
+              "arguments": {
+                "name": "Cofense Triage",
+                "config": "",
+                "params": {
+                  "id": "",
+                  "vip": "",
+                  "email": "",
+                  "sort_by": "",
+                  "filter_by": "",
+                  "page_size": 20,
+                  "created_at": "",
+                  "updated_at": "",
+                  "page_number": 1,
+                  "reputation_score": "",
+                  "fields_to_retrieve": ""
+                },
+                "version": "2.0.0",
+                "connector": "cofense-triage",
+                "operation": "get_report_reporters_details",
+                "operationTitle": "Get Report Reporters Details",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "13d24f02-a54f-4cdd-92af-30565521e421"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "3080a84c-7a6d-408d-a41f-d63357dac092",
+                "title": "Cofense Triage: Get Report Reporters Details",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "8a449d3a-cb84-41d9-96e9-e6281bab1b7c"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Report Reporters Details",
+              "targetStep": "/api/3/workflow_steps/13d24f02-a54f-4cdd-92af-30565521e421",
+              "sourceStep": "/api/3/workflow_steps/8a449d3a-cb84-41d9-96e9-e6281bab1b7c",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "e74122ff-8a30-468e-85cb-6ab29e9c2773"
+            }
+          ],
+          "priority": null,
+          "uuid": "fe18c6b4-cad5-497f-ab12-147166e6cac4",
+          "id": 1807,
+          "createUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "createDate": 1653565473.042315,
+          "modifyUser": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "modifyDate": 1653565473.042315,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "cofense-triage"
+          ]
+        }
+      ]
+    }
+  ],
+  "exported_tags": [
+    "cofense-triage"
+  ]
+}

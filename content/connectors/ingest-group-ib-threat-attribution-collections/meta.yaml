@@ -1,0 +1,21 @@
+title: Ingest Group IB threat attribution collections
+summary: A fork of the Group IB Threat Intelligence Attribution connector adding an ingest collection
+  operation beside the feed actions.
+description: ''
+use_cases:
+- ingestion
+tags:
+- group-ib
+- threat-intel
+- ingestion
+author: ftnt-dspille
+version: 1.2.1
+min_version: null
+license: MIT
+published: '2026-11-04'
+enhances:
+  connector: group-ib-threat-intelligence-attribution-feed
+  version: 1.2.0
+  changes: Adds an ingest collection operation, so threat attribution collections can be pulled, not only
+    the original feed.
+author_id: 99558074

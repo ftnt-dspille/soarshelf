@@ -1,0 +1,20 @@
+title: Share MISP events through a sharing group
+summary: A fork of the MISP connector whose add event and add attribute operations accept a sharing group
+  distribution.
+description: ''
+use_cases:
+- enrichment
+tags:
+- misp
+- enrichment
+- threat-intel
+author: ftnt-dspille
+version: 2.2.1
+min_version: null
+license: MIT
+published: '2026-11-04'
+enhances:
+  connector: misp
+  version: 2.2.0
+  changes: Adds the sharing group distribution option to the add event and add attribute to event operations.
+author_id: 99558074

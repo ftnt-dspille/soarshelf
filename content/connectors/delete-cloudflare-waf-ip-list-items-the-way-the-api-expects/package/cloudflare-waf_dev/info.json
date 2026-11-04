@@ -1,0 +1,1178 @@
+{
+    "name": "cloudflare-waf_dev",
+    "version": "1.0.1",
+    "label": "Cloudflare WAF - Custom",
+    "description": "Cloudflare Web Application Firewall (WAF) integration allows customers to manage firewall rules, filters, and IP Lists. It also allows to retrieve zones list for each account.",
+    "publisher": "",
+    "icon_small_name": "small.png",
+    "icon_large_name": "large.png",
+    "id": 25,
+    "configuration": {
+        "fields": [
+            {
+                "title": "Server URL",
+                "type": "text",
+                "name": "server_url",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "value": "https://api.cloudflare.com",
+                "tooltip": "Specify the URL of the cloudflare WAF server to connect and perform automated operations."
+            },
+            {
+                "title": "Account ID",
+                "type": "text",
+                "name": "account_id",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "value": "938f032ec46f16995357f1a9c1daedac",
+                "tooltip": "Specify the Account ID to access the endpoint to which you will connect and perform the automated operations."
+            },
+            {
+                "title": "Zone ID",
+                "type": "text",
+                "name": "zone_id",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "value": "0bf1f7d3cabec331e6e1057339f314eb",
+                "tooltip": "Specify the Zone ID to access the endpoint to which you will connect and perform the automated operations."
+            },
+            {
+                "title": "API Key",
+                "type": "password",
+                "name": "api_key",
+                "required": false,
+                "visible": false,
+                "editable": true,
+                "value": "",
+                "tooltip": "Specify the Global API Key to access the endpoint to which you will connect and perform the automated operations."
+            },
+            {
+                "title": "Verify SSL",
+                "type": "checkbox",
+                "name": "verify_ssl",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "value": true,
+                "tooltip": "Specifies whether the SSL certificate for the server is to be verified or not."
+            },
+            {
+                "title": "Auth Email",
+                "type": "text",
+                "name": "authEmail",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "value": ""
+            },
+            {
+                "title": "Auth Key",
+                "type": "password",
+                "name": "authKey",
+                "required": false,
+                "visible": true,
+                "editable": true,
+                "value": null
+            }
+        ]
+    },
+    "operations": [
+        {
+            "title": "Create Firewall Rule",
+            "operation": "create_firewall_rule",
+            "description": "Allows users to add or create a new firewall rule in a firewall configuration",
+            "annotation": "create_firewall_rule",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "Description",
+                    "type": "text",
+                    "name": "description",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify a description or name for the new firewall rule being created"
+                },
+                {
+                    "title": "Action",
+                    "type": "select",
+                    "name": "action",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "Block",
+                    "tooltip": "Specify the action or behavior to be taken when the rule's conditions are met",
+                    "options": [
+                        "Allow",
+                        "Bypass",
+                        "Block",
+                        "Challenge",
+                        "jS Challenge",
+                        "Managed Challenge",
+                        "Log"
+                    ]
+                },
+                {
+                    "title": "Products",
+                    "type": "multiselect",
+                    "name": "products",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Select one or more products or services to which the firewall rule applies"
+                },
+                {
+                    "title": "Paused",
+                    "type": "checkbox",
+                    "name": "paused",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify whether the newly created firewall rule should be initially paused or inactive"
+                },
+                {
+                    "title": "Priority",
+                    "type": "text",
+                    "name": "priority",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the precedence or order of the newly created firewall rule relative to other rules"
+                },
+                {
+                    "title": "Reference Tag",
+                    "type": "text",
+                    "name": "ref",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify an association of a reference or identifier with the newly created firewall rule"
+                },
+                {
+                    "title": "Filter ID",
+                    "type": "text",
+                    "name": "filter_id",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the identifier of an existing filter to be associated with the newly created firewall rule. Required if filter_expression is unspecified."
+                },
+                {
+                    "title": "Filter Expression",
+                    "type": "text",
+                    "name": "filter_expression",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the identifier of an existing filter to be associated with the newly created firewall rule. Required if filter_expression is unspecified. more info: https://developers.cloudflare.com/ruleset-engine/rules-language/expressions/"
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": [
+                    {
+                        "action": "",
+                        "description": "",
+                        "id": "",
+                        "paused": "",
+                        "priority": "",
+                        "products": [],
+                        "ref": "",
+                        "filter": {
+                            "description": "",
+                            "expression": "",
+                            "id": "",
+                            "paused": "",
+                            "ref": ""
+                        }
+                    }
+                ],
+                "success": "",
+                "result_info": {
+                    "count": "",
+                    "page": "",
+                    "per_page": "",
+                    "total_count": ""
+                }
+            },
+            "open": false
+        },
+        {
+            "title": "Update Firewall Rule",
+            "operation": "update_firewall_rule",
+            "description": "Allows users to modify or edit an existing firewall rule within the firewall configuration",
+            "annotation": "update_firewall_rule",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "Rule ID",
+                    "type": "text",
+                    "name": "id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the unique identifier of the firewall rule that needs to be updated."
+                },
+                {
+                    "title": "Description",
+                    "type": "text",
+                    "name": "description",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the description or name of the existing firewall rule to modify or update"
+                },
+                {
+                    "title": "Action",
+                    "type": "select",
+                    "name": "action",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": "Block",
+                    "tooltip": "Specify the action or behavior to be taken when the updated rule's conditions are met",
+                    "options": [
+                        "Allow",
+                        "Bypass",
+                        "Block",
+                        "Challenge",
+                        "jS Challenge",
+                        "Managed Challenge",
+                        "Log"
+                    ]
+                },
+                {
+                    "title": "Products",
+                    "type": "multiselect",
+                    "name": "products",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Select one or more products or services to which the updated firewall rule applies"
+                },
+                {
+                    "title": "Paused",
+                    "type": "checkbox",
+                    "name": "paused",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "To update a firewall rule, it can be set to either active or inactive. To choose this option, the firewall rule must be paused or inactive"
+                },
+                {
+                    "title": "Priority",
+                    "type": "text",
+                    "name": "priority",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the precedence or order of the firewall rules to be updated"
+                },
+                {
+                    "title": "Reference Tag",
+                    "type": "text",
+                    "name": "ref",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify a reference or identifier for the firewall rule to be updated"
+                },
+                {
+                    "title": "Filter ID",
+                    "type": "text",
+                    "name": "filter_id",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies the identifier of an existing filter to be associated with the updated firewall rule. Can not update or delete rule filter, only add a new filter."
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": [
+                    {
+                        "action": "",
+                        "description": "",
+                        "id": "",
+                        "paused": "",
+                        "priority": "",
+                        "products": [],
+                        "ref": "",
+                        "filter": {
+                            "description": "",
+                            "expression": "",
+                            "id": "",
+                            "paused": "",
+                            "ref": ""
+                        }
+                    }
+                ],
+                "success": "",
+                "result_info": {
+                    "count": "",
+                    "page": "",
+                    "per_page": "",
+                    "total_count": ""
+                }
+            },
+            "open": false
+        },
+        {
+            "title": "List Firewall Rules",
+            "operation": "list_firewall_rules",
+            "description": "Get a list of firewall rules that are currently configured for your Cloudflare account or for a specific domain or zone within your account",
+            "annotation": "list_firewall_rules",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "Action",
+                    "type": "text",
+                    "name": "action",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies the action or operation to be performed when retrieving firewall rules. Must be an exact match"
+                },
+                {
+                    "title": "Description",
+                    "type": "text",
+                    "name": "description",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify this parameter allows you to filter firewall rules based on their description or name"
+                },
+                {
+                    "title": "Rule ID",
+                    "type": "text",
+                    "name": "id",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the unique identifier of the firewall rule"
+                },
+                {
+                    "title": "Paused",
+                    "type": "checkbox",
+                    "name": "paused",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify this parameter value true, indicates that the firewall rule is currently paused"
+                },
+                {
+                    "title": "Page Number",
+                    "type": "text",
+                    "name": "page",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the page number of paginated results"
+                },
+                {
+                    "title": "Record Per Page",
+                    "type": "text",
+                    "name": "per_page",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify this parameter to indicate the number of firewall rules per page"
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": [
+                    {
+                        "action": "",
+                        "description": "",
+                        "id": "",
+                        "paused": "",
+                        "priority": "",
+                        "products": [],
+                        "ref": "",
+                        "filter": {
+                            "description": "",
+                            "expression": "",
+                            "id": "",
+                            "paused": "",
+                            "ref": ""
+                        }
+                    }
+                ],
+                "success": "",
+                "result_info": {
+                    "count": "",
+                    "page": "",
+                    "per_page": "",
+                    "total_count": ""
+                }
+            },
+            "open": false
+        },
+        {
+            "title": "Delete Firewall Rule",
+            "operation": "delete_firewall_rule",
+            "description": "Remove or delete an existing firewall rule from the firewall configuration",
+            "annotation": "delete_firewall_rule",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "Rule ID",
+                    "type": "text",
+                    "name": "id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the unique identifier of the firewall rule to delete"
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": [
+                    {
+                        "action": "",
+                        "description": "",
+                        "id": "",
+                        "paused": "",
+                        "priority": "",
+                        "products": [],
+                        "ref": "",
+                        "filter": {
+                            "description": "",
+                            "expression": "",
+                            "id": "",
+                            "paused": "",
+                            "ref": ""
+                        }
+                    }
+                ],
+                "success": "",
+                "result_info": {
+                    "count": "",
+                    "page": "",
+                    "per_page": "",
+                    "total_count": ""
+                }
+            },
+            "open": false
+        },
+        {
+            "title": "Create Filter",
+            "operation": "create_filter",
+            "description": "Allows users to add a new filter to their WAF configuration",
+            "annotation": "create_filter",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "Zone ID",
+                    "type": "text",
+                    "name": "zone_id",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies the unique identifier of the Cloudflare zone where the filter will be applied"
+                },
+                {
+                    "title": "Description",
+                    "type": "text",
+                    "name": "description",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Allows users to provide a description or additional information about the newly created filter"
+                },
+                {
+                    "title": "Expression",
+                    "type": "text",
+                    "name": "expression",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify this parameter allows users to define the filtering criteria or rules for the newly created filter"
+                },
+                {
+                    "title": "Reference ID",
+                    "type": "text",
+                    "name": "ref",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifying this parameter allows users to associate a reference or identifier with the newly created filter."
+                },
+                {
+                    "title": "Paused",
+                    "type": "checkbox",
+                    "name": "paused",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifying this parameter allows users to specify whether the newly created filter should be initially paused or active"
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": [
+                    {
+                        "description": "",
+                        "expression": "",
+                        "id": "",
+                        "paused": "",
+                        "ref": ""
+                    }
+                ],
+                "success": "",
+                "result_info": {
+                    "count": "",
+                    "page": "",
+                    "per_page": "",
+                    "total_count": ""
+                }
+            },
+            "open": false
+        },
+        {
+            "title": "List Filters",
+            "operation": "list_filters",
+            "description": "Retrieve a list of filters configured within the Cloudflare Web Application Firewall (WAF) settings",
+            "annotation": "list_filters",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "Filter ID",
+                    "type": "text",
+                    "name": "id",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the identifier of a specific filter for retrieval."
+                },
+                {
+                    "title": "Description",
+                    "type": "text",
+                    "name": "description",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Allows users to filter the list of filters based on their descriptions"
+                },
+                {
+                    "title": "Expression",
+                    "type": "text",
+                    "name": "expression",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify a search expression or pattern to filter the list of filters returned by the Cloudflare WAF"
+                },
+                {
+                    "title": "Reference ID",
+                    "type": "text",
+                    "name": "ref",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifying this parameter allows users to filter the list of filters based on their reference or identifier."
+                },
+                {
+                    "title": "Page Number",
+                    "type": "text",
+                    "name": "page",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the page number of paginated results"
+                },
+                {
+                    "title": "Per Page",
+                    "type": "text",
+                    "name": "per_page",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify this parameter to indicate the number of filters per page"
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": [
+                    {
+                        "description": "",
+                        "expression": "",
+                        "id": "",
+                        "paused": "",
+                        "ref": ""
+                    }
+                ],
+                "success": "",
+                "result_info": {
+                    "count": "",
+                    "page": "",
+                    "per_page": "",
+                    "total_count": ""
+                }
+            },
+            "open": false
+        },
+        {
+            "title": "Update Filter",
+            "operation": "update_filter",
+            "description": "Modify and update the configuration settings of existing filters within their WAF configuration",
+            "annotation": "update_filter",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "Filter ID",
+                    "type": "text",
+                    "name": "id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies the unique identifier of the filter that the user intends to update"
+                },
+                {
+                    "title": "Zone ID",
+                    "type": "text",
+                    "name": "zone_id",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies this parameter facilitates the modification of the Cloudflare zone to which a specific filter is associated"
+                },
+                {
+                    "title": "Description",
+                    "type": "text",
+                    "name": "description",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifying this parameter allows users to update the description or additional information associated with a specific filter"
+                },
+                {
+                    "title": "Expression",
+                    "type": "text",
+                    "name": "expression",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifying this parameter allows users to modify the filtering criteria or rules associated with a specific filter"
+                },
+                {
+                    "title": "Reference ID",
+                    "type": "text",
+                    "name": "ref",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifying this parameter allows users to modify or update the reference or identifier associated with a specific filter"
+                },
+                {
+                    "title": "Paused",
+                    "type": "checkbox",
+                    "name": "paused",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Provides users with the ability to control the activation status of a specific filter"
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": [
+                    {
+                        "description": "",
+                        "expression": "",
+                        "id": "",
+                        "paused": "",
+                        "ref": ""
+                    }
+                ],
+                "success": "",
+                "result_info": {
+                    "count": "",
+                    "page": "",
+                    "per_page": "",
+                    "total_count": ""
+                }
+            },
+            "open": false
+        },
+        {
+            "title": "Delete Filter",
+            "operation": "delete_filter",
+            "description": "Allows users to remove a specific filter from their WAF configuration.",
+            "annotation": "delete_filter",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "Filter ID",
+                    "type": "text",
+                    "name": "id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies the unique identifier of the filter that users want to remove from their WAF configuration"
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": [
+                    {
+                        "description": "",
+                        "expression": "",
+                        "id": "",
+                        "paused": "",
+                        "ref": ""
+                    }
+                ],
+                "success": "",
+                "result_info": {
+                    "count": "",
+                    "page": "",
+                    "per_page": "",
+                    "total_count": ""
+                }
+            },
+            "open": false
+        },
+        {
+            "title": "List Zones",
+            "operation": "list_zones",
+            "description": "Retrieves a list of all zones associated with the user's Cloudflare account",
+            "annotation": "list_zones",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "Match",
+                    "type": "text",
+                    "name": "match",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies this parameter is used to filter the list of zones based on specific criteria"
+                },
+                {
+                    "title": "Name",
+                    "type": "text",
+                    "name": "name",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifying this parameter allows users to filter the list of zones based on the zone name"
+                },
+                {
+                    "title": "Account Name",
+                    "type": "text",
+                    "name": "account_name",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifying this parameter allows users to filter the list of zones based on the name of the Cloudflare account associated with each zone"
+                },
+                {
+                    "title": "Order",
+                    "type": "text",
+                    "name": "order",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifying this parameter allows users to specify the order in which the list of zones should be sorted in the response. Possible values :\nname\nstatus\naccount.id\naccount.name"
+                },
+                {
+                    "title": "Status",
+                    "type": "text",
+                    "name": "status",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifying this parameter allows users to filter the list of zones based on their current operational status"
+                },
+                {
+                    "title": "Direction",
+                    "type": "text",
+                    "name": "direction",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifying this parameter allows users to specify the sorting direction of the list of zones based on certain criteria"
+                },
+                {
+                    "title": "Page Number",
+                    "type": "text",
+                    "name": "page",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the page number of paginated results"
+                },
+                {
+                    "title": "Per Page",
+                    "type": "text",
+                    "name": "per_page",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify this parameter to indicate the number of zones per page"
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "success": "",
+                "result_info": {
+                    "count": "",
+                    "page": "",
+                    "per_page": "",
+                    "total_count": ""
+                },
+                "result": [
+                    {
+                        "account": {
+                            "id": "",
+                            "name": ""
+                        },
+                        "activated_on": "",
+                        "created_on": "",
+                        "development_mode": "",
+                        "id": "",
+                        "meta": {
+                            "cdn_only": "",
+                            "custom_certificate_quota": "",
+                            "dns_only": "",
+                            "foundation_dns": "",
+                            "page_rule_quota": "",
+                            "phishing_detected": "",
+                            "step": ""
+                        },
+                        "modified_on": "",
+                        "name": "",
+                        "original_dnshost": "",
+                        "original_name_servers": [],
+                        "original_registrar": "",
+                        "owner": {
+                            "id": "",
+                            "name": "",
+                            "type": ""
+                        },
+                        "vanity_name_servers": []
+                    }
+                ]
+            },
+            "open": false
+        },
+        {
+            "title": "Get IP Lists",
+            "operation": "get_ip_lists",
+            "description": "Allows users to retrieve information about IP lists configured within their Cloudflare account",
+            "annotation": "get_ip_lists",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "Page Number",
+                    "type": "text",
+                    "name": "page",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the page number of paginated results"
+                },
+                {
+                    "title": "Per Page",
+                    "type": "text",
+                    "name": "per_page",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify this parameter to indicate the number of IP list items per page"
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": [
+                    {
+                        "created_on": "",
+                        "description": "",
+                        "id": "",
+                        "kind": "",
+                        "modified_on": "",
+                        "name": "",
+                        "num_items": "",
+                        "num_referencing_filters": ""
+                    }
+                ],
+                "success": true
+            },
+            "open": false
+        },
+        {
+            "title": "Create IP List",
+            "operation": "create_ip_list",
+            "description": "Create a new IP list with a specified name and associated IP addresses.",
+            "annotation": "create_ip_list",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "Name",
+                    "type": "text",
+                    "name": "name",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies the name of the new IP list to be created"
+                },
+                {
+                    "title": "Description",
+                    "type": "text",
+                    "name": "description",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify this parameter to allows users to provide additional information or details about the new IP list being created"
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": {
+                    "0": "",
+                    "created_on": "",
+                    "description": "",
+                    "id": "",
+                    "kind": "",
+                    "modified_on": "",
+                    "name": "",
+                    "num_items": "",
+                    "num_referencing_filters": ""
+                },
+                "success": ""
+            },
+            "open": false
+        },
+        {
+            "title": "Delete IP List",
+            "operation": "delete_ip_list",
+            "description": "Remove an existing IP list from their Cloudflare account",
+            "annotation": "delete_ip_list",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "List ID",
+                    "type": "text",
+                    "name": "list_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies the ID of the list that you want to delete"
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": {
+                    "0": "",
+                    "id": ""
+                },
+                "success": ""
+            },
+            "open": false
+        },
+        {
+            "title": "Create IP Items List",
+            "operation": "create_ip_items_list",
+            "description": "Add or append new items, such as IP addresses, to a specific list",
+            "annotation": "create_ip_items_list",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "List ID",
+                    "type": "text",
+                    "name": "list_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies the ID of the list from which you want to add or append as new items to the list."
+                },
+                {
+                    "title": "IP Address",
+                    "type": "text",
+                    "name": "ip_address",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies a CSV list of IP addresses that you want to add or append as new items to the list."
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": {
+                    "0": "",
+                    "operation_id": ""
+                },
+                "success": ""
+            },
+            "open": false
+        },
+        {
+            "title": "Get IP List Items",
+            "operation": "get_ip_list_item",
+            "description": "Retrieves the list of IP addresses items from a specific list",
+            "annotation": "get_ip_list_item",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "List ID",
+                    "type": "text",
+                    "name": "list_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies the ID of the list from which you want to retrieve the list of IP addresses."
+                },
+                {
+                    "title": "Page Number",
+                    "type": "text",
+                    "name": "page",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify the page number of paginated results"
+                },
+                {
+                    "title": "Record Per Page",
+                    "type": "text",
+                    "name": "per_page",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specify this parameter to indicate the number of IP list item per page"
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": [
+                    {
+                        "comment": "",
+                        "created_on": "",
+                        "id": "",
+                        "ip": "",
+                        "modified_on": ""
+                    }
+                ],
+                "success": "",
+                "result_info": {
+                    "cursors": {
+                        "after": "",
+                        "before": ""
+                    }
+                }
+            },
+            "open": false
+        },
+        {
+            "title": "Update IP List Items",
+            "operation": "update_ip_list_item",
+            "description": "Removes all existing items from the list and adds the provided items to the list.",
+            "annotation": "update_ip_list_item",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "List ID",
+                    "type": "text",
+                    "name": "list_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies the ID of the list from which you want to update the list of IP addresses."
+                },
+                {
+                    "title": "IP Address",
+                    "type": "text",
+                    "name": "ip_address",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies a CSV list of IP addresses that you want to update within the item list"
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": {
+                    "0": "",
+                    "operation_id": ""
+                },
+                "success": ""
+            },
+            "open": false
+        },
+        {
+            "title": "Delete IP List Items",
+            "operation": "delete_ip_list_item",
+            "description": "Allows users to remove specific items, such as IP addresses, from an IP list",
+            "annotation": "delete_ip_list_item",
+            "category": "investigation",
+            "parameters": [
+                {
+                    "title": "List ID",
+                    "type": "text",
+                    "name": "list_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies the ID of the list from which you want to delete the IP list"
+                },
+                {
+                    "title": "Item ID",
+                    "type": "text",
+                    "name": "items_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "tooltip": "Specifies a CSV list of items ID that you want to delete from the list."
+                }
+            ],
+            "output_schema": {
+                "errors": [],
+                "messages": [],
+                "result": {
+                    "0": "",
+                    "operation_id": ""
+                },
+                "success": ""
+            },
+            "open": false
+        }
+    ],
+    "category": [
+        "Firewall and Network Protection"
+    ],
+    "contributor": null,
+    "active": true,
+    "cs_compatible": true,
+    "system": false,
+    "playbook_collections": [
+        {
+            "@id": "/api/3/workflow_collections/613c6378-8585-4d45-930f-49077c203bc1",
+            "name": "Sample - Cloudflare WAF - Custom - 1.0.1",
+            "image": "/api/3/images/dd589982-bf66-45ab-afc4-a03237eff2c0",
+            "description": "Sample playbooks for \"Cloudflare WAF - Custom\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete."
+        }
+    ],
+    "icon_small": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAjJJREFUeNrslctu00AUhv8Z22M7dmynbgKtqiC6AQnUFTueiDfieVggFixYVKwqSoG2cXGTOnZ8m5kMkwq2VZ2mG5QjzcY6M9+5/cdEKYXHNIpHti1gC3i4mR18ixtQCi0bywJz73mJ3EtogmN6qajMGh72HFQlcXcwGG2oRMslfp8pU162xmc5PMklwl1VTnB+gqV8cAZNpabnSdOmki6CgxcyO3fjWZoeumKI0qIORs9AjXUBvFHJtw8iHkRBbBtPHNOcJdh5etPKSS2uyja+Pn01DDHYg8W6N7mtb7vaeq51FDl/v0iBxTzygogZFiX1VKllTcq5Llr3HizmSrVwAxi30emnmwrDAzg9TJNV7vrYHixTQaLMuwN4A7Egwf4qzvwM2QX8EErJs09gDPkPtJmmkmiMIgUh3QH6jo6d0KbhwhuDhSo9ER/fG+M3oCb648oI9kP7n6e5BoDq8VDZr51gcN1KMJs4u+bbdxASbdUuVbpoItdUxQTMX0sHpgVFQIwx0p/zhbBseBFOj1eii0YXFQ/5HLzWwiZEC9vpDnB9YvdhB24vjA0czyqhS6GnxY+uapHcZEd+qTgniunBXSsD211loEcT9DmuQogv11XO5WnRfk2y1ywnklAW6Wzu6PA9lDydKGaBF4R5yTz/XqqA8JdaXMWMwMbe4SaWXZaiKZRB4MdEcliOml0Qw0E/vqP0HbepLpR20yTHQ13AH6DX3+i63v6Tt4D/G/BHgAEAik8MCduz1pIAAAAASUVORK5CYII=",
+    "icon_large": "data:image/jpeg;base64,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",
+    "help_online": "https://github.com/fortinet-fortisoar/connector-cloudflare-waf/blob/release/1.0.0/docs/CloudflareWAFDoc.md",
+    "vendor_version": null
+}

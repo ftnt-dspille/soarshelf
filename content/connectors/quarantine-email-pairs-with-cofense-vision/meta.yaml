@@ -1,0 +1,22 @@
+title: Quarantine email pairs with Cofense Vision
+summary: A fork of the Cofense Vision connector that adds a quarantine email pairs operation, using username
+  and password auth.
+description: ''
+use_cases:
+- phishing
+- containment
+tags:
+- cofense
+- email
+- vision
+author: ftnt-dspille
+version: 1.0.1
+min_version: null
+license: MIT
+published: '2026-11-04'
+enhances:
+  connector: cofense-vision
+  version: 1.0.0
+  changes: Adds a quarantine email pairs operation beside the original two; configuration uses a username
+    and password over basic auth.
+author_id: 99558074

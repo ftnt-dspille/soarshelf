@@ -1,0 +1,1541 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Sample - ElasticSearch - 4.0.0",
+      "description": "Sample playbooks for \"ElasticSearch\" connector. If you are planning to use any of the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete.",
+      "visible": true,
+      "image": null,
+      "uuid": "c273e0fc-9c78-4045-955b-75729b802e7a",
+      "id": 36,
+      "deletedAt": null,
+      "importedBy": [],
+      "recordTags": [
+        "ElasticSearch"
+      ],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Apply Alert Tags",
+          "aliasName": null,
+          "tag": "#ElasticSearch",
+          "description": "Add and remove Alert tags",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1743162013,
+          "collection": "/api/3/workflow_collections/c273e0fc-9c78-4045-955b-75729b802e7a",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/568f5374-250c-4ee8-ac8b-454a239ac6b0",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Apply Alert Tags",
+              "description": null,
+              "arguments": {
+                "name": "ElasticSearch",
+                "config": "29c30709-0c8b-40fa-a98c-da64211dd847",
+                "params": {
+                  "ids": "cb1b5ecbe3edac6adedbd57daad07d2f73d0cf3c,0fc6fcd18f0ad6c98ecd4cdd1b681032eec9e9f5",
+                  "port": 5601,
+                  "tags_to_add": "False Positive",
+                  "tags_to_remove": "Further Investigation Required"
+                },
+                "version": "4.0.0",
+                "connector": "elasticsearch",
+                "operation": "apply_alert_tags",
+                "operationTitle": "Apply Alert Tags",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "180",
+              "left": "240",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "ea3c9de4-1634-4591-8992-12509cb8e28f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "db0c4d97-85cf-44e4-80e9-0f93f1d0320f",
+                "title": "#ElasticSearch: Apply Alert Tags",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "triggerOnReplicate": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "568f5374-250c-4ee8-ac8b-454a239ac6b0"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Saved Search",
+              "targetStep": "/api/3/workflow_steps/ea3c9de4-1634-4591-8992-12509cb8e28f",
+              "sourceStep": "/api/3/workflow_steps/568f5374-250c-4ee8-ac8b-454a239ac6b0",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0a57fd3f-84be-4ae1-b14b-f406d51f9a0d"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "22c1f6f8-7729-4208-be60-1bef33ab617e",
+          "id": 411,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "ElasticSearch"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Cluster Details",
+          "aliasName": null,
+          "tag": "#ElasticSearch",
+          "description": "Get All or Specific Cluster Details",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1743133064,
+          "collection": "/api/3/workflow_collections/c273e0fc-9c78-4045-955b-75729b802e7a",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/79706f0e-cc95-49ec-9b12-5cecf6bfd0fb",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Cluster Details",
+              "description": null,
+              "arguments": {
+                "name": "ElasticSearch",
+                "config": "da886404-cdff-48fe-a675-8342c6f698d4",
+                "params": {
+                  "index": "",
+                  "run_as_user": ""
+                },
+                "version": "4.0.0",
+                "connector": "elasticsearch",
+                "operation": "get_cluster_details",
+                "operationTitle": "Get Cluster Details",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "155",
+              "left": "169",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "a1f38928-0303-49a1-ac0c-1b9f332d09a4"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "8b0beed1-af61-40f2-b9ed-8c9eb891a5b0",
+                "title": "#ElasticSearch: Get Cluster Details",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "triggerOnReplicate": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "79706f0e-cc95-49ec-9b12-5cecf6bfd0fb"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Cluster Details",
+              "targetStep": "/api/3/workflow_steps/a1f38928-0303-49a1-ac0c-1b9f332d09a4",
+              "sourceStep": "/api/3/workflow_steps/79706f0e-cc95-49ec-9b12-5cecf6bfd0fb",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0b72da3e-f8f9-4666-9ce0-0c36ea169c25"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "29dc607a-6d8d-4135-b258-6c360f26ed04",
+          "id": 412,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "ElasticSearch"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Execute Lucene Query",
+          "aliasName": null,
+          "tag": "#ElasticSearch",
+          "description": "Execute a search query without using Elastic's DSL Query Syntax. An example query to search for the term \\\"phishing\\\" in documents where the status field is set to 200 would look like this:\\nphishing AND status:200",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1710220924,
+          "collection": "/api/3/workflow_collections/c273e0fc-9c78-4045-955b-75729b802e7a",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/e90531bf-dd44-4b95-9f8b-ebc507f4cf54",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Execute Lucene Query",
+              "description": null,
+              "arguments": {
+                "name": "ElasticSearch",
+                "config": "cf4e7650-6876-48b3-b404-31996bbc721f",
+                "params": {
+                  "index": "sysmon*",
+                  "query": "body.Event.System.EventID.#text: \"10\"",
+                  "run_as_user": ""
+                },
+                "version": "4.0.0",
+                "connector": "elasticsearch",
+                "operation": "execute_lucene_query",
+                "operationTitle": "Execute Lucene Query",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "146",
+              "left": "220",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "b14a2bbb-8b89-487c-9e4e-d38877d95a4f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "7f91f12e-f147-4782-9d38-17e3c1646901",
+                "title": "#ElasticSearch: Execute Lucene Query",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "triggerOnReplicate": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "e90531bf-dd44-4b95-9f8b-ebc507f4cf54"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Execute Lucene Query",
+              "targetStep": "/api/3/workflow_steps/b14a2bbb-8b89-487c-9e4e-d38877d95a4f",
+              "sourceStep": "/api/3/workflow_steps/e90531bf-dd44-4b95-9f8b-ebc507f4cf54",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e5aad1b4-971f-4530-a3d8-f496bc8c73f8"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "2f96e5f9-6c05-42a1-ad2c-c40ed7d5c944",
+          "id": 413,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "ElasticSearch"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Set Alert Status",
+          "aliasName": null,
+          "tag": "#ElasticSearch",
+          "description": "Sets the status of Alert",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1743161950,
+          "collection": "/api/3/workflow_collections/c273e0fc-9c78-4045-955b-75729b802e7a",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/cbb96d12-e245-46c9-a9a1-154f2dea9091",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Set Alert Status",
+              "description": null,
+              "arguments": {
+                "name": "ElasticSearch",
+                "config": "29c30709-0c8b-40fa-a98c-da64211dd847",
+                "params": {
+                  "port": 5601,
+                  "query": "",
+                  "status": "open",
+                  "signal_ids": "cb1b5ecbe3edac6adedbd57daad07d2f73d0cf3c,0fc6fcd18f0ad6c98ecd4cdd1b681032eec9e9f5"
+                },
+                "version": "4.0.0",
+                "connector": "elasticsearch",
+                "operation": "set_alert_status",
+                "operationTitle": "Set Alert Status",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "180",
+              "left": "240",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "22034e4b-5877-4853-8965-e5dd4809032a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "1e1c0ad1-0732-4d43-ae17-1f45fcf43778",
+                "title": "#ElasticSearch: Set Alert Status",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "triggerOnReplicate": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "cbb96d12-e245-46c9-a9a1-154f2dea9091"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Saved Search",
+              "targetStep": "/api/3/workflow_steps/22034e4b-5877-4853-8965-e5dd4809032a",
+              "sourceStep": "/api/3/workflow_steps/cbb96d12-e245-46c9-a9a1-154f2dea9091",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ac179aeb-37bf-4608-9f2a-398cb12f565d"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "37d8119a-7c0e-4c84-a69c-ea0daeafd15e",
+          "id": 414,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "ElasticSearch"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Mapping",
+          "aliasName": null,
+          "tag": "#ElasticSearch",
+          "description": "Returns the configuration/mapping information per index and type",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1743133299,
+          "collection": "/api/3/workflow_collections/c273e0fc-9c78-4045-955b-75729b802e7a",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/765dd350-4e60-49dd-a890-51f937266638",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Mapping",
+              "description": null,
+              "arguments": {
+                "name": "ElasticSearch",
+                "config": "13ee9565-d0fc-480b-a6db-1dfda8e081a2",
+                "params": {
+                  "index": "_all",
+                  "doc_type": "",
+                  "run_as_user": ""
+                },
+                "version": "4.0.0",
+                "connector": "elasticsearch",
+                "operation": "get_mapping",
+                "operationTitle": "Get Mapping",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "180",
+              "left": "214",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "237ff254-15aa-4d94-8391-fb41fd7642aa"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "22acabd0-41e7-4f49-95a8-5392da0e3db6",
+                "title": "#ElasticSearch: Get Mapping",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "triggerOnReplicate": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "765dd350-4e60-49dd-a890-51f937266638"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Mapping",
+              "targetStep": "/api/3/workflow_steps/237ff254-15aa-4d94-8391-fb41fd7642aa",
+              "sourceStep": "/api/3/workflow_steps/765dd350-4e60-49dd-a890-51f937266638",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "3fe36484-a1f6-4262-b3cd-285f4c53c09b"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "5160753b-8a5d-4edb-9ddb-090e3c420bcb",
+          "id": 415,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "ElasticSearch"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Alerts List",
+          "aliasName": null,
+          "tag": "#ElasticSearch",
+          "description": "Retrieves list of Alerts",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1743161766,
+          "collection": "/api/3/workflow_collections/c273e0fc-9c78-4045-955b-75729b802e7a",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/39057079-893b-478e-9ade-c7fa4adf7ad1",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Alerts List",
+              "description": null,
+              "arguments": {
+                "name": "ElasticSearch",
+                "config": "d0846fc3-2300-4129-a041-7f3a48a0d437",
+                "params": {
+                  "end": "2025-03-28T10:20:07.491Z",
+                  "port": 5601,
+                  "query": "{\n    \"bool\": {\n      \"filter\": [\n        {\n          \"match\": {\n            \"signal.status\": \"open\"\n          }\n        },\n        {\n          \"range\": {\n            \"signal.rule.risk_score\": {\n              \"gte\": 70\n            }\n          }\n        }\n      ]\n    }\n  }",
+                  "start": "2024-11-01T17:30:00.000Z"
+                },
+                "version": "4.0.0",
+                "connector": "elasticsearch",
+                "operation": "get_alerts_list",
+                "operationTitle": "Get Alerts List",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "180",
+              "left": "240",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "c79eab5c-ddaa-49bf-aa98-18d6b48a9733"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "57fa7a00-8cdb-4e17-bd18-8369e0b8fe0e",
+                "title": "#ElasticSearch: Get Alerts List",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "triggerOnReplicate": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "39057079-893b-478e-9ade-c7fa4adf7ad1"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Saved Search",
+              "targetStep": "/api/3/workflow_steps/c79eab5c-ddaa-49bf-aa98-18d6b48a9733",
+              "sourceStep": "/api/3/workflow_steps/39057079-893b-478e-9ade-c7fa4adf7ad1",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f75ace1c-fc2f-4dec-a3a1-e141974a79e1"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "6b105cb3-e3c9-412a-948e-acb32a1ef38c",
+          "id": 416,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "ElasticSearch"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Execute Query",
+          "aliasName": null,
+          "tag": "#ElasticSearch",
+          "description": "Execute the given user query against elastic search cluster",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1743162212,
+          "collection": "/api/3/workflow_collections/c273e0fc-9c78-4045-955b-75729b802e7a",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/c7ebbdc6-65f5-4dce-b917-d5959aaac616",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Execute Query",
+              "description": null,
+              "arguments": {
+                "name": "ElasticSearch",
+                "config": "13ee9565-d0fc-480b-a6db-1dfda8e081a2",
+                "params": {
+                  "index": "",
+                  "query": "{     \"query\": {         \"match_all\": {}     } }",
+                  "routing": "",
+                  "doc_type": "",
+                  "run_as_user": ""
+                },
+                "version": "4.0.0",
+                "connector": "elasticsearch",
+                "operation": "execute_query",
+                "operationTitle": "Execute Query",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "180",
+              "left": "240",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e44ae78e-d16d-4695-8dd9-8a9c1601a682"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "1146cfb2-b7cb-4a31-9ae1-670e9985f5f2",
+                "title": "#ElasticSearch: Execute Query",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "triggerOnReplicate": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "c7ebbdc6-65f5-4dce-b917-d5959aaac616"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Execute Query",
+              "targetStep": "/api/3/workflow_steps/e44ae78e-d16d-4695-8dd9-8a9c1601a682",
+              "sourceStep": "/api/3/workflow_steps/c7ebbdc6-65f5-4dce-b917-d5959aaac616",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "595e2333-95f4-4ffa-a14b-5e396d8da074"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "8b34474e-5697-429f-925c-f7987acb7eba",
+          "id": 417,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "ElasticSearch"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "ElasticSearch > Fetch and Create",
+          "aliasName": null,
+          "tag": null,
+          "description": "Fetches the alerts from ElasticSearch server and creates an alert record in FortiSOAR.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1743161633,
+          "collection": "/api/3/workflow_collections/c273e0fc-9c78-4045-955b-75729b802e7a",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/0b02ad49-f2b1-4732-a030-564b1c1930f7",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Configuration",
+              "description": null,
+              "arguments": {
+                "size": "100",
+                "state": "",
+                "max_limit": "100",
+                "list_alerts": "[]",
+                "pullTimeMacro": "ElasticLastPullTime__{{vars['audit_info']['cyops_playbook_iri'].split('/')[-1].replace('-','_')}}",
+                "start_datetime": "",
+                "alert_severity_map": "{\"high\": \"{{'Severity'| picklist('high')}}\",\"minimal\": \"{{'Severity'| picklist('minimal')}}\",\"medium\": \"{{'Severity'| picklist('medium')}}\",\"low\": \"{{'Severity'| picklist('low')}}\",\"critical\": \"{{'Severity'| picklist('critical')}}\"\n}"
+              },
+              "status": null,
+              "top": "160",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "a875e63c-0750-4904-aa59-db8d5ff78726"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Record",
+              "description": null,
+              "arguments": {
+                "for_each": {
+                  "item": "{{vars.steps.Fetch_Alerts.data.hits.hits}}",
+                  "__bulk": true,
+                  "parallel": false,
+                  "condition": "",
+                  "batch_size": 100
+                },
+                "resource": {
+                  "name": "{{vars.item._source[\"kibana.alert.rule.name\"]}}",
+                  "type": "/api/3/picklists/574a6ee2-7265-4701-815e-cff83b053bce",
+                  "state": "/api/3/picklists/a1bac09b-1441-45aa-ad1b-c88744e48e72",
+                  "source": "ElasticSearch",
+                  "status": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+                  "severity": "{{vars.item._source[\"kibana.alert.severity\"] | resolveRange(vars.alert_severity_map)}}",
+                  "sourceId": "{{vars.item._id}}",
+                  "__replace": "true",
+                  "recordTags": [
+                    "/api/3/tags/elasticsearch"
+                  ],
+                  "sourcedata": "{{vars.item | toJSON}}",
+                  "description": "{{vars.item._source[\"kibana.alert.rule.description\"]}}",
+                  "ackSlaStatus": "/api/3/picklists/72979f64-e8b9-4888-a965-957e0ec24818",
+                  "respSlaStatus": "/api/3/picklists/72979f64-e8b9-4888-a965-957e0ec24818",
+                  "priorityWeight": 1,
+                  "escalatedtoincident": "/api/3/picklists/2128a09c-153d-4db3-985d-de6be33deae5",
+                  "resolvedAutomatedly": false,
+                  "alertRemainingAckSLA": 0
+                },
+                "_showJson": false,
+                "operation": "Overwrite",
+                "collection": "/api/3/upsert/alerts",
+                "__recommend": [],
+                "fieldOperation": {
+                  "protocol": "Overwrite",
+                  "recordTags": "Overwrite"
+                },
+                "step_variables": []
+              },
+              "status": null,
+              "top": "820",
+              "left": "120",
+              "stepType": "/api/3/workflow_step_types/2597053c-e718-44b4-8394-4d40fe26d357",
+              "group": null,
+              "uuid": "f57b8051-f9cd-4e8b-b738-1be67eeb58d2"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Extract Value From Macro Value",
+              "description": null,
+              "arguments": {
+                "last_pull_time": "{% if vars.request.env_setup %}{{vars.start_datetime}}{% else %}{% if(vars.steps.Get_Macro_Value.data[\"hydra:member\"] | length) < 1 %}     {{vars.start_datetime}}{% else %}{{vars.steps.Get_Macro_Value.data['hydra:member'][0]['value']}}{% endif %}{% endif %}",
+                "current_timestamp": "{{ arrow.utcnow().format(\"YYYY-MM-DDTHH:mm:ss.SSS\") }}Z"
+              },
+              "status": null,
+              "top": "440",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "905b8afc-5a78-4a03-980a-b593b8baeacc"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Fetch Alerts",
+              "description": null,
+              "arguments": {
+                "name": "ElasticSearch",
+                "config": "d0846fc3-2300-4129-a041-7f3a48a0d437",
+                "params": {
+                  "end": "{{vars.current_timestamp}}",
+                  "port": 5601,
+                  "size": "{{vars.size}}",
+                  "query": "{\n  \"bool\": {\n    \"filter\": [\n      {\n        \"match\": {\n          \"signal.status\": \"open\"\n        }\n      },\n      {\n        \"range\": {\n          \"signal.rule.risk_score\": {\n            \"gte\": 70\n          }\n        }\n      }\n    ]\n  }\n}",
+                  "start": "{{vars.last_pull_time}}"
+                },
+                "version": "4.0.0",
+                "connector": "elasticsearch",
+                "operation": "get_alerts_list",
+                "ignore_errors": false,
+                "operationTitle": "Get Alerts List",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "700",
+              "left": "120",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "41d56879-e48a-47d5-bebd-2273eb273450"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Fetch Sample Alert",
+              "description": null,
+              "arguments": {
+                "name": "ElasticSearch",
+                "config": "d0846fc3-2300-4129-a041-7f3a48a0d437",
+                "params": {
+                  "end": "{{vars.current_timestamp}}",
+                  "port": 5601,
+                  "query": "{\n  \"bool\": {\n    \"filter\": [\n      {\n        \"match\": {\n          \"signal.status\": \"open\"\n        }\n      },\n      {\n        \"range\": {\n          \"signal.rule.risk_score\": {\n            \"gte\": 70\n          }\n        }\n      }\n    ]\n  }\n}",
+                  "start": "{{vars.last_pull_time}}"
+                },
+                "version": "4.0.0",
+                "connector": "elasticsearch",
+                "operation": "get_alerts_list",
+                "ignore_errors": false,
+                "operationTitle": "Get Alerts List",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "700",
+              "left": "480",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "1bd0d260-77ba-400b-a42f-c2f9aa711627"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Macro Value",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "iri": "/api/wf/api/dynamic-variable/?name={{vars.pullTimeMacro}}",
+                  "body": "",
+                  "method": "GET"
+                },
+                "version": "3.3.1",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "300",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "2971bb91-d080-4fd3-8f96-299baa389c1d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Is Data Only For Mapping",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Yes",
+                    "step_iri": "/api/3/workflow_steps/1bd0d260-77ba-400b-a42f-c2f9aa711627",
+                    "condition": "{{ vars.request.env_setup == true }}",
+                    "step_name": "Sample Fetch Alert"
+                  },
+                  {
+                    "option": "No",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/41d56879-e48a-47d5-bebd-2273eb273450",
+                    "step_name": "Fetch Alert"
+                  }
+                ],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "570",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "c5d7019a-6849-48e5-8b28-e61aa13e81ae"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set Result",
+              "description": null,
+              "arguments": {
+                "macro_name": "{{vars.pullTimeMacro}}",
+                "updated_last_pull_time": "{{vars.current_timestamp}}"
+              },
+              "status": null,
+              "top": "960",
+              "left": "120",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "4ac51dbe-3270-4e79-9462-bdcd6cd00682"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  },
+                  "_configuration_schema": "[\n  {\n    \"title\": \"Fetch Alerts Since\",\n    \"required\": true,\n    \"editable\": true,\n    \"visible\": true,\n    \"type\": \"datetime\",\n    \"name\": \"start_datetime\",\n    \"sub_title\": \"Select a date and time to retrieve alerts from the ElasticSearch server for the specified time.\",\n    \"tooltip\": \"Specify the timeframe in minutes to pull the alert from the ElasticSearch server for the first time.\"\n  },\n  {\n    \"title\": \"Status\",\n    \"name\": \"status\",\n    \"type\": \"select\",\n    \"description\": \"Specify the alert status by which you want to filter the alerts.\",\n    \"tooltip\": \"Specify the alert status by which you want to filter the alerts.\",\n    \"required\": false,\n    \"visible\": true,\n    \"editable\": true,\n    \"options\": [\n      \"open\",\n      \"in-progress\",\n      \"acknowledged\",\n      \"closed\"\n    ],\n    \"value\": \"open\"\n  },\n  {\n    \"title\": \"Maximum Records to Fetch\",\n    \"required\": false,\n    \"editable\": true,\n    \"visible\": true,\n    \"type\": \"integer\",\n    \"name\": \"size\",\n    \"value\": 100,\n    \"tooltip\": \"The maximum number of records to return.\",\n    \"description\": \"Maximum number of records that this operation should return.\"\n  }\n]"
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "300",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "0b02ad49-f2b1-4732-a030-564b1c1930f7"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Store Final Result",
+              "description": null,
+              "arguments": {
+                "data": "{{vars.steps.Fetch_Sample_Alert.data.hits.hits}}"
+              },
+              "status": null,
+              "top": "840",
+              "left": "480",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "d032ecd4-6618-4510-9527-f50e51616cb7"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Configuration -> Get Macro Value",
+              "targetStep": "/api/3/workflow_steps/2971bb91-d080-4fd3-8f96-299baa389c1d",
+              "sourceStep": "/api/3/workflow_steps/a875e63c-0750-4904-aa59-db8d5ff78726",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "a444aac0-e35f-45e1-bce7-a0dfce706259"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create Assets -> Set Result",
+              "targetStep": "/api/3/workflow_steps/4ac51dbe-3270-4e79-9462-bdcd6cd00682",
+              "sourceStep": "/api/3/workflow_steps/f57b8051-f9cd-4e8b-b738-1be67eeb58d2",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "2ef10711-eedb-4d5a-b774-f930351a9071"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Extract Value From Macro Value -> Is Data Only For mapping",
+              "targetStep": "/api/3/workflow_steps/c5d7019a-6849-48e5-8b28-e61aa13e81ae",
+              "sourceStep": "/api/3/workflow_steps/905b8afc-5a78-4a03-980a-b593b8baeacc",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "a92cbf15-e260-4015-a5c0-8873fef6fc19"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch Alert -> Create Record",
+              "targetStep": "/api/3/workflow_steps/f57b8051-f9cd-4e8b-b738-1be67eeb58d2",
+              "sourceStep": "/api/3/workflow_steps/41d56879-e48a-47d5-bebd-2273eb273450",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "7fe14739-53cd-40fb-ab24-28f7296b9399"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch Sample Alert -> Store Final Result",
+              "targetStep": "/api/3/workflow_steps/d032ecd4-6618-4510-9527-f50e51616cb7",
+              "sourceStep": "/api/3/workflow_steps/1bd0d260-77ba-400b-a42f-c2f9aa711627",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "82f5c933-5d19-49b0-922d-3d2a2f1bab0d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Macro Value -> Extract Value From Macro Value",
+              "targetStep": "/api/3/workflow_steps/905b8afc-5a78-4a03-980a-b593b8baeacc",
+              "sourceStep": "/api/3/workflow_steps/2971bb91-d080-4fd3-8f96-299baa389c1d",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f621adc1-b610-429c-9331-c96ba812cca3"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Is Data Only For Mapping -> Fetch Alert",
+              "targetStep": "/api/3/workflow_steps/41d56879-e48a-47d5-bebd-2273eb273450",
+              "sourceStep": "/api/3/workflow_steps/c5d7019a-6849-48e5-8b28-e61aa13e81ae",
+              "label": "No",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "34369dbc-f23e-4163-b50b-db447b660e1a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Is Data Only For Mapping -> Sample Fetch Alert",
+              "targetStep": "/api/3/workflow_steps/1bd0d260-77ba-400b-a42f-c2f9aa711627",
+              "sourceStep": "/api/3/workflow_steps/c5d7019a-6849-48e5-8b28-e61aa13e81ae",
+              "label": "Yes",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "3da3f1f2-007b-4b8b-82ae-2218e63def60"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Configuration",
+              "targetStep": "/api/3/workflow_steps/a875e63c-0750-4904-aa59-db8d5ff78726",
+              "sourceStep": "/api/3/workflow_steps/0b02ad49-f2b1-4732-a030-564b1c1930f7",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "639addce-3ad9-4519-84f8-929512402585"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "a85ab4e8-ef62-4c89-a905-70d4c3201d3c",
+          "id": 418,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "create",
+            "dataingestion",
+            "elasticsearch",
+            "fetch"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Saved Search",
+          "aliasName": null,
+          "tag": "#ElasticSearch",
+          "description": "Get the saved search",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1742968395,
+          "collection": "/api/3/workflow_collections/c273e0fc-9c78-4045-955b-75729b802e7a",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/7a9d1d18-ebd3-499d-a1fb-9175dc1cbf86",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Saved Search",
+              "description": null,
+              "arguments": {
+                "name": "ElasticSearch",
+                "config": "29c30709-0c8b-40fa-a98c-da64211dd847",
+                "params": {
+                  "port": 5601,
+                  "object_id": "c8048500-9ace-11e8-87db-dd95d9d6240f"
+                },
+                "version": "4.0.0",
+                "connector": "elasticsearch",
+                "operation": "get_saved_search",
+                "operationTitle": "Get Saved Search",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "180",
+              "left": "240",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "6e4cc7a4-be19-4fb7-8cf9-d8d5252a8e70"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "a2689ea2-32cc-4f3d-af1b-0c0856b3c59e",
+                "title": "#ElasticSearch: Get Saved Search",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "triggerOnReplicate": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "7a9d1d18-ebd3-499d-a1fb-9175dc1cbf86"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Saved Search",
+              "targetStep": "/api/3/workflow_steps/6e4cc7a4-be19-4fb7-8cf9-d8d5252a8e70",
+              "sourceStep": "/api/3/workflow_steps/7a9d1d18-ebd3-499d-a1fb-9175dc1cbf86",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1c15e818-d7f9-406d-b5f2-f90f177372ee"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "adfc481b-c4da-4a0d-91b2-f35f3c2dabcc",
+          "id": 419,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "ElasticSearch"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "ElasticSearch > Ingest",
+          "aliasName": null,
+          "tag": null,
+          "description": "Ingest alert from ElasticSearch Server and Creates alerts in FortiSOAR.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1743137997,
+          "collection": "/api/3/workflow_collections/c273e0fc-9c78-4045-955b-75729b802e7a",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/c1bce2e3-063a-4665-adef-c2708ab17bd0",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Fetch and Create Alert",
+              "description": null,
+              "arguments": {
+                "arguments": [],
+                "apply_async": false,
+                "step_variables": [],
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/a85ab4e8-ef62-4c89-a905-70d4c3201d3c"
+              },
+              "status": null,
+              "top": "165",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "73496a3d-4c83-486f-abd6-c107dbf16b85"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "__triggerLimit": true,
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false
+              },
+              "status": null,
+              "top": "30",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "c1bce2e3-063a-4665-adef-c2708ab17bd0"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Last Pull Time",
+              "description": null,
+              "arguments": {
+                "params": {
+                  "macro": "{{vars.steps.Fetch_and_Create_Alert.macro_name}}",
+                  "value": "{{vars.steps.Fetch_and_Create_Alert.updated_last_pull_time}}"
+                },
+                "version": "3.5.0",
+                "connector": "cyops_utilities",
+                "operation": "updatemacro",
+                "operationTitle": "FSR: Create/Update Global Variables",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "300",
+              "left": "125",
+              "stepType": "/api/3/workflow_step_types/0109f35d-090b-4a2b-bd8a-94cbc3508562",
+              "group": null,
+              "uuid": "08bf3e24-a096-44a4-a415-a0121aaa07bb"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch and Create Devices -> Update Last Pull Time",
+              "targetStep": "/api/3/workflow_steps/08bf3e24-a096-44a4-a415-a0121aaa07bb",
+              "sourceStep": "/api/3/workflow_steps/73496a3d-4c83-486f-abd6-c107dbf16b85",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "dd71594f-1f1e-42e2-8c48-b6ab4ef09b6e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Fetch and Create Alert",
+              "targetStep": "/api/3/workflow_steps/73496a3d-4c83-486f-abd6-c107dbf16b85",
+              "sourceStep": "/api/3/workflow_steps/c1bce2e3-063a-4665-adef-c2708ab17bd0",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "421f7078-e72d-44fd-8eaa-e5a2355340c4"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "bb5318f6-36cd-41a7-b236-0168961f9b04",
+          "id": 420,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "dataingestion",
+            "elasticsearch",
+            "ingest"
+          ]
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Assign or Unassign Users from Alerts",
+          "aliasName": null,
+          "tag": "#ElasticSearch",
+          "description": "Assign or Unassign Users from Alert in ElasticSearch/Kibana.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1743162145,
+          "collection": "/api/3/workflow_collections/c273e0fc-9c78-4045-955b-75729b802e7a",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/291d5ff7-fe56-41fd-96a8-be21ee55442b",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Assign or Unassign Users from Alerts",
+              "description": null,
+              "arguments": {
+                "name": "ElasticSearch",
+                "config": "29c30709-0c8b-40fa-a98c-da64211dd847",
+                "params": {
+                  "add": "u_o4kzon2tUP0u189YjKVT0rTR_HBOED3JmyLLE6MrulY_0",
+                  "ids": "854f5eceeec1b4cd5495ad18c4259d6e5631a6677bc10c033edb318397d45459,00968e97805854d0aa356968cad971d5184cdf91ebd458720c5b4099f4a5229a",
+                  "port": 5601,
+                  "remove": "u_P4HW8xg4_xRVI7Oa-i6Ys1Gxe7k3jqZteAeZe6ZctEc_0"
+                },
+                "version": "4.0.0",
+                "connector": "elasticsearch",
+                "operation": "assign_unassign_users_from_alert",
+                "operationTitle": "Assign or Unassign Users from Alerts",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "180",
+              "left": "240",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "d2b18e5f-faa0-459e-ad0b-0517f8131775"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "17227801-ca80-444f-a65d-8fdd0deeea95",
+                "title": "#ElasticSearch: Assign or Unassign Users from Alerts",
+                "resources": [
+                  "alerts"
+                ],
+                "__triggerLimit": true,
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": true,
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "triggerOnReplicate": false,
+                "singleRecordExecution": false
+              },
+              "status": null,
+              "top": "20",
+              "left": "20",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "291d5ff7-fe56-41fd-96a8-be21ee55442b"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get Saved Search",
+              "targetStep": "/api/3/workflow_steps/d2b18e5f-faa0-459e-ad0b-0517f8131775",
+              "sourceStep": "/api/3/workflow_steps/291d5ff7-fe56-41fd-96a8-be21ee55442b",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1b2759c6-1cb0-465d-91c6-5c92b4a00895"
+            }
+          ],
+          "groups": [],
+          "priority": null,
+          "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "isEditable": true,
+          "uuid": "ffb51c51-c231-4621-b4fe-6c0a2dbb41bc",
+          "id": 421,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": [
+            "ElasticSearch"
+          ]
+        }
+      ]
+    }
+  ],
+  "exported_tags": [
+    "ElasticSearch",
+    "create",
+    "dataingestion",
+    "elasticsearch",
+    "fetch",
+    "ingest"
+  ]
+}
