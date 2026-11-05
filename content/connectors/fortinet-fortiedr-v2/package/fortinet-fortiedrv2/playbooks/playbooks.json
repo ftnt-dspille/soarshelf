@@ -1,0 +1,952 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [
+    "fortinet-fortiedrv2",
+    "Fortinet",
+    "dataingestion",
+    "fetch",
+    "create",
+    "ingest"
+  ],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Sample - Fortinet FortiEDR v2 - 1.1.15",
+      "description": "Sample playbooks for the \"Fortinet FortiEDR v2\" connector. If you are planning to use the sample playbooks in your environment, ensure that you clone those playbooks and move them to a different collection, since the sample playbook collection gets deleted during connector upgrade and delete.",
+      "visible": true,
+      "image": null,
+      "uuid": "aabb84b3-376d-57b4-bc00-705b59935b8b",
+      "recordTags": [
+        "fortinet-fortiedrv2",
+        "Fortinet",
+        "dataingestion"
+      ],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": ">> FortiEDR v2 > Init Macros",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [
+            "fortinet-fortiedrv2",
+            "dataingestion"
+          ],
+          "description": "Creates the FortiEDR last-pull-time macro if it does not already exist. Called by Fetch during the wizard's environment-setup pass, and by Fetch whenever the macro is missing.",
+          "isActive": true,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "FortiEDRMacroName",
+            "FortiEDRMacroValue",
+            "overrideIfNoMatch"
+          ],
+          "synchronous": false,
+          "lastModifyDate": 1793880721.6417875,
+          "collection": "/api/3/workflow_collections/aabb84b3-376d-57b4-bc00-705b59935b8b",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/3d19bc3a-d875-589d-8c37-7a2aae594740",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "3d19bc3a-d875-589d-8c37-7a2aae594740"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get FortiEDR Macros",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "config": "",
+                "params": {
+                  "iri": "/api/wf/api/dynamic-variable/?format=json&name={{vars.input.params.FortiEDRMacroName}}",
+                  "body": "",
+                  "method": "GET"
+                },
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "05f37881-850c-5292-833c-5a485748a3d8"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "FortiEDR Macro Exists",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Not Exist",
+                    "condition": "{{ vars.steps.Get_FortiEDR_Macros.data['hydra:totalItems'] == 0 }}",
+                    "step_iri": "/api/3/workflow_steps/72657152-730c-5710-bb55-a387f0aa56a2",
+                    "step_name": "Create FortiEDR Macro"
+                  },
+                  {
+                    "option": "Exist",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/94fd7806-98e7-530e-9488-5c65113a613f",
+                    "step_name": "Fetch Macro Current Value"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "70e1f81a-a710-59a9-bebe-3698d498881d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create FortiEDR Macro",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "config": "",
+                "params": {
+                  "iri": "/api/wf/api/dynamic-variable/?format=json",
+                  "body": "{ 'name': '{{vars.input.params.FortiEDRMacroName}}', 'value': '{{vars.input.params.FortiEDRMacroValue}}' }",
+                  "method": "POST"
+                },
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "72657152-730c-5710-bb55-a387f0aa56a2"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Fetch Macro Current Value",
+              "description": null,
+              "arguments": {
+                "macroExistingRecord": "{{vars.steps.Get_FortiEDR_Macros.data['hydra:member'][0]}}"
+              },
+              "status": null,
+              "top": "510",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "94fd7806-98e7-530e-9488-5c65113a613f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Macro If Required",
+              "description": null,
+              "arguments": {
+                "when": "{{ (vars.input.params.overrideIfNoMatch == true) and (vars.macroExistingRecord.value != vars.input.params.FortiEDRMacroValue) }}",
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "config": "",
+                "params": {
+                  "iri": "/api/wf/api/dynamic-variable/{{ vars.macroExistingRecord.id }}/",
+                  "body": "{ 'name': '{{vars.input.params.FortiEDRMacroName}}', 'value': '{{vars.input.params.FortiEDRMacroValue}}' }",
+                  "method": "PUT"
+                },
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "640",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "4ba537b1-3721-5bd6-8e62-b71f0b6310de"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Get FortiEDR Macros",
+              "targetStep": "/api/3/workflow_steps/05f37881-850c-5292-833c-5a485748a3d8",
+              "sourceStep": "/api/3/workflow_steps/3d19bc3a-d875-589d-8c37-7a2aae594740",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "db05ff3d-de6f-5318-9498-44ded540239d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get FortiEDR Macros -> FortiEDR Macro Exists",
+              "targetStep": "/api/3/workflow_steps/70e1f81a-a710-59a9-bebe-3698d498881d",
+              "sourceStep": "/api/3/workflow_steps/05f37881-850c-5292-833c-5a485748a3d8",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "8b2c264e-7656-565e-b56b-d9fa8e951173"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "FortiEDR Macro Exists -> Create FortiEDR Macro",
+              "targetStep": "/api/3/workflow_steps/72657152-730c-5710-bb55-a387f0aa56a2",
+              "sourceStep": "/api/3/workflow_steps/70e1f81a-a710-59a9-bebe-3698d498881d",
+              "label": "Not Exist",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "eb40aa7b-2a96-5029-839b-4d41307d3ee5"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "FortiEDR Macro Exists -> Fetch Macro Current Value",
+              "targetStep": "/api/3/workflow_steps/94fd7806-98e7-530e-9488-5c65113a613f",
+              "sourceStep": "/api/3/workflow_steps/70e1f81a-a710-59a9-bebe-3698d498881d",
+              "label": "Exist",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "358c8eb5-f4dc-598b-aef5-78c2f0d0db51"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch Macro Current Value -> Update Macro If Required",
+              "targetStep": "/api/3/workflow_steps/4ba537b1-3721-5bd6-8e62-b71f0b6310de",
+              "sourceStep": "/api/3/workflow_steps/94fd7806-98e7-530e-9488-5c65113a613f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f742dd18-5052-5017-abcc-aa4a7ea36bec"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "playbookOrigin": null,
+          "isEditable": true,
+          "uuid": "e235fd46-df7f-552a-9846-1a5e62dbb614",
+          "owners": [],
+          "isPrivate": false
+        },
+        {
+          "@type": "Workflow",
+          "name": "> FortiEDR v2 > Fetch",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [
+            "fortinet-fortiedrv2",
+            "fetch",
+            "dataingestion"
+          ],
+          "description": "Reads the last-pull-time watermark and reads the FortiEDR events whose activity (Last Seen, by default) falls inside the window since it. The first run, and any run after the macro was lost, reads the Initial Backfill Range instead.",
+          "isActive": true,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1793880721.6417875,
+          "collection": "/api/3/workflow_collections/aabb84b3-376d-57b4-bc00-705b59935b8b",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/7e084065-73dc-54c8-a7a5-6a3ca961715b",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  },
+                  "_configuration_schema": "[{\"title\": \"Initial Backfill Range (minutes)\", \"required\": true, \"editable\": true, \"visible\": true, \"type\": \"select\", \"name\": \"fetch_last_minutes\", \"options\": [\"20\", \"60\", \"360\", \"1440\", \"10080\", \"43200\"], \"value\": \"60\", \"tooltip\": \"How many minutes back the first run reads, before a last-pull-time watermark exists. Later runs read from the watermark.\"}, {\"title\": \"Time Field\", \"required\": true, \"editable\": true, \"visible\": true, \"type\": \"select\", \"name\": \"time_field\", \"options\": [\"Last Seen (activity)\", \"First Seen (creations only)\"], \"value\": \"Last Seen (activity)\", \"tooltip\": \"Last Seen (activity) fetches every event created or re-triggered in the window. FortiEDR links a re-detection of the same process into the existing event, whose firstSeen never moves -- use First Seen (creations only) only if you want the shipped connector's created-only behavior, which misses re-triggered events.\"}, {\"title\": \"Maximum Events Per Run\", \"required\": false, \"editable\": true, \"visible\": true, \"type\": \"text\", \"name\": \"max_events\", \"value\": \"10\", \"tooltip\": \"Safety cap on one run's window. A window whose event count exceeds it fails the run instead of silently skipping events. The 10 default suits a lab tenant -- raise it to fit real pull volume, or shorten the schedule, rather than let it bind.\"}, {\"title\": \"Classifications (optional)\", \"required\": false, \"editable\": true, \"visible\": true, \"type\": \"text\", \"name\": \"classifications\", \"value\": \"\", \"tooltip\": \"Comma-separated event classifications to pull, e.g. Malicious,Suspicious. Leave blank to pull everything. IMPORTANT: the pull watermark advances past events a filter excludes -- set filters before the first pull and keep them stable, or events skipped by earlier pulls are never re-read.\"}, {\"title\": \"Severities (optional)\", \"required\": false, \"editable\": true, \"visible\": true, \"type\": \"text\", \"name\": \"severities\", \"value\": \"\", \"tooltip\": \"Comma-separated severities to pull, e.g. Critical,High. Leave blank to pull every severity.\"}, {\"title\": \"Device Name (optional)\", \"required\": false, \"editable\": true, \"visible\": true, \"type\": \"text\", \"name\": \"device\", \"value\": \"\", \"tooltip\": \"Pull only events reported by collectors on this device name. Leave blank to pull events from every device.\"}, {\"title\": \"Collector Groups (optional)\", \"required\": false, \"editable\": true, \"visible\": true, \"type\": \"text\", \"name\": \"collector_groups\", \"value\": \"\", \"tooltip\": \"Comma-separated collector group names to pull from, e.g. GroupA,GroupB. Leave blank to pull from every group.\"}, {\"title\": \"Include Command Timeline\", \"required\": false, \"editable\": true, \"visible\": true, \"type\": \"select\", \"name\": \"include_command_timeline\", \"options\": [\"false\", \"true\"], \"value\": \"false\", \"tooltip\": \"Enrich every ingested event with the console's command timeline (the process/cmd stacks behind the detection: what triggered what, with command lines). One extra console call per event; the trimmed timeline is stored in the alert's sourcedata. Leave false for very large backfill windows.\"}]"
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "7e084065-73dc-54c8-a7a5-6a3ca961715b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Configuration",
+              "description": null,
+              "arguments": {
+                "fetch_last_minutes": "60",
+                "time_field": "Last Seen (activity)",
+                "max_events": "10",
+                "classifications": "",
+                "severities": "",
+                "device": "",
+                "collector_groups": "",
+                "include_command_timeline": "false",
+                "FortiEDRMacroName": "FortiEDRLastEventPullTime_{{vars['audit_info']['cyops_playbook_iri'].split('/')[-1].replace('-','_')}}"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "cb60cd13-52e7-51bb-b951-a2625b71275f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Macro Value",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "make_cyops_request",
+                "config": "",
+                "params": {
+                  "iri": "/api/wf/api/dynamic-variable/?format=json&name={{vars.FortiEDRMacroName}}",
+                  "body": "",
+                  "method": "GET"
+                },
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "FSR: Make FortiSOAR API Call",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "88e8b7ec-ffc9-5f0a-b524-55f301d088ae"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Environment Setup",
+              "description": null,
+              "arguments": {
+                "when": "{{ vars.request.env_setup or not vars.steps.Get_Macro_Value.data[\"hydra:member\"] }}",
+                "apply_async": false,
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "arguments": {
+                  "FortiEDRMacroName": "{{vars.FortiEDRMacroName}}",
+                  "FortiEDRMacroValue": "0",
+                  "overrideIfNoMatch": "false"
+                },
+                "workflowReference": "/api/3/workflows/e235fd46-df7f-552a-9846-1a5e62dbb614"
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "b345bb9d-4d00-5dbb-b23e-df6427757514"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set Time Configuration",
+              "description": null,
+              "arguments": {
+                "curr_timestamp": "{{ arrow.utcnow().shift(seconds=-60).format('YYYY-MM-DD HH:mm:ss') }}",
+                "last_pull_time": "{% if vars.request.env_setup or not vars.steps.Get_Macro_Value.data['hydra:member'] or vars.steps.Get_Macro_Value.data['hydra:member'][0].value == '0' %}{% else %}{{ vars.steps.Get_Macro_Value.data['hydra:member'][0].value }}{% endif %}",
+                "window_from": "{% if vars.last_pull_time %}{{ vars.last_pull_time }}{% else %}{{ arrow.utcnow().shift(minutes=-(vars.fetch_last_minutes|int)).format('YYYY-MM-DD HH:mm:ss') }}{% endif %}"
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "915914bb-73c7-5f4f-9ec7-5b6c30e02b75"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Ingest Events",
+              "description": null,
+              "arguments": {
+                "connector": "fortinet-fortiedrv2",
+                "operation": "ingest_events",
+                "operationTitle": "Ingest Events",
+                "config": "",
+                "params": {
+                  "from": "{{vars.window_from}}",
+                  "to": "{{vars.curr_timestamp}}",
+                  "time_field": "{{vars.time_field}}",
+                  "max_events": "{{vars.max_events}}",
+                  "classifications": "{{vars.classifications}}",
+                  "severities": "{{vars.severities}}",
+                  "device": "{{vars.device}}",
+                  "collector_groups": "{{vars.collector_groups}}",
+                  "include_command_timeline": "{{vars.include_command_timeline}}"
+                },
+                "version": "1.1.11",
+                "name": "Fortinet FortiEDR v2",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "770",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "a787fb04-0132-5f99-80c7-1e3b806c4194"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Save Result",
+              "description": null,
+              "arguments": {
+                "data": "{{vars.steps.Ingest_Events.data}}",
+                "current_time": "{{vars.curr_timestamp}}",
+                "FortiEDRMacroName": "{{vars.FortiEDRMacroName}}"
+              },
+              "status": null,
+              "top": "900",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "a971fc69-4b98-5a6a-906d-a9d319a58bfe"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Configuration",
+              "targetStep": "/api/3/workflow_steps/cb60cd13-52e7-51bb-b951-a2625b71275f",
+              "sourceStep": "/api/3/workflow_steps/7e084065-73dc-54c8-a7a5-6a3ca961715b",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "2c474313-7c77-5380-8879-6c3c69cd19d7"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Configuration -> Get Macro Value",
+              "targetStep": "/api/3/workflow_steps/88e8b7ec-ffc9-5f0a-b524-55f301d088ae",
+              "sourceStep": "/api/3/workflow_steps/cb60cd13-52e7-51bb-b951-a2625b71275f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "19f83143-2c18-532d-9cd5-4adae5a103cd"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Macro Value -> Environment Setup",
+              "targetStep": "/api/3/workflow_steps/b345bb9d-4d00-5dbb-b23e-df6427757514",
+              "sourceStep": "/api/3/workflow_steps/88e8b7ec-ffc9-5f0a-b524-55f301d088ae",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "c565bea9-e1f1-5339-a441-48c4c9565559"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Environment Setup -> Set Time Configuration",
+              "targetStep": "/api/3/workflow_steps/915914bb-73c7-5f4f-9ec7-5b6c30e02b75",
+              "sourceStep": "/api/3/workflow_steps/b345bb9d-4d00-5dbb-b23e-df6427757514",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "a2ffe202-e33a-5ee5-a1c8-28c79a1f4b86"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set Time Configuration -> Ingest Events",
+              "targetStep": "/api/3/workflow_steps/a787fb04-0132-5f99-80c7-1e3b806c4194",
+              "sourceStep": "/api/3/workflow_steps/915914bb-73c7-5f4f-9ec7-5b6c30e02b75",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "533c41c5-4ea1-57c0-8205-742436b38084"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Ingest Events -> Save Result",
+              "targetStep": "/api/3/workflow_steps/a971fc69-4b98-5a6a-906d-a9d319a58bfe",
+              "sourceStep": "/api/3/workflow_steps/a787fb04-0132-5f99-80c7-1e3b806c4194",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ee222b7c-6a34-5c22-840e-47122bfa8ecc"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Configuration",
+              "description": "Wizard-editable defaults. `fetch_last_minutes` is the backfill window\nused while the watermark is missing or '0'. The macro name is scoped to\nthis playbook's UUID, so two ingestion configurations never share a\nwatermark. `max_events` fails a run whose window exceeds it -- the\nwindow fetch is count-verified and never paged, so a partial read\nmust never advance the watermark.\n\nThe four blank filter keys are the wizard's optional pull filters\n(the Data Ingestion Wizard writes the analyst's edited values into\nthis step's variables -- the shipped-connector contract: schema\nfield names 1:1 the keys here). Blanks mean \"pull everything\": the\nconnector drops empty filters, so the default configuration's pull\nis unfiltered.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "250",
+              "left": "540",
+              "height": "360",
+              "width": "440",
+              "uuid": "c6c795d2-d853-510a-84d3-16856ff947d7",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Environment Setup",
+              "description": "Runs when the watermark macro does not exist yet, not only on the\nwizard's `vars.request.env_setup` first pass. It must come AFTER Get\nMacro Value so its absence can be seen: Update Last Pull Time only\nupdates the macro, it does not create it, so a missing macro would\notherwise leave the watermark unwritten and every run would read the\nbackfill window again without any error.\nThe macro is primed to '0', which Set Time Configuration reads as a\ncold start.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "630",
+              "left": "540",
+              "height": "358",
+              "width": "440",
+              "uuid": "90fabc6a-b336-5515-99c1-12e689f4288a",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Set Time Configuration",
+              "description": "`curr_timestamp` is the end of this run's window, 60 seconds behind the\nclock (see the block comment above) and in the management API's native\n`YYYY-MM-DD HH:MM:SS` (UTC) format. It is written back to the macro only\nafter Ingest succeeds, so a failed run reads its window again.\n`last_pull_time` is empty on a cold start (macro missing, or '0'); the\nrun then computes `window_from` as now minus `fetch_last_minutes`.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1008",
+              "left": "540",
+              "height": "314",
+              "width": "440",
+              "uuid": "a853e8aa-986c-5a99-a3dd-03536126debf",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Ingest Events",
+              "description": "The connector op pages through the events itself (up to Maximum Events\nPer Run) and returns each one already mapped to an alert payload:\nexternal_id = eventId, severity clamped to the Severity picklist,\nprocess/device/destinations split into their own keys, and the raw\nevent kept in source_payload.\n\nThe filter carry-through (classifications, severities, device,\ncollector_groups) rides the same op: blank values are dropped by\nthe connector, so an unconfigured wizard's pull stays unfiltered.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1342",
+              "left": "540",
+              "height": "360",
+              "width": "440",
+              "uuid": "1c82e9aa-8453-5a9d-8290-01df9c1eb261",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Save Result",
+              "description": "The Fetch -> Ingest contract. Ingest reads every one of these back off\nthe workflow_reference step (\"Fetch Events\") as\n`vars.steps.Fetch_Events.<key>`.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1722",
+              "left": "540",
+              "height": "138",
+              "width": "440",
+              "uuid": "c796389d-084d-5d19-bfa0-ec05d1563af5",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "playbookOrigin": null,
+          "isEditable": true,
+          "uuid": "3b1e0d87-d913-5d66-805d-d53d094228fe",
+          "owners": [],
+          "isPrivate": false
+        },
+        {
+          "@type": "Workflow",
+          "name": "FortiEDR v2 > Ingest",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [
+            "fortinet-fortiedrv2",
+            "ingest",
+            "dataingestion",
+            "create"
+          ],
+          "description": "Orchestrator: calls Fetch, then either returns a sample record for the wizard's Data Mapping preview (env_setup mode) or creates one alert per FortiEDR event and advances the last-pull-time watermark.",
+          "isActive": true,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1793880721.6417875,
+          "collection": "/api/3/workflow_collections/aabb84b3-376d-57b4-bc00-705b59935b8b",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/2960f926-7f34-57b0-9aca-d811fefb8a29",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "title": "FortiEDR v2 > Ingest",
+                "resources": [
+                  "alerts"
+                ],
+                "route": "b650c962-4f06-5372-b678-acf2f662aeb7",
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false,
+                "noRecordExecution": true,
+                "singleRecordExecution": false,
+                "__triggerLimit": true,
+                "executeButtonText": "Execute",
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "2960f926-7f34-57b0-9aca-d811fefb8a29"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Fetch Events",
+              "description": null,
+              "arguments": {
+                "apply_async": false,
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "workflowReference": "/api/3/workflows/3b1e0d87-d913-5d66-805d-d53d094228fe"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "1447a975-e6cf-5887-a35b-cd3a468cc53d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Mapping Preview",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Mapping Preview",
+                    "condition": "{{ vars.request.env_setup | default(false) | bool }}",
+                    "step_iri": "/api/3/workflow_steps/886508fa-d33d-53f3-bd92-c6d736dfbf19",
+                    "step_name": "Return Sample"
+                  },
+                  {
+                    "option": "Ingest",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/95b3f641-a2fe-51ad-a174-f7118baa354b",
+                    "step_name": "Configuration"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "f2f996da-462a-5686-82b4-c9c193754953"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Return Sample",
+              "description": null,
+              "arguments": {
+                "sample": "{% if vars.steps.Fetch_Events.data | default([]) | length > 0 %} {{ vars.steps.Fetch_Events.data[0] }} {% else %} {{ { 'name': 'cloud.exe - Rozena.ABV!tr on lab-endpoint-01', 'external_id': '1493703', 'severity': 'Critical', 'alert_state': 'New', 'status': 'Open', 'alert_type': 'Command and Control', 'classification': 'Malicious', 'source': 'Fortinet FortiEDR', 'source_ip': '203.0.113.5', 'source_hostname': 'lab-endpoint-01', 'dest_ips': '198.51.100.7', 'dest_ip': '198.51.100.7', 'user_names': 'labuser', 'primary_user': 'labuser', 'process_owner': 'labuser', 'process_type': 'EXE', 'analyst_comment': '', 'threat_name': 'Rozena.ABV!tr', 'rule': 'Exfiltration Detected', 'process_name': 'cloud.exe', 'process_path': 'C:/Users/Public/cloud.exe', 'card': { 'description': 'cloud.exe on lab-endpoint-01 - rich-text card rendered from the event payload' }, 'alert_generation_epoch': 1789992300, 'last_observed_epoch': 1789992330, 'event_count': 1, 'command_timeline': { 'stacks': [] }, 'source_payload': { 'eventId': 1493703, 'process': 'cloud.exe', 'severity': 'Critical' } } }} {% endif %}"
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "886508fa-d33d-53f3-bd92-c6d736dfbf19"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Configuration",
+              "description": null,
+              "arguments": {
+                "incident_source_data": "{{ vars.steps.Fetch_Events.data }}",
+                "FortiEDRMacroName": "{{ vars.steps.Fetch_Events.FortiEDRMacroName }}"
+              },
+              "status": null,
+              "top": "510",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "95b3f641-a2fe-51ad-a174-f7118baa354b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Create Record",
+              "description": null,
+              "arguments": {
+                "operation": "Overwrite",
+                "resource": {
+                  "name": "{{ vars.item.name | truncate(200) }}",
+                  "source": "Fortinet FortiEDR",
+                  "sourceId": "{{ vars.item.external_id }}",
+                  "severity": "{{ \"Severity\" | picklist(vars.item.severity | default(\"Medium\")) }}",
+                  "type": "{{ \"AlertType\" | picklist(vars.item.alert_type | default(\"Other / Unknown\")) }}",
+                  "sourceType": "{{ vars.item.classification | default(\"\") }}",
+                  "alertDetectionDate": "{{ vars.item.alert_generation_epoch or vars.item.last_observed_epoch }}",
+                  "eventTime": "{{ vars.item.last_observed_epoch }}",
+                  "sourceIp": "{{ vars.item.source_ip | default(\"\") }}",
+                  "hostName": "{{ vars.item.source_hostname | default(\"\") }}",
+                  "hostIPAddress": "{{ vars.item.source_ip | default(\"\") }}",
+                  "destinationIp": "{{ vars.item.dest_ip | default(\"\") }}",
+                  "rule": "{{ vars.item.rule | default(\"\") }}",
+                  "filePath": "{{ vars.item.process_path | default(\"\") }}",
+                  "userName": "{{ vars.item.primary_user | default(\"\") }}",
+                  "userDetails": "{{ vars.item.user_names | default(\"\") }}",
+                  "processName": "{{ vars.item.process_name | default(\"\") }}",
+                  "state": "{{ \"AlertState\" | picklist(\"New\") }}",
+                  "status": "{{ \"AlertStatus\" | picklist(\"Open\") }}",
+                  "description": "{{ vars.item.card.description }}",
+                  "sourcedata": "{{ vars.item | toJSON }}",
+                  "__replace": "true",
+                  "__fieldsToUpdate": "{{ ['name', 'source', 'sourceId', 'severity', 'type', 'sourceType', 'alertDetectionDate', 'eventTime', 'sourceIp', 'hostName', 'hostIPAddress', 'destinationIp', 'rule', 'filePath', 'userName', 'userDetails', 'processName', 'description', 'sourcedata'] }}"
+                },
+                "collection": "/api/3/upsert/alerts",
+                "for_each": {
+                  "item": "{{ vars.incident_source_data }}",
+                  "parallel": false,
+                  "condition": ""
+                }
+              },
+              "status": null,
+              "top": "640",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/2597053c-e718-44b4-8394-4d40fe26d357",
+              "group": null,
+              "uuid": "2421c07b-88bd-5d6c-b4b7-8fa53d642766"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Update Last Pull Time",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "updatemacro",
+                "operationTitle": "FSR: Update Global Variables",
+                "config": "",
+                "params": {
+                  "macro": "{{vars.FortiEDRMacroName}}",
+                  "value": "{{vars.steps.Fetch_Events.current_time}}"
+                },
+                "version": "3.7.2",
+                "name": "Utilities",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "770",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "38e3d9d3-e0e1-5788-89b5-4e2fcb204c25"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Fetch Events",
+              "targetStep": "/api/3/workflow_steps/1447a975-e6cf-5887-a35b-cd3a468cc53d",
+              "sourceStep": "/api/3/workflow_steps/2960f926-7f34-57b0-9aca-d811fefb8a29",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9829faa3-8576-5c4d-bde3-56ec499caa61"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch Events -> Mapping Preview",
+              "targetStep": "/api/3/workflow_steps/f2f996da-462a-5686-82b4-c9c193754953",
+              "sourceStep": "/api/3/workflow_steps/1447a975-e6cf-5887-a35b-cd3a468cc53d",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9888abbe-ddc8-5f9f-94f7-03a581061793"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Mapping Preview -> Return Sample",
+              "targetStep": "/api/3/workflow_steps/886508fa-d33d-53f3-bd92-c6d736dfbf19",
+              "sourceStep": "/api/3/workflow_steps/f2f996da-462a-5686-82b4-c9c193754953",
+              "label": "Mapping Preview",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6191cead-0105-5b97-99cd-d38fb2bd0b02"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Mapping Preview -> Configuration",
+              "targetStep": "/api/3/workflow_steps/95b3f641-a2fe-51ad-a174-f7118baa354b",
+              "sourceStep": "/api/3/workflow_steps/f2f996da-462a-5686-82b4-c9c193754953",
+              "label": "Ingest",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0a4a5009-cd66-5e0f-9cb3-85690814c07d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Configuration -> Create Record",
+              "targetStep": "/api/3/workflow_steps/2421c07b-88bd-5d6c-b4b7-8fa53d642766",
+              "sourceStep": "/api/3/workflow_steps/95b3f641-a2fe-51ad-a174-f7118baa354b",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "64510efc-e5e8-51b3-9640-4e0246770c28"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Create Record -> Update Last Pull Time",
+              "targetStep": "/api/3/workflow_steps/38e3d9d3-e0e1-5788-89b5-4e2fcb204c25",
+              "sourceStep": "/api/3/workflow_steps/2421c07b-88bd-5d6c-b4b7-8fa53d642766",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e93f4826-09ea-5cde-b925-93fcc7738eea"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Mapping Preview",
+              "description": "The Data Ingestion Wizard runs the Ingest playbook with\n`vars.request.env_setup == true` while the analyst designs the field\nmapping in the UI. In that mode the first fetched record is returned so\nthe wizard can render the Data Mapping preview; no alerts are written.\n`false` (or missing) is the real ingestion path.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "380",
+              "left": "880",
+              "height": "226",
+              "width": "440",
+              "uuid": "cfab23b4-6dd0-5f33-82a4-e97613f4dccd",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Return Sample",
+              "description": "The sample for the wizard's Data Mapping preview: the first mapped\nevent of the window, whose keys are the fields `Create Record` maps.\nFalls back to a representative record when the window is empty, so the\npreview still renders.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "626",
+              "left": "880",
+              "height": "204",
+              "width": "440",
+              "uuid": "2011e8c7-9e11-5133-a922-d68ddb18c53c",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Configuration",
+              "description": "The values the alerts take from the connector's output: the window's\nmapped events and the macro holding its watermark.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "850",
+              "left": "880",
+              "height": "116",
+              "width": "440",
+              "uuid": "7404067a-7d17-50ec-b778-5065f1adb6b2",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Create Record",
+              "description": "The step is named \"Create Record\" because the Data Ingestion Wizard's\nData Mapping page is shown only for a create playbook with a step of\nexactly that name, and it reads the target module off this step.\n\n`is_upsert` routes this at /api/3/upsert/alerts, keyed on sourceId (the\neventId). That is the dedup that makes the Last Seen window safe: a\nwindow that is read twice, or an event re-triggered and fetched again,\nupdates its existing alert instead of duplicating it. Without it the\nplain insert path 409s on the sourceId uniqueness constraint.\n\nThe connector already clamps severity and alert_type to picklist\nmembers, so the picklist filters cannot fail with an unmapped value.\nThe date is the event's firstSeen epoch (alertDetectionDate), while\nsourcedata keeps the whole mapped payload including last_observed_epoch\nand the raw event.\n\n`description` is passed WITHOUT the `| e` escape filter: the connector\nbuilds it as sanitised rich text (inline styles only), and escaping it\nhere would store visible `<table>` markup instead of rendering the\ncard. This matches the FortiSIEM v2 ingestion playbook.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "986",
+              "left": "880",
+              "height": "360",
+              "width": "440",
+              "uuid": "ef0eb11f-06a1-56a1-b3b3-6fa4a5de9280",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Update Last Pull Time",
+              "description": "Advances the watermark only after the alerts are written, so a failed\nCreate Record leaves the window to be read again.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1366",
+              "left": "880",
+              "height": "116",
+              "width": "440",
+              "uuid": "31d1f17a-e540-5b21-9fd5-912c5e4e5cf3",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "playbookOrigin": null,
+          "isEditable": true,
+          "uuid": "5f61b8a3-1de6-5d1c-b2dc-6342779a395a",
+          "owners": [],
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+title: FortiEDR detection demo
+summary: 'One import stands up a FortiEDR demo: simulated detections, a command-timeline alert view, and
+  the enrich-then-block containment chain.'
+description: |
+  A complete FortiEDR demo that runs WITHOUT a FortiEDR console connected.
+  One import installs:
+
+  - the **FortiEDR Overview** dashboard and the **Command Timeline** widget
+    mounted on the alert detail view (the `edr` layout), so every alert
+    opens on its process/command timeline;
+  - a simulated demo alert with a real captured command timeline, plus a
+    **scenario** for the SOC Simulator: click Run on
+    "FortiEDR Detection Demo" and a fresh alert is created exactly as the
+    connector would have brought it in;
+  - the [FortiEDR v2 connector](/items/fortinet-fortiedr-v2) (installed
+    from the bundle the site builds from its reviewed source) and the
+    operational **use-case playbooks**, including the containment chain.
+
+  ## Install order
+
+  1. Import this pack (it declares the Content Hub connectors its playbooks
+     call - Active Directory, FortiGate, Code Snippet, SOC Simulator - and
+     installs them automatically).
+  2. Create a configuration for the FortiEDR v2 connector (console URL,
+     username, password, organization). Without it nothing FortiEDR-side
+     runs, which is fine for the demo path below.
+  3. Optional, for the containment chain's block leg: a FortiGate
+     configuration and an Active Directory configuration. Both legs fail
+     soft - a missing side tool is recorded as an alert comment, it never
+     kills the run.
+
+  ## The demo
+
+  Open the scenario "FortiEDR Detection Demo" and click **Run Scenario**:
+  the SOC Simulator creates a fresh alert with the timeline attached. Open
+  it, read the timeline, then run the "FortiEDR v2 > Containment Chain"
+  playbook on it: it enriches the user in Active Directory and (with the
+  FortiGate leg configured) blocks the source IP at the gate.
+
+  Tested on FortiSOAR 8.0.1.
+use_cases:
+- triage
+- containment
+- ingestion
+tags:
+- fortiedr
+- edr
+- demo
+- soc-simulator
+author: ftnt-dspille
+version: 1.0.0
+min_version: 8.0.0
+license: MIT
+published: '2026-11-05'
+author_id: 99558074
+tested:
+- platform: 8.0.1
+  version: 1.0.0
+  result: imported
+  sha256: 0cf650750c0f9ca0a4807a7a804a278e194eb54cc22aad1f460fe88652f7c0c9

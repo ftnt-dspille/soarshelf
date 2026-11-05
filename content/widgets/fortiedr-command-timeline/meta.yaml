@@ -1,0 +1,32 @@
+title: FortiEDR Command Timeline
+summary: The process/cmd timeline behind a FortiEDR alert, rendered from the timeline stored in the alert's
+  sourcedata.
+description: |
+  Renders the command timeline a FortiEDR detection carries - the ordered
+  process/command story behind the alert - as an interactive graph on the
+  alert's detail view. Data comes from the alert's `sourcedata`
+  (`command_timeline`), which the FortiEDR v2 connector populates on
+  ingestion; no extra queries needed.
+
+  Two views: a **story view** (the default - card nodes that narrate what
+  happened, parents to children) and the classic **graph view**, kept as a
+  tab. Works on dashboard, view panel and drawer placements; the edit dialog
+  lets you switch the default view and adjust depth.
+
+  Pairs with the [FortiEDR v2 connector](/items/fortinet-fortiedr-v2). The
+  [FortiEDR detection demo](/items/fortiedr-detection-demo) solution pack
+  installs this widget and ships an alert with a real captured timeline to
+  see it with.
+use_cases:
+- triage
+tags:
+- fortiedr
+- timeline
+- forensics
+author: ftnt-dspille
+version: 1.2.0
+min_version: null
+license: MIT
+published: '2026-11-05'
+source: https://github.com/ftnt-dspille/widget-fortiedr-command-timeline
+author_id: 99558074

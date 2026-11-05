@@ -1,0 +1,48 @@
+title: Fortinet FortiEDR v2
+summary: A rebuilt FortiEDR connector with count-verified ingestion windows that never miss or duplicate
+  events, plus the full collector lifecycle (isolate, release, move, delete, uninstall).
+description: |
+  A ground-up rebuild of the Content Hub's Fortinet FortiEDR connector for
+  7.x/8.x FortiSOAR.
+
+  Ingestion is the reason it exists: on FortiEDR 7.x, a windowed list-events
+  request carrying `pageNumber` answers 200 with an EMPTY page, so a paged
+  fetch silently drops events. This connector asks `count-events` first,
+  sizes one request to the count, and fails loudly rather than reading part
+  of a window. The Fetch step's window is count-verified and never paged;
+  the run-level safety cap (Maximum Events Per Run) defaults to 10.
+
+  Also fixed/added over the original: full collector lifecycle (isolate,
+  release, move, delete records, uninstall agents - the original cannot
+  remove a collector record), event file retrieval, and delete/uninstall
+  filter guards that refuse empty filter lists.
+
+  Sample playbooks ship with the connector: the Data Ingestion Wizard chain
+  (Init Macros / Fetch / Ingest). The operational use-case playbooks (triage
+  to isolation, evidence collection, governed exceptions, the FortiGate
+  containment chain, ...) ship inside the
+  [FortiEDR detection demo](/items/fortiedr-detection-demo) solution pack.
+
+  Requires a FortiEDR management console account with API access
+  (username, password, organization).
+use_cases:
+- ingestion
+- containment
+tags:
+- fortiedr
+- edr
+- endpoint
+- fortinet
+author: ftnt-dspille
+version: 1.1.15
+min_version: null
+license: MIT
+published: '2026-11-05'
+source: https://github.com/ftnt-dspille/fortinet-fortiedrv2
+author_id: 99558074
+enhances:
+  connector: fortinet-fortiedr
+  version: 2.1.0
+  changes: Rebuilt the ingestion fetch to be count-verified (the original's paged window read
+    silently drops events on FortiEDR 7.x), added the full collector lifecycle including
+    delete/uninstall with blank-filter guards, and event file retrieval.
