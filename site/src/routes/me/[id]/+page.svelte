@@ -1,12 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/state';
-  import { SITE } from '$lib/config';
-  import { formatDate } from '$lib/format';
-  import { ApiError, getSubmission, loginUrl, type Submission } from '$lib/api';
-  import { session } from '$lib/session.svelte';
-  import StatusPill from '$lib/components/StatusPill.svelte';
-  import CheckList from '$lib/components/CheckList.svelte';
+  import { SITE } from '#lib/config';
+  import { formatDate } from '#lib/format';
+  import { ApiError, getSubmission, loginUrl, type Submission } from '#lib/api';
+  import { session } from '#lib/session.svelte';
+  import StatusPill from '#lib/components/StatusPill.svelte';
+  import CheckList from '#lib/components/CheckList.svelte';
   import Check from '@lucide/svelte/icons/check';
   import X from '@lucide/svelte/icons/x';
   import LoaderCircle from '@lucide/svelte/icons/loader-circle';

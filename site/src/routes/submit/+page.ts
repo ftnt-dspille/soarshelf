@@ -1,4 +1,4 @@
-import { loadIndex } from '$lib/data';
+import { loadIndex } from '#lib/data';
 import type { PageLoad } from './$types';
 
 // Prerendered shell; who's signed in is checked in the browser.

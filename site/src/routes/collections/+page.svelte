@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { SITE } from '$lib/config';
-  import CollectionCard from '$lib/components/CollectionCard.svelte';
+  import { SITE } from '#lib/config';
+  import CollectionCard from '#lib/components/CollectionCard.svelte';
 
   let { data } = $props();
   const items = $derived(new Map(data.index.items.map((i) => [i.slug, i])));

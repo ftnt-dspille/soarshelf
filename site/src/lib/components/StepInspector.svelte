@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { PlaybookNode } from '$lib/types';
-  import { FAMILY_ICON, FAMILY_LABEL } from '$lib/icons';
-  import { shapeArgs } from '$lib/args';
+  import type { PlaybookNode } from '#lib/types';
+  import { FAMILY_ICON, FAMILY_LABEL } from '#lib/icons';
+  import { shapeArgs } from '#lib/args';
   import ArgValue from './ArgValue.svelte';
   import Jinja from './Jinja.svelte';
   import CopyButton from './CopyButton.svelte';

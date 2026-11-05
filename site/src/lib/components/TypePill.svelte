@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { ItemType } from '$lib/types';
-  import { TYPE_LABEL } from '$lib/format';
-  import { TYPE_ICON } from '$lib/icons';
+  import type { ItemType } from '#lib/types';
+  import { TYPE_LABEL } from '#lib/format';
+  import { TYPE_ICON } from '#lib/icons';
   let { type }: { type: ItemType } = $props();
   const Icon = $derived(TYPE_ICON[type]);
 </script>

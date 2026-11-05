@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { STATUS_LABEL, type SubmissionStatus } from '$lib/api';
+  import { STATUS_LABEL, type SubmissionStatus } from '#lib/api';
   let { status }: { status: SubmissionStatus } = $props();
   const TONE: Record<SubmissionStatus, string> = {
     checking: 'bg-info-soft text-info',

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { findingKey, type PreflightResult } from '$lib/preflight';
+  import { findingKey, type PreflightResult } from '#lib/preflight';
   import ShieldCheck from '@lucide/svelte/icons/shield-check';
   import ShieldAlert from '@lucide/svelte/icons/shield-alert';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
@@ -24,7 +24,7 @@
   const loc = (l?: string) => (l ? l.replace(/\.\[/g, '[') : '');
 </script>
 
-{#snippet row(f: import('$lib/secretScan').Finding, tone: 'block' | 'warn')}
+{#snippet row(f: import('#lib/secretScan').Finding, tone: 'block' | 'warn')}
   <li class="flex items-start gap-3 rounded-lg border border-line bg-surface px-3 py-2.5">
     {#if tone === 'block'}<CircleX size={16} class="mt-0.5 shrink-0 text-block" aria-hidden="true" />{:else}<TriangleAlert size={16} class="mt-0.5 shrink-0 text-warn" aria-hidden="true" />{/if}
     <div class="min-w-0 flex-1">

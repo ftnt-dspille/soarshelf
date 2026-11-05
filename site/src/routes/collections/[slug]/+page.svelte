@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { SITE } from '$lib/config';
-  import { connectorIcons, connectorLabels } from '$lib/data';
-  import { plural } from '$lib/format';
-  import type { ItemSummary } from '$lib/types';
-  import ItemCard from '$lib/components/ItemCard.svelte';
-  import Markdown from '$lib/components/Markdown.svelte';
+  import { SITE } from '#lib/config';
+  import { connectorIcons, connectorLabels } from '#lib/data';
+  import { plural } from '#lib/format';
+  import type { ItemSummary } from '#lib/types';
+  import ItemCard from '#lib/components/ItemCard.svelte';
+  import Markdown from '#lib/components/Markdown.svelte';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import BadgeCheck from '@lucide/svelte/icons/badge-check';
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ConnectorParam } from '$lib/types';
+  import type { ConnectorParam } from '#lib/types';
   import ParamList from './ParamList.svelte';
 
   let { params }: { params: ConnectorParam[] } = $props();

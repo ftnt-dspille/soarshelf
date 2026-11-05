@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { renderMarkdown } from '$lib/markdown';
+  import { renderMarkdown } from '#lib/markdown';
   let { source }: { source: string } = $props();
   const html = $derived(renderMarkdown(source));
 </script>

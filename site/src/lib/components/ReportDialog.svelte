@@ -2,8 +2,8 @@
   // "Report a problem" for an item. Signed-in only: one report per person per
   // item, and enough reports flag the item for a maintainer (docs/api.md).
   import { page } from '$app/state';
-  import { reportItem, loginUrl, ApiError } from '$lib/api';
-  import { session } from '$lib/session.svelte';
+  import { reportItem, loginUrl, ApiError } from '#lib/api';
+  import { session } from '#lib/session.svelte';
   import Flag from '@lucide/svelte/icons/flag';
   import X from '@lucide/svelte/icons/x';
   import CircleCheck from '@lucide/svelte/icons/circle-check';

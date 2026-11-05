@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { SITE } from '$lib/config';
-  import { formatDate } from '$lib/format';
-  import type { ActivityEvent } from '$lib/types';
-  import TypePill from '$lib/components/TypePill.svelte';
+  import { SITE } from '#lib/config';
+  import { formatDate } from '#lib/format';
+  import type { ActivityEvent } from '#lib/types';
+  import TypePill from '#lib/components/TypePill.svelte';
   import Rss from '@lucide/svelte/icons/rss';
 
   let { data } = $props();

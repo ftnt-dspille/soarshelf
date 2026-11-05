@@ -1,6 +1,6 @@
 <script lang="ts">
   import { MiniMap, useSvelteFlow, type Node } from '@xyflow/svelte';
-  import type { PlaybookNode } from '$lib/types';
+  import type { PlaybookNode } from '#lib/types';
 
   // The stock minimap only lets you drag its viewport box. This adds
   // click-to-jump: a click (not a drag) centres the canvas on that point.

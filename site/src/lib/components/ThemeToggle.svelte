@@ -2,7 +2,7 @@
   import Sun from '@lucide/svelte/icons/sun';
   import Moon from '@lucide/svelte/icons/moon';
   import Check from '@lucide/svelte/icons/check';
-  import { theme, type Palette, type Theme } from '$lib/theme.svelte';
+  import { theme, type Palette, type Theme } from '#lib/theme.svelte';
 
   // Swatches show each palette's own colours, whatever palette is active.
   const PALETTES: { id: Palette; label: string; note: string; swatch: [string, string, string] }[] = [

@@ -1,20 +1,20 @@
 <script lang="ts">
-  import Avatar from '$lib/components/Avatar.svelte';
+  import Avatar from '#lib/components/Avatar.svelte';
   import { onMount, tick } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
-  import { env } from '$env/dynamic/public';
-  import { SITE } from '$lib/config';
-  import { formatBytes } from '$lib/format';
-  import { useCaseIcon } from '$lib/icons';
-  import { ApiError, createSubmission, loginUrl } from '$lib/api';
-  import { session } from '$lib/session.svelte';
-  import { normaliseTag, validateDraft, type FieldErrors, type SubmitDraft } from '$lib/submitValidation';
-  import Markdown from '$lib/components/Markdown.svelte';
-  import { readListing, type Prefill } from '$lib/prefill';
-  import { preflight, type PreflightResult } from '$lib/preflight';
-  import PreflightPanel from '$lib/components/PreflightPanel.svelte';
-  import { TYPE_LABEL } from '$lib/format';
+  import { PUBLIC_TURNSTILE_SITE_KEY } from '$app/env/public';
+  import { SITE } from '#lib/config';
+  import { formatBytes } from '#lib/format';
+  import { useCaseIcon } from '#lib/icons';
+  import { ApiError, createSubmission, loginUrl } from '#lib/api';
+  import { session } from '#lib/session.svelte';
+  import { normaliseTag, validateDraft, type FieldErrors, type SubmitDraft } from '#lib/submitValidation';
+  import Markdown from '#lib/components/Markdown.svelte';
+  import { readListing, type Prefill } from '#lib/prefill';
+  import { preflight, type PreflightResult } from '#lib/preflight';
+  import PreflightPanel from '#lib/components/PreflightPanel.svelte';
+  import { TYPE_LABEL } from '#lib/format';
   import CloudUpload from '@lucide/svelte/icons/cloud-upload';
   import FileBraces from '@lucide/svelte/icons/file-braces';
   import FileArchive from '@lucide/svelte/icons/file-archive';
@@ -78,7 +78,7 @@
     const render = () => {
       if (!w.turnstile) return;
       widget = w.turnstile.render(el, {
-        sitekey: env.PUBLIC_TURNSTILE_SITE_KEY || TEST_SITE_KEY,
+        sitekey: PUBLIC_TURNSTILE_SITE_KEY || TEST_SITE_KEY,
         theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
         callback: (t: string) => (token = t),
         'expired-callback': () => (token = null),

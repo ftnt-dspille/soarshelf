@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { ItemSummary } from '$lib/types';
-  import { BUILTIN_CONNECTORS, HUB_HINT, formatDate, lastChange, plural, testedHint } from '$lib/format';
+  import type { ItemSummary } from '#lib/types';
+  import { BUILTIN_CONNECTORS, HUB_HINT, formatDate, lastChange, plural, testedHint } from '#lib/format';
   import TypePill from './TypePill.svelte';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import Code from '@lucide/svelte/icons/code';

@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Handle, Position, type NodeProps, type Node } from '@xyflow/svelte';
-  import type { PlaybookNode } from '$lib/types';
-  import { FAMILY_ICON } from '$lib/icons';
-  import { humanizeKey } from '$lib/args';
-  import { NODE_H, NODE_W } from '$lib/layout';
+  import type { PlaybookNode } from '#lib/types';
+  import { FAMILY_ICON } from '#lib/icons';
+  import { humanizeKey } from '#lib/args';
+  import { NODE_H, NODE_W } from '#lib/layout';
 
   type StepData = { step: PlaybookNode; connectorLabel: string | null; connectorIcon?: string | null; childName?: string | null; dir: 'TB' | 'LR' };
   let { data, selected }: NodeProps<Node<StepData>> = $props();

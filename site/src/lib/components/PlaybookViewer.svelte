@@ -2,18 +2,18 @@
   import { SvelteFlow, Background, Controls, MarkerType, type Node, type Edge, type useSvelteFlow } from '@xyflow/svelte';
   import '@xyflow/svelte/dist/style.css';
   import { untrack } from 'svelte';
-  import type { Collection, PlaybookNode } from '$lib/types';
-  import { theme } from '$lib/theme.svelte';
-  import { NODE_H, NODE_W, autoLayout, branchSources, fitZoom, isRouted, jumpPoints, placeGroups, type Annotations, type Layout } from '$lib/layout';
-  import { GLOW_MODES, GLOW_SPEEDS, startEdgeGlow, type GlowSpeed } from '$lib/edgeGlow';
-  import { FAMILY_ICON } from '$lib/icons';
-  import { FAMILY_KEY } from '$lib/format';
+  import type { Collection, PlaybookNode } from '#lib/types';
+  import { theme } from '#lib/theme.svelte';
+  import { NODE_H, NODE_W, autoLayout, branchSources, fitZoom, isRouted, jumpPoints, placeGroups, type Annotations, type Layout } from '#lib/layout';
+  import { GLOW_MODES, GLOW_SPEEDS, startEdgeGlow, type GlowSpeed } from '#lib/edgeGlow';
+  import { FAMILY_ICON } from '#lib/icons';
+  import { FAMILY_KEY } from '#lib/format';
   import StepNode from './StepNode.svelte';
   import NoteNode from './NoteNode.svelte';
   import BlockNode from './BlockNode.svelte';
   import JumpEdge from './JumpEdge.svelte';
   import BranchEdge from './BranchEdge.svelte';
-  import { BRANCH_VARIANTS, branchStyle, type BranchVariant } from '$lib/branchStyle.svelte';
+  import { BRANCH_VARIANTS, branchStyle, type BranchVariant } from '#lib/branchStyle.svelte';
   import StepInspector from './StepInspector.svelte';
 import MinimapNav from './MinimapNav.svelte';
   import Zap from '@lucide/svelte/icons/zap';
@@ -21,8 +21,8 @@ import MinimapNav from './MinimapNav.svelte';
   import CornerDownRight from '@lucide/svelte/icons/corner-down-right';
   import ClipboardCopy from '@lucide/svelte/icons/clipboard-copy';
   import ClipboardCheck from '@lucide/svelte/icons/clipboard-check';
-  import { playbookRelations, roleOf } from '$lib/playbookRelations';
-  import { clipboardText, type Placement } from '$lib/clipboard';
+  import { playbookRelations, roleOf } from '#lib/playbookRelations';
+  import { clipboardText, type Placement } from '#lib/clipboard';
 
   let {
     collections,

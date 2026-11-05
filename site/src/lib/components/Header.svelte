@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Avatar from '$lib/components/Avatar.svelte';
+  import Avatar from '#lib/components/Avatar.svelte';
   import { page } from '$app/state';
   import Menu from '@lucide/svelte/icons/menu';
   import X from '@lucide/svelte/icons/x';
@@ -8,8 +8,8 @@
   import Inbox from '@lucide/svelte/icons/inbox';
   import LogOut from '@lucide/svelte/icons/log-out';
   import { goto } from '$app/navigation';
-  import { loginUrl } from '$lib/api';
-  import { session } from '$lib/session.svelte';
+  import { loginUrl } from '#lib/api';
+  import { session } from '#lib/session.svelte';
   import Logo from './Logo.svelte';
   import ThemeToggle from './ThemeToggle.svelte';
 

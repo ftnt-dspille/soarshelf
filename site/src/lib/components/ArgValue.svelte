@@ -1,7 +1,7 @@
 <script lang="ts">
   import ArgValue from './ArgValue.svelte';
   import Jinja from './Jinja.svelte';
-  import { humanizeKey } from '$lib/args';
+  import { humanizeKey } from '#lib/args';
 
   // One step-argument value, rendered by type. Recursive for objects/arrays.
   let { value, depth = 0 }: { value: unknown; depth?: number } = $props();

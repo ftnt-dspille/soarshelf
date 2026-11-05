@@ -1,7 +1,7 @@
 <script lang="ts">
   import { BaseEdge, EdgeLabel, Position, getSmoothStepPath, type EdgeProps } from '@xyflow/svelte';
-  import { BRANCH_BEND, roundedPath } from '$lib/layout';
-  import { branchStyle } from '$lib/branchStyle.svelte';
+  import { BRANCH_BEND, roundedPath } from '#lib/layout';
+  import { branchStyle } from '#lib/branchStyle.svelte';
 
   // A line leaving a decision, where only one way is taken. The site draws an elbow: a stem to a
   // fork marker, a bar, and a square drop into each target, labelled on the drop. The other

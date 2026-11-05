@@ -46,14 +46,16 @@ const PARAM: Record<FacetKey, string> = {
   tested: 'tested'
 };
 
-function list(params: URLSearchParams, key: string): string[] {
+function list(params: { get(name: string): string | null }, key: string): string[] {
   return (params.get(key) ?? '')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
 }
 
-export function parseFilters(params: URLSearchParams): FilterState {
+// `page.url.searchParams` is a SvelteKit ReadonlyURLSearchParams; a plain
+// URLSearchParams satisfies the same shape, so accept both structurally.
+export function parseFilters(params: { get(name: string): string | null }): FilterState {
   const sort = params.get('sort') as SortKey;
   return {
     q: params.get('q') ?? '',

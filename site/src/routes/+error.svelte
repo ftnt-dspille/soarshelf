@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { SITE } from '$lib/config';
+  import { SITE } from '#lib/config';
 </script>
 
 <svelte:head><title>{page.status === 404 ? 'Not found' : 'Error'} · {SITE.name}</title></svelte:head>

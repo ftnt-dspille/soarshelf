@@ -6,10 +6,10 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
-  import { SITE } from '$lib/config';
-  import { theme } from '$lib/theme.svelte';
-  import Header from '$lib/components/Header.svelte';
-  import Footer from '$lib/components/Footer.svelte';
+  import { SITE } from '#lib/config';
+  import { theme } from '#lib/theme.svelte';
+  import Header from '#lib/components/Header.svelte';
+  import Footer from '#lib/components/Footer.svelte';
 
   let { children } = $props();
 

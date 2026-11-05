@@ -1,9 +1,9 @@
 <script lang="ts">
   import { afterNavigate, replaceState } from '$app/navigation';
   import { page } from '$app/state';
-  import { SITE } from '$lib/config';
-  import { connectorIcons, connectorLabels } from '$lib/data';
-  import { HUB_LABEL, TEST_LABEL, TYPE_LABEL } from '$lib/format';
+  import { SITE } from '#lib/config';
+  import { connectorIcons, connectorLabels } from '#lib/data';
+  import { HUB_LABEL, TEST_LABEL, TYPE_LABEL } from '#lib/format';
   import {
     EMPTY_FILTERS,
     activeFilterCount,
@@ -16,10 +16,10 @@
     toggle,
     type FacetKey,
     type FilterState
-  } from '$lib/filter';
-  import type { HubStatus, ItemType } from '$lib/types';
-  import ItemCard from '$lib/components/ItemCard.svelte';
-  import FacetGroup from '$lib/components/FacetGroup.svelte';
+  } from '#lib/filter';
+  import type { HubStatus, ItemType } from '#lib/types';
+  import ItemCard from '#lib/components/ItemCard.svelte';
+  import FacetGroup from '#lib/components/FacetGroup.svelte';
   import Search from '@lucide/svelte/icons/search';
   import Funnel from '@lucide/svelte/icons/funnel';
   import X from '@lucide/svelte/icons/x';

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { SITE, LIMITS } from '$lib/config';
-  import { formatBytes } from '$lib/format';
+  import { SITE, LIMITS } from '#lib/config';
+  import { formatBytes } from '#lib/format';
 
   const toc = [
     { id: 'before', label: 'Before you import' },

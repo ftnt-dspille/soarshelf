@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { CuratedCollection, ItemSummary } from '$lib/types';
-  import { plural } from '$lib/format';
+  import type { CuratedCollection, ItemSummary } from '#lib/types';
+  import { plural } from '#lib/format';
   import Library from '@lucide/svelte/icons/library';
   import BadgeCheck from '@lucide/svelte/icons/badge-check';
 

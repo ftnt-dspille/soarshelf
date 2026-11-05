@@ -1,6 +1,6 @@
 <script lang="ts">
   import { BaseEdge, EdgeLabel, type EdgeProps } from '@xyflow/svelte';
-  import { JUMP_GAP, roundedPath } from '$lib/layout';
+  import { JUMP_GAP, roundedPath } from '#lib/layout';
 
   // An edge between wrapped columns: down out of the source, along the gap
   // between the columns (`data.gx`), and down into the target, so it reads as

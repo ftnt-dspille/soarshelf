@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { FAMILY_ICON } from '$lib/icons';
-  import { PV_H, PV_W, previewLayout, type PreviewEdge, type PreviewNode } from '$lib/previewLayout';
-  import { fitText, fitWidth } from '$lib/textfit';
+  import { FAMILY_ICON } from '#lib/icons';
+  import { PV_H, PV_W, previewLayout, type PreviewEdge, type PreviewNode } from '#lib/previewLayout';
+  import { fitText, fitWidth } from '#lib/textfit';
 
   // Read-only SVG drawing of a playbook. No canvas library, so it is cheap
   // enough to render on the home page and scales with its container.

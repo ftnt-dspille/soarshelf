@@ -1,4 +1,4 @@
-import { loadCollections, loadIndex, loadItem } from '$lib/data';
+import { loadCollections, loadIndex, loadItem } from '#lib/data';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ fetch, params }) => {

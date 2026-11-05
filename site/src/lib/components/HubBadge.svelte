@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { HubStatus } from '$lib/types';
-  import { HUB_HINT, HUB_LABEL } from '$lib/format';
+  import type { HubStatus } from '#lib/types';
+  import { HUB_HINT, HUB_LABEL } from '#lib/format';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import Info from '@lucide/svelte/icons/info';

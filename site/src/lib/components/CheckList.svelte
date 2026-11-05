@@ -2,8 +2,8 @@
   // Pipeline check results grouped by severity. Shared by the item page and
   // the submission detail page so a contributor sees exactly what visitors will.
   import type { Component } from 'svelte';
-  import type { CheckResult, Severity } from '$lib/types';
-  import { SEVERITY_LABEL, plural } from '$lib/format';
+  import type { CheckResult, Severity } from '#lib/types';
+  import { SEVERITY_LABEL, plural } from '#lib/format';
   import Markdown from './Markdown.svelte';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import CircleCheck from '@lucide/svelte/icons/circle-check';

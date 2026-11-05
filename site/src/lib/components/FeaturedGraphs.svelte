@@ -1,8 +1,8 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
   import { goto } from '$app/navigation';
-  import type { Featured, NodeFamily, UseCase } from '$lib/types';
-  import { BUILTIN_CONNECTORS, FAMILY_KEY, triggerPlain } from '$lib/format';
+  import type { Featured, NodeFamily, UseCase } from '#lib/types';
+  import { BUILTIN_CONNECTORS, FAMILY_KEY, triggerPlain } from '#lib/format';
   import GraphPreview from './GraphPreview.svelte';
   import HubBadge from './HubBadge.svelte';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';

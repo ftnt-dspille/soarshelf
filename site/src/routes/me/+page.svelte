@@ -1,11 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/state';
-  import { SITE } from '$lib/config';
-  import { formatDate } from '$lib/format';
-  import { ApiError, listSubmissions, loginUrl, type SubmissionSummary } from '$lib/api';
-  import { session } from '$lib/session.svelte';
-  import StatusPill from '$lib/components/StatusPill.svelte';
+  import { SITE } from '#lib/config';
+  import { formatDate } from '#lib/format';
+  import { ApiError, listSubmissions, loginUrl, type SubmissionSummary } from '#lib/api';
+  import { session } from '#lib/session.svelte';
+  import StatusPill from '#lib/components/StatusPill.svelte';
   import GitPullRequest from '@lucide/svelte/icons/git-pull-request';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
   import Inbox from '@lucide/svelte/icons/inbox';

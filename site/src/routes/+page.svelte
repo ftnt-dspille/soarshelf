@@ -1,12 +1,12 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { SITE } from '$lib/config';
-  import { connectorIcons, connectorLabels } from '$lib/data';
-  import { byLastChange } from '$lib/format';
-  import { useCaseIcon } from '$lib/icons';
-  import ItemCard from '$lib/components/ItemCard.svelte';
-  import CollectionCard from '$lib/components/CollectionCard.svelte';
-  import FeaturedGraphs from '$lib/components/FeaturedGraphs.svelte';
+  import { SITE } from '#lib/config';
+  import { connectorIcons, connectorLabels } from '#lib/data';
+  import { byLastChange } from '#lib/format';
+  import { useCaseIcon } from '#lib/icons';
+  import ItemCard from '#lib/components/ItemCard.svelte';
+  import CollectionCard from '#lib/components/CollectionCard.svelte';
+  import FeaturedGraphs from '#lib/components/FeaturedGraphs.svelte';
   import Search from '@lucide/svelte/icons/search';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
   import ScanSearch from '@lucide/svelte/icons/scan-search';
