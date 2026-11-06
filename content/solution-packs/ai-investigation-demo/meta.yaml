@@ -41,3 +41,12 @@ min_version: 8.0.1
 license: MIT
 published: '2026-11-06'
 author_id: 99558074
+tested:
+- platform: 8.0.1
+  version: 1.0.4
+  sha256: 528b54fb4ca144342ddd2cf10bf6d3a2d990cb604e13dccf822851a5b684a888
+  result: ran
+  playbooks:
+  - AI Demo - Generate Two-Verdict Alerts
+  - AI Demo - Document Approved Backup
+  notes: Generator creates both alerts; Document Approved Backup fills the Organization Context record.
