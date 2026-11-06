@@ -1,0 +1,43 @@
+title: 'AI investigation demo: same method, two verdicts'
+summary: A SOC Simulator scenario that shows the 8.0.1 AI alert investigation reaching Malicious, Inconclusive
+  and then Benign, with a click-by-click talk track.
+description: "A ready-to-run demo of the FortiSOAR 8.0.1 AI alert investigation, built for\nthe SOC Simulator.\
+  \ Two alerts go through the same fixed investigation method\nand come out with different verdicts, which\
+  \ is the easiest way to show how\nthe investigation reasons: hypotheses, questions routed to agents,\
+  \ evidence\nthat supports or rejects each hypothesis.\n\nOne import installs:\n\n- a SOC Simulator **scenario**,\
+  \ \"AI Investigation - Same Method, Two\n  Verdicts\", whose description is a click-by-click talk track\
+  \ (where to\n  click and what to say);\n- the **generator** playbook the scenario runs. It creates a\
+  \ ransomware alert\n  with a public, well-known malware SHA-256 and its download domain linked as\n\
+  \  indicators, and a nightly backup alert with full source data;\n- **AI Demo: Document Approved Backup**\
+  \ (Alerts > Execute, no record needed),\n  which fills the shipped \"Approved Backup System\" Organization\
+  \ Context\n  record;\n- **AI Demo - Reset Backup Context**, which runs by itself when the SOC\n  Simulator\
+  \ resets this scenario and puts that record back to \"No\n  Information Available\".\n\n## After import\n\
+  \n**Activate all three playbooks** in the \"AI Investigation Demo\" collection.\nDownloads from this\
+  \ site arrive inactive, and the demo needs them active:\nSimulate Scenario runs the generator, and the\
+  \ Organization Context restore\nfires on its own only when its playbook is active.\n\n## The demo\n\n\
+  1. Click **Simulate Scenario**. Wait a minute so threat intelligence can\n   enrich the hash, then start\
+  \ the AI investigation on both alerts.\n2. The ransomware alert investigates as **Malicious**: the threat\n\
+  \   intelligence agent finds the hash listed as malicious, and the \"approved\n   security test\" hypothesis\
+  \ is ruled out.\n3. The backup alert investigates as **Inconclusive**: there are no backup\n   approval\
+  \ details.\n4. Run **AI Demo: Document Approved Backup**, show the plain-English\n   Organization Context\
+  \ entry, and click **Re-investigate**. The backup alert\n   now investigates as **Benign**.\n5. Click\
+  \ **Reset Scenario**. The simulator deletes the alerts and their\n   indicators, and the Organization\
+  \ Context entry is restored.\n\n## Requirements\n\n- FortiSOAR 8.0.1 with AI features enabled and the\
+  \ SOC Simulator installed.\n- A threat intelligence connector that enriches file hashes (FortiGuard\n\
+  \  Threat Intelligence or VirusTotal) so the ransomware hash comes back\n  malicious.\n- Always reset\
+  \ before simulating again. The investigation correlates alerts,\n  so a leftover backup alert with a\
+  \ Benign verdict makes the next one Benign\n  before the backup is documented. The simulator's own Run\
+  \ is blocked until\n  Reset, which enforces this.\n\nVerdicts come from a model and can vary between\
+  \ runs. Tested on FortiSOAR\n8.0.1."
+use_cases:
+- triage
+tags:
+- ai
+- demo
+- soc-simulator
+author: ftnt-dspille
+version: 1.0.4
+min_version: 8.0.1
+license: MIT
+published: '2026-11-06'
+author_id: 99558074
