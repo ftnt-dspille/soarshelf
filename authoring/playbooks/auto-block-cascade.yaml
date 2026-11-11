@@ -1,0 +1,1361 @@
+# Auto-Block Cascade -- layered response use case.
+#
+# One detection anywhere -> one indicator -> one FortiGuard verdict -> for a
+# malicious verdict, a block at every layer that can carry it, with no human
+# awake: the gate first (FortiGate blocklists, the broadest cut), then the
+# endpoint EDRs (Defender indicator block; ThreatLocker's default-deny already
+# holds, so the cascade auto-rejects any pending user request for that exact
+# file hash instead). Every outcome lands a ServiceNow SIR and a Splunk
+# record, which is what makes the SOC's existing Splunk-Mobile notification
+# path and their ServiceNow queue the whole human surface.
+#
+# Compile:  fsrpb compile authoring/playbooks/auto-block-cascade.yaml -o out.json
+# Publish:  soarshelf add out.json --title "Auto-Block Cascade" ...
+# Design:   auto-block-cascade-blueprint.md (same directory) -- roles,
+#           cascade rationale, notification research, demo script,
+#           deployment prerequisites.
+#
+# Ops used here are the real Content Hub operations (all validated against the
+# fsrpb catalog, which knows every connector and parameter below). Nothing has
+# run against a live tenant-side product yet: every connector step carries a
+# mock_result so offline walkers exercise the wiring, and the blueprint's lab
+# section says exactly what is still unverified.
+#
+# The FortiGate IPv4 Block Policy / IP group, the Splunk KVStore app+collection
+# and the ServiceNow SIR table are deployment-config values: they live in ONE
+# Configuration step per playbook so an operator patches one place.
+#
+# Code snippets follow the FSR sandbox rules (no isinstance/hasattr/enumerate,
+# no vars/set as names) and dodge the |tojson boolean pitfall: only
+# string-coerced leaf fields are ever embedded into Python.
+
+collection: Auto-Block Cascade
+description: >-
+  Layered response playbooks: one indicator from any detection source, one
+  FortiGuard verdict, and automatic blocking at every layer for a malicious
+  verdict -- FortiGate at the gate, Defender on the endpoint, ThreatLocker's
+  default-deny held closed by auto-rejecting matching approval requests --
+  reporting to ServiceNow (SIR) and Splunk. Clone before editing: this is a
+  template collection, not a configuration.
+visible: true
+tags:
+  - layered-response
+  - auto-block
+exported_tags:
+  - layered-response
+  - auto-block
+  - fortiguard
+  - fortigate
+  - threatlocker
+  - defender
+  - servicenow
+  - splunk
+  - darktrace
+
+playbooks:
+
+  # ==========================================================================
+  # Resolve Indicator Verdict: the shared brain. Classifies the indicator
+  # (domain / IP / URL / file hash) and asks FortiGuard for the reputation
+  # bundle. The verdict thresholds decide autonomy downstream: 80+ malicious
+  # (auto-block), 50-79 suspicious (human approval), below that record only.
+  # ==========================================================================
+
+  - name: '>> Auto-Block Cascade > Resolve Indicator Verdict'
+    description: >-
+      Classifies an indicator and resolves its FortiGuard verdict (risk
+      score, level, confidence, category). Referenced helper: pass it
+      `indicator`; read the result off the calling step: verdict,
+      indicator_type, defender_type, risk_score, risk_level, confidence,
+      category.
+    parameters:
+    - indicator
+    is_active: true
+    steps:
+    - name: Start
+      type: start
+      next: Thresholds
+
+    - name: Thresholds
+      type: set_variable
+      comment: |
+        FortiGuard risk score thresholds, 0-100. 80+ auto-enforces anywhere
+        that can carry the indicator; 50-79 stops for a human; below that the
+        cascade records only. One place to tune the autonomy.
+      vars:
+        malicious_at: '80'
+        suspicious_at: '50'
+        indicator: "{{ vars.input.params.indicator | default('', true) | string | trim }}"
+      next: Classify Indicator
+
+    - name: Classify Indicator
+      type: code_snippet
+      comment: |
+        Type sniffing without surprises: URL schemes first, then fixed-length
+        hex strings as file hashes, then dotted-quad IPv4, then IPv6 by colon,
+        then a domain. The Defender indicator vocabulary is derived alongside
+        because the endpoint layer needs it.
+      code: |
+        ind = {{ vars.indicator | default('', true) | string | tojson }}
+        norm = ''
+        try:
+            norm = str(ind).strip()
+        except Exception:
+            norm = ''
+        low = norm.lower()
+        t = 'unknown'
+        mdetype = ''
+        if low.startswith('http://') or low.startswith('https://'):
+            t = 'url'
+            mdetype = 'Url'
+        else:
+            hexchars = True
+            for ch in low:
+                if ch not in '0123456789abcdef':
+                    hexchars = False
+                    break
+            if hexchars and len(low) == 64:
+                t = 'sha256'
+                mdetype = 'FileSha256'
+            elif hexchars and len(low) == 40:
+                t = 'sha1'
+                mdetype = 'FileSha1'
+            elif hexchars and len(low) == 32:
+                t = 'md5'
+                mdetype = 'FileMd5'
+            else:
+                isip = True
+                parts = norm.split('.')
+                if len(parts) != 4:
+                    isip = False
+                p = 0
+                while p < len(parts):
+                    try:
+                        v = int(parts[p])
+                    except Exception:
+                        isip = False
+                        break
+                    if v < 0 or v > 255:
+                        isip = False
+                        break
+                    p = p + 1
+                if isip:
+                    t = 'ip'
+                    mdetype = 'IpAddress'
+                elif ':' in norm:
+                    t = 'ipv6'
+                    mdetype = 'IpAddress'
+                elif '.' in norm and ' ' not in norm:
+                    t = 'domain'
+                    mdetype = 'DomainName'
+        print({'normalized': norm, 'indicator_type': t, 'defender_type': mdetype})
+      mock_result:
+        # Offline walkers do not execute snippets (FSR mock-output
+        # semantics: a recorded result stands in). This records the
+        # canonical demo scenario: simple-scripts.de classifies as a
+        # domain. Scenario patches for other lanes live with the walker
+        # harness, not in this shipped file.
+        data:
+          code_output:
+            normalized: simple-scripts.de
+            indicator_type: domain
+            defender_type: DomainName
+      next: Indicator Given
+
+    - name: Indicator Given
+      type: decision
+      conditions:
+      - display: Indicator Present
+        when: "{{ vars.steps.Classify_Indicator.data.code_output.normalized | default('', true) | length > 0 }}"
+        next: Search FortiGuard
+      - display: Nothing To Resolve
+        default: true
+        next: No Indicator
+
+    - name: No Indicator
+      type: set_variable
+      comment: The wrong entry is a dead end the caller can read, not an exception.
+      vars:
+        indicator: ''
+        indicator_type: 'unknown'
+        defender_type: ''
+        verdict: 'unknown'
+        risk_score: ''
+        risk_level: ''
+        confidence: ''
+        category: ''
+        reason: no indicator was given
+
+    - name: Search FortiGuard
+      type: connector
+      connector: fortinet-fortiguard-ioc
+      operation: ioc_search
+      config: ''
+      comment: |
+        One reputation answer for the indicator. The connector returns the
+        matched IOC rows; the first row carries the scored fields the verdict
+        reads (risk_score int, risk_level/confidence as {itemValue} picklists,
+        av_cate the category string).
+      mock_result:
+        # Shape matches the fortinet-fortiguard-ioc op output the way live
+        # playbooks already consume it (see: fortiguard-indicator-verdict).
+        # Offline walks drive BOTH verdict lanes: this mock says risk 100
+        # (malicious). Override hooks for other lanes are listed in the
+        # blueprint's verification section.
+        data:
+        - risk_score: 100
+          risk_level:
+            itemValue: Malicious
+          confidence:
+            itemValue: High
+          av_cate: Botnet C2
+          ioc_tags:
+          - malware
+          - c2
+      params:
+        indicator: '{{ vars.steps.Classify_Indicator.data.code_output.normalized }}'
+      next: Score Verdict
+
+    - name: Score Verdict
+      type: code_snippet
+      comment: |
+        Type-safe scoring: the score arrives as a number or a string or
+        nothing at all; Python coerces once and the thresholds live in the
+        Thresholds step. Only string-coerced leaves are embedded (sandbox:
+        |tojson on a whole step result would hand Python lowercase `true`).
+      code: |
+        raw_score = {{ (vars.steps.Search_FortiGuard.data | default([], true) | first | default({}, true)).risk_score | default('', true) | string | tojson }}
+        risk_level = {{ ((vars.steps.Search_FortiGuard.data | default([], true) | first | default({}, true)).risk_level or {}).itemValue | default('', true) | string | tojson }}
+        confidence = {{ ((vars.steps.Search_FortiGuard.data | default([], true) | first | default({}, true)).confidence or {}).itemValue | default('', true) | string | tojson }}
+        category = {{ (vars.steps.Search_FortiGuard.data | default([], true) | first | default({}, true)).av_cate | default('', true) | string | tojson }}
+        malicious_at = {{ vars.malicious_at | default('80', true) | int }}
+        suspicious_at = {{ vars.suspicious_at | default('50', true) | int }}
+        verdict = 'unknown'
+        if raw_score != '':
+            try:
+                score = int(raw_score)
+            except Exception:
+                score = -1
+            if score >= malicious_at:
+                verdict = 'malicious'
+            elif score >= suspicious_at:
+                verdict = 'suspicious'
+            else:
+                verdict = 'clean'
+        print({'verdict': verdict, 'risk_score': raw_score, 'risk_level': risk_level,
+               'confidence': confidence, 'category': category})
+      mock_result:
+        # The canonical demo: FortiGuard rates the indicator 100/100
+        # Malicious with High confidence. Other verdict lanes (suspicious,
+        # clean) patch this in the walk harness.
+        data:
+          code_output:
+            verdict: malicious
+            risk_score: '100'
+            risk_level: Malicious
+            confidence: High
+            category: Botnet C2
+      next: Verdict Out
+
+    - name: Verdict Out
+      type: set_variable
+      comment: |
+        The flat, primitive-only verdict bundle every caller reads off this
+        workflow_reference step (the last step's variables ARE the result).
+      vars:
+        indicator: '{{ vars.steps.Classify_Indicator.data.code_output.normalized }}'
+        indicator_type: '{{ vars.steps.Classify_Indicator.data.code_output.indicator_type }}'
+        defender_type: '{{ vars.steps.Classify_Indicator.data.code_output.defender_type }}'
+        verdict: '{{ vars.steps.Score_Verdict.data.code_output.verdict }}'
+        risk_score: '{{ vars.steps.Score_Verdict.data.code_output.risk_score }}'
+        risk_level: '{{ vars.steps.Score_Verdict.data.code_output.risk_level }}'
+        confidence: '{{ vars.steps.Score_Verdict.data.code_output.confidence }}'
+        category: '{{ vars.steps.Score_Verdict.data.code_output.category }}'
+        reason: 'verdict resolved: {{ vars.steps.Score_Verdict.data.code_output.verdict }}'
+
+  # ==========================================================================
+  # Enforce Indicator: the cascade itself. Gate first (broadest), then the
+  # endpoint EDRs, each layer when-guarded by what the indicator type can
+  # carry. Always ends in the human-plane records: ServiceNow SIR and the
+  # Splunk collection. Referenced helper: callers pass the verdict bundle and
+  # enforce true/false (false = record-only: SIR + Splunk, no touching).
+  # ==========================================================================
+
+  - name: '>> Auto-Block Cascade > Enforce Indicator'
+    description: >-
+      The layered cascade: FortiGate blocklists, a Defender indicator block,
+      auto-rejection of matching ThreatLocker approval requests -- then the
+      ServiceNow SIR and Splunk records carrying every receipt. Referenced
+      helper: pass it the verdict bundle from Resolve Indicator Verdict and an
+      enforce flag.
+    parameters:
+    - indicator
+    - indicator_type
+    - defender_type
+    - verdict
+    - risk_score
+    - computer_id
+    - hostname
+    - username
+    - source
+    - notes
+    - enforce
+    is_active: true
+    steps:
+    - name: Start
+      type: start
+      next: Configuration
+
+    - name: Configuration
+      type: set_variable
+      comment: |
+        Deployment-config values live here, the only step an operator should
+        need to touch: the FortiGate IPv4 Block Policy and the named IP group
+        a block lands in, and the Splunk KVStore app+collection that receives
+        every cascade record. The caller's `enforce` flag is normalized one
+        step later (Gate Layer Logic), where the reviewer can see it.
+      vars:
+        fgt_block_policy: Deny Traffic to BlockList
+        fgt_block_group: FortiSOAR-AutoBlocked-IPs
+        splunk_app_name: search
+        splunk_collection: fortisoar_autoblock
+      next: Gate Layer Logic
+
+    - name: Gate Layer Logic
+      type: set_variable
+      comment: |
+        Normalize once more as plain booleans the when-guards can compare,
+        kept visible instead of buried in string comparisons everywhere.
+      vars:
+        enforce_bool: "{{ (vars.input.params.enforce | default('false', true) | string | lower) in ('true', 'yes', '1') }}"
+        is_net_indicator: "{{ (vars.input.params.indicator_type | default('', true)) in ('domain', 'url', 'ip', 'ipv6') }}"
+        is_hash_indicator: "{{ (vars.input.params.indicator_type | default('', true)) in ('sha256', 'sha1', 'md5') }}"
+      next: Block URL At Gate
+
+    # ---- layer 1: the gate. Broadest cut: every user behind it stops
+    # reaching the indicator. URL/domain via the web filter blocklist, IP into
+    # the named block group/policy. A file hash stops here: a firewall carries
+    # domains and IPs, not hashes -- the endpoint layers below take those.
+
+    - name: Block URL At Gate
+      type: connector
+      connector: fortigate-firewall
+      operation: block_url
+      config: ''
+      comment: |
+        The web filter blocklist entry. FortiGate takes the URL or domain;
+        HTTPS SNI/FQDN matching is handled by the blocklist itself.
+      when: "{{ vars.is_net_indicator and vars.enforce_bool }}"
+      mock_result:
+        data:
+          status: success
+          action_status: Added
+      params:
+        url: '{{ vars.input.params.indicator }}'
+        vdom: ''
+      next: Block IPv4 At Gate
+
+    - name: Block IPv4 At Gate
+      type: connector
+      connector: fortigate-firewall
+      operation: block_ip_new
+      config: ''
+      comment: |
+        Policy-based IPv4 block into the named group/policy from
+        Configuration. Quarantine-based blocking is the connector's
+        alternative (ip_addresses + time_to_live); the group/policy form is
+        chosen because it persists and is visible in the blocklist.
+      when: "{{ (vars.input.params.indicator_type | default('', true)) == 'ip' and vars.enforce_bool }}"
+      mock_result:
+        data:
+          status: success
+          action_status: Added
+      params:
+        method: Policy Based
+        ip: '{{ vars.input.params.indicator }}'
+        ip_type: 'IPv4'
+        ip_group_name: '{{ vars.fgt_block_group }}'
+        ip_block_policy: '{{ vars.fgt_block_policy }}'
+        is_new: 'false'
+        ngfw_mode: Profile Based
+        vdom: ''
+      next: Block IPv6 At Gate
+
+    - name: Block IPv6 At Gate
+      type: connector
+      connector: fortigate-firewall
+      operation: block_ip_new
+      config: ''
+      comment: |
+        The same block for IPv6 indicators: the option paths are kept as
+        separate steps so every param set is statically verifiable (a
+        templated ip_type hides which sub-params apply).
+      when: "{{ (vars.input.params.indicator_type | default('', true)) == 'ipv6' and vars.enforce_bool }}"
+      mock_result:
+        data:
+          status: success
+          action_status: Added
+      params:
+        method: Policy Based
+        ip: '{{ vars.input.params.indicator }}'
+        ip_type: 'IPv6'
+        ip_group_name: '{{ vars.fgt_block_group }}'
+        ip_block_policy: '{{ vars.fgt_block_policy }}'
+        is_new: 'false'
+        ngfw_mode: Profile Based
+        vdom: ''
+      next: Defender Layer
+
+    # ---- layer 2: the endpoint EDR. Carries hashes; works when the gate
+    # never saw the traffic (remote endpoints, encrypted paths).
+
+    - name: Defender Layer
+      type: set_variable
+      comment: The endpoint block needs a Defender indicator type; hashes and network indicators both have one, anything else skips the layer.
+      vars:
+        defender_enabled: "{{ (vars.input.params.defender_type | default('', true)) | length > 0 }}"
+      next: Defender Indicator
+
+    - name: Defender Indicator
+      type: connector
+      connector: windows-defender-atp
+      operation: submit_indicator
+      config: ''
+      comment: |
+        'Alert and block': the indicator is blocked AND alerts on future hits, so
+        the SOC sees attempts already in flight. Defender keeps custom
+        indicators only while expirationTime is set; the tenant default
+        retention applies when blank.
+      when: "{{ vars.defender_enabled and vars.enforce_bool }}"
+      mock_result:
+        data:
+          id: 1aa11aa1-2bb2-3cc3-4dd4-5ee55ee55ee5
+          value: '{{ vars.input.params.indicator }}'
+          action: Alert and block
+        status: Succeeded
+      params:
+        action: Alert and block
+        indicatorType: '{{ vars.input.params.defender_type }}'
+        indicatorValue: '{{ vars.input.params.indicator }}'
+        title: 'Layered response: auto-block {{ vars.input.params.verdict }} indicator'
+        description: >-
+          FortiGuard verdict {{ vars.input.params.verdict }} (risk score
+          {{ vars.input.params.risk_score | default('unknown', true) }}) on
+          indicator {{ vars.input.params.indicator }} reported by
+          {{ vars.input.params.source | default('unspecified source', true) }}.
+        severity: High
+        generateAlert: 'true'
+        recommendedActions: 'Auto-blocked by the FortiSOAR layered response; open the linked SIR before unblocking.'
+        expirationTime: ''
+      next: ThreatLocker Try Switch
+
+    # ---- layer 3: ThreatLocker. The deny is the resting state; the
+    # cascade's job is keeping it that way: any pending approval request whose
+    # file hash matches is auto-rejected with the verdict as the reason, so a
+    # user cannot allow-list a known-bad binary at 3am.
+
+    - name: ThreatLocker Try Switch
+      type: set_variable
+      comment: The queue pull runs only for hashes, and only when enforcing.
+      vars:
+        tl_layer_on: "{{ vars.is_hash_indicator and vars.enforce_bool }}"
+      next: Find Matching TL Requests
+
+    - name: Find Matching TL Requests
+      type: connector
+      connector: threatlocker
+      operation: get_approval_requests
+      config: ''
+      comment: |
+        Recent approval queue rows; the match is the requester's own file
+        hash, exact, only when this indicator IS a file hash. The queue is
+        pulled with child organizations so a deny closes a request created
+        anywhere in the estate.
+      when: '{{ vars.tl_layer_on }}'
+      mock_result:
+        # Row 1 is pending (no actionDate) and matches the demo hash
+        # a1b2... (drive a walk with indicator = that hash to exercise the
+        # reject path). Row 2 was already answered -- it must stay untouched.
+        data:
+          count: 2
+          approval_requests:
+          - approvalRequestId: 11111111-2222-3333-4444-555555555555
+            hash: a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90
+            path: C:/Users/labuser/Downloads/update.exe
+            hostname: lab-endpoint-01
+            username: labuser
+            requestorReason: need it for testing
+            dateTime: '2026-11-03T09:15:00+00:00'
+          - approvalRequestId: 22222222-3333-4444-5555-666666666666
+            hash: aaaabbbbccccdddd0000111122223333
+            actionDate: '2026-11-03T08:00:00+00:00'
+            path: C:/Windows/policyhost.exe
+            hostname: lab-endpoint-02
+            username: labuser2
+            requestorReason: agent update
+      params:
+        max_records: '50'
+        include_child_organizations: 'true'
+      next: Match TL Requests
+
+    - name: Match TL Requests
+      type: code_snippet
+      comment: |
+        Exact hash equality, pending rows only (no actionDate): a request
+        that was already answered belongs to whoever answered it. The rows
+        are embedded as parallel strings-only lists (per-field extract,
+        string-coerced before |tojson) so a live response carrying booleans
+        cannot poison the sandbox with a lowercase true.
+      code: |
+        wanted = {{ vars.input.params.indicator | default('', true) | string | lower | tojson }}
+        ids = {{ vars.steps.Find_Matching_TL_Requests.data.approval_requests | default([], true) | map(attribute='approvalRequestId') | map('default', '') | map('string') | list | tojson }}
+        hashes = {{ vars.steps.Find_Matching_TL_Requests.data.approval_requests | default([], true) | map(attribute='hash') | map('default', '') | map('string') | list | tojson }}
+        actions = {{ vars.steps.Find_Matching_TL_Requests.data.approval_requests | default([], true) | map(attribute='actionDate') | map('default', '') | map('string') | list | tojson }}
+        matched = []
+        n = len(ids)
+        if len(hashes) == n and len(actions) == n:
+            i = 0
+            while i < n:
+                if hashes[i] != '' and actions[i] == '' and ids[i] != '':
+                    if hashes[i].strip().lower() == wanted.strip().lower():
+                        matched.append(ids[i])
+                i = i + 1
+        print({'request_ids': ','.join(matched), 'count': len(matched)})
+      mock_result:
+        # Canonical demo case: the indicator was not a file hash (no queue
+        # rows to match), so nothing is auto-rejected. The hash-match lane
+        # (count 1) is exercised by patching this mock in the walk harness.
+        data:
+          code_output:
+            request_ids: ''
+            count: 0
+      next: Reject Matching TL Requests
+
+    - name: Reject Matching TL Requests
+      type: connector
+      connector: threatlocker
+      operation: reject_approval_requests
+      config: ''
+      comment: |
+        The auto-deny, with the verdict as the reason the user sees on the
+        toast follow-up and in their notification email. notify_on_response
+        true: the requestor must not discover the deny by trial and error.
+      when: "{{ vars.steps.Match_TL_Requests.data.code_output.count | default(0, true) | int > 0 }}"
+      mock_result:
+        data:
+          status: Success
+      params:
+        approval_request_ids: '{{ vars.steps.Match_TL_Requests.data.code_output.request_ids }}'
+        reject_reason: >-
+          Not permitted: FortiGuard rates this file {{ vars.input.params.verdict }}
+          (risk score {{ vars.input.params.risk_score | default('unknown', true) }}).
+          If you believe this is wrong, contact the SOC with the linked SIR.
+        notify_on_response: 'true'
+      next: Open SIR
+
+    # ---- the human plane: whether or not enforcement ran, the SOC's records
+    # are created. Splunk is the SOC's notification surface (Splunk Mobile
+    # pushes off these records); the ServiceNow SIR routes to its assignee.
+
+    - name: Open SIR
+      type: connector
+      connector: servicenow
+      operation: create_SIR
+      config: ''
+      comment: |
+        The ticket of record. table_name is the SIR module's incident table;
+        a deployment without the SIR plugin switches this single step to
+        create_incident.
+      mock_result:
+        data:
+          result:
+            sys_id: aabbccdd-1122-3344-5566-778899aabbcc
+            number: SIR0010001
+      params:
+        table_name: sn_si_incident
+        short_description: >-
+          {{ 'AUTO-BLOCKED' if vars.enforce_bool else 'Recorded' }}:
+          {{ vars.input.params.verdict }} {{ vars.input.params.indicator_type }}
+          {{ vars.input.params.indicator }}
+        category: Malware
+        severity: "{{ 'High' if vars.enforce_bool else 'Medium' }}"
+        impact: Medium
+        urgency: "{{ 'High' if vars.enforce_bool else 'Medium' }}"
+        state: Analysis
+        description: >-
+          FortiGuard verdict {{ vars.input.params.verdict }} (risk score
+          {{ vars.input.params.risk_score | default('unknown', true) }})
+          on {{ vars.input.params.indicator_type }}
+          {{ vars.input.params.indicator }}. Reported by
+          {{ vars.input.params.source | default('unspecified source', true) }}
+          {% if vars.input.params.hostname | default('', true) | length > 0 %}on host
+          {{ vars.input.params.hostname }}{% endif %}.
+          Enforcement: {{ 'all layers attempted' if vars.enforce_bool else 'record only (verdict below auto threshold)' }}.
+        work_notes: >-
+          Gate: {{ vars.steps.Block_URL_At_Gate.data.action_status | default('', true) }}
+          {{ vars.steps.Block_IPv4_At_Gate.data.action_status | default('', true) }}{{ vars.steps.Block_IPv6_At_Gate.data.action_status | default('', true) }}.
+          Defender indicator: {{ vars.steps.Defender_Indicator.data.id | default('not applicable', true) }}.
+          ThreatLocker requests auto-rejected:
+          {{ vars.steps.Match_TL_Requests.data.code_output.count | default(0, true) }}.
+      next: Record In Splunk
+
+    - name: Record In Splunk
+      type: connector
+      connector: splunk
+      operation: add_record_to_collection
+      config: ''
+      comment: |
+        The SOC keeps their SIEM as their pane; the record lands where their
+        existing saved searches and Splunk Mobile alerting already look.
+        record_key = the indicator: blocking the same indicator twice
+        overwrites the record instead of duplicating it.
+      mock_result:
+        data:
+          _key: '{{ vars.input.params.indicator }}'
+      params:
+        app_name: '{{ vars.splunk_app_name }}'
+        collection: '{{ vars.splunk_collection }}'
+        owner: nobody
+        record_key: '{{ vars.input.params.indicator }}'
+        record_value: >-
+          {{ {
+            'indicator': vars.input.params.indicator | default('', true),
+            'indicator_type': vars.input.params.indicator_type | default('', true),
+            'verdict': vars.input.params.verdict | default('', true),
+            'risk_score': vars.input.params.risk_score | default('', true),
+            'enforced': vars.enforce_bool,
+            'source': vars.input.params.source | default('', true),
+            'hostname': vars.input.params.hostname | default('', true),
+            'username': vars.input.params.username | default('', true),
+            'gate_url': vars.steps.Block_URL_At_Gate.data.action_status | default('', true),
+            'gate_ip': vars.steps.Block_IPv4_At_Gate.data.action_status | default('', true) ~ vars.steps.Block_IPv6_At_Gate.data.action_status | default('', true),
+            'defender_id': vars.steps.Defender_Indicator.data.id | default('', true),
+            'tl_rejected': vars.steps.Match_TL_Requests.data.code_output.count | default(0, true)
+          } | tojson }}
+      next: Cascade Summary
+
+    - name: Cascade Summary
+      type: set_variable
+      comment: The receipt bundle callers read back off the workflow_reference step.
+      vars:
+        enforced: '{{ vars.enforce_bool }}'
+        sir_number: "{{ vars.steps.Open_SIR.data.result.number | default('', true) }}"
+        sir_sys_id: "{{ vars.steps.Open_SIR.data.result.sys_id | default('', true) }}"
+        splunk_key: "{{ vars.steps.Record_In_Splunk.data._key | default('', true) }}"
+        tl_reject_count: "{{ vars.steps.Match_TL_Requests.data.code_output.count | default(0, true) }}"
+
+  # ==========================================================================
+  # Block Indicator (API): the generic front door. Any detector -- or a
+  # human -- POSTs an indicator, the verdict decides autonomy: malicious
+  # cascades silently, suspicious stops for a phone-approvable human, clean
+  # records only.
+  # ==========================================================================
+
+  - name: 'Auto-Block Cascade > Block Indicator (API)'
+    description: >-
+      REST entry point of the layered response:
+      POST /api/triggers/1/block-indicator with a JSON body: {"indicator":
+      "...", "hostname": "...", "username": "...", "computer_id": "...",
+      "source": "...", "notes": "..."}. Everything is optional except the
+      indicator, so the cheapest detector integration is a one-field POST.
+      Malicious verdicts auto-block at every layer; suspicious verdicts wait
+      for a human; everything is reported to ServiceNow and Splunk. The raw
+      body arrives at vars.steps.Start.input.params.api_body; this playbook
+      parses it once and reads the fields defensively.
+    is_active: true
+    tags:
+    - auto-block
+    - api
+    steps:
+    - name: Start
+      type: api_endpoint
+      route: block-indicator
+      mock_result:
+        # Walk seed for the offline harness: the platform binds the raw POST
+        # body at vars.steps.Start.input.params.api_body (via the trigger's
+        # canonical step_variables), and there is no live box here to send a
+        # request. This models the demo POST; FSR only uses a step's mock
+        # when Use-Mock-Output is toggled on, so a live install is unaffected.
+        input:
+          params:
+            api_body: '{"indicator": "simple-scripts.de", "hostname": "lab-endpoint-01", "source": "demo"}'
+      next: Parse Request
+
+    - name: Parse Request
+      type: set_variable
+      comment: |
+        The body arrives at api_body as a parsed mapping or as a raw string,
+        depending on the sender; this normalizes both to a JSON text the
+        next step can read with from_json. (No code snippet here on
+        purpose: the sandbox disallows imports and API bodies need a JSON
+        parse, so the parse stays in Jinja where from_json is live-proven.)
+      vars:
+        body_json: >-
+          {% set b = vars.steps.Start.input.params.api_body | default('', true) %}
+          {%- if b is mapping %}{{ b | to_json }}
+          {%- elif b | string | length > 0 %}{{ b | string | from_json | to_json }}
+          {%- else %}{}{% endif -%}
+      next: Read Request
+
+    - name: Read Request
+      type: set_variable
+      comment: |
+        Field-per-var extraction; absent fields fall back so every
+        downstream step reads primitives.
+      vars:
+        indicator: "{{ (vars.body_json | from_json).indicator | default('', true) | string | trim }}"
+        hostname: "{{ (vars.body_json | from_json).hostname | default('', true) | string }}"
+        computer_id: "{{ (vars.body_json | from_json).computer_id | default('', true) | string }}"
+        username: "{{ (vars.body_json | from_json).username | default('', true) | string }}"
+        source: "{{ (vars.body_json | from_json).source | default('api', true) | string }}"
+        notes: "{{ (vars.body_json | from_json).notes | default('', true) | string }}"
+      next: Indicator Given
+
+    - name: Indicator Given
+      type: decision
+      conditions:
+      - display: Indicator Present
+        when: "{{ vars.indicator | default('', true) | length > 0 }}"
+        next: Resolve Verdict
+      - display: Empty Request
+        default: true
+        next: Refuse Empty Request
+
+    - name: Refuse Empty Request
+      type: set_variable
+      comment: A malformed POST dies here with something the caller can read.
+      vars:
+        refused: 'refused: no indicator in the request body.'
+      next: End
+
+    - name: Resolve Verdict
+      type: workflow_reference
+      target: '>> Auto-Block Cascade > Resolve Indicator Verdict'
+      comment: |
+        The shared brain: classification + FortiGuard verdict, read back off
+        this step (verdict, indicator_type, defender_type, risk_score, ...).
+      indicator: '{{ vars.indicator }}'
+      apply_async: false
+      pass_parent_env: false
+      pass_input_record: false
+      next: Verdict Branch
+
+    - name: Verdict Branch
+      type: decision
+      conditions:
+      - display: Malicious (auto-block)
+        when: "{{ vars.steps.Resolve_Verdict.verdict | default('unknown', true) == 'malicious' }}"
+        next: Enforce Everywhere
+      - display: Suspicious (human gate)
+        when: "{{ vars.steps.Resolve_Verdict.verdict | default('unknown', true) == 'suspicious' }}"
+        next: Suspicious Approval
+      - display: Clean Or Unknown (record only)
+        default: true
+        next: Record Only
+
+    - name: Suspicious Approval
+      type: manual_input
+      title: Suspicious indicator -- approve the cascade?
+      description: >-
+        FortiGuard rates {{ vars.steps.Resolve_Verdict.indicator }} at risk
+        score {{ vars.steps.Resolve_Verdict.risk_score | default('unknown', true) }}
+        ({{ vars.steps.Resolve_Verdict.category | default('no category', true) }},
+        {{ vars.steps.Resolve_Verdict.confidence | default('unknown', true) }} confidence):
+        suspicious, not confirmed-bad. Blocking is warranted by the score but
+        could dent a legitimate site. Reported by
+        {{ vars.source | default('api', true) }}
+        {% if vars.hostname | default('', true) | length > 0 %}on host
+        {{ vars.hostname }}{% endif %}.
+      options:
+      - display: Approve And Block
+        primary: true
+        next: Enforce Everywhere
+      - display: Record Only
+        next: Record Only
+      is_approval: true
+
+    - name: Enforce Everywhere
+      type: workflow_reference
+      target: '>> Auto-Block Cascade > Enforce Indicator'
+      comment: |
+        The 3am path: no human required, every layer, then the SIR and
+        Splunk record.
+      indicator: '{{ vars.steps.Resolve_Verdict.indicator }}'
+      indicator_type: '{{ vars.steps.Resolve_Verdict.indicator_type }}'
+      defender_type: '{{ vars.steps.Resolve_Verdict.defender_type }}'
+      verdict: '{{ vars.steps.Resolve_Verdict.verdict }}'
+      risk_score: '{{ vars.steps.Resolve_Verdict.risk_score }}'
+      computer_id: '{{ vars.computer_id | default("", true) }}'
+      hostname: '{{ vars.hostname | default("", true) }}'
+      username: '{{ vars.username | default("", true) }}'
+      source: '{{ vars.source | default("api", true) }}'
+      notes: '{{ vars.notes | default("", true) }}'
+      enforce: 'true'
+      apply_async: false
+      pass_parent_env: false
+      pass_input_record: false
+      next: Stamp Enforce Receipt
+
+    - name: Stamp Enforce Receipt
+      type: set_variable
+      comment: |
+        Branch-safe receipt: the enforce lane and the record-only lane each
+        stamp the SAME var names immediately after the workflow_reference,
+        so the shared Done step below never references a step that only
+        ran on a sibling branch.
+      vars:
+        sir_number: '{{ vars.steps.Enforce_Everywhere.sir_number | default("", true) }}'
+        splunk_key: '{{ vars.steps.Enforce_Everywhere.splunk_key | default("", true) }}'
+        enforced: 'true'
+      next: Done
+
+    - name: Stamp Record Receipt
+      type: set_variable
+      comment: The record-only lane's copy of the same receipt vars.
+      vars:
+        sir_number: '{{ vars.steps.Record_Only.sir_number | default("", true) }}'
+        splunk_key: '{{ vars.steps.Record_Only.splunk_key | default("", true) }}'
+        enforced: 'false'
+      next: Done
+
+    - name: Done
+      type: set_variable
+      comment: The run's ledger line for the REST response and the run tree.
+      vars:
+        outcome: >-
+          {{ vars.steps.Resolve_Verdict.verdict | default('unknown', true) }} indicator
+          {{ vars.steps.Resolve_Verdict.indicator | default('', true) }}:
+          {{ 'blocked at every layer' if vars.enforced | default('', true) == 'true' else 'recorded only' }},
+          SIR {{ vars.sir_number | default('none', true) }},
+          Splunk record {{ vars.splunk_key | default('none', true) }}.
+      next: End
+
+    - name: Record Only
+      type: workflow_reference
+      target: '>> Auto-Block Cascade > Enforce Indicator'
+      comment: |
+        SIR + Splunk only: the verdict is below the auto threshold and
+        nobody approved more.
+      indicator: '{{ vars.steps.Resolve_Verdict.indicator }}'
+      indicator_type: '{{ vars.steps.Resolve_Verdict.indicator_type }}'
+      defender_type: '{{ vars.steps.Resolve_Verdict.defender_type }}'
+      verdict: '{{ vars.steps.Resolve_Verdict.verdict }}'
+      risk_score: '{{ vars.steps.Resolve_Verdict.risk_score }}'
+      computer_id: '{{ vars.computer_id | default("", true) }}'
+      hostname: '{{ vars.hostname | default("", true) }}'
+      username: '{{ vars.username | default("", true) }}'
+      source: '{{ vars.source | default("api", true) }}'
+      notes: '{{ vars.notes | default("", true) }}'
+      enforce: 'false'
+      apply_async: false
+      pass_parent_env: false
+      pass_input_record: false
+      next: Stamp Record Receipt
+
+    - name: End
+      type: end
+
+  # ==========================================================================
+  # ThreatLocker Request Autotriage: the end-user loop. A user double-clicks
+  # a blocked file, gets the toast, requests it (that is the "ticket" in
+  # ThreatLocker). This picks the next pending request, verdicts it via
+  # FortiGuard, and only on a malicious verdict auto-rejects it with the
+  # reason and cascades the hash. Everything less becomes a task for a human
+  # (the connector's own Decide Elevation Request sample is that human's
+  # home). Run it on a schedule.
+  # ==========================================================================
+
+  - name: 'Auto-Block Cascade > ThreatLocker Request Autotriage'
+    description: >-
+      Pulls the ThreatLocker approval queue, verdicts the next pending
+      request's file hash with FortiGuard, auto-rejects it with the verdict
+      as the reason when malicious, and cascades the hash to the other
+      layers. Not-malicious requests become a human task. Run it from the
+      Run button or a schedule.
+    is_active: true
+    tags:
+    - auto-block
+    - threatlocker
+    steps:
+    - name: Start
+      type: start
+      next: List Pending Requests
+
+    - name: List Pending Requests
+      type: connector
+      connector: threatlocker
+      operation: get_approval_requests
+      config: ''
+      mock_result:
+        # Row 1 pending (the demo hash 9999...), row 2 already answered and
+        # therefore out of scope: answering it again would race the human
+        # who already acted.
+        data:
+          count: 2
+          approval_requests:
+          - approvalRequestId: 33333333-4444-5555-6666-777777777777
+            hash: 9999aaaabbbbccccddddeeeeffff0000aa11bb22cc33dd44ee55ff66cc77
+            path: C:/Users/labuser/Downloads/update.exe
+            hostname: lab-endpoint-01
+            username: labuser
+            requestorReason: need it for testing
+            dateTime: '2026-11-03T09:15:00+00:00'
+          - approvalRequestId: 44444444-5555-6666-7777-888888888888
+            hash: aaaabbbbccccdddd0000111122223333
+            path: C:/Program Files/Bin/tool.exe
+            hostname: lab-endpoint-02
+            username: labuser2
+            requestorReason: installer helper
+            dateTime: '2026-11-03T09:20:00+00:00'
+            actionDate: '2026-11-03T10:00:00+00:00'
+      params:
+        max_records: '50'
+        include_child_organizations: 'true'
+      next: Pick Next Untriaged
+
+    - name: Pick Next Untriaged
+      type: code_snippet
+      comment: |
+        One request per run: pending only (no actionDate), hash present. The
+        connector's shipped Decide Elevation Request sample is the
+        multi-choice human surface; this is the overnight half, so it stays
+        narrow and one-at-a-time. Rows embed as parallel strings-only lists
+        (per-field extract, string-coerced before |tojson) so live DTO
+        booleans cannot reach the sandbox as bare `true`.
+      code: |
+        ids = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='approvalRequestId') | map('default', '') | map('string') | list | tojson }}
+        hashes = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='hash') | map('default', '') | map('string') | list | tojson }}
+        paths = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='path') | map('default', '') | map('string') | list | tojson }}
+        hostnames = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='hostname') | map('default', '') | map('string') | list | tojson }}
+        usernames = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='username') | map('default', '') | map('string') | list | tojson }}
+        reasons = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='requestorReason') | map('default', '') | map('string') | list | tojson }}
+        requested_ats = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='dateTime') | map('default', '') | map('string') | list | tojson }}
+        actions = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='actionDate') | map('default', '') | map('string') | list | tojson }}
+        picked = {}
+        pending = 0
+        n = len(ids)
+        if len(hashes) == n and len(actions) == n and len(paths) == n and len(hostnames) == n and len(usernames) == n and len(reasons) == n and len(requested_ats) == n:
+            i = 0
+            while i < n:
+                if actions[i] == '':
+                    pending = pending + 1
+                    if not picked and hashes[i] != '':
+                        picked = {'request_id': ids[i], 'file_hash': hashes[i],
+                                  'path': paths[i], 'hostname': hostnames[i],
+                                  'username': usernames[i], 'requestor_reason': reasons[i],
+                                  'requested_at': requested_ats[i]}
+                i = i + 1
+        print({'picked': picked, 'pending_count': pending})
+      mock_result:
+        # Mirrors the queue mock above: one pending request for the demo
+        # hash, one already answered. The nothing-pending lane patches this
+        # in the walk harness.
+        data:
+          code_output:
+            picked:
+              request_id: 33333333-4444-5555-6666-777777777777
+              file_hash: 9999aaaabbbbccccddddeeeeffff0000aa11bb22cc33dd44ee55ff66cc77
+              path: C:/Users/labuser/Downloads/update.exe
+              hostname: lab-endpoint-01
+              username: labuser
+              requestor_reason: need it for testing
+              requested_at: '2026-11-03T09:15:00+00:00'
+            pending_count: 2
+      next: One To Verdict
+
+    - name: One To Verdict
+      type: decision
+      conditions:
+      - display: Pending Request Found
+        when: "{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked | default({}, true) | length > 0 }}"
+        next: Resolve Request Verdict
+      - display: Nothing Pending
+        default: true
+        next: Nothing To Triage
+
+    - name: Nothing To Triage
+      type: set_variable
+      comment: |
+        The quiet case is a result too: nothing malicious was waiting.
+      vars:
+        outcome: >-
+          {{ vars.steps.Pick_Next_Untriaged.data.code_output.pending_count | default(0, true) }} pending
+          ThreatLocker request(s) reviewed, none needs this run.
+
+    - name: Resolve Request Verdict
+      type: workflow_reference
+      target: '>> Auto-Block Cascade > Resolve Indicator Verdict'
+      indicator: '{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.file_hash }}'
+      apply_async: false
+      pass_parent_env: false
+      pass_input_record: false
+      next: Request Verdict Branch
+
+    - name: Request Verdict Branch
+      type: decision
+      conditions:
+      - display: Malicious File
+        when: "{{ vars.steps.Resolve_Request_Verdict.verdict | default('unknown', true) == 'malicious' }}"
+        next: Reject Request
+      - display: Needs A Human
+        default: true
+        next: Human Queue
+
+    - name: Reject Request
+      type: connector
+      connector: threatlocker
+      operation: reject_approval_requests
+      config: ''
+      comment: |
+        The user sees this reason on the request's response and in the
+        notification; the verdict is not a mystery to them.
+      mock_result:
+        data:
+          status: Success
+      params:
+        approval_request_ids: '{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.request_id }}'
+        reject_reason: >-
+          Not permitted: FortiGuard rates this file malicious (risk score
+          {{ vars.steps.Resolve_Request_Verdict.risk_score | default('unknown', true) }}).
+          If you believe this is wrong, contact the SOC.
+        notify_on_response: 'true'
+      next: Cascade The Hash
+
+    - name: Cascade The Hash
+      type: workflow_reference
+      target: '>> Auto-Block Cascade > Enforce Indicator'
+      comment: |
+        Defender IOC + the SIR/Splunk records (the gate carries hashes for
+        no one; ThreatLocker-side this run already closed the request, and
+        the endpoint default-deny was never opened).
+      indicator: '{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.file_hash }}'
+      indicator_type: '{{ vars.steps.Resolve_Request_Verdict.indicator_type }}'
+      defender_type: '{{ vars.steps.Resolve_Request_Verdict.defender_type }}'
+      verdict: '{{ vars.steps.Resolve_Request_Verdict.verdict }}'
+      risk_score: '{{ vars.steps.Resolve_Request_Verdict.risk_score }}'
+      computer_id: ''
+      hostname: '{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.hostname }}'
+      username: '{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.username }}'
+      source: 'ThreatLocker approval autotriage'
+      notes: >-
+        {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.path }} requested
+        by {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.username }}
+        with reason: {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.requestor_reason | truncate(200) }}
+      enforce: 'true'
+      apply_async: false
+      pass_parent_env: false
+      pass_input_record: false
+      next: Autotriage Summary
+
+    - name: Human Queue
+      type: create_task
+      comment: |
+        Suspicious, clean or unknown: a human decides -- with the connector's
+        Decide Elevation Request playbook as the natural next step, since it
+        loads the permit context and the decision history.
+      resource:
+        name: >-
+          ThreatLocker request needs a decision (verdict
+          {{ vars.steps.Resolve_Request_Verdict.verdict | default('unknown', true) }}):
+          {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.path | truncate(80, True, '') }}
+        status: Open
+        priority: "{{ 'High' if vars.steps.Resolve_Request_Verdict.verdict == 'suspicious' else 'Low' }}"
+        description: >-
+          FortiGuard scored the file hash
+          {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.file_hash }}
+          as {{ vars.steps.Resolve_Request_Verdict.verdict | default('unknown', true) }}
+          (risk {{ vars.steps.Resolve_Request_Verdict.risk_score | default('-', true) }}).
+          Requested by {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.username }}
+          on {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.hostname }}:
+          "{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.requestor_reason | default('(no reason given)', true) }}".
+          Decide with the ThreatLocker connector's Decide Elevation Request playbook, or in the portal.
+      next: End
+
+    - name: Autotriage Summary
+      type: set_variable
+      vars:
+        outcome: >-
+          auto-rejected request
+          {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.request_id | default('', true) }}
+          (risk {{ vars.steps.Resolve_Request_Verdict.risk_score | default('-', true) }}),
+          ThreatLocker requests closed this run:
+          {{ vars.steps.Cascade_The_Hash.tl_reject_count | default(0, true) }},
+          SIR {{ vars.steps.Cascade_The_Hash.sir_number | default('', true) }}.
+      next: End
+
+    - name: End
+      type: end
+
+  # ==========================================================================
+  # Darktrace Breach Sweep: the detection-side example. Darktrace has already
+  # pushed the breach to whoever carries the Darktrace mobile app; this is
+  # the machine response -- pull model breaches from a lookback window, take
+  # the first one, extract its destination indicators, and feed them into the
+  # same verdict-then-cascade. CrowdStrike identity alerts, Defender alerts
+  # and anything else with an API wire in exactly the same way (POST to the
+  # block-indicator route), so this one is the template to copy.
+  # ==========================================================================
+
+  - name: 'Auto-Block Cascade > Darktrace Breach Sweep'
+    description: >-
+      Pulls Darktrace model breaches from a lookback window and feeds the
+      first one's destination indicators into the layered response (verdict
+      first; malicious cascades, anything less records with a task). Run it
+      from the Run button or a schedule.
+    is_active: true
+    tags:
+    - detect
+    - auto-block
+    steps:
+    - name: Start
+      type: start
+      next: Configuration
+
+    - name: Configuration
+      type: set_variable
+      comment: |
+        Darktrace takes epoch seconds for its window. Acknowledged breaches
+        are skipped by default -- acknowledged means a human already chose
+        a lane.
+      vars:
+        lookback_minutes: '15'
+        include_acknowledged: 'false'
+        window_start: "{{ arrow.utcnow().shift(minutes=-(vars.lookback_minutes | default('15', true) | int)).int_timestamp }}"
+        window_end: '{{ arrow.utcnow().int_timestamp }}'
+      next: List Breaches
+
+    - name: List Breaches
+      type: connector
+      connector: darktrace
+      operation: get_model_breaches
+      config: ''
+      mock_result:
+        # The details payload varies by model; this mock is the document --
+        # rows with a pbid are all this playbook relies on.
+        data:
+        - pbid: 'PB-1234'
+          did: 7
+          model:
+            name: Unusual External Connection
+      params:
+        starttime: '{{ vars.window_start }}'
+        endtime: '{{ vars.window_end }}'
+        includeacknowledged: '{{ vars.include_acknowledged }}'
+      next: Breaches Found
+
+    - name: Breaches Found
+      type: decision
+      conditions:
+      - display: Breaches Present
+        when: "{{ vars.steps.List_Breaches.data | default([], true) | length > 0 }}"
+        next: Get Breach Details
+      - display: Quiet Window
+        default: true
+        next: Quiet Window Result
+
+    - name: Quiet Window Result
+      type: set_variable
+      comment: |
+        Terminal for the no-breach branch; it deliberately reads no
+        breach-detail data (those steps did not run on this branch, and a
+        reference here would be branch-unsafe).
+      vars:
+        outcome: >-
+          Darktrace sweep: no model breaches in the window
+          ({{ vars.lookback_minutes }} minutes).
+
+    - name: Get Breach Details
+      type: connector
+      connector: darktrace
+      operation: get_breach_details
+      config: ''
+      comment: |
+        The breach detail payload carries the endpoint, hostname and
+        destination fields (model-dependent -- the candidate keys are read
+        defensively; a renamed key costs a missed candidate, never a crash).
+      mock_result:
+        data:
+          pbid: PB-1234
+          model:
+            name: Unusual External Connection
+          externalhost_1: simple-scripts.de
+          externalip_1: 203.0.113.5
+          hostname: lab-endpoint-01
+      params:
+        pbid: "{{ (vars.steps.List_Breaches.data | default([], true) | first).pbid }}"
+      next: Extract Indicators
+
+    - name: Extract Indicators
+      type: code_snippet
+      comment: |
+        Candidate values come from the known destination keys, each
+        string-coerced before |tojson (whole-payload embedding would hand
+        Python lowercase true/false the moment a live detail carries a
+        boolean). The FIRST candidate that looks like an IP or a dotted
+        hostname is swept this run; the SIR/task record keeps the whole
+        candidate list.
+      code: |
+        cands = [
+            {{ (vars.steps.Get_Breach_Details.data.externalhost_1 | default('', true)) | string | tojson }},
+            {{ (vars.steps.Get_Breach_Details.data.externalip_1 | default('', true)) | string | tojson }},
+            {{ (vars.steps.Get_Breach_Details.data.externalhost | default('', true)) | string | tojson }},
+            {{ (vars.steps.Get_Breach_Details.data.externalip | default('', true)) | string | tojson }},
+            {{ (vars.steps.Get_Breach_Details.data.external_endpoint | default('', true)) | string | tojson }},
+        ]
+        out = []
+        i = 0
+        while i < len(cands):
+            v = str(cands[i]).strip()
+            if v != '' and v not in out:
+                out.append(v)
+            i = i + 1
+        picked = ''
+        j = 0
+        while j < len(out):
+            cand = out[j]
+            looks_ip = True
+            parts = cand.split('.')
+            if len(parts) != 4:
+                looks_ip = False
+            p = 0
+            while p < len(parts):
+                try:
+                    q = int(parts[p])
+                except Exception:
+                    looks_ip = False
+                    break
+                if q < 0 or q > 255:
+                    looks_ip = False
+                    break
+                p = p + 1
+            if looks_ip or ('.' in cand and ' ' not in cand):
+                picked = cand
+                break
+            j = j + 1
+        print({'candidates': out, 'picked': picked})
+      mock_result:
+        # Mirrors the breach-details mock above: simple-scripts.de is the
+        # picked destination candidate. The nothing-usable lane patches
+        # picked '' in the walk harness.
+        data:
+          code_output:
+            candidates:
+            - simple-scripts.de
+            - 203.0.113.5
+            picked: simple-scripts.de
+      next: Indicator Extracted
+
+    - name: Indicator Extracted
+      type: decision
+      conditions:
+      - display: Indicator Found
+        when: "{{ vars.steps.Extract_Indicators.data.code_output.picked | default('', true) | length > 0 }}"
+        next: Resolve Breach Verdict
+      - display: Nothing Usable
+        default: true
+        next: Swept Nothing
+
+    - name: Swept Nothing
+      type: set_variable
+      vars:
+        outcome: >-
+          Darktrace sweep: nothing actionable in the window
+          ({{ vars.lookback_minutes }} minutes). Candidates seen:
+          {{ vars.steps.Extract_Indicators.data.code_output.candidates | default([], true) | join(', ') | default('none', true) }}.
+
+    - name: Resolve Breach Verdict
+      type: workflow_reference
+      target: '>> Auto-Block Cascade > Resolve Indicator Verdict'
+      indicator: '{{ vars.steps.Extract_Indicators.data.code_output.picked }}'
+      apply_async: false
+      pass_parent_env: false
+      pass_input_record: false
+      next: Breach Verdict Branch
+
+    - name: Breach Verdict Branch
+      type: decision
+      conditions:
+      - display: Malicious (auto-block)
+        when: "{{ vars.steps.Resolve_Breach_Verdict.verdict | default('unknown', true) == 'malicious' }}"
+        next: Enforce Breach Indicator
+      - display: Needs Records Or A Human
+        default: true
+        next: Record Breach Indicator
+
+    - name: Enforce Breach Indicator
+      type: workflow_reference
+      target: '>> Auto-Block Cascade > Enforce Indicator'
+      indicator: '{{ vars.steps.Extract_Indicators.data.code_output.picked }}'
+      indicator_type: '{{ vars.steps.Resolve_Breach_Verdict.indicator_type }}'
+      defender_type: '{{ vars.steps.Resolve_Breach_Verdict.defender_type }}'
+      verdict: '{{ vars.steps.Resolve_Breach_Verdict.verdict }}'
+      risk_score: '{{ vars.steps.Resolve_Breach_Verdict.risk_score }}'
+      computer_id: ''
+      hostname: "{{ vars.steps.Get_Breach_Details.data.hostname | default('', true) }}"
+      username: ''
+      source: "Darktrace breach sweep ({{ vars.steps.Get_Breach_Details.data.pbid | default('', true) }})"
+      notes: >-
+        {{ vars.steps.Get_Breach_Details.data.model.name | default('Darktrace model breach', true) }}:
+        candidates {{ vars.steps.Extract_Indicators.data.code_output.candidates | default([], true) | join(', ') | truncate(300) }}
+      enforce: 'true'
+      apply_async: false
+      pass_parent_env: false
+      pass_input_record: false
+      next: Stamp Enforce Receipt
+
+    - name: Stamp Enforce Receipt
+      type: set_variable
+      comment: |
+        Branch-safe receipt: the enforce lane and the task lane each stamp
+        the SAME var names, so the shared Sweep Summary never references a
+        step that only ran on a sibling branch.
+      vars:
+        sir_number: '{{ vars.steps.Enforce_Breach_Indicator.sir_number | default("", true) }}'
+        enforced: 'true'
+      next: Sweep Summary
+
+    - name: Record Breach Indicator
+      type: create_task
+      comment: |
+        Not auto-enforced (verdict under threshold): the SOC's record and the
+        human hand-off. The Darktrace app already showed a human the breach;
+        this keeps the SOC plane in step.
+      resource:
+        name: >-
+          Darktrace breach not auto-enforced (verdict
+          {{ vars.steps.Resolve_Breach_Verdict.verdict | default('unknown', true) }}):
+          {{ vars.steps.Extract_Indicators.data.code_output.picked | truncate(80, True, '') }}
+        status: Open
+        priority: "{{ 'Medium' if vars.steps.Resolve_Breach_Verdict.verdict == 'suspicious' else 'Low' }}"
+        description: >-
+          Darktrace breach {{ vars.steps.Get_Breach_Details.data.pbid | default('?', true) }}
+          ({{ vars.steps.Get_Breach_Details.data.model.name | default('model unknown', true) }})
+          candidate indicators:
+          {{ vars.steps.Extract_Indicators.data.code_output.candidates | default([], true) | join(', ') }}.
+          FortiGuard scored {{ vars.steps.Resolve_Breach_Verdict.indicator | default('', true) }} at
+          {{ vars.steps.Resolve_Breach_Verdict.risk_score | default('-', true) }}
+          ({{ vars.steps.Resolve_Breach_Verdict.verdict | default('unknown', true) }}).
+      next: Stamp Task Receipt
+
+    - name: Stamp Task Receipt
+      type: set_variable
+      comment: The task lane's copy of the same receipt vars -- no SIR exists on this lane.
+      vars:
+        sir_number: ''
+        enforced: 'false'
+      next: Sweep Summary
+
+    - name: Sweep Summary
+      type: set_variable
+      vars:
+        enforcement_happened: '{{ vars.enforced | default("", true) == "true" }}'
+        outcome: >-
+          Darktrace breach {{ vars.steps.Get_Breach_Details.data.pbid | default('?', true) }}:
+          indicator {{ vars.steps.Extract_Indicators.data.code_output.picked }} was
+          {{ vars.steps.Resolve_Breach_Verdict.verdict | default('unknown', true) }};
+          {{ 'enforced' if (vars.enforced | default('', true)) == 'true' else 'tasked for review' }},
+          SIR {{ vars.sir_number | default('none', true) }}.
+      next: End
+
+    - name: End
+      type: end

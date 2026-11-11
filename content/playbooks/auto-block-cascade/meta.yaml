@@ -1,0 +1,54 @@
+title: Auto-Block Cascade
+summary: 'One FortiGuard verdict drives a block at every layer that can carry it: FortiGate, Defender,
+  ThreatLocker -- reporting to ServiceNow and Splunk.'
+description: "# Auto-Block Cascade (shelf description)\n\nOne detection, one FortiGuard verdict, one automatic\
+  \ block at every layer\nthat can carry it -- with no human awake. The SOC plane (ServiceNow +\nSplunk)\
+  \ keeps working exactly as it does today.\n\nThe FortiGuard risk score gates the autonomy, not the action:\
+  \ malicious\n(risk 80 and up) cascades silently across every layer; suspicious (50-79)\npauses at a\
+  \ Manual Input approval the on-call can answer from mail or the\nFortiSOAR app; clean or unknown records\
+  \ only. The thresholds live in one\nstep, so tuning the autonomy is a one-place edit.\n\nThe layers,\
+  \ in cascade order:\n\n- **FortiGate** -- the gate, the broadest cut: `block_url` into the web\n  filter\
+  \ blocklist, `block_ip_new` Policy Based into the named IPv4/IPv6\n  block policy and group (both are\
+  \ configuration values in one step);\n  quarantine-based blocking and `quarantine_host` are the connector's\n\
+  \  other options.\n- **Microsoft Defender for Endpoint** -- `submit_indicator` with action\n  \"Alert\
+  \ and block\" carries hashes and network indicators along the paths\n  the gate never sees (remote endpoints,\
+  \ encrypted traffic).\n- **ThreatLocker** -- an application allowlist's resting state is deny,\n  and\
+  \ ThreatLocker's public API has no policy-write endpoint, so the\n  cascade holds the default-deny closed\
+  \ instead: any pending approval\n  request whose file hash matches the verdict is auto-rejected, with\
+  \ the\n  FortiGuard verdict as the reason the requestor sees. A hash cannot be\n  allow-listed out from\
+  \ under the SOC at 3am. The ThreatLocker connector\n  is not on the Content Hub; its source is\n  `github.com/ftnt-dspille/connector-threatlocker`.\n\
+  \nEvery outcome ends in a ServiceNow SIR and a Splunk KVStore record, so the\nSOC's existing notification\
+  \ surface needs no new wiring: Splunk Mobile and\nsaved searches trigger off the record, the SIR notifies\
+  \ its assignee.\n\n**Playbooks**\n\n- `Resolve Indicator Verdict` (helper) -- classifies the indicator\n\
+  \  (domain / IP / URL / sha256 / sha1 / md5, Defender type derived) and asks\n  FortiGuard `ioc_search`\
+  \ for the verdict bundle.\n- `Enforce Indicator` (helper) -- the cascade itself, each layer\n  independently\
+  \ guarded by what the indicator type can carry, and the SIR +\n  Splunk receipts either way.\n- `Block\
+  \ Indicator (API)` -- `POST /api/triggers/1/block-indicator` with a\n  JSON body, `{\"indicator\": \"\
+  ...\"}` and optional hostname, computer_id,\n  username, source, notes: the whole wiring story for ANY\
+  \ detector.\n- `ThreatLocker Request Autotriage` -- the end-user loop: a blocked user\n  requests the\
+  \ app from the ThreatLocker toast (their \"ticket\"); this\n  verdicts the pending request's file hash,\
+  \ auto-rejects on malicious, and\n  queues everything else for a human.\n- `Darktrace Breach Sweep`\
+  \ -- pulls model breaches and sweeps the first\n  usable destination indicator through the cascade:\
+  \ the machine response\n  to what the Darktrace mobile app already pushed.\n\n**Status: machine-verified\
+  \ offline, not live-tested.** The collection\ncompiles with zero warnings and all 16 execution lanes\
+  \ (every decision\nbranch, both human-approval outcomes, every terminal path) walked clean\nunder mock\
+  \ outputs. No live tenant of any product named above has been\ntouched yet. The playbooks install inactive;\
+  \ activate them after review,\nwire the connector configurations, and try the demo POST\n(`{\"indicator\"\
+  : \"simple-scripts.de\", \"source\": \"demo\"}`) to watch a first\nverdict run end to end."
+use_cases:
+- containment
+- enrichment
+- case-management
+tags:
+- auto-block
+- threatlocker
+- fortigate
+- defender
+- fortiguard
+- layered-response
+author: ftnt-dspille
+version: 1.0.0
+min_version: 7.6.0
+license: MIT
+published: '2026-11-03'
+author_id: 99558074

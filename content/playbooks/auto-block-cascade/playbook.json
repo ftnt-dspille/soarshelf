@@ -1,0 +1,3025 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [
+    "layered-response",
+    "auto-block",
+    "fortiguard",
+    "fortigate",
+    "threatlocker",
+    "defender",
+    "servicenow",
+    "splunk",
+    "darktrace"
+  ],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Auto-Block Cascade",
+      "description": "Layered response playbooks: one indicator from any detection source, one FortiGuard verdict, and automatic blocking at every layer for a malicious verdict -- FortiGate at the gate, Defender on the endpoint, ThreatLocker's default-deny held closed by auto-rejecting matching approval requests -- reporting to ServiceNow (SIR) and Splunk. Clone before editing: this is a template collection, not a configuration.",
+      "visible": true,
+      "image": null,
+      "uuid": "68b84fe1-7316-5478-8d5a-908915a3a993",
+      "recordTags": [
+        "layered-response",
+        "auto-block"
+      ],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": ">> Auto-Block Cascade > Resolve Indicator Verdict",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Classifies an indicator and resolves its FortiGuard verdict (risk score, level, confidence, category). Referenced helper: pass it `indicator`; read the result off the calling step: verdict, indicator_type, defender_type, risk_score, risk_level, confidence, category.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "indicator"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/9d36bc56-d2fa-5ba8-8e9c-003d5b01739b",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "9d36bc56-d2fa-5ba8-8e9c-003d5b01739b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Thresholds",
+              "description": null,
+              "arguments": {
+                "malicious_at": "80",
+                "suspicious_at": "50",
+                "indicator": "{{ vars.input.params.indicator | default('', true) | string | trim }}"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "f831d66a-06ea-55c7-b8ee-5497297f3904"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Classify Indicator",
+              "description": null,
+              "arguments": {
+                "connector": "code-snippet",
+                "operation": "python_inline_code_editor",
+                "operationTitle": "Execute Python Code",
+                "version": "2.1.4",
+                "step_variables": [],
+                "params": {
+                  "python_function": "ind = {{ vars.indicator | default('', true) | string | tojson }}\nnorm = ''\ntry:\n    norm = str(ind).strip()\nexcept Exception:\n    norm = ''\nlow = norm.lower()\nt = 'unknown'\nmdetype = ''\nif low.startswith('http://') or low.startswith('https://'):\n    t = 'url'\n    mdetype = 'Url'\nelse:\n    hexchars = True\n    for ch in low:\n        if ch not in '0123456789abcdef':\n            hexchars = False\n            break\n    if hexchars and len(low) == 64:\n        t = 'sha256'\n        mdetype = 'FileSha256'\n    elif hexchars and len(low) == 40:\n        t = 'sha1'\n        mdetype = 'FileSha1'\n    elif hexchars and len(low) == 32:\n        t = 'md5'\n        mdetype = 'FileMd5'\n    else:\n        isip = True\n        parts = norm.split('.')\n        if len(parts) != 4:\n            isip = False\n        p = 0\n        while p < len(parts):\n            try:\n                v = int(parts[p])\n            except Exception:\n                isip = False\n                break\n            if v < 0 or v > 255:\n                isip = False\n                break\n            p = p + 1\n        if isip:\n            t = 'ip'\n            mdetype = 'IpAddress'\n        elif ':' in norm:\n            t = 'ipv6'\n            mdetype = 'IpAddress'\n        elif '.' in norm and ' ' not in norm:\n            t = 'domain'\n            mdetype = 'DomainName'\nprint({'normalized': norm, 'indicator_type': t, 'defender_type': mdetype})\n"
+                },
+                "config": ""
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/1fdd14cc-d6b4-4335-a3af-ab49c8ed2fd8",
+              "group": null,
+              "uuid": "2cf63066-9d25-57c6-a2fc-d7514ac09857"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Indicator Given",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Indicator Present",
+                    "condition": "{{ vars.steps.Classify_Indicator.data.code_output.normalized | default('', true) | length > 0 }}",
+                    "step_iri": "/api/3/workflow_steps/8cad8927-6c7f-5598-991b-f3aa91f99c59",
+                    "step_name": "Search FortiGuard"
+                  },
+                  {
+                    "option": "Nothing To Resolve",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/34959f28-27cc-5384-b112-5ce0d0bfbecd",
+                    "step_name": "No Indicator"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "9f8496da-f4c1-542e-9f2a-c220e074cfac"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "No Indicator",
+              "description": null,
+              "arguments": {
+                "indicator": "",
+                "indicator_type": "unknown",
+                "defender_type": "",
+                "verdict": "unknown",
+                "risk_score": "",
+                "risk_level": "",
+                "confidence": "",
+                "category": "",
+                "reason": "no indicator was given"
+              },
+              "status": null,
+              "top": "640",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "34959f28-27cc-5384-b112-5ce0d0bfbecd"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Search FortiGuard",
+              "description": null,
+              "arguments": {
+                "connector": "fortinet-fortiguard-ioc",
+                "operation": "ioc_search",
+                "config": "",
+                "params": {
+                  "indicator": "{{ vars.steps.Classify_Indicator.data.code_output.normalized }}"
+                },
+                "version": "1.2.0",
+                "name": "Fortinet FortiGuard IOC",
+                "operationTitle": "IOC Search",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "8cad8927-6c7f-5598-991b-f3aa91f99c59"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Score Verdict",
+              "description": null,
+              "arguments": {
+                "connector": "code-snippet",
+                "operation": "python_inline_code_editor",
+                "operationTitle": "Execute Python Code",
+                "version": "2.1.4",
+                "step_variables": [],
+                "params": {
+                  "python_function": "raw_score = {{ (vars.steps.Search_FortiGuard.data | default([], true) | first | default({}, true)).risk_score | default('', true) | string | tojson }}\nrisk_level = {{ ((vars.steps.Search_FortiGuard.data | default([], true) | first | default({}, true)).risk_level or {}).itemValue | default('', true) | string | tojson }}\nconfidence = {{ ((vars.steps.Search_FortiGuard.data | default([], true) | first | default({}, true)).confidence or {}).itemValue | default('', true) | string | tojson }}\ncategory = {{ (vars.steps.Search_FortiGuard.data | default([], true) | first | default({}, true)).av_cate | default('', true) | string | tojson }}\nmalicious_at = {{ vars.malicious_at | default('80', true) | int }}\nsuspicious_at = {{ vars.suspicious_at | default('50', true) | int }}\nverdict = 'unknown'\nif raw_score != '':\n    try:\n        score = int(raw_score)\n    except Exception:\n        score = -1\n    if score >= malicious_at:\n        verdict = 'malicious'\n    elif score >= suspicious_at:\n        verdict = 'suspicious'\n    else:\n        verdict = 'clean'\nprint({'verdict': verdict, 'risk_score': raw_score, 'risk_level': risk_level,\n       'confidence': confidence, 'category': category})\n"
+                },
+                "config": ""
+              },
+              "status": null,
+              "top": "770",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/1fdd14cc-d6b4-4335-a3af-ab49c8ed2fd8",
+              "group": null,
+              "uuid": "9a9778e0-482a-595d-a3c2-05bcdae17e0a"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Verdict Out",
+              "description": null,
+              "arguments": {
+                "indicator": "{{ vars.steps.Classify_Indicator.data.code_output.normalized }}",
+                "indicator_type": "{{ vars.steps.Classify_Indicator.data.code_output.indicator_type }}",
+                "defender_type": "{{ vars.steps.Classify_Indicator.data.code_output.defender_type }}",
+                "verdict": "{{ vars.steps.Score_Verdict.data.code_output.verdict }}",
+                "risk_score": "{{ vars.steps.Score_Verdict.data.code_output.risk_score }}",
+                "risk_level": "{{ vars.steps.Score_Verdict.data.code_output.risk_level }}",
+                "confidence": "{{ vars.steps.Score_Verdict.data.code_output.confidence }}",
+                "category": "{{ vars.steps.Score_Verdict.data.code_output.category }}",
+                "reason": "verdict resolved: {{ vars.steps.Score_Verdict.data.code_output.verdict }}"
+              },
+              "status": null,
+              "top": "900",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "6a5dc908-a406-576e-82b6-c9ae202072fe"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Thresholds",
+              "targetStep": "/api/3/workflow_steps/f831d66a-06ea-55c7-b8ee-5497297f3904",
+              "sourceStep": "/api/3/workflow_steps/9d36bc56-d2fa-5ba8-8e9c-003d5b01739b",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9f601068-393f-5094-9180-394f8494ce62"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Thresholds -> Classify Indicator",
+              "targetStep": "/api/3/workflow_steps/2cf63066-9d25-57c6-a2fc-d7514ac09857",
+              "sourceStep": "/api/3/workflow_steps/f831d66a-06ea-55c7-b8ee-5497297f3904",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "618c567e-d78c-5865-ad6f-9b0756bda367"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Classify Indicator -> Indicator Given",
+              "targetStep": "/api/3/workflow_steps/9f8496da-f4c1-542e-9f2a-c220e074cfac",
+              "sourceStep": "/api/3/workflow_steps/2cf63066-9d25-57c6-a2fc-d7514ac09857",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "d1605199-c78d-55ae-8255-49b4d0eba430"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Indicator Given -> Search FortiGuard",
+              "targetStep": "/api/3/workflow_steps/8cad8927-6c7f-5598-991b-f3aa91f99c59",
+              "sourceStep": "/api/3/workflow_steps/9f8496da-f4c1-542e-9f2a-c220e074cfac",
+              "label": "Indicator Present",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9f9edde4-1510-591e-a7b9-1659f6753e91"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Indicator Given -> No Indicator",
+              "targetStep": "/api/3/workflow_steps/34959f28-27cc-5384-b112-5ce0d0bfbecd",
+              "sourceStep": "/api/3/workflow_steps/9f8496da-f4c1-542e-9f2a-c220e074cfac",
+              "label": "Nothing To Resolve",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b0e6e401-6953-57fc-b845-ee33df90b441"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Search FortiGuard -> Score Verdict",
+              "targetStep": "/api/3/workflow_steps/9a9778e0-482a-595d-a3c2-05bcdae17e0a",
+              "sourceStep": "/api/3/workflow_steps/8cad8927-6c7f-5598-991b-f3aa91f99c59",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e12bc0d1-384a-5b8e-a146-91cdf32e8197"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Score Verdict -> Verdict Out",
+              "targetStep": "/api/3/workflow_steps/6a5dc908-a406-576e-82b6-c9ae202072fe",
+              "sourceStep": "/api/3/workflow_steps/9a9778e0-482a-595d-a3c2-05bcdae17e0a",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "2f2b3807-4ff2-5807-97f4-f147d8bc2aa3"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Thresholds",
+              "description": "FortiGuard risk score thresholds, 0-100. 80+ auto-enforces anywhere\nthat can carry the indicator; 50-79 stops for a human; below that the\ncascade records only. One place to tune the autonomy.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "250",
+              "left": "540",
+              "height": "160",
+              "width": "440",
+              "uuid": "dfbe6302-f033-5dfd-ab11-6ac557372185",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Classify Indicator",
+              "description": "Type sniffing without surprises: URL schemes first, then fixed-length\nhex strings as file hashes, then dotted-quad IPv4, then IPv6 by colon,\nthen a domain. The Defender indicator vocabulary is derived alongside\nbecause the endpoint layer needs it.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "430",
+              "left": "880",
+              "height": "204",
+              "width": "440",
+              "uuid": "0274a886-9d5f-5bae-904e-f8b987d4d0fb",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: No Indicator",
+              "description": "The wrong entry is a dead end the caller can read, not an exception.",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "654",
+              "left": "880",
+              "height": "94",
+              "width": "440",
+              "uuid": "71428deb-719c-5b1c-880f-322bf4a816d7",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Search FortiGuard",
+              "description": "One reputation answer for the indicator. The connector returns the\nmatched IOC rows; the first row carries the scored fields the verdict\nreads (risk_score int, risk_level/confidence as {itemValue} picklists,\nav_cate the category string).\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "768",
+              "left": "880",
+              "height": "204",
+              "width": "440",
+              "uuid": "24874eb0-5b79-569a-b2ea-e5cf0dab0ce3",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Score Verdict",
+              "description": "Type-safe scoring: the score arrives as a number or a string or\nnothing at all; Python coerces once and the thresholds live in the\nThresholds step. Only string-coerced leaves are embedded (sandbox:\n|tojson on a whole step result would hand Python lowercase `true`).\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "992",
+              "left": "540",
+              "height": "226",
+              "width": "440",
+              "uuid": "c8662753-e65d-52e9-8922-2f6f1eda7f35",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Verdict Out",
+              "description": "The flat, primitive-only verdict bundle every caller reads off this\nworkflow_reference step (the last step's variables ARE the result).\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1238",
+              "left": "540",
+              "height": "138",
+              "width": "440",
+              "uuid": "5d3bddc5-ee65-5529-b28a-fcfed78d845b",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "58ad3223-18d2-53e6-8302-f39af431a35d",
+          "isPrivate": false
+        },
+        {
+          "@type": "Workflow",
+          "name": ">> Auto-Block Cascade > Enforce Indicator",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "The layered cascade: FortiGate blocklists, a Defender indicator block, auto-rejection of matching ThreatLocker approval requests -- then the ServiceNow SIR and Splunk records carrying every receipt. Referenced helper: pass it the verdict bundle from Resolve Indicator Verdict and an enforce flag.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "indicator",
+            "indicator_type",
+            "defender_type",
+            "verdict",
+            "risk_score",
+            "computer_id",
+            "hostname",
+            "username",
+            "source",
+            "notes",
+            "enforce"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/620c647f-c5e5-56bb-a938-cb6b1d5e73aa",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "620c647f-c5e5-56bb-a938-cb6b1d5e73aa"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Configuration",
+              "description": null,
+              "arguments": {
+                "fgt_block_policy": "Deny Traffic to BlockList",
+                "fgt_block_group": "FortiSOAR-AutoBlocked-IPs",
+                "splunk_app_name": "search",
+                "splunk_collection": "fortisoar_autoblock"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "e98e30eb-05c0-5a19-8acb-b4dae6df891b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Gate Layer Logic",
+              "description": null,
+              "arguments": {
+                "enforce_bool": "{{ (vars.input.params.enforce | default('false', true) | string | lower) in ('true', 'yes', '1') }}",
+                "is_net_indicator": "{{ (vars.input.params.indicator_type | default('', true)) in ('domain', 'url', 'ip', 'ipv6') }}",
+                "is_hash_indicator": "{{ (vars.input.params.indicator_type | default('', true)) in ('sha256', 'sha1', 'md5') }}"
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "0884a5dd-1514-5615-ae1d-989997624b53"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Block URL At Gate",
+              "description": null,
+              "arguments": {
+                "connector": "fortigate-firewall",
+                "operation": "block_url",
+                "config": "",
+                "when": "{{ vars.is_net_indicator and vars.enforce_bool }}",
+                "params": {
+                  "url": "{{ vars.input.params.indicator }}",
+                  "vdom": ""
+                },
+                "version": "5.4.0",
+                "name": "Fortinet FortiGate",
+                "operationTitle": "Block URL",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "567ae325-8f60-5055-be5d-4a25af5ae6e1"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Block IPv4 At Gate",
+              "description": null,
+              "arguments": {
+                "connector": "fortigate-firewall",
+                "operation": "block_ip_new",
+                "config": "",
+                "when": "{{ (vars.input.params.indicator_type | default('', true)) == 'ip' and vars.enforce_bool }}",
+                "params": {
+                  "method": "Policy Based",
+                  "ip": "{{ vars.input.params.indicator }}",
+                  "ip_type": "IPv4",
+                  "ip_group_name": "{{ vars.fgt_block_group }}",
+                  "ip_block_policy": "{{ vars.fgt_block_policy }}",
+                  "is_new": "false",
+                  "ngfw_mode": "Profile Based",
+                  "vdom": ""
+                },
+                "version": "5.4.0",
+                "name": "Fortinet FortiGate",
+                "operationTitle": "Block IP Address",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "04485c46-92a0-57cc-b2f2-54247e305e21"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Block IPv6 At Gate",
+              "description": null,
+              "arguments": {
+                "connector": "fortigate-firewall",
+                "operation": "block_ip_new",
+                "config": "",
+                "when": "{{ (vars.input.params.indicator_type | default('', true)) == 'ipv6' and vars.enforce_bool }}",
+                "params": {
+                  "method": "Policy Based",
+                  "ip": "{{ vars.input.params.indicator }}",
+                  "ip_type": "IPv6",
+                  "ip_group_name": "{{ vars.fgt_block_group }}",
+                  "ip_block_policy": "{{ vars.fgt_block_policy }}",
+                  "is_new": "false",
+                  "ngfw_mode": "Profile Based",
+                  "vdom": ""
+                },
+                "version": "5.4.0",
+                "name": "Fortinet FortiGate",
+                "operationTitle": "Block IP Address",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "770",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e7321011-2252-5d3a-95bd-f44483aa4447"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Defender Layer",
+              "description": null,
+              "arguments": {
+                "defender_enabled": "{{ (vars.input.params.defender_type | default('', true)) | length > 0 }}"
+              },
+              "status": null,
+              "top": "900",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "200eaf13-6da3-5bda-afcb-068d1891c851"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Defender Indicator",
+              "description": null,
+              "arguments": {
+                "connector": "windows-defender-atp",
+                "operation": "submit_indicator",
+                "config": "",
+                "when": "{{ vars.defender_enabled and vars.enforce_bool }}",
+                "params": {
+                  "action": "Alert and block",
+                  "indicatorType": "{{ vars.input.params.defender_type }}",
+                  "indicatorValue": "{{ vars.input.params.indicator }}",
+                  "title": "Layered response: auto-block {{ vars.input.params.verdict }} indicator",
+                  "description": "FortiGuard verdict {{ vars.input.params.verdict }} (risk score {{ vars.input.params.risk_score | default('unknown', true) }}) on indicator {{ vars.input.params.indicator }} reported by {{ vars.input.params.source | default('unspecified source', true) }}.",
+                  "severity": "High",
+                  "generateAlert": "true",
+                  "recommendedActions": "Auto-blocked by the FortiSOAR layered response; open the linked SIR before unblocking.",
+                  "expirationTime": ""
+                },
+                "version": "3.0.0",
+                "name": "Microsoft Defender For Endpoints",
+                "operationTitle": "Submit Indicator",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "1030",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "75a242b5-3921-5598-bdb7-b9584d74da49"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "ThreatLocker Try Switch",
+              "description": null,
+              "arguments": {
+                "tl_layer_on": "{{ vars.is_hash_indicator and vars.enforce_bool }}"
+              },
+              "status": null,
+              "top": "1160",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "53f926a0-4ed6-5ccf-b91a-d1339e92c3ee"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Find Matching TL Requests",
+              "description": null,
+              "arguments": {
+                "connector": "threatlocker",
+                "operation": "get_approval_requests",
+                "config": "",
+                "when": "{{ vars.tl_layer_on }}",
+                "params": {
+                  "max_records": "50",
+                  "include_child_organizations": "true"
+                },
+                "version": "1.0.0",
+                "name": "ThreatLocker",
+                "operationTitle": "Get Approval Requests",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "1290",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "3ddb1cbd-8140-597f-a3b8-04f498fa9d6f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Match TL Requests",
+              "description": null,
+              "arguments": {
+                "connector": "code-snippet",
+                "operation": "python_inline_code_editor",
+                "operationTitle": "Execute Python Code",
+                "version": "2.1.4",
+                "step_variables": [],
+                "params": {
+                  "python_function": "wanted = {{ vars.input.params.indicator | default('', true) | string | lower | tojson }}\nids = {{ vars.steps.Find_Matching_TL_Requests.data.approval_requests | default([], true) | map(attribute='approvalRequestId') | map('default', '') | map('string') | list | tojson }}\nhashes = {{ vars.steps.Find_Matching_TL_Requests.data.approval_requests | default([], true) | map(attribute='hash') | map('default', '') | map('string') | list | tojson }}\nactions = {{ vars.steps.Find_Matching_TL_Requests.data.approval_requests | default([], true) | map(attribute='actionDate') | map('default', '') | map('string') | list | tojson }}\nmatched = []\nn = len(ids)\nif len(hashes) == n and len(actions) == n:\n    i = 0\n    while i < n:\n        if hashes[i] != '' and actions[i] == '' and ids[i] != '':\n            if hashes[i].strip().lower() == wanted.strip().lower():\n                matched.append(ids[i])\n        i = i + 1\nprint({'request_ids': ','.join(matched), 'count': len(matched)})\n"
+                },
+                "config": ""
+              },
+              "status": null,
+              "top": "1420",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/1fdd14cc-d6b4-4335-a3af-ab49c8ed2fd8",
+              "group": null,
+              "uuid": "591c38dd-fd7f-5f19-886d-503b9d52aa16"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Reject Matching TL Requests",
+              "description": null,
+              "arguments": {
+                "connector": "threatlocker",
+                "operation": "reject_approval_requests",
+                "config": "",
+                "when": "{{ vars.steps.Match_TL_Requests.data.code_output.count | default(0, true) | int > 0 }}",
+                "params": {
+                  "approval_request_ids": "{{ vars.steps.Match_TL_Requests.data.code_output.request_ids }}",
+                  "reject_reason": "Not permitted: FortiGuard rates this file {{ vars.input.params.verdict }} (risk score {{ vars.input.params.risk_score | default('unknown', true) }}). If you believe this is wrong, contact the SOC with the linked SIR.",
+                  "notify_on_response": "true"
+                },
+                "version": "1.0.0",
+                "name": "ThreatLocker",
+                "operationTitle": "Reject Approval Requests",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "1550",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "d66d6dfb-4753-58eb-a946-a2e7c52fc329"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Open SIR",
+              "description": null,
+              "arguments": {
+                "connector": "servicenow",
+                "operation": "create_SIR",
+                "config": "",
+                "params": {
+                  "table_name": "sn_si_incident",
+                  "short_description": "{{ 'AUTO-BLOCKED' if vars.enforce_bool else 'Recorded' }}: {{ vars.input.params.verdict }} {{ vars.input.params.indicator_type }} {{ vars.input.params.indicator }}",
+                  "category": "Malware",
+                  "severity": "{{ 'High' if vars.enforce_bool else 'Medium' }}",
+                  "impact": "Medium",
+                  "urgency": "{{ 'High' if vars.enforce_bool else 'Medium' }}",
+                  "state": "Analysis",
+                  "description": "FortiGuard verdict {{ vars.input.params.verdict }} (risk score {{ vars.input.params.risk_score | default('unknown', true) }}) on {{ vars.input.params.indicator_type }} {{ vars.input.params.indicator }}. Reported by {{ vars.input.params.source | default('unspecified source', true) }} {% if vars.input.params.hostname | default('', true) | length > 0 %}on host {{ vars.input.params.hostname }}{% endif %}. Enforcement: {{ 'all layers attempted' if vars.enforce_bool else 'record only (verdict below auto threshold)' }}.",
+                  "work_notes": "Gate: {{ vars.steps.Block_URL_At_Gate.data.action_status | default('', true) }} {{ vars.steps.Block_IPv4_At_Gate.data.action_status | default('', true) }}{{ vars.steps.Block_IPv6_At_Gate.data.action_status | default('', true) }}. Defender indicator: {{ vars.steps.Defender_Indicator.data.id | default('not applicable', true) }}. ThreatLocker requests auto-rejected: {{ vars.steps.Match_TL_Requests.data.code_output.count | default(0, true) }}."
+                },
+                "version": "3.6.0",
+                "name": "ServiceNow",
+                "operationTitle": "Create Security Incident",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "1680",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e99ce0c1-00d6-53ee-8bdb-553ed641e4bf"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Record In Splunk",
+              "description": null,
+              "arguments": {
+                "connector": "splunk",
+                "operation": "add_record_to_collection",
+                "config": "",
+                "params": {
+                  "app_name": "{{ vars.splunk_app_name }}",
+                  "collection": "{{ vars.splunk_collection }}",
+                  "owner": "nobody",
+                  "record_key": "{{ vars.input.params.indicator }}",
+                  "record_value": "{{ {\n  'indicator': vars.input.params.indicator | default('', true),\n  'indicator_type': vars.input.params.indicator_type | default('', true),\n  'verdict': vars.input.params.verdict | default('', true),\n  'risk_score': vars.input.params.risk_score | default('', true),\n  'enforced': vars.enforce_bool,\n  'source': vars.input.params.source | default('', true),\n  'hostname': vars.input.params.hostname | default('', true),\n  'username': vars.input.params.username | default('', true),\n  'gate_url': vars.steps.Block_URL_At_Gate.data.action_status | default('', true),\n  'gate_ip': vars.steps.Block_IPv4_At_Gate.data.action_status | default('', true) ~ vars.steps.Block_IPv6_At_Gate.data.action_status | default('', true),\n  'defender_id': vars.steps.Defender_Indicator.data.id | default('', true),\n  'tl_rejected': vars.steps.Match_TL_Requests.data.code_output.count | default(0, true)\n} | tojson }}"
+                },
+                "version": "2.1.0",
+                "name": "Splunk",
+                "operationTitle": "Add Record to a Collection",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "1810",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "9291f731-b29d-5e9a-ad6e-93683f7e2717"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Cascade Summary",
+              "description": null,
+              "arguments": {
+                "enforced": "{{ vars.enforce_bool }}",
+                "sir_number": "{{ vars.steps.Open_SIR.data.result.number | default('', true) }}",
+                "sir_sys_id": "{{ vars.steps.Open_SIR.data.result.sys_id | default('', true) }}",
+                "splunk_key": "{{ vars.steps.Record_In_Splunk.data._key | default('', true) }}",
+                "tl_reject_count": "{{ vars.steps.Match_TL_Requests.data.code_output.count | default(0, true) }}"
+              },
+              "status": null,
+              "top": "1940",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "1a0c29fd-892a-5686-8205-8da1c1406410"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Configuration",
+              "targetStep": "/api/3/workflow_steps/e98e30eb-05c0-5a19-8acb-b4dae6df891b",
+              "sourceStep": "/api/3/workflow_steps/620c647f-c5e5-56bb-a938-cb6b1d5e73aa",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "0c715b78-b1e4-5b2f-898a-2b2e10779847"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Configuration -> Gate Layer Logic",
+              "targetStep": "/api/3/workflow_steps/0884a5dd-1514-5615-ae1d-989997624b53",
+              "sourceStep": "/api/3/workflow_steps/e98e30eb-05c0-5a19-8acb-b4dae6df891b",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ad76013f-e3a2-5122-881e-9f28c8a7c9ae"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Gate Layer Logic -> Block URL At Gate",
+              "targetStep": "/api/3/workflow_steps/567ae325-8f60-5055-be5d-4a25af5ae6e1",
+              "sourceStep": "/api/3/workflow_steps/0884a5dd-1514-5615-ae1d-989997624b53",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ee7289fb-f7c8-5408-94d7-4220ca7d9295"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Block URL At Gate -> Block IPv4 At Gate",
+              "targetStep": "/api/3/workflow_steps/04485c46-92a0-57cc-b2f2-54247e305e21",
+              "sourceStep": "/api/3/workflow_steps/567ae325-8f60-5055-be5d-4a25af5ae6e1",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f8a81e9a-fd17-581c-a116-c030b2286cf5"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Block IPv4 At Gate -> Block IPv6 At Gate",
+              "targetStep": "/api/3/workflow_steps/e7321011-2252-5d3a-95bd-f44483aa4447",
+              "sourceStep": "/api/3/workflow_steps/04485c46-92a0-57cc-b2f2-54247e305e21",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "3757495a-6192-58e0-9ccd-10b813fa76e2"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Block IPv6 At Gate -> Defender Layer",
+              "targetStep": "/api/3/workflow_steps/200eaf13-6da3-5bda-afcb-068d1891c851",
+              "sourceStep": "/api/3/workflow_steps/e7321011-2252-5d3a-95bd-f44483aa4447",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6126fc47-2a0e-5d0f-996c-a89762d91883"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Defender Layer -> Defender Indicator",
+              "targetStep": "/api/3/workflow_steps/75a242b5-3921-5598-bdb7-b9584d74da49",
+              "sourceStep": "/api/3/workflow_steps/200eaf13-6da3-5bda-afcb-068d1891c851",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "c4f97dd5-f6b6-57da-82f7-eb154883add1"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Defender Indicator -> ThreatLocker Try Switch",
+              "targetStep": "/api/3/workflow_steps/53f926a0-4ed6-5ccf-b91a-d1339e92c3ee",
+              "sourceStep": "/api/3/workflow_steps/75a242b5-3921-5598-bdb7-b9584d74da49",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9e13ebed-e137-5749-895d-234442664ff3"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "ThreatLocker Try Switch -> Find Matching TL Requests",
+              "targetStep": "/api/3/workflow_steps/3ddb1cbd-8140-597f-a3b8-04f498fa9d6f",
+              "sourceStep": "/api/3/workflow_steps/53f926a0-4ed6-5ccf-b91a-d1339e92c3ee",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "d4020123-7b91-5e8b-8b7b-b31f0e908f6d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Find Matching TL Requests -> Match TL Requests",
+              "targetStep": "/api/3/workflow_steps/591c38dd-fd7f-5f19-886d-503b9d52aa16",
+              "sourceStep": "/api/3/workflow_steps/3ddb1cbd-8140-597f-a3b8-04f498fa9d6f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "461e2e3c-a870-54af-a82c-c01a74e3fad9"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Match TL Requests -> Reject Matching TL Requests",
+              "targetStep": "/api/3/workflow_steps/d66d6dfb-4753-58eb-a946-a2e7c52fc329",
+              "sourceStep": "/api/3/workflow_steps/591c38dd-fd7f-5f19-886d-503b9d52aa16",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "34f09c13-cc19-5e59-8c18-54cde3ca7cd9"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Reject Matching TL Requests -> Open SIR",
+              "targetStep": "/api/3/workflow_steps/e99ce0c1-00d6-53ee-8bdb-553ed641e4bf",
+              "sourceStep": "/api/3/workflow_steps/d66d6dfb-4753-58eb-a946-a2e7c52fc329",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "5af33841-0ec2-511f-8153-1122f21b2a76"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Open SIR -> Record In Splunk",
+              "targetStep": "/api/3/workflow_steps/9291f731-b29d-5e9a-ad6e-93683f7e2717",
+              "sourceStep": "/api/3/workflow_steps/e99ce0c1-00d6-53ee-8bdb-553ed641e4bf",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "df27f33d-8a05-5d94-a8a6-062e5f7ede22"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Record In Splunk -> Cascade Summary",
+              "targetStep": "/api/3/workflow_steps/1a0c29fd-892a-5686-8205-8da1c1406410",
+              "sourceStep": "/api/3/workflow_steps/9291f731-b29d-5e9a-ad6e-93683f7e2717",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "9167f642-e057-5633-a2f6-ebd0a76bc3e4"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Configuration",
+              "description": "Deployment-config values live here, the only step an operator should\nneed to touch: the FortiGate IPv4 Block Policy and the named IP group\na block lands in, and the Splunk KVStore app+collection that receives\nevery cascade record. The caller's `enforce` flag is normalized one\nstep later (Gate Layer Logic), where the reviewer can see it.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "250",
+              "left": "540",
+              "height": "270",
+              "width": "440",
+              "uuid": "825d2013-b839-54d9-8948-b1efb9d73860",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Gate Layer Logic",
+              "description": "Normalize once more as plain booleans the when-guards can compare,\nkept visible instead of buried in string comparisons everywhere.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "540",
+              "left": "540",
+              "height": "138",
+              "width": "440",
+              "uuid": "63ac3a02-4694-546a-94e6-428a2cf82b3d",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Block URL At Gate",
+              "description": "The web filter blocklist entry. FortiGate takes the URL or domain;\nHTTPS SNI/FQDN matching is handled by the blocklist itself.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "698",
+              "left": "540",
+              "height": "138",
+              "width": "440",
+              "uuid": "135787a9-a016-56a2-9d28-4f6a900b61cb",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Block IPv4 At Gate",
+              "description": "Policy-based IPv4 block into the named group/policy from\nConfiguration. Quarantine-based blocking is the connector's\nalternative (ip_addresses + time_to_live); the group/policy form is\nchosen because it persists and is visible in the blocklist.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "856",
+              "left": "540",
+              "height": "204",
+              "width": "440",
+              "uuid": "8c86eeb1-e2fe-50ec-9bf6-47d87ec14db2",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Block IPv6 At Gate",
+              "description": "The same block for IPv6 indicators: the option paths are kept as\nseparate steps so every param set is statically verifiable (a\ntemplated ip_type hides which sub-params apply).\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1080",
+              "left": "540",
+              "height": "160",
+              "width": "440",
+              "uuid": "11a53822-caaa-51e9-bcc9-d0853fbc3d3d",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Defender Layer",
+              "description": "The endpoint block needs a Defender indicator type; hashes and network indicators both have one, anything else skips the layer.",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1260",
+              "left": "540",
+              "height": "116",
+              "width": "440",
+              "uuid": "7f8cd48e-c4a5-5d71-98a0-3165c73942d1",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Defender Indicator",
+              "description": "'Alert and block': the indicator is blocked AND alerts on future hits, so\nthe SOC sees attempts already in flight. Defender keeps custom\nindicators only while expirationTime is set; the tenant default\nretention applies when blank.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1396",
+              "left": "540",
+              "height": "204",
+              "width": "440",
+              "uuid": "8ab83088-3b28-5cbc-b8dd-5caf7906d23a",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: ThreatLocker Try Switch",
+              "description": "The queue pull runs only for hashes, and only when enforcing.",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1620",
+              "left": "540",
+              "height": "94",
+              "width": "440",
+              "uuid": "ef5775af-58b4-54fb-8505-c42115530537",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Find Matching TL Requests",
+              "description": "Recent approval queue rows; the match is the requester's own file\nhash, exact, only when this indicator IS a file hash. The queue is\npulled with child organizations so a deny closes a request created\nanywhere in the estate.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1734",
+              "left": "540",
+              "height": "204",
+              "width": "440",
+              "uuid": "f1f52858-9c5b-5894-bf23-ff6ec77ccb7e",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Match TL Requests",
+              "description": "Exact hash equality, pending rows only (no actionDate): a request\nthat was already answered belongs to whoever answered it. The rows\nare embedded as parallel strings-only lists (per-field extract,\nstring-coerced before |tojson) so a live response carrying booleans\ncannot poison the sandbox with a lowercase true.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1958",
+              "left": "540",
+              "height": "248",
+              "width": "440",
+              "uuid": "4c02ea40-514d-56e2-bc10-f3c98ac9364a",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Reject Matching TL Requests",
+              "description": "The auto-deny, with the verdict as the reason the user sees on the\ntoast follow-up and in their notification email. notify_on_response\ntrue: the requestor must not discover the deny by trial and error.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "2226",
+              "left": "540",
+              "height": "182",
+              "width": "440",
+              "uuid": "5b16fb42-7472-556e-a9d7-09ff4a3c1b02",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Open SIR",
+              "description": "The ticket of record. table_name is the SIR module's incident table;\na deployment without the SIR plugin switches this single step to\ncreate_incident.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "2428",
+              "left": "540",
+              "height": "160",
+              "width": "440",
+              "uuid": "dd2384e3-0408-5071-a4f8-72c16f5dd3c7",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Record In Splunk",
+              "description": "The SOC keeps their SIEM as their pane; the record lands where their\nexisting saved searches and Splunk Mobile alerting already look.\nrecord_key = the indicator: blocking the same indicator twice\noverwrites the record instead of duplicating it.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "2608",
+              "left": "540",
+              "height": "204",
+              "width": "440",
+              "uuid": "a8690dd4-be94-5540-ac5b-bd226df7d9ae",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Cascade Summary",
+              "description": "The receipt bundle callers read back off the workflow_reference step.",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "2832",
+              "left": "540",
+              "height": "94",
+              "width": "440",
+              "uuid": "c6caf8b0-174f-5471-b195-84a5e902c1b8",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "c6035778-780f-53dd-8b34-ca44f9ba1b7f",
+          "isPrivate": false
+        },
+        {
+          "@type": "Workflow",
+          "name": "Auto-Block Cascade > Block Indicator (API)",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [
+            "auto-block",
+            "api"
+          ],
+          "description": "REST entry point of the layered response: POST /api/triggers/1/block-indicator with a JSON body: {\"indicator\": \"...\", \"hostname\": \"...\", \"username\": \"...\", \"computer_id\": \"...\", \"source\": \"...\", \"notes\": \"...\"}. Everything is optional except the indicator, so the cheapest detector integration is a one-field POST. Malicious verdicts auto-block at every layer; suspicious verdicts wait for a human; everything is reported to ServiceNow and Splunk. The raw body arrives at vars.steps.Start.input.params.api_body; this playbook parses it once and reads the fields defensively.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/964989ba-8375-5833-9470-1211ec1a4c5c",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "route": "block-indicator",
+                "authentication_methods": [
+                  ""
+                ],
+                "step_variables": {
+                  "input": {
+                    "params": {
+                      "api_body": "{{vars.request.data}}",
+                      "api_params": "{{vars.request.params}}"
+                    }
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false,
+                "__triggerLimit": true
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/df26c7a2-4166-4ca5-91e5-548e24c01b5f",
+              "group": null,
+              "uuid": "964989ba-8375-5833-9470-1211ec1a4c5c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Parse Request",
+              "description": null,
+              "arguments": {
+                "body_json": "{% set b = vars.steps.Start.input.params.api_body | default('', true) %} {%- if b is mapping %}{{ b | to_json }} {%- elif b | string | length > 0 %}{{ b | string | from_json | to_json }} {%- else %}{}{% endif -%}"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "f2a001ef-0f4c-5296-86da-59eff161f4f3"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Read Request",
+              "description": null,
+              "arguments": {
+                "indicator": "{{ (vars.body_json | from_json).indicator | default('', true) | string | trim }}",
+                "hostname": "{{ (vars.body_json | from_json).hostname | default('', true) | string }}",
+                "computer_id": "{{ (vars.body_json | from_json).computer_id | default('', true) | string }}",
+                "username": "{{ (vars.body_json | from_json).username | default('', true) | string }}",
+                "source": "{{ (vars.body_json | from_json).source | default('api', true) | string }}",
+                "notes": "{{ (vars.body_json | from_json).notes | default('', true) | string }}"
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "9b9cf0e2-4498-539a-989b-cdcdb5ecec12"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Indicator Given",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Indicator Present",
+                    "condition": "{{ vars.indicator | default('', true) | length > 0 }}",
+                    "step_iri": "/api/3/workflow_steps/2b26a781-c74c-544c-ab4f-e452cd9342ca",
+                    "step_name": "Resolve Verdict"
+                  },
+                  {
+                    "option": "Empty Request",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/ba551183-6954-5ce7-b364-06c91fd02bb5",
+                    "step_name": "Refuse Empty Request"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "992cdd7a-7d7d-5aa6-bedd-5c328fb64080"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Refuse Empty Request",
+              "description": null,
+              "arguments": {
+                "refused": "refused: no indicator in the request body."
+              },
+              "status": null,
+              "top": "640",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "ba551183-6954-5ce7-b364-06c91fd02bb5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Resolve Verdict",
+              "description": null,
+              "arguments": {
+                "apply_async": false,
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "arguments": {
+                  "indicator": "{{ vars.indicator }}"
+                },
+                "workflowReference": "/api/3/workflows/58ad3223-18d2-53e6-8302-f39af431a35d"
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "2b26a781-c74c-544c-ab4f-e452cd9342ca"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Verdict Branch",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Malicious (auto-block)",
+                    "condition": "{{ vars.steps.Resolve_Verdict.verdict | default('unknown', true) == 'malicious' }}",
+                    "step_iri": "/api/3/workflow_steps/6ce5190e-aa69-57cf-a552-550258faf765",
+                    "step_name": "Enforce Everywhere"
+                  },
+                  {
+                    "option": "Suspicious (human gate)",
+                    "condition": "{{ vars.steps.Resolve_Verdict.verdict | default('unknown', true) == 'suspicious' }}",
+                    "step_iri": "/api/3/workflow_steps/e129ed59-fbaf-5c41-aa00-2da748ec13cb",
+                    "step_name": "Suspicious Approval"
+                  },
+                  {
+                    "option": "Clean Or Unknown (record only)",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/96a4a1db-0dbe-5d65-b93d-925a7bb2a416",
+                    "step_name": "Record Only"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "770",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "944f4021-08f2-5607-bf09-0e9bacc9d2c1"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Suspicious Approval",
+              "description": "FortiGuard rates {{ vars.steps.Resolve_Verdict.indicator }} at risk score {{ vars.steps.Resolve_Verdict.risk_score | default('unknown', true) }} ({{ vars.steps.Resolve_Verdict.category | default('no category', true) }}, {{ vars.steps.Resolve_Verdict.confidence | default('unknown', true) }} confidence): suspicious, not confirmed-bad. Blocking is warranted by the score but could dent a legitimate site. Reported by {{ vars.source | default('api', true) }} {% if vars.hostname | default('', true) | length > 0 %}on host {{ vars.hostname }}{% endif %}.",
+              "arguments": {
+                "is_approval": true,
+                "type": "DecisionBased",
+                "input": {
+                  "schema": {
+                    "title": "Suspicious indicator -- approve the cascade?",
+                    "description": "FortiGuard rates {{ vars.steps.Resolve_Verdict.indicator }} at risk score {{ vars.steps.Resolve_Verdict.risk_score | default('unknown', true) }} ({{ vars.steps.Resolve_Verdict.category | default('no category', true) }}, {{ vars.steps.Resolve_Verdict.confidence | default('unknown', true) }} confidence): suspicious, not confirmed-bad. Blocking is warranted by the score but could dent a legitimate site. Reported by {{ vars.source | default('api', true) }} {% if vars.hostname | default('', true) | length > 0 %}on host {{ vars.hostname }}{% endif %}.",
+                    "inputVariables": []
+                  }
+                },
+                "record": "",
+                "isRecordLinked": false,
+                "owner_detail": {
+                  "isAssigned": false
+                },
+                "step_variables": [],
+                "response_mapping": {
+                  "options": [
+                    {
+                      "option": "Approve And Block",
+                      "primary": true,
+                      "step_iri": "/api/3/workflow_steps/6ce5190e-aa69-57cf-a552-550258faf765"
+                    },
+                    {
+                      "option": "Record Only",
+                      "step_iri": "/api/3/workflow_steps/96a4a1db-0dbe-5d65-b93d-925a7bb2a416"
+                    }
+                  ],
+                  "duplicateOption": false,
+                  "customSuccessMessage": "Awaiting Playbook resumed successfully."
+                },
+                "email_notification": {
+                  "enabled": false,
+                  "smtpParameters": []
+                },
+                "inline_channel_list": [],
+                "external_channel_list": [],
+                "unauthenticated_input": false
+              },
+              "status": null,
+              "top": "900",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/a19333c2-c822-11ed-afa1-0242ac120002",
+              "group": null,
+              "uuid": "e129ed59-fbaf-5c41-aa00-2da748ec13cb"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Enforce Everywhere",
+              "description": null,
+              "arguments": {
+                "apply_async": false,
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "arguments": {
+                  "indicator": "{{ vars.steps.Resolve_Verdict.indicator }}",
+                  "indicator_type": "{{ vars.steps.Resolve_Verdict.indicator_type }}",
+                  "defender_type": "{{ vars.steps.Resolve_Verdict.defender_type }}",
+                  "verdict": "{{ vars.steps.Resolve_Verdict.verdict }}",
+                  "risk_score": "{{ vars.steps.Resolve_Verdict.risk_score }}",
+                  "computer_id": "{{ vars.computer_id | default(\"\", true) }}",
+                  "hostname": "{{ vars.hostname | default(\"\", true) }}",
+                  "username": "{{ vars.username | default(\"\", true) }}",
+                  "source": "{{ vars.source | default(\"api\", true) }}",
+                  "notes": "{{ vars.notes | default(\"\", true) }}",
+                  "enforce": "true"
+                },
+                "workflowReference": "/api/3/workflows/c6035778-780f-53dd-8b34-ca44f9ba1b7f"
+              },
+              "status": null,
+              "top": "1030",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "6ce5190e-aa69-57cf-a552-550258faf765"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Stamp Enforce Receipt",
+              "description": null,
+              "arguments": {
+                "sir_number": "{{ vars.steps.Enforce_Everywhere.sir_number | default(\"\", true) }}",
+                "splunk_key": "{{ vars.steps.Enforce_Everywhere.splunk_key | default(\"\", true) }}",
+                "enforced": "true"
+              },
+              "status": null,
+              "top": "1160",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "e4c3e375-45a6-55b4-b74a-c0b32cca00f8"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Stamp Record Receipt",
+              "description": null,
+              "arguments": {
+                "sir_number": "{{ vars.steps.Record_Only.sir_number | default(\"\", true) }}",
+                "splunk_key": "{{ vars.steps.Record_Only.splunk_key | default(\"\", true) }}",
+                "enforced": "false"
+              },
+              "status": null,
+              "top": "1160",
+              "left": "880",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "fbc3b787-bb4f-5eb6-83f0-6d2fc8481049"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Done",
+              "description": null,
+              "arguments": {
+                "outcome": "{{ vars.steps.Resolve_Verdict.verdict | default('unknown', true) }} indicator {{ vars.steps.Resolve_Verdict.indicator | default('', true) }}: {{ 'blocked at every layer' if vars.enforced | default('', true) == 'true' else 'recorded only' }}, SIR {{ vars.sir_number | default('none', true) }}, Splunk record {{ vars.splunk_key | default('none', true) }}."
+              },
+              "status": null,
+              "top": "1290",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "7fe163de-fb7a-5736-ad4e-abb76ce98249"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Record Only",
+              "description": null,
+              "arguments": {
+                "apply_async": false,
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "arguments": {
+                  "indicator": "{{ vars.steps.Resolve_Verdict.indicator }}",
+                  "indicator_type": "{{ vars.steps.Resolve_Verdict.indicator_type }}",
+                  "defender_type": "{{ vars.steps.Resolve_Verdict.defender_type }}",
+                  "verdict": "{{ vars.steps.Resolve_Verdict.verdict }}",
+                  "risk_score": "{{ vars.steps.Resolve_Verdict.risk_score }}",
+                  "computer_id": "{{ vars.computer_id | default(\"\", true) }}",
+                  "hostname": "{{ vars.hostname | default(\"\", true) }}",
+                  "username": "{{ vars.username | default(\"\", true) }}",
+                  "source": "{{ vars.source | default(\"api\", true) }}",
+                  "notes": "{{ vars.notes | default(\"\", true) }}",
+                  "enforce": "false"
+                },
+                "workflowReference": "/api/3/workflows/c6035778-780f-53dd-8b34-ca44f9ba1b7f"
+              },
+              "status": null,
+              "top": "1030",
+              "left": "880",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "96a4a1db-0dbe-5d65-b93d-925a7bb2a416"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "End",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "config": "",
+                "params": {},
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "1420",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "c2b7f9e1-9938-553b-9fe4-ac6814c4b911"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Parse Request",
+              "targetStep": "/api/3/workflow_steps/f2a001ef-0f4c-5296-86da-59eff161f4f3",
+              "sourceStep": "/api/3/workflow_steps/964989ba-8375-5833-9470-1211ec1a4c5c",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4c6b0345-065c-5b2e-8c3d-2e04136de350"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Parse Request -> Read Request",
+              "targetStep": "/api/3/workflow_steps/9b9cf0e2-4498-539a-989b-cdcdb5ecec12",
+              "sourceStep": "/api/3/workflow_steps/f2a001ef-0f4c-5296-86da-59eff161f4f3",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "eaa216aa-9aa8-5e62-be6f-c61a8c180edb"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Read Request -> Indicator Given",
+              "targetStep": "/api/3/workflow_steps/992cdd7a-7d7d-5aa6-bedd-5c328fb64080",
+              "sourceStep": "/api/3/workflow_steps/9b9cf0e2-4498-539a-989b-cdcdb5ecec12",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "20ba1265-8558-5d79-8da3-f45813fb2adc"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Indicator Given -> Resolve Verdict",
+              "targetStep": "/api/3/workflow_steps/2b26a781-c74c-544c-ab4f-e452cd9342ca",
+              "sourceStep": "/api/3/workflow_steps/992cdd7a-7d7d-5aa6-bedd-5c328fb64080",
+              "label": "Indicator Present",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "55f7f2b1-4ac4-5147-9f84-eed95ca06146"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Indicator Given -> Refuse Empty Request",
+              "targetStep": "/api/3/workflow_steps/ba551183-6954-5ce7-b364-06c91fd02bb5",
+              "sourceStep": "/api/3/workflow_steps/992cdd7a-7d7d-5aa6-bedd-5c328fb64080",
+              "label": "Empty Request",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "97b091b2-171b-55d3-a919-8e26fcbfee93"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Refuse Empty Request -> End",
+              "targetStep": "/api/3/workflow_steps/c2b7f9e1-9938-553b-9fe4-ac6814c4b911",
+              "sourceStep": "/api/3/workflow_steps/ba551183-6954-5ce7-b364-06c91fd02bb5",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "fde14bf1-5d94-5d82-ae76-4dfeb59bccab"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Resolve Verdict -> Verdict Branch",
+              "targetStep": "/api/3/workflow_steps/944f4021-08f2-5607-bf09-0e9bacc9d2c1",
+              "sourceStep": "/api/3/workflow_steps/2b26a781-c74c-544c-ab4f-e452cd9342ca",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "4cf6f7a8-04e7-5a14-9f5a-04e37d410251"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Verdict Branch -> Enforce Everywhere",
+              "targetStep": "/api/3/workflow_steps/6ce5190e-aa69-57cf-a552-550258faf765",
+              "sourceStep": "/api/3/workflow_steps/944f4021-08f2-5607-bf09-0e9bacc9d2c1",
+              "label": "Malicious (auto-block)",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f69ca921-ecf7-59be-97c5-cf3c137d8201"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Verdict Branch -> Suspicious Approval",
+              "targetStep": "/api/3/workflow_steps/e129ed59-fbaf-5c41-aa00-2da748ec13cb",
+              "sourceStep": "/api/3/workflow_steps/944f4021-08f2-5607-bf09-0e9bacc9d2c1",
+              "label": "Suspicious (human gate)",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "12a3efec-1915-5692-b3d8-a21facfa68a2"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Verdict Branch -> Record Only",
+              "targetStep": "/api/3/workflow_steps/96a4a1db-0dbe-5d65-b93d-925a7bb2a416",
+              "sourceStep": "/api/3/workflow_steps/944f4021-08f2-5607-bf09-0e9bacc9d2c1",
+              "label": "Clean Or Unknown (record only)",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f820534a-fdb5-58d0-be37-8308a8448d59"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Suspicious Approval -> Enforce Everywhere",
+              "targetStep": "/api/3/workflow_steps/6ce5190e-aa69-57cf-a552-550258faf765",
+              "sourceStep": "/api/3/workflow_steps/e129ed59-fbaf-5c41-aa00-2da748ec13cb",
+              "label": "Approve And Block",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "c11f6932-2bf8-5faa-a5bd-09fc2b908322"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Suspicious Approval -> Record Only",
+              "targetStep": "/api/3/workflow_steps/96a4a1db-0dbe-5d65-b93d-925a7bb2a416",
+              "sourceStep": "/api/3/workflow_steps/e129ed59-fbaf-5c41-aa00-2da748ec13cb",
+              "label": "Record Only",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b27fc04e-471c-5340-a19d-9ca9bded164c"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Enforce Everywhere -> Stamp Enforce Receipt",
+              "targetStep": "/api/3/workflow_steps/e4c3e375-45a6-55b4-b74a-c0b32cca00f8",
+              "sourceStep": "/api/3/workflow_steps/6ce5190e-aa69-57cf-a552-550258faf765",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "29e5d8be-caab-5778-8c54-c5433461e0fe"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Stamp Enforce Receipt -> Done",
+              "targetStep": "/api/3/workflow_steps/7fe163de-fb7a-5736-ad4e-abb76ce98249",
+              "sourceStep": "/api/3/workflow_steps/e4c3e375-45a6-55b4-b74a-c0b32cca00f8",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "645e2339-f6bc-5f44-b9be-54872d27db5d"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Stamp Record Receipt -> Done",
+              "targetStep": "/api/3/workflow_steps/7fe163de-fb7a-5736-ad4e-abb76ce98249",
+              "sourceStep": "/api/3/workflow_steps/fbc3b787-bb4f-5eb6-83f0-6d2fc8481049",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "c7c1ab0b-f70c-53e2-85bc-6e78b62e80bc"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Done -> End",
+              "targetStep": "/api/3/workflow_steps/c2b7f9e1-9938-553b-9fe4-ac6814c4b911",
+              "sourceStep": "/api/3/workflow_steps/7fe163de-fb7a-5736-ad4e-abb76ce98249",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e7801ec5-8479-595b-9842-4bf758cb607e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Record Only -> Stamp Record Receipt",
+              "targetStep": "/api/3/workflow_steps/fbc3b787-bb4f-5eb6-83f0-6d2fc8481049",
+              "sourceStep": "/api/3/workflow_steps/96a4a1db-0dbe-5d65-b93d-925a7bb2a416",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "c97c962b-0083-59c4-871e-ec5f57163bc3"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Parse Request",
+              "description": "The body arrives at api_body as a parsed mapping or as a raw string,\ndepending on the sender; this normalizes both to a JSON text the\nnext step can read with from_json. (No code snippet here on\npurpose: the sandbox disallows imports and API bodies need a JSON\nparse, so the parse stays in Jinja where from_json is live-proven.)\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "250",
+              "left": "880",
+              "height": "270",
+              "width": "440",
+              "uuid": "63b20070-5018-5a2a-afa3-0acfd14d94f9",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Read Request",
+              "description": "Field-per-var extraction; absent fields fall back so every\ndownstream step reads primitives.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "540",
+              "left": "880",
+              "height": "116",
+              "width": "440",
+              "uuid": "b70936ee-31d8-5a4b-9328-b37372cd2965",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Refuse Empty Request",
+              "description": "A malformed POST dies here with something the caller can read.",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "676",
+              "left": "880",
+              "height": "94",
+              "width": "440",
+              "uuid": "e1c26624-7101-5a5a-a01c-f4eac485da70",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Resolve Verdict",
+              "description": "The shared brain: classification + FortiGuard verdict, read back off\nthis step (verdict, indicator_type, defender_type, risk_score, ...).\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "790",
+              "left": "1220",
+              "height": "138",
+              "width": "440",
+              "uuid": "5392b36a-29c6-5e5a-bc52-41a48643f1d6",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Enforce Everywhere",
+              "description": "The 3am path: no human required, every layer, then the SIR and\nSplunk record.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1030",
+              "left": "1220",
+              "height": "116",
+              "width": "440",
+              "uuid": "7458605f-773d-51a6-b087-c1e8bf1b354d",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Stamp Enforce Receipt",
+              "description": "Branch-safe receipt: the enforce lane and the record-only lane each\nstamp the SAME var names immediately after the workflow_reference,\nso the shared Done step below never references a step that only\nran on a sibling branch.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1302",
+              "left": "880",
+              "height": "204",
+              "width": "440",
+              "uuid": "0d913c6a-c316-5dbd-9aec-642269e15b8c",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Stamp Record Receipt",
+              "description": "The record-only lane's copy of the same receipt vars.",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1526",
+              "left": "880",
+              "height": "72",
+              "width": "440",
+              "uuid": "a09d649a-b3b5-57b9-8b28-f17a9daa3faa",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Done",
+              "description": "The run's ledger line for the REST response and the run tree.",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1618",
+              "left": "540",
+              "height": "94",
+              "width": "440",
+              "uuid": "842c95b6-8ef9-58e8-941b-dcc2e4428e6f",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Record Only",
+              "description": "SIR + Splunk only: the verdict is below the auto threshold and\nnobody approved more.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1166",
+              "left": "1220",
+              "height": "116",
+              "width": "440",
+              "uuid": "75833ae0-6b75-5cd5-9ba8-be8646f0d439",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "ffb6446e-a28e-5790-a446-631b9d558bcb",
+          "isPrivate": false
+        },
+        {
+          "@type": "Workflow",
+          "name": "Auto-Block Cascade > ThreatLocker Request Autotriage",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [
+            "auto-block",
+            "threatlocker"
+          ],
+          "description": "Pulls the ThreatLocker approval queue, verdicts the next pending request's file hash with FortiGuard, auto-rejects it with the verdict as the reason when malicious, and cascades the hash to the other layers. Not-malicious requests become a human task. Run it from the Run button or a schedule.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/78c36d28-d8a9-5d90-b978-bcf273f1bf3d",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "78c36d28-d8a9-5d90-b978-bcf273f1bf3d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "List Pending Requests",
+              "description": null,
+              "arguments": {
+                "connector": "threatlocker",
+                "operation": "get_approval_requests",
+                "config": "",
+                "params": {
+                  "max_records": "50",
+                  "include_child_organizations": "true"
+                },
+                "version": "1.0.0",
+                "name": "ThreatLocker",
+                "operationTitle": "Get Approval Requests",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "06afb811-97b1-5cdb-a55a-644969866a9c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Pick Next Untriaged",
+              "description": null,
+              "arguments": {
+                "connector": "code-snippet",
+                "operation": "python_inline_code_editor",
+                "operationTitle": "Execute Python Code",
+                "version": "2.1.4",
+                "step_variables": [],
+                "params": {
+                  "python_function": "ids = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='approvalRequestId') | map('default', '') | map('string') | list | tojson }}\nhashes = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='hash') | map('default', '') | map('string') | list | tojson }}\npaths = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='path') | map('default', '') | map('string') | list | tojson }}\nhostnames = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='hostname') | map('default', '') | map('string') | list | tojson }}\nusernames = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='username') | map('default', '') | map('string') | list | tojson }}\nreasons = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='requestorReason') | map('default', '') | map('string') | list | tojson }}\nrequested_ats = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='dateTime') | map('default', '') | map('string') | list | tojson }}\nactions = {{ vars.steps.List_Pending_Requests.data.approval_requests | default([], true) | map(attribute='actionDate') | map('default', '') | map('string') | list | tojson }}\npicked = {}\npending = 0\nn = len(ids)\nif len(hashes) == n and len(actions) == n and len(paths) == n and len(hostnames) == n and len(usernames) == n and len(reasons) == n and len(requested_ats) == n:\n    i = 0\n    while i < n:\n        if actions[i] == '':\n            pending = pending + 1\n            if not picked and hashes[i] != '':\n                picked = {'request_id': ids[i], 'file_hash': hashes[i],\n                          'path': paths[i], 'hostname': hostnames[i],\n                          'username': usernames[i], 'requestor_reason': reasons[i],\n                          'requested_at': requested_ats[i]}\n        i = i + 1\nprint({'picked': picked, 'pending_count': pending})\n"
+                },
+                "config": ""
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/1fdd14cc-d6b4-4335-a3af-ab49c8ed2fd8",
+              "group": null,
+              "uuid": "09f79689-59ad-5950-bf0d-0386921a84f3"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "One To Verdict",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Pending Request Found",
+                    "condition": "{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked | default({}, true) | length > 0 }}",
+                    "step_iri": "/api/3/workflow_steps/dc252f11-b147-55f9-a10e-883f37bbcb1d",
+                    "step_name": "Resolve Request Verdict"
+                  },
+                  {
+                    "option": "Nothing Pending",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/ccae8229-5b24-5a8e-97e6-1716b34ba0f4",
+                    "step_name": "Nothing To Triage"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "7a4812e4-f85e-5305-84fb-ef379288ac0c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Nothing To Triage",
+              "description": null,
+              "arguments": {
+                "outcome": "{{ vars.steps.Pick_Next_Untriaged.data.code_output.pending_count | default(0, true) }} pending ThreatLocker request(s) reviewed, none needs this run."
+              },
+              "status": null,
+              "top": "640",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "ccae8229-5b24-5a8e-97e6-1716b34ba0f4"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Resolve Request Verdict",
+              "description": null,
+              "arguments": {
+                "apply_async": false,
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "arguments": {
+                  "indicator": "{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.file_hash }}"
+                },
+                "workflowReference": "/api/3/workflows/58ad3223-18d2-53e6-8302-f39af431a35d"
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "dc252f11-b147-55f9-a10e-883f37bbcb1d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Request Verdict Branch",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Malicious File",
+                    "condition": "{{ vars.steps.Resolve_Request_Verdict.verdict | default('unknown', true) == 'malicious' }}",
+                    "step_iri": "/api/3/workflow_steps/4f76e436-d092-57f5-befd-131d8c4bb048",
+                    "step_name": "Reject Request"
+                  },
+                  {
+                    "option": "Needs A Human",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/52ca6fe9-f576-56d7-9ad7-ae00359496dd",
+                    "step_name": "Human Queue"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "770",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "a0d49811-6691-5868-990b-22d2f356ae50"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Reject Request",
+              "description": null,
+              "arguments": {
+                "connector": "threatlocker",
+                "operation": "reject_approval_requests",
+                "config": "",
+                "params": {
+                  "approval_request_ids": "{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.request_id }}",
+                  "reject_reason": "Not permitted: FortiGuard rates this file malicious (risk score {{ vars.steps.Resolve_Request_Verdict.risk_score | default('unknown', true) }}). If you believe this is wrong, contact the SOC.",
+                  "notify_on_response": "true"
+                },
+                "version": "1.0.0",
+                "name": "ThreatLocker",
+                "operationTitle": "Reject Approval Requests",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "900",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "4f76e436-d092-57f5-befd-131d8c4bb048"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Cascade The Hash",
+              "description": null,
+              "arguments": {
+                "apply_async": false,
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "arguments": {
+                  "indicator": "{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.file_hash }}",
+                  "indicator_type": "{{ vars.steps.Resolve_Request_Verdict.indicator_type }}",
+                  "defender_type": "{{ vars.steps.Resolve_Request_Verdict.defender_type }}",
+                  "verdict": "{{ vars.steps.Resolve_Request_Verdict.verdict }}",
+                  "risk_score": "{{ vars.steps.Resolve_Request_Verdict.risk_score }}",
+                  "computer_id": "",
+                  "hostname": "{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.hostname }}",
+                  "username": "{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.username }}",
+                  "source": "ThreatLocker approval autotriage",
+                  "notes": "{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.path }} requested by {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.username }} with reason: {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.requestor_reason | truncate(200) }}",
+                  "enforce": "true"
+                },
+                "workflowReference": "/api/3/workflows/c6035778-780f-53dd-8b34-ca44f9ba1b7f"
+              },
+              "status": null,
+              "top": "1030",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "01ae21d2-8f56-5ea6-9705-20ab4746af77"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Human Queue",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "name": "ThreatLocker request needs a decision (verdict {{ vars.steps.Resolve_Request_Verdict.verdict | default('unknown', true) }}): {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.path | truncate(80, True, '') }}",
+                  "status": "Open",
+                  "priority": "{{ 'High' if vars.steps.Resolve_Request_Verdict.verdict == 'suspicious' else 'Low' }}",
+                  "description": "FortiGuard scored the file hash {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.file_hash }} as {{ vars.steps.Resolve_Request_Verdict.verdict | default('unknown', true) }} (risk {{ vars.steps.Resolve_Request_Verdict.risk_score | default('-', true) }}). Requested by {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.username }} on {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.hostname }}: \"{{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.requestor_reason | default('(no reason given)', true) }}\". Decide with the ThreatLocker connector's Decide Elevation Request playbook, or in the portal."
+                },
+                "collection": "tasks"
+              },
+              "status": null,
+              "top": "900",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/dc6ac63d-c5a5-472f-9eb4-6b18473a98b8",
+              "group": null,
+              "uuid": "52ca6fe9-f576-56d7-9ad7-ae00359496dd"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Autotriage Summary",
+              "description": null,
+              "arguments": {
+                "outcome": "auto-rejected request {{ vars.steps.Pick_Next_Untriaged.data.code_output.picked.request_id | default('', true) }} (risk {{ vars.steps.Resolve_Request_Verdict.risk_score | default('-', true) }}), ThreatLocker requests closed this run: {{ vars.steps.Cascade_The_Hash.tl_reject_count | default(0, true) }}, SIR {{ vars.steps.Cascade_The_Hash.sir_number | default('', true) }}."
+              },
+              "status": null,
+              "top": "1160",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "28ed20bb-19c5-559b-b28b-e569b071f503"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "End",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "config": "",
+                "params": {},
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "1290",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "95b7a6a0-44ab-5ad8-8af9-e2a87b6c104a"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> List Pending Requests",
+              "targetStep": "/api/3/workflow_steps/06afb811-97b1-5cdb-a55a-644969866a9c",
+              "sourceStep": "/api/3/workflow_steps/78c36d28-d8a9-5d90-b978-bcf273f1bf3d",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "dad410b0-8a57-5aad-8d44-9aeaf80498be"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "List Pending Requests -> Pick Next Untriaged",
+              "targetStep": "/api/3/workflow_steps/09f79689-59ad-5950-bf0d-0386921a84f3",
+              "sourceStep": "/api/3/workflow_steps/06afb811-97b1-5cdb-a55a-644969866a9c",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "dd62524d-c17e-53d6-814d-4af904be038c"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Pick Next Untriaged -> One To Verdict",
+              "targetStep": "/api/3/workflow_steps/7a4812e4-f85e-5305-84fb-ef379288ac0c",
+              "sourceStep": "/api/3/workflow_steps/09f79689-59ad-5950-bf0d-0386921a84f3",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "120c6a16-6cbd-5861-af5e-24d7546c63c6"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "One To Verdict -> Resolve Request Verdict",
+              "targetStep": "/api/3/workflow_steps/dc252f11-b147-55f9-a10e-883f37bbcb1d",
+              "sourceStep": "/api/3/workflow_steps/7a4812e4-f85e-5305-84fb-ef379288ac0c",
+              "label": "Pending Request Found",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b69b0acb-bc63-512f-9910-e06fe6c14c52"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "One To Verdict -> Nothing To Triage",
+              "targetStep": "/api/3/workflow_steps/ccae8229-5b24-5a8e-97e6-1716b34ba0f4",
+              "sourceStep": "/api/3/workflow_steps/7a4812e4-f85e-5305-84fb-ef379288ac0c",
+              "label": "Nothing Pending",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "807ef05a-6cfb-5f4c-b2d2-59871b8d99a8"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Resolve Request Verdict -> Request Verdict Branch",
+              "targetStep": "/api/3/workflow_steps/a0d49811-6691-5868-990b-22d2f356ae50",
+              "sourceStep": "/api/3/workflow_steps/dc252f11-b147-55f9-a10e-883f37bbcb1d",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b3ef8308-5089-5a09-b31c-ab80b7a7ec27"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Request Verdict Branch -> Reject Request",
+              "targetStep": "/api/3/workflow_steps/4f76e436-d092-57f5-befd-131d8c4bb048",
+              "sourceStep": "/api/3/workflow_steps/a0d49811-6691-5868-990b-22d2f356ae50",
+              "label": "Malicious File",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f2b9bebb-0a30-53ed-8880-4f5ea593096f"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Request Verdict Branch -> Human Queue",
+              "targetStep": "/api/3/workflow_steps/52ca6fe9-f576-56d7-9ad7-ae00359496dd",
+              "sourceStep": "/api/3/workflow_steps/a0d49811-6691-5868-990b-22d2f356ae50",
+              "label": "Needs A Human",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b5e6d392-d600-5ac9-afc3-9d2c7baa43b3"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Reject Request -> Cascade The Hash",
+              "targetStep": "/api/3/workflow_steps/01ae21d2-8f56-5ea6-9705-20ab4746af77",
+              "sourceStep": "/api/3/workflow_steps/4f76e436-d092-57f5-befd-131d8c4bb048",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "bd8d769e-814a-537a-ab03-99603ed51785"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Cascade The Hash -> Autotriage Summary",
+              "targetStep": "/api/3/workflow_steps/28ed20bb-19c5-559b-b28b-e569b071f503",
+              "sourceStep": "/api/3/workflow_steps/01ae21d2-8f56-5ea6-9705-20ab4746af77",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "513eac25-3776-5e2b-934d-6f7149ec0d86"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Human Queue -> End",
+              "targetStep": "/api/3/workflow_steps/95b7a6a0-44ab-5ad8-8af9-e2a87b6c104a",
+              "sourceStep": "/api/3/workflow_steps/52ca6fe9-f576-56d7-9ad7-ae00359496dd",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "42331ce4-f913-587f-8762-06fab288074f"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Autotriage Summary -> End",
+              "targetStep": "/api/3/workflow_steps/95b7a6a0-44ab-5ad8-8af9-e2a87b6c104a",
+              "sourceStep": "/api/3/workflow_steps/28ed20bb-19c5-559b-b28b-e569b071f503",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6c62f880-cea2-5b73-a7a4-2775fd72aa8d"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Pick Next Untriaged",
+              "description": "One request per run: pending only (no actionDate), hash present. The\nconnector's shipped Decide Elevation Request sample is the\nmulti-choice human surface; this is the overnight half, so it stays\nnarrow and one-at-a-time. Rows embed as parallel strings-only lists\n(per-field extract, string-coerced before |tojson) so live DTO\nbooleans cannot reach the sandbox as bare `true`.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "380",
+              "left": "880",
+              "height": "292",
+              "width": "440",
+              "uuid": "0cc4f6a5-2292-5b19-9c70-b308657b8608",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Nothing To Triage",
+              "description": "The quiet case is a result too: nothing malicious was waiting.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "692",
+              "left": "880",
+              "height": "94",
+              "width": "440",
+              "uuid": "f2b29a2f-b2e7-5475-877b-4605bf1b9df9",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Reject Request",
+              "description": "The user sees this reason on the request's response and in the\nnotification; the verdict is not a mystery to them.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "900",
+              "left": "880",
+              "height": "116",
+              "width": "440",
+              "uuid": "6f7cd711-6954-5eea-9fbf-615c3fda1696",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Cascade The Hash",
+              "description": "Defender IOC + the SIR/Splunk records (the gate carries hashes for\nno one; ThreatLocker-side this run already closed the request, and\nthe endpoint default-deny was never opened).\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1216",
+              "left": "880",
+              "height": "160",
+              "width": "440",
+              "uuid": "ffc3110c-236d-5bbf-8a7f-bab42a28db3c",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Human Queue",
+              "description": "Suspicious, clean or unknown: a human decides -- with the connector's\nDecide Elevation Request playbook as the natural next step, since it\nloads the permit context and the decision history.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1036",
+              "left": "880",
+              "height": "160",
+              "width": "440",
+              "uuid": "ad0f70df-dbd5-5fae-a8b1-be9338f4ea4d",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "a9ee1611-7c79-5b33-ab19-4fdeb3350126",
+          "isPrivate": false
+        },
+        {
+          "@type": "Workflow",
+          "name": "Auto-Block Cascade > Darktrace Breach Sweep",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [
+            "detect",
+            "auto-block"
+          ],
+          "description": "Pulls Darktrace model breaches from a lookback window and feeds the first one's destination indicators into the layered response (verdict first; malicious cascades, anything less records with a task). Run it from the Run button or a schedule.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/5172aeb9-359e-5443-ae61-2b6fba805555",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "step_variables": {
+                  "input": {
+                    "params": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+              "group": null,
+              "uuid": "5172aeb9-359e-5443-ae61-2b6fba805555"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Configuration",
+              "description": null,
+              "arguments": {
+                "lookback_minutes": "15",
+                "include_acknowledged": "false",
+                "window_start": "{{ arrow.utcnow().shift(minutes=-(vars.lookback_minutes | default('15', true) | int)).int_timestamp }}",
+                "window_end": "{{ arrow.utcnow().int_timestamp }}"
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "c5278090-4805-5f39-8734-674055e94198"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "List Breaches",
+              "description": null,
+              "arguments": {
+                "connector": "darktrace",
+                "operation": "get_model_breaches",
+                "config": "",
+                "params": {
+                  "starttime": "{{ vars.window_start }}",
+                  "endtime": "{{ vars.window_end }}",
+                  "includeacknowledged": "{{ vars.include_acknowledged }}"
+                },
+                "version": "1.4.0",
+                "name": "Darktrace",
+                "operationTitle": "Get Model Breaches",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "e7ed5a65-f429-5ae5-a378-7ca97b79aa11"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Breaches Found",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Breaches Present",
+                    "condition": "{{ vars.steps.List_Breaches.data | default([], true) | length > 0 }}",
+                    "step_iri": "/api/3/workflow_steps/6cbdcbf4-9bc0-5dee-abdd-a25d65d6be59",
+                    "step_name": "Get Breach Details"
+                  },
+                  {
+                    "option": "Quiet Window",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/cee10fe0-55b1-5902-8584-974f691a174e",
+                    "step_name": "Quiet Window Result"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "481ec9d3-293f-52f5-913a-a09a7c49d69f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Quiet Window Result",
+              "description": null,
+              "arguments": {
+                "outcome": "Darktrace sweep: no model breaches in the window ({{ vars.lookback_minutes }} minutes)."
+              },
+              "status": null,
+              "top": "640",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "cee10fe0-55b1-5902-8584-974f691a174e"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Breach Details",
+              "description": null,
+              "arguments": {
+                "connector": "darktrace",
+                "operation": "get_breach_details",
+                "config": "",
+                "params": {
+                  "pbid": "{{ (vars.steps.List_Breaches.data | default([], true) | first).pbid }}"
+                },
+                "version": "1.4.0",
+                "name": "Darktrace",
+                "operationTitle": "Get Breach Details",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "640",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "6cbdcbf4-9bc0-5dee-abdd-a25d65d6be59"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Extract Indicators",
+              "description": null,
+              "arguments": {
+                "connector": "code-snippet",
+                "operation": "python_inline_code_editor",
+                "operationTitle": "Execute Python Code",
+                "version": "2.1.4",
+                "step_variables": [],
+                "params": {
+                  "python_function": "cands = [\n    {{ (vars.steps.Get_Breach_Details.data.externalhost_1 | default('', true)) | string | tojson }},\n    {{ (vars.steps.Get_Breach_Details.data.externalip_1 | default('', true)) | string | tojson }},\n    {{ (vars.steps.Get_Breach_Details.data.externalhost | default('', true)) | string | tojson }},\n    {{ (vars.steps.Get_Breach_Details.data.externalip | default('', true)) | string | tojson }},\n    {{ (vars.steps.Get_Breach_Details.data.external_endpoint | default('', true)) | string | tojson }},\n]\nout = []\ni = 0\nwhile i < len(cands):\n    v = str(cands[i]).strip()\n    if v != '' and v not in out:\n        out.append(v)\n    i = i + 1\npicked = ''\nj = 0\nwhile j < len(out):\n    cand = out[j]\n    looks_ip = True\n    parts = cand.split('.')\n    if len(parts) != 4:\n        looks_ip = False\n    p = 0\n    while p < len(parts):\n        try:\n            q = int(parts[p])\n        except Exception:\n            looks_ip = False\n            break\n        if q < 0 or q > 255:\n            looks_ip = False\n            break\n        p = p + 1\n    if looks_ip or ('.' in cand and ' ' not in cand):\n        picked = cand\n        break\n    j = j + 1\nprint({'candidates': out, 'picked': picked})\n"
+                },
+                "config": ""
+              },
+              "status": null,
+              "top": "770",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/1fdd14cc-d6b4-4335-a3af-ab49c8ed2fd8",
+              "group": null,
+              "uuid": "c4a1b4f9-36aa-5f74-a77e-c20d5b09551f"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Indicator Extracted",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Indicator Found",
+                    "condition": "{{ vars.steps.Extract_Indicators.data.code_output.picked | default('', true) | length > 0 }}",
+                    "step_iri": "/api/3/workflow_steps/0fa15093-7b58-59c6-8569-750ea989310d",
+                    "step_name": "Resolve Breach Verdict"
+                  },
+                  {
+                    "option": "Nothing Usable",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/99dfa5d8-dd9a-50b0-b032-631ec0a3bade",
+                    "step_name": "Swept Nothing"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "900",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "6af6f28f-5e40-5dec-9aec-523ed279c95b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Swept Nothing",
+              "description": null,
+              "arguments": {
+                "outcome": "Darktrace sweep: nothing actionable in the window ({{ vars.lookback_minutes }} minutes). Candidates seen: {{ vars.steps.Extract_Indicators.data.code_output.candidates | default([], true) | join(', ') | default('none', true) }}."
+              },
+              "status": null,
+              "top": "1030",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "99dfa5d8-dd9a-50b0-b032-631ec0a3bade"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Resolve Breach Verdict",
+              "description": null,
+              "arguments": {
+                "apply_async": false,
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "arguments": {
+                  "indicator": "{{ vars.steps.Extract_Indicators.data.code_output.picked }}"
+                },
+                "workflowReference": "/api/3/workflows/58ad3223-18d2-53e6-8302-f39af431a35d"
+              },
+              "status": null,
+              "top": "1030",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "0fa15093-7b58-59c6-8569-750ea989310d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Breach Verdict Branch",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Malicious (auto-block)",
+                    "condition": "{{ vars.steps.Resolve_Breach_Verdict.verdict | default('unknown', true) == 'malicious' }}",
+                    "step_iri": "/api/3/workflow_steps/deec2703-edf6-5015-ae9b-1685857c4249",
+                    "step_name": "Enforce Breach Indicator"
+                  },
+                  {
+                    "option": "Needs Records Or A Human",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/d7473644-ff39-5fbf-bfd3-a492b0c63147",
+                    "step_name": "Record Breach Indicator"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "1160",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "9b3f8e94-c8bd-51f1-9665-7bd135abfd85"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Enforce Breach Indicator",
+              "description": null,
+              "arguments": {
+                "apply_async": false,
+                "pass_parent_env": false,
+                "pass_input_record": false,
+                "arguments": {
+                  "indicator": "{{ vars.steps.Extract_Indicators.data.code_output.picked }}",
+                  "indicator_type": "{{ vars.steps.Resolve_Breach_Verdict.indicator_type }}",
+                  "defender_type": "{{ vars.steps.Resolve_Breach_Verdict.defender_type }}",
+                  "verdict": "{{ vars.steps.Resolve_Breach_Verdict.verdict }}",
+                  "risk_score": "{{ vars.steps.Resolve_Breach_Verdict.risk_score }}",
+                  "computer_id": "",
+                  "hostname": "{{ vars.steps.Get_Breach_Details.data.hostname | default('', true) }}",
+                  "username": "",
+                  "source": "Darktrace breach sweep ({{ vars.steps.Get_Breach_Details.data.pbid | default('', true) }})",
+                  "notes": "{{ vars.steps.Get_Breach_Details.data.model.name | default('Darktrace model breach', true) }}: candidates {{ vars.steps.Extract_Indicators.data.code_output.candidates | default([], true) | join(', ') | truncate(300) }}",
+                  "enforce": "true"
+                },
+                "workflowReference": "/api/3/workflows/c6035778-780f-53dd-8b34-ca44f9ba1b7f"
+              },
+              "status": null,
+              "top": "1290",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/74932bdc-b8b6-4d24-88c4-1a4dfbc524f3",
+              "group": null,
+              "uuid": "deec2703-edf6-5015-ae9b-1685857c4249"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Stamp Enforce Receipt",
+              "description": null,
+              "arguments": {
+                "sir_number": "{{ vars.steps.Enforce_Breach_Indicator.sir_number | default(\"\", true) }}",
+                "enforced": "true"
+              },
+              "status": null,
+              "top": "1420",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "b94bf64d-c514-5709-81a7-e0a89226bc23"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Record Breach Indicator",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "name": "Darktrace breach not auto-enforced (verdict {{ vars.steps.Resolve_Breach_Verdict.verdict | default('unknown', true) }}): {{ vars.steps.Extract_Indicators.data.code_output.picked | truncate(80, True, '') }}",
+                  "status": "Open",
+                  "priority": "{{ 'Medium' if vars.steps.Resolve_Breach_Verdict.verdict == 'suspicious' else 'Low' }}",
+                  "description": "Darktrace breach {{ vars.steps.Get_Breach_Details.data.pbid | default('?', true) }} ({{ vars.steps.Get_Breach_Details.data.model.name | default('model unknown', true) }}) candidate indicators: {{ vars.steps.Extract_Indicators.data.code_output.candidates | default([], true) | join(', ') }}. FortiGuard scored {{ vars.steps.Resolve_Breach_Verdict.indicator | default('', true) }} at {{ vars.steps.Resolve_Breach_Verdict.risk_score | default('-', true) }} ({{ vars.steps.Resolve_Breach_Verdict.verdict | default('unknown', true) }})."
+                },
+                "collection": "tasks"
+              },
+              "status": null,
+              "top": "1290",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/dc6ac63d-c5a5-472f-9eb4-6b18473a98b8",
+              "group": null,
+              "uuid": "d7473644-ff39-5fbf-bfd3-a492b0c63147"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Stamp Task Receipt",
+              "description": null,
+              "arguments": {
+                "sir_number": "",
+                "enforced": "false"
+              },
+              "status": null,
+              "top": "1420",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "d4f8c5f3-d75f-53a5-b30e-1b78c7cb2789"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Sweep Summary",
+              "description": null,
+              "arguments": {
+                "enforcement_happened": "{{ vars.enforced | default(\"\", true) == \"true\" }}",
+                "outcome": "Darktrace breach {{ vars.steps.Get_Breach_Details.data.pbid | default('?', true) }}: indicator {{ vars.steps.Extract_Indicators.data.code_output.picked }} was {{ vars.steps.Resolve_Breach_Verdict.verdict | default('unknown', true) }}; {{ 'enforced' if (vars.enforced | default('', true)) == 'true' else 'tasked for review' }}, SIR {{ vars.sir_number | default('none', true) }}."
+              },
+              "status": null,
+              "top": "1550",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "68c68fc1-7e11-55df-b258-53d487ac853c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "End",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "config": "",
+                "params": {},
+                "version": "3.7.2",
+                "name": "Utilities",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "1680",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "d873f8a8-4d00-5c81-8023-6c844af5f382"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Configuration",
+              "targetStep": "/api/3/workflow_steps/c5278090-4805-5f39-8734-674055e94198",
+              "sourceStep": "/api/3/workflow_steps/5172aeb9-359e-5443-ae61-2b6fba805555",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ad588808-7b16-5073-aac4-95c2caea4ad4"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Configuration -> List Breaches",
+              "targetStep": "/api/3/workflow_steps/e7ed5a65-f429-5ae5-a378-7ca97b79aa11",
+              "sourceStep": "/api/3/workflow_steps/c5278090-4805-5f39-8734-674055e94198",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ee0df3fb-d73f-5fec-9787-c52c8b15c5d1"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "List Breaches -> Breaches Found",
+              "targetStep": "/api/3/workflow_steps/481ec9d3-293f-52f5-913a-a09a7c49d69f",
+              "sourceStep": "/api/3/workflow_steps/e7ed5a65-f429-5ae5-a378-7ca97b79aa11",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "b3a888fe-f213-5772-be07-49568b556fa4"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Breaches Found -> Get Breach Details",
+              "targetStep": "/api/3/workflow_steps/6cbdcbf4-9bc0-5dee-abdd-a25d65d6be59",
+              "sourceStep": "/api/3/workflow_steps/481ec9d3-293f-52f5-913a-a09a7c49d69f",
+              "label": "Breaches Present",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "67defbf1-d71a-5e7b-8ce3-5c8c22561027"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Breaches Found -> Quiet Window Result",
+              "targetStep": "/api/3/workflow_steps/cee10fe0-55b1-5902-8584-974f691a174e",
+              "sourceStep": "/api/3/workflow_steps/481ec9d3-293f-52f5-913a-a09a7c49d69f",
+              "label": "Quiet Window",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e7cb93a6-2264-5cba-83f6-6c6d459cf409"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get Breach Details -> Extract Indicators",
+              "targetStep": "/api/3/workflow_steps/c4a1b4f9-36aa-5f74-a77e-c20d5b09551f",
+              "sourceStep": "/api/3/workflow_steps/6cbdcbf4-9bc0-5dee-abdd-a25d65d6be59",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "5c9b8e9c-7804-504a-9126-4a91858f774f"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Extract Indicators -> Indicator Extracted",
+              "targetStep": "/api/3/workflow_steps/6af6f28f-5e40-5dec-9aec-523ed279c95b",
+              "sourceStep": "/api/3/workflow_steps/c4a1b4f9-36aa-5f74-a77e-c20d5b09551f",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "22b4d37b-0c1f-511a-9d75-99ee61f606b5"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Indicator Extracted -> Resolve Breach Verdict",
+              "targetStep": "/api/3/workflow_steps/0fa15093-7b58-59c6-8569-750ea989310d",
+              "sourceStep": "/api/3/workflow_steps/6af6f28f-5e40-5dec-9aec-523ed279c95b",
+              "label": "Indicator Found",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "47bf90be-dfca-53b4-ade2-b848967bea17"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Indicator Extracted -> Swept Nothing",
+              "targetStep": "/api/3/workflow_steps/99dfa5d8-dd9a-50b0-b032-631ec0a3bade",
+              "sourceStep": "/api/3/workflow_steps/6af6f28f-5e40-5dec-9aec-523ed279c95b",
+              "label": "Nothing Usable",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ec0835c4-0b45-58ae-9191-ca5e8c822203"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Resolve Breach Verdict -> Breach Verdict Branch",
+              "targetStep": "/api/3/workflow_steps/9b3f8e94-c8bd-51f1-9665-7bd135abfd85",
+              "sourceStep": "/api/3/workflow_steps/0fa15093-7b58-59c6-8569-750ea989310d",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "1f66d0cc-d91d-543e-a469-8d421555a8ce"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Breach Verdict Branch -> Enforce Breach Indicator",
+              "targetStep": "/api/3/workflow_steps/deec2703-edf6-5015-ae9b-1685857c4249",
+              "sourceStep": "/api/3/workflow_steps/9b3f8e94-c8bd-51f1-9665-7bd135abfd85",
+              "label": "Malicious (auto-block)",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "bebff6bd-64c7-5f62-9927-c8e3b889cddb"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Breach Verdict Branch -> Record Breach Indicator",
+              "targetStep": "/api/3/workflow_steps/d7473644-ff39-5fbf-bfd3-a492b0c63147",
+              "sourceStep": "/api/3/workflow_steps/9b3f8e94-c8bd-51f1-9665-7bd135abfd85",
+              "label": "Needs Records Or A Human",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6612f4b8-0dbc-514e-b4a6-3b69004e4539"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Enforce Breach Indicator -> Stamp Enforce Receipt",
+              "targetStep": "/api/3/workflow_steps/b94bf64d-c514-5709-81a7-e0a89226bc23",
+              "sourceStep": "/api/3/workflow_steps/deec2703-edf6-5015-ae9b-1685857c4249",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "19de2a27-1cbb-5673-adb7-256a5ab300b8"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Stamp Enforce Receipt -> Sweep Summary",
+              "targetStep": "/api/3/workflow_steps/68c68fc1-7e11-55df-b258-53d487ac853c",
+              "sourceStep": "/api/3/workflow_steps/b94bf64d-c514-5709-81a7-e0a89226bc23",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "ce3830e5-ad3b-53a6-83e1-c30e34017270"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Record Breach Indicator -> Stamp Task Receipt",
+              "targetStep": "/api/3/workflow_steps/d4f8c5f3-d75f-53a5-b30e-1b78c7cb2789",
+              "sourceStep": "/api/3/workflow_steps/d7473644-ff39-5fbf-bfd3-a492b0c63147",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "fbe1f42a-0fe3-504c-9e72-e8f5cb2a9c3a"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Stamp Task Receipt -> Sweep Summary",
+              "targetStep": "/api/3/workflow_steps/68c68fc1-7e11-55df-b258-53d487ac853c",
+              "sourceStep": "/api/3/workflow_steps/d4f8c5f3-d75f-53a5-b30e-1b78c7cb2789",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e8cfec75-e2dd-5490-9e2e-9cca5a21af9b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Sweep Summary -> End",
+              "targetStep": "/api/3/workflow_steps/d873f8a8-4d00-5c81-8023-6c844af5f382",
+              "sourceStep": "/api/3/workflow_steps/68c68fc1-7e11-55df-b258-53d487ac853c",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "d46788ac-a12d-5310-a861-59612f53a5cd"
+            }
+          ],
+          "groups": [
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Configuration",
+              "description": "Darktrace takes epoch seconds for its window. Acknowledged breaches\nare skipped by default -- acknowledged means a human already chose\na lane.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "250",
+              "left": "540",
+              "height": "160",
+              "width": "440",
+              "uuid": "6bb5cf20-d096-510a-9d6e-0d3a47c72290",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Quiet Window Result",
+              "description": "Terminal for the no-breach branch; it deliberately reads no\nbreach-detail data (those steps did not run on this branch, and a\nreference here would be branch-unsafe).\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "640",
+              "left": "880",
+              "height": "160",
+              "width": "440",
+              "uuid": "ba4a7982-0cf5-519c-8dd9-f93c6695c994",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Get Breach Details",
+              "description": "The breach detail payload carries the endpoint, hostname and\ndestination fields (model-dependent -- the candidate keys are read\ndefensively; a renamed key costs a missed candidate, never a crash).\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "820",
+              "left": "880",
+              "height": "182",
+              "width": "440",
+              "uuid": "b25e39fe-c573-5916-b599-e1a76eee91bb",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Extract Indicators",
+              "description": "Candidate values come from the known destination keys, each\nstring-coerced before |tojson (whole-payload embedding would hand\nPython lowercase true/false the moment a live detail carries a\nboolean). The FIRST candidate that looks like an IP or a dotted\nhostname is swept this run; the SIR/task record keeps the whole\ncandidate list.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1022",
+              "left": "880",
+              "height": "292",
+              "width": "440",
+              "uuid": "920ac20c-c402-5373-b691-6adf5f328dad",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Stamp Enforce Receipt",
+              "description": "Branch-safe receipt: the enforce lane and the task lane each stamp\nthe SAME var names, so the shared Sweep Summary never references a\nstep that only ran on a sibling branch.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1514",
+              "left": "880",
+              "height": "160",
+              "width": "440",
+              "uuid": "3a350bfa-1a7a-59c6-aaa7-0953abe02c58",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Record Breach Indicator",
+              "description": "Not auto-enforced (verdict under threshold): the SOC's record and the\nhuman hand-off. The Darktrace app already showed a human the breach;\nthis keeps the SOC plane in step.\n",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1334",
+              "left": "880",
+              "height": "160",
+              "width": "440",
+              "uuid": "c7f062bf-9995-55e3-a6e4-3679c4acd58a",
+              "recordTags": []
+            },
+            {
+              "@type": "WorkflowGroup",
+              "name": "Note: Stamp Task Receipt",
+              "description": "The task lane's copy of the same receipt vars -- no SIR exists on this lane.",
+              "type": "note",
+              "isCollapsed": false,
+              "hasTriggerStep": false,
+              "hideInLogs": true,
+              "metadata": [],
+              "reusable": false,
+              "top": "1694",
+              "left": "540",
+              "height": "94",
+              "width": "440",
+              "uuid": "e75596cc-3939-52cb-907d-ebc343542cba",
+              "recordTags": []
+            }
+          ],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "bb3ddcd0-8a32-54bc-84ac-c6814eae070e",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}
