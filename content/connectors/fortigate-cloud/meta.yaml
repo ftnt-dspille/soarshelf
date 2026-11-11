@@ -1,6 +1,6 @@
 title: Manage cloud-managed firewalls, report schedules and backups
-summary: Add and manage devices, schedule reports, set config auto-backup, and call the FortiOS API through
-  FortiGate Cloud.
+summary: Add and manage devices, schedule reports, set config auto-backup, block or unblock IP addresses,
+  quarantine IPs, and call the FortiOS API through FortiGate Cloud.
 description: ''
 use_cases:
 - utility
@@ -9,9 +9,21 @@ tags:
 - firewall
 - cloud
 author: ftnt-dspille
-version: 1.0.0
+version: 1.2.0
 min_version: null
 license: MIT
 published: '2026-10-06'
 source: https://github.com/ftnt-dspille/connector-fortigate-cloud
 author_id: 99558074
+updated: '2026-11-03'
+changelog:
+- version: 1.2.0
+  date: '2026-11-03'
+  notes: 'Quarantine Monitor containment ops: quarantine IP (batch ban with expiry presets or custom duration), unquarantine IP, and list banned IPs.'
+- version: 1.1.0
+  date: '2026-11-02'
+  notes: 'Seven curated FortiOS proxy operations: system status, firewall address and policy listing,
+    address create/delete, and block/unblock IP.'
+- version: 1.0.0
+  date: '2026-10-06'
+  notes: First published.
