@@ -256,6 +256,9 @@ def atom_feed(events: list[dict[str, Any]], generated: str) -> str:
 
 
 def build(content: Path, out: Path) -> int:
+    if not content.is_dir():
+        print(f"✗ content folder not found: {content}")
+        return 1
     hub = hub_index()
     trust_map = load_trust(content)
     data_dir, dl_dir, icon_dir = out / "data", out / "downloads", out / "icons"

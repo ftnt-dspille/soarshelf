@@ -24,7 +24,7 @@ jobs:
           .venv/bin/soarshelf hub-index
           # The names the icons are needed for come from a build of the current content:
           # only what the site references is fetched and committed.
-          .venv/bin/soarshelf build --content content --out /tmp/site-static
+          .venv/bin/soarshelf build --content ../content --out /tmp/site-static
           .venv/bin/soarshelf hub-icons --index /tmp/site-static/data/index.json
       - name: Open PR if changed
         env:
