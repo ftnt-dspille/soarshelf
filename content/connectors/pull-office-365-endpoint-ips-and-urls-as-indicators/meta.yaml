@@ -1,0 +1,19 @@
+title: Pull Office 365 endpoint IPs and URLs as indicators
+summary: Pulls the public Office 365 endpoint feed as IP and URL indicators by region and service area,
+  with incremental pulls and a read-only feed request.
+description: ''
+use_cases:
+- ingestion
+- enrichment
+tags: []
+author: ftnt-dspille
+version: 2.0.1
+min_version: null
+license: MIT
+published: '2026-11-28'
+enhances:
+  connector: microsoft-office-365-feed
+  version: 1.0.0
+  changes: Typed operations with error mocks, an incremental pull that skips an unchanged feed, and a
+    read-only execute_api_request limited to the public feed.
+author_id: 99558074
