@@ -1,0 +1,458 @@
+{
+  "type": "workflow_collections",
+  "macros": [],
+  "exported_tags": [
+    "Microsoft",
+    "microsoft-office-365-feed-v2",
+    "use-case"
+  ],
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "SOC Use Cases - Microsoft Office 365 feed v2 (lab)",
+      "description": "Use cases for the Microsoft Office 365 endpoints feed connector (2.0.0): an incremental indicator pull that stops when the feed has not changed since the last pull, and a feed reachability probe that routes on HTTP status.",
+      "visible": true,
+      "image": null,
+      "uuid": "369ba70a-15e9-5a54-9a28-dcbcf4fab0b2",
+      "recordTags": [
+        "microsoft-office-365-feed-v2",
+        "Microsoft",
+        "use-case"
+      ],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "name": "Office 365 feed - Incremental indicator pull",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Pull the Office 365 IP and URL indicators for the configured region and services, but only if the feed was refreshed after last_pull_time. Routes to \"up to date\" when nothing changed, so a scheduled pull stays cheap.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "indicator_type",
+            "last_pull_time",
+            "limit"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/9b518962-1be0-5d39-b079-55be67989583",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "inputVariables": [
+                  {
+                    "name": "indicator_type"
+                  },
+                  {
+                    "name": "last_pull_time"
+                  },
+                  {
+                    "name": "limit"
+                  }
+                ],
+                "title": "Office 365 feed - Pull indicators",
+                "resources": [
+                  "alerts"
+                ],
+                "route": "bb5114b9-7510-50c5-9bd7-9e60e107df54",
+                "step_variables": {
+                  "input": {
+                    "params": {
+                      "indicator_type": "{{vars.request.data[\"indicator_type\"]}}",
+                      "last_pull_time": "{{vars.request.data[\"last_pull_time\"]}}",
+                      "limit": "{{vars.request.data[\"limit\"]}}"
+                    },
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false,
+                "noRecordExecution": true,
+                "singleRecordExecution": false,
+                "__triggerLimit": true,
+                "executeButtonText": "Execute",
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "9b518962-1be0-5d39-b079-55be67989583"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Fetch Indicators",
+              "description": null,
+              "arguments": {
+                "connector": "microsoft-office-365-feed-v2",
+                "operation": "fetch_indicator",
+                "config": "",
+                "params": {
+                  "indicator_type": "{{ vars.input.params.indicator_type }}",
+                  "last_pull_time": "{{ vars.input.params.last_pull_time }}",
+                  "limit": "{{ vars.input.params.limit }}"
+                },
+                "version": "2.0.1",
+                "name": "Microsoft Office 365 Feed (v2)",
+                "operationTitle": "Fetch Indicators",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "7a41b0ec-21db-5b38-9987-1800dcc5d7e6"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Route",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "up to date",
+                    "condition": "{{ vars.steps.Fetch_Indicators.data.up_to_date == true }}",
+                    "step_iri": "/api/3/workflow_steps/7532123c-acd9-5fc9-bf0e-c6a3ddb8da42",
+                    "step_name": "Up To Date"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/dcd4bde2-f879-57fc-b195-afb34f7b7ff9",
+                    "step_name": "Indicators Fetched"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "b9862de9-2944-53a3-841c-6dd302dc5849"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Up To Date",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "config": "",
+                "params": {},
+                "version": "3.7.3",
+                "name": "Utilities",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "7532123c-acd9-5fc9-bf0e-c6a3ddb8da42"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Indicators Fetched",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "config": "",
+                "params": {},
+                "version": "3.7.3",
+                "name": "Utilities",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "510",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "dcd4bde2-f879-57fc-b195-afb34f7b7ff9"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Fetch Indicators",
+              "targetStep": "/api/3/workflow_steps/7a41b0ec-21db-5b38-9987-1800dcc5d7e6",
+              "sourceStep": "/api/3/workflow_steps/9b518962-1be0-5d39-b079-55be67989583",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e8e43b29-20d2-541b-a8dc-d785b993ecc7"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Fetch Indicators -> Route",
+              "targetStep": "/api/3/workflow_steps/b9862de9-2944-53a3-841c-6dd302dc5849",
+              "sourceStep": "/api/3/workflow_steps/7a41b0ec-21db-5b38-9987-1800dcc5d7e6",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "e49d0217-a0a0-52df-a58e-3d2e3cfc8cc2"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Route -> Up To Date",
+              "targetStep": "/api/3/workflow_steps/7532123c-acd9-5fc9-bf0e-c6a3ddb8da42",
+              "sourceStep": "/api/3/workflow_steps/b9862de9-2944-53a3-841c-6dd302dc5849",
+              "label": "up to date",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6df6fa4e-fd0f-57dc-8dfb-e03992750e01"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Route -> Indicators Fetched",
+              "targetStep": "/api/3/workflow_steps/dcd4bde2-f879-57fc-b195-afb34f7b7ff9",
+              "sourceStep": "/api/3/workflow_steps/b9862de9-2944-53a3-841c-6dd302dc5849",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "647825ee-8e89-5f83-89ba-f653a7fff1b2"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "67be4851-b7be-570d-848e-ea64cfdb62ae",
+          "isPrivate": false
+        },
+        {
+          "@type": "Workflow",
+          "name": "Office 365 feed - Reachability probe",
+          "aliasName": null,
+          "tag": "",
+          "recordTags": [],
+          "description": "Send a read-only request to the public feed (for example /version/Worldwide) and route on the HTTP status. Used to tell a feed outage from a bad indicator pull before the scheduled ingest fails.",
+          "isActive": false,
+          "debug": false,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": 0,
+          "parameters": [
+            "endpoint"
+          ],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/e2255312-6613-52b6-ab2a-1c10609ff282",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start",
+              "description": null,
+              "arguments": {
+                "inputVariables": [
+                  {
+                    "name": "endpoint"
+                  }
+                ],
+                "title": "Office 365 feed - Probe endpoint",
+                "resources": [
+                  "alerts"
+                ],
+                "route": "d9462a65-c986-5a89-948b-45de7781ebe6",
+                "step_variables": {
+                  "input": {
+                    "params": {
+                      "endpoint": "{{vars.request.data[\"endpoint\"]}}"
+                    },
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "triggerOnSource": true,
+                "triggerOnReplicate": false,
+                "noRecordExecution": true,
+                "singleRecordExecution": false,
+                "__triggerLimit": true,
+                "executeButtonText": "Execute",
+                "showToasterMessage": {
+                  "visible": false,
+                  "messageVisible": true
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                }
+              },
+              "status": null,
+              "top": "120",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "e2255312-6613-52b6-ab2a-1c10609ff282"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Probe Endpoint",
+              "description": null,
+              "arguments": {
+                "connector": "microsoft-office-365-feed-v2",
+                "operation": "execute_api_request",
+                "config": "",
+                "params": {
+                  "endpoint": "{{ vars.input.params.endpoint }}"
+                },
+                "version": "2.0.1",
+                "name": "Microsoft Office 365 Feed (v2)",
+                "operationTitle": "Execute API Request",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "250",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "a2107167-9957-5dd8-bc45-8c4370bf2854"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Route",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "reachable",
+                    "condition": "{{ vars.steps.Probe_Endpoint.data.status_code == 200 }}",
+                    "step_iri": "/api/3/workflow_steps/46e0e688-a7c7-5457-a70b-0dc4a8b0961c",
+                    "step_name": "Feed Reachable"
+                  },
+                  {
+                    "option": "Else",
+                    "default": true,
+                    "step_iri": "/api/3/workflow_steps/1a307aa7-def2-581c-8128-dbc4d8e403da",
+                    "step_name": "Feed Error"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "380",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "dfb99561-165a-5dba-903e-b77ee79b6c13"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Feed Reachable",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "config": "",
+                "params": {},
+                "version": "3.7.3",
+                "name": "Utilities",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "510",
+              "left": "200",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "46e0e688-a7c7-5457-a70b-0dc4a8b0961c"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Feed Error",
+              "description": null,
+              "arguments": {
+                "connector": "cyops_utilities",
+                "operation": "no_op",
+                "config": "",
+                "params": {},
+                "version": "3.7.3",
+                "name": "Utilities",
+                "operationTitle": "Utils: No Operation",
+                "step_variables": [],
+                "pickFromTenant": false
+              },
+              "status": null,
+              "top": "510",
+              "left": "540",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "1a307aa7-def2-581c-8128-dbc4d8e403da"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start -> Probe Endpoint",
+              "targetStep": "/api/3/workflow_steps/a2107167-9957-5dd8-bc45-8c4370bf2854",
+              "sourceStep": "/api/3/workflow_steps/e2255312-6613-52b6-ab2a-1c10609ff282",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "f7cfad35-96f9-5c88-91f9-914f53a7269f"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Probe Endpoint -> Route",
+              "targetStep": "/api/3/workflow_steps/dfb99561-165a-5dba-903e-b77ee79b6c13",
+              "sourceStep": "/api/3/workflow_steps/a2107167-9957-5dd8-bc45-8c4370bf2854",
+              "label": null,
+              "isExecuted": false,
+              "group": null,
+              "uuid": "7c7e735f-2019-57e7-bf17-0826d51fd7dc"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Route -> Feed Reachable",
+              "targetStep": "/api/3/workflow_steps/46e0e688-a7c7-5457-a70b-0dc4a8b0961c",
+              "sourceStep": "/api/3/workflow_steps/dfb99561-165a-5dba-903e-b77ee79b6c13",
+              "label": "reachable",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "6cad0ddd-7c7e-587e-acc9-53f1bf479e7b"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Route -> Feed Error",
+              "targetStep": "/api/3/workflow_steps/1a307aa7-def2-581c-8128-dbc4d8e403da",
+              "sourceStep": "/api/3/workflow_steps/dfb99561-165a-5dba-903e-b77ee79b6c13",
+              "label": "Else",
+              "isExecuted": false,
+              "group": null,
+              "uuid": "bdd56a1c-88ad-56a5-9c7d-19740d83c180"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+          "isEditable": true,
+          "uuid": "c50c2c4d-482d-5ed8-9cd5-ec3a23a1d9d2",
+          "isPrivate": false
+        }
+      ]
+    }
+  ]
+}
