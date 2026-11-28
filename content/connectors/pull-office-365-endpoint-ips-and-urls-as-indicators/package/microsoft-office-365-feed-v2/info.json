@@ -1,0 +1,177 @@
+{
+  "name": "microsoft-office-365-feed-v2",
+  "label": "Microsoft Office 365 Feed (v2)",
+  "version": "2.0.1",
+  "description": "Microsoft Office 365 endpoint feed (public, anonymous). Fetches IP and URL indicators by region and service area, incremental pulls by feed version, and a generic read-only execute_api_request limited to the public endpoints feed.",
+  "publisher": "Fortinet",
+  "cs_approved": true,
+  "cs_compatible": true,
+  "category": "Threat Intelligence",
+  "icon_small_name": "office365_feed_32x32.png",
+  "icon_large_name": "office365_feed_80x80.png",
+  "ingestion_supported": true,
+  "ingestion_modes": [
+    "scheduled"
+  ],
+  "ingestion_preferences": {
+    "modules": [
+      "threat_intel_feeds",
+      "indicators"
+    ]
+  },
+  "tags": [
+    "ThreatIntel"
+  ],
+  "help_online": "https://docs.fortinet.com/document/fortisoar/1.0.0/microsoft-office-365-feed/245/microsoft-office-365-feed-v1-0-0",
+  "configuration": {
+    "fields": [
+      {
+        "title": "Regions",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "type": "select",
+        "value": "Worldwide",
+        "options": [
+          "China",
+          "Germany",
+          "USGovDoD",
+          "USGovGCCHigh",
+          "Worldwide"
+        ],
+        "description": "Select the regions from where you want to fetch indicators. You can select multiple regions. If you want to retrieve indicators from all regions, then you need to individually select each region.",
+        "name": "regions"
+      },
+      {
+        "title": "Services",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "type": "multiselect",
+        "value": "All",
+        "options": [
+          "Common",
+          "Exchange",
+          "Sharepoint",
+          "Skype",
+          "All"
+        ],
+        "description": "Select the services for which you want to fetch indicators. If you want to retrieve indicators for all services, select the “All” option.",
+        "name": "services"
+      },
+      {
+        "title": "Verify SSL",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "type": "checkbox",
+        "name": "verify_ssl",
+        "description": "Specifies whether the SSL certificate for the server is to be verified or not. By default, this option is set as True. ",
+        "value": true
+      }
+    ]
+  },
+  "operations": [
+    {
+      "operation": "fetch_indicator",
+      "title": "Fetch Indicators",
+      "description": "Fetch indicators for an IP Address or a URL or both from the Microsoft Office 365 Feeds.",
+      "category": "investigation",
+      "annotation": "fetch_indicators",
+      "enabled": true,
+      "parameters": [
+        {
+          "title": "Indicator Type",
+          "name": "indicator_type",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "type": "select",
+          "options": [
+            "IPs",
+            "URLs",
+            "Both"
+          ],
+          "description": "Kind of indicators to return from the Office 365 endpoints feed. IPs returns IP addresses, URLs returns URLs, Both returns both (default).",
+          "value": "Both",
+          "tooltip": "Which indicators to return: IP addresses, URLs, or both."
+        },
+        {
+          "title": "Modified After",
+          "name": "last_pull_time",
+          "visible": true,
+          "required": false,
+          "editable": true,
+          "type": "datetime",
+          "tooltip": "Skip the fetch when the feed has not changed since this time.",
+          "description": "(Optional) Time of the last successful pull, as epoch seconds or ISO 8601 UTC. When the feed has not changed since then, the operation returns \"up to date\" without the feed. Leave empty to always fetch."
+        },
+        {
+          "title": "Limit",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "type": "integer",
+          "name": "limit",
+          "description": "Maximum number of indicators to return. Default 10; leave empty to return every indicator in the feed.",
+          "value": 10,
+          "tooltip": "Most indicators to return (empty returns all)."
+        }
+      ],
+      "output_schema": {
+        "lastUpdated": "",
+        "region": "",
+        "feedURL": "",
+        "indicators": [
+          {
+            "value": "",
+            "type": "",
+            "id": "",
+            "serviceArea": "",
+            "serviceAreaDisplayName": "",
+            "tcpPorts": "",
+            "udpPorts": "",
+            "expressRoute": "",
+            "category": "",
+            "required": ""
+          }
+        ]
+      }
+    },
+    {
+      "operation": "execute_api_request",
+      "title": "Execute API Request",
+      "description": "Send a read-only GET to the public Office 365 endpoints feed (/version or /endpoints paths only). No authentication: the feed is anonymous, so the connector's auth is not used.",
+      "category": "investigation",
+      "annotation": "execute_api_request",
+      "enabled": true,
+      "parameters": [
+        {
+          "title": "Endpoint path",
+          "name": "endpoint",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "type": "text",
+          "description": "Path under the feed host, for example /version/Worldwide or /endpoints/Worldwide. Must start with /version/ or /endpoints/.",
+          "placeholder": "/version/Worldwide",
+          "tooltip": "Feed path: /version/<region> or /endpoints/<region>."
+        },
+        {
+          "title": "Query parameters",
+          "name": "query",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "type": "dict",
+          "description": "Extra query string parameters. ClientRequestId is added automatically if absent.",
+          "tooltip": "Extra query string parameters as a JSON object."
+        }
+      ],
+      "output_schema": {
+        "status_code": 0,
+        "body": {}
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+title: 'Office 365 endpoint feed: pull indicators and probe the feed'
+summary: 'Two use cases for the Office 365 endpoint feed: an incremental indicator pull that stops when
+  the feed is unchanged, and a reachability probe that routes on HTT'
+description: |
+  Needs the "Pull Office 365 endpoint IPs and URLs as indicators" connector from this catalogue (microsoft-office-365-feed-v2, 2.0.1), installed and configured with a region.
+
+  The incremental pull fetches IP and URL indicators for the configured region and service areas. When the feed has not changed since last_pull_time it routes to "Up To Date" and fetches nothing.
+
+  The reachability probe sends a read-only request to the public feed (for example /version/Worldwide) and routes on the HTTP status.
+use_cases:
+- ingestion
+- utility
+tags: []
+author: ftnt-dspille
+version: 1.0.0
+min_version: null
+license: MIT
+published: '2026-11-28'
+author_id: 99558074
+tested:
+- platform: 8.0.1
+  version: 1.0.0
+  sha256: 2ce93a1abfe82c1d7aa3861d3900d27a3f3e7a58b59c306abfb021d3d21a931f
+  result: ran
+  playbooks:
+  - Office 365 feed - Incremental indicator pull
+  - Office 365 feed - Reachability probe
+  notes: 'Live-verified on 8.0.1 against the 2.0.1 connector: all four branches (indicators fetched, up
+    to date, feed reachable, feed error) ran to their end step.'
